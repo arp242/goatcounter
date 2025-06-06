@@ -9,13 +9,13 @@ import (
 	"zgo.at/bgrun"
 	"zgo.at/goatcounter/v2"
 	"zgo.at/goatcounter/v2/cron"
+	"zgo.at/goatcounter/v2/log"
 	"zgo.at/goatcounter/v2/metrics"
 	"zgo.at/guru"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zhttp/auth"
 	"zgo.at/zhttp/mware"
-	"zgo.at/zlog"
 	"zgo.at/zprof"
 	"zgo.at/zstd/zcontext"
 	"zgo.at/zstd/znet"
@@ -87,10 +87,11 @@ func (h bosmang) runTask(w http.ResponseWriter, r *http.Request) error {
 
 	t := cron.Tasks[taskID]
 	id := t.ID()
+	ctx := zcontext.WithoutTimeout(r.Context())
 	bgrun.RunFunction("manual:"+id, func() {
-		err := t.Fun(zcontext.WithoutTimeout(r.Context()))
+		err := t.Fun(ctx)
 		if err != nil {
-			zlog.Error(err)
+			log.Error(ctx, err)
 		}
 	})
 

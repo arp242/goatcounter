@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"html/template"
 	"net/http"
@@ -12,9 +13,12 @@ import (
 	"github.com/sethvargo/go-limiter"
 	"github.com/sethvargo/go-limiter/memorystore"
 	"zgo.at/goatcounter/v2"
+	"zgo.at/goatcounter/v2/log"
+	"zgo.at/json"
 	"zgo.at/z18n"
 	"zgo.at/zhttp"
 	"zgo.at/zstd/zfs"
+	"zgo.at/ztpl"
 )
 
 func mustNewMem(tokens uint64, interval time.Duration) limiter.Store {
@@ -164,4 +168,83 @@ func NewStatic(r chi.Router, dev, goatcounterCom bool, basePath string) chi.Rout
 		s.ServeHTTP(w, r)
 	})
 	return r
+}
+
+// Identical to the default errpage, but replaces slog calls with our log calls.
+func ErrPage(w http.ResponseWriter, r *http.Request, reported error) {
+	if reported == nil {
+		return
+	}
+	hasStatus := true
+	if ww, ok := w.(statusWriter); !ok || ww.Status() == 0 {
+		hasStatus = false
+	}
+
+	code, userErr := zhttp.UserError(reported)
+	if code >= 500 {
+		l := log.Module("http-500")
+		l = l.With("code", zhttp.UserErrorCode(reported))
+
+		sErr := new(interface{ StackTrace() string })
+		if errors.As(reported, sErr) {
+			reported = errors.Unwrap(reported)
+			l = l.With("stacktrace", "\n"+(*sErr).StackTrace())
+		}
+		l.Error(r.Context(), reported, log.AttrHTTP(r))
+	}
+
+	ct := strings.ToLower(r.Header.Get("Content-Type"))
+	switch {
+	case strings.HasPrefix(ct, "application/json"):
+		if !hasStatus {
+			w.WriteHeader(code)
+		}
+
+		var (
+			j   []byte
+			err error
+		)
+
+		if jErr, ok := userErr.(json.Marshaler); ok {
+			j, err = jErr.MarshalJSON()
+		} else if jErr, ok := userErr.(interface{ ErrorJSON() ([]byte, error) }); ok {
+			j, err = jErr.ErrorJSON()
+		} else {
+			j, err = json.Marshal(map[string]string{"error": userErr.Error()})
+		}
+		if err != nil {
+			log.Error(r.Context(), err, log.AttrHTTP(r))
+		}
+		w.Write(j)
+
+	case strings.HasPrefix(ct, "text/plain"):
+		if !hasStatus {
+			w.WriteHeader(code)
+		}
+		fmt.Fprintf(w, "Error %d: %s", code, userErr)
+
+	case !hasStatus && r.Referer() != "" && ct == "application/x-www-form-urlencoded" || strings.HasPrefix(ct, "multipart/"):
+		zhttp.FlashError(w, userErr.Error())
+		zhttp.SeeOther(w, r.Referer())
+
+	default:
+		if !hasStatus {
+			w.WriteHeader(code)
+		}
+
+		if !ztpl.HasTemplate("error.gohtml") {
+			fmt.Fprintf(w, "<pre>Error %d: %s</pre>", code, userErr)
+			return
+		}
+
+		err := ztpl.Execute(w, "error.gohtml", struct {
+			Code  int
+			Error error
+			Base  string
+			Path  string
+		}{code, userErr, zhttp.BasePath, r.URL.Path})
+		if err != nil {
+			log.Error(r.Context(), err, log.AttrHTTP(r))
+		}
+	}
 }

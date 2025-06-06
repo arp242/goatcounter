@@ -21,9 +21,9 @@ import (
 	"github.com/boombuler/barcode/qr"
 	"github.com/russross/blackfriday/v2"
 	"zgo.at/errors"
+	"zgo.at/goatcounter/v2/log"
 	"zgo.at/z18n"
 	"zgo.at/zhttp"
-	"zgo.at/zlog"
 	"zgo.at/zstd/zfs"
 	"zgo.at/zstd/zstring"
 	"zgo.at/zstd/ztime"
@@ -120,7 +120,7 @@ func init() {
 		var s Site
 		err := s.ByID(ctx, *id)
 		if err != nil {
-			zlog.Error(err)
+			log.Error(ctx, err)
 			return ""
 		}
 		return s.URL(ctx)
@@ -319,20 +319,20 @@ func init() {
 			fmt.Sprintf("otpauth://totp/GoatCounter:%s?secret=%s&issuer=GoatCounter", email, s),
 			qr.M, qr.Auto)
 		if err != nil {
-			zlog.Error(errors.Wrap(err, "encoding QR code"))
+			log.Error(context.Background(), errors.Wrap(err, "encoding QR code"))
 			return template.HTML("Error generating the QR code; this has been logged for investigation.")
 		}
 
 		qrCode, err = barcode.Scale(qrCode, 200, 200)
 		if err != nil {
-			zlog.Error(errors.Wrap(err, "scaling QR code"))
+			log.Error(context.Background(), errors.Wrap(err, "scaling QR code"))
 			return template.HTML("Error generating the QR code; this has been logged for investigation.")
 		}
 
 		buf := bytes.NewBufferString("data:image/png;base64,")
 		err = png.Encode(base64.NewEncoder(base64.StdEncoding, buf), qrCode)
 		if err != nil {
-			zlog.Error(errors.Wrap(err, "encoding QR code as PNG"))
+			log.Error(context.Background(), errors.Wrap(err, "encoding QR code as PNG"))
 			return template.HTML("Error generating the QR code; this has been logged for investigation.")
 		}
 

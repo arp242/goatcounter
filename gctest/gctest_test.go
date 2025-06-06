@@ -5,13 +5,13 @@ import (
 	"testing"
 
 	"zgo.at/goatcounter/v2"
+	"zgo.at/goatcounter/v2/log"
 	"zgo.at/zdb"
-	"zgo.at/zlog"
 	"zgo.at/zstd/ztype"
 )
 
 func TestDB(t *testing.T) {
-	zlog.SetDebug("gctest")
+	log.SetDebug([]string{"gctest"})
 	t.Run("", func(t *testing.T) {
 		fmt.Println("Run 1")
 		DB(t)

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"io/fs"
+	"log/slog"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -17,9 +18,9 @@ import (
 	"zgo.at/blackmail"
 	"zgo.at/goatcounter/v2"
 	"zgo.at/goatcounter/v2/gctest"
+	"zgo.at/goatcounter/v2/log"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
-	"zgo.at/zlog"
 	"zgo.at/zstd/zgo"
 	"zgo.at/zstd/zjson"
 	"zgo.at/zstd/zruntime"
@@ -55,9 +56,9 @@ func init() {
 
 	ztest.DefaultHost = "test.example.com"
 	if zruntime.TestVerbose() {
-		zlog.Config.Debug = []string{"all"}
+		log.SetDebug([]string{"all"})
 	} else {
-		zlog.Config.Outputs = []zlog.OutputFunc{} // Don't care about logs; don't spam.
+		slog.SetDefault(slog.New(slog.DiscardHandler)) // Don't care about logs; don't spam.
 	}
 }
 

@@ -8,8 +8,8 @@ import (
 
 	"zgo.at/errors"
 	"zgo.at/goatcounter/v2"
+	"zgo.at/goatcounter/v2/log"
 	"zgo.at/z18n"
-	"zgo.at/zlog"
 	"zgo.at/zstd/ztime"
 )
 
@@ -71,7 +71,7 @@ func (w *Pages) GetData(ctx context.Context, a Args) (bool, error) {
 	if a.ShowRefs > 0 {
 		wg.Add(1)
 		go func() {
-			defer zlog.Recover()
+			defer log.Recover(ctx)
 			defer wg.Done()
 			errs.Append(w.Refs.ListRefsByPathID(ctx, a.ShowRefs, a.Rng, w.LimitRefs, a.Offset))
 		}()

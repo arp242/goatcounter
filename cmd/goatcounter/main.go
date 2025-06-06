@@ -4,9 +4,9 @@ import (
 	"context"
 	"fmt"
 	"io/fs"
+	"log/slog"
 	"os"
 	"runtime"
-	"slices"
 	"strconv"
 	"strings"
 	"sync"
@@ -15,12 +15,15 @@ import (
 	"zgo.at/errors"
 	"zgo.at/goatcounter/v2"
 	"zgo.at/goatcounter/v2/db/migrate/gomig"
+	"zgo.at/goatcounter/v2/log"
+	"zgo.at/jfmt"
+	"zgo.at/json"
+	"zgo.at/slog_align"
 	"zgo.at/zdb"
 	"zgo.at/zdb/drivers"
 	"zgo.at/zdb/drivers/go-sqlite3"
 	_ "zgo.at/zdb/drivers/pq"
 	"zgo.at/zli"
-	"zgo.at/zlog"
 	"zgo.at/zstd/zfs"
 	"zgo.at/zstd/zruntime"
 	"zgo.at/zstd/zslice"
@@ -38,6 +41,7 @@ func main() {
 		ready = make(chan struct{}, 1)
 		stop  = make(chan struct{}, 1)
 	)
+	slog.SetDefault(slog.New(slog_align.NewAlignedHandler(os.Stdout, nil)))
 	cmdMain(f, ready, stop)
 }
 
@@ -70,7 +74,34 @@ func cmdMain(f zli.Flags, ready chan<- struct{}, stop chan struct{}) {
 	case "", "help":
 		run = cmdHelp
 	case "version":
-		fmt.Fprintln(zli.Stdout, getVersion())
+		var (
+			jsonFlag = f.Bool(false, "json")
+		)
+		if err := f.Parse(); err != nil {
+			zli.F(err)
+		}
+		if jsonFlag.Bool() {
+			j, err := json.Marshal(map[string]any{
+				"version": goatcounter.Version,
+				"go":      runtime.Version(),
+				"GOOS":    runtime.GOOS,
+				"GOARCH":  runtime.GOARCH,
+				"race":    zruntime.Race,
+				"cgo":     zruntime.CGO,
+			})
+			if err != nil {
+				panic(err)
+			}
+			jj, err := jfmt.NewFormatter(80, "", "  ").FormatString(string(j))
+			if err != nil {
+				panic(err)
+			}
+			fmt.Print(jj)
+		} else {
+			fmt.Printf("version=%s; go=%s; GOOS=%s; GOARCH=%s; race=%t; cgo=%t\n",
+				goatcounter.Version, runtime.Version(), runtime.GOOS, runtime.GOARCH,
+				zruntime.Race, zruntime.CGO)
+		}
 		zli.Exit(0)
 		return
 
@@ -117,7 +148,7 @@ func cmdMain(f zli.Flags, ready chan<- struct{}, stop chan struct{}) {
 
 	err = run(f, ready, stop)
 	if err != nil {
-		if !slices.Contains(zlog.Config.Debug, "cli-trace") {
+		if !log.HasDebug("cli-trace") {
 			for {
 				var s *errors.StackErr
 				if !errors.As(err, &s) {
@@ -155,7 +186,8 @@ func cmdMain(f zli.Flags, ready chan<- struct{}, stop chan struct{}) {
 func connectDB(connect, dbConn string, migrate []string, create, dev bool) (zdb.DB, context.Context, error) {
 	if strings.Contains(connect, "://") && !strings.Contains(connect, "+") {
 		connect = strings.Replace(connect, "://", "+", 1)
-		zlog.Errorf(`WARNING: the connection string for -db changed from "engine://connectString" to "engine+connectString"; the ://-variant will work for now, but will be removed in a future release`)
+		log.Errorf(context.Background(),
+			`WARNING: the connection string for -db changed from "engine://connectString" to "engine+connectString"; the ://-variant will work for now, but will be removed in a future release`)
 	}
 
 	var open, idle int
@@ -190,11 +222,11 @@ func connectDB(connect, dbConn string, migrate []string, create, dev bool) (zdb.
 		Create:       create,
 		MaxOpenConns: open,
 		MaxIdleConns: idle,
-		MigrateLog:   func(name string) { zlog.Printf("running migration %q", name) },
+		MigrateLog:   func(name string) { log.Infof(context.Background(), "running migration %q", name) },
 	})
 	var pErr *zdb.PendingMigrationsError
 	if errors.As(err, &pErr) {
-		zlog.Errorf("%s; continuing but things may be broken", err)
+		log.Errorf(context.Background(), "%s; continuing but things may be broken", err)
 		err = nil
 	}
 
@@ -223,11 +255,11 @@ func connectDB(connect, dbConn string, migrate []string, create, dev bool) (zdb.
 	ins := func() {
 		langs, err := fs.ReadFile(goatcounter.DB, "db/languages.sql")
 		if err != nil {
-			zlog.Errorf("unable to populate languages: %s", err)
+			log.Errorf(context.Background(), "unable to populate languages: %s", err)
 		}
 		err = db.Exec(context.Background(), string(langs))
 		if err != nil {
-			zlog.Errorf("unable to populate languages: %s", err)
+			log.Errorf(context.Background(), "unable to populate languages: %s", err)
 		}
 	}
 	if db.SQLDialect() == zdb.DialectPostgreSQL {
@@ -238,8 +270,29 @@ func connectDB(connect, dbConn string, migrate []string, create, dev bool) (zdb.
 	return db, goatcounter.NewContext(db), nil
 }
 
-func getVersion() string {
-	return fmt.Sprintf("version=%s; go=%s; GOOS=%s; GOARCH=%s; race=%t; cgo=%t",
-		goatcounter.Version, runtime.Version(), runtime.GOOS, runtime.GOARCH,
-		zruntime.Race, zruntime.CGO)
+func setupLog(dev, asJSON bool, debug []string) {
+	o := &slog.HandlerOptions{
+		// Our log package takes care of suppressing debug logs.
+		Level:     slog.LevelDebug,
+		AddSource: true,
+		ReplaceAttr: func(groups []string, a slog.Attr) slog.Attr {
+			if a.Key == "module" || a.Key == "_err" {
+				return slog.Attr{}
+			}
+			return a
+		},
+	}
+	var handler slog.Handler
+	if asJSON {
+		handler = slog.NewJSONHandler(os.Stdout, o)
+	} else {
+		h := slog_align.NewAlignedHandler(os.Stdout, o)
+		if !dev {
+			h.SetTimeFormat("Jan _2 15:04:05 ")
+		}
+		handler = h
+	}
+
+	log.SetDebug(debug)
+	slog.SetDefault(slog.New(handler))
 }

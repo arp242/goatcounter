@@ -7,9 +7,9 @@ import (
 	"github.com/go-chi/chi/v5"
 	"zgo.at/goatcounter/v2"
 	"zgo.at/goatcounter/v2/handlers"
+	"zgo.at/goatcounter/v2/log"
 	"zgo.at/zhttp"
 	"zgo.at/zli"
-	"zgo.at/zlog"
 	"zgo.at/zstd/znet"
 	"zgo.at/zvalidate"
 )
@@ -36,7 +36,7 @@ func cmdSaas(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 	var (
 		domain = f.String("goatcounter.localhost:8081,static.goatcounter.localhost:8081", "domain").Pointer()
 	)
-	dbConnect, dbConn, dev, automigrate, listen, flagTLS, from, websocket, apiMax, ratelimits, err := flagsServe(f, &v)
+	dbConnect, dbConn, dev, automigrate, listen, flagTLS, from, websocket, apiMax, ratelimits, geomd, err := flagsServe(f, &v)
 	if err != nil {
 		return err
 	}
@@ -83,7 +83,9 @@ func cmdSaas(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 		}
 
 		return doServe(ctx, db, listen, listenTLS, tlsc, hosts, stop, func() {
-			zlog.Printf("serving %q on %q; dev=%t", domain, listen, dev)
+			log.Module("startup").Info(ctx, "GoatCounter ready", startupAttr(geomd, listen, dev,
+				"domain", domain,
+			)...)
 			ready <- struct{}{}
 		})
 	}(*domain)

@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"zgo.at/bgrun"
-	"zgo.at/zlog"
+	"zgo.at/goatcounter/v2/log"
 	"zgo.at/zstd/zruntime"
 	"zgo.at/zstd/zsync"
 )
@@ -55,7 +55,7 @@ func Start(ctx context.Context) {
 	}
 	started.Set(1)
 
-	l := zlog.Module("cron")
+	l := log.Module("cron")
 
 	for _, t := range Tasks {
 		t := t
@@ -63,7 +63,7 @@ func Start(ctx context.Context) {
 		bgrun.NewTask("cron:"+f, 1, func(context.Context) error {
 			err := t.Fun(ctx)
 			if err != nil {
-				l.Error(err)
+				l.Error(ctx, err)
 			}
 			return nil
 		})
@@ -71,7 +71,7 @@ func Start(ctx context.Context) {
 
 	for _, t := range Tasks {
 		go func(t Task) {
-			defer zlog.Recover()
+			defer log.Recover(ctx)
 			id := t.ID()
 
 			for {
@@ -86,7 +86,7 @@ func Start(ctx context.Context) {
 
 				err := bgrun.RunTask("cron:" + id)
 				if err != nil {
-					zlog.Error(err)
+					log.Error(ctx, err)
 				}
 			}
 		}(t)

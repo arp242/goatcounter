@@ -30,16 +30,17 @@ require (
 	zgo.at/gadget v1.0.0
 	zgo.at/guru v1.2.0
 	zgo.at/isbot v1.0.0
+	zgo.at/jfmt v0.0.0-20240726113937-e6436421fade
 	zgo.at/json v0.0.0-20221020004326-fe4f75bb278e
+	zgo.at/slog_align v0.0.0-20250607115149-1f10c1d07000
 	zgo.at/termtext v1.5.0
 	zgo.at/tz v0.0.0-20240819050900-3c7bf6122612
 	zgo.at/z18n v0.0.0-20240522230155-4d5af439f8c4
 	zgo.at/zcache v1.2.0
 	zgo.at/zcache/v2 v2.1.0
 	zgo.at/zdb v0.0.0-20250528164418-859852b74fef
-	zgo.at/zhttp v0.0.0-20250603222617-437529f57d67
+	zgo.at/zhttp v0.0.0-20250606234350-7e8bad41bf7d
 	zgo.at/zli v0.0.0-20250601161843-debde58580f1
-	zgo.at/zlog v0.0.0-20211017235224-dd4772ddf860
 	zgo.at/zprof v0.0.0-20211217104121-c3c12596d8f0
 	zgo.at/zstd v0.0.0-20250313035723-1ece53b5d53e
 	zgo.at/ztpl v0.0.0-20250522073924-f73b178f1791

@@ -22,11 +22,11 @@ import (
 	"zgo.at/goatcounter/v2"
 	"zgo.at/goatcounter/v2/acme"
 	"zgo.at/goatcounter/v2/cron"
+	"zgo.at/goatcounter/v2/log"
 	"zgo.at/guru"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zhttp/header"
-	"zgo.at/zlog"
 	"zgo.at/zstd/zint"
 	"zgo.at/zstd/zruntime"
 	"zgo.at/zstd/ztime"
@@ -190,13 +190,13 @@ func (h settings) mainSave(w http.ResponseWriter, r *http.Request) error {
 		bgrun.RunFunction(fmt.Sprintf("acme.Make:%s", args.Cname), func() {
 			err := acme.Make(ctx, args.Cname)
 			if err != nil {
-				zlog.Field("domain", args.Cname).Error(err)
+				log.Error(ctx, err, "domain", args.Cname)
 				return
 			}
 
 			err = site.UpdateCnameSetupAt(ctx)
 			if err != nil {
-				zlog.Field("domain", args.Cname).Error(err)
+				log.Error(ctx, err, "domain", args.Cname)
 			}
 		})
 	}
@@ -382,7 +382,7 @@ func (h settings) sitesRemove(w http.ResponseWriter, r *http.Request) error {
 		var parent goatcounter.Site
 		err = parent.ByID(r.Context(), *s.Parent)
 		if err != nil {
-			zlog.Error(err)
+			log.Error(r.Context(), err)
 			return zhttp.SeeOther(w, "/")
 		}
 		return zhttp.SeeOther(w, parent.URL(r.Context()))
@@ -476,7 +476,7 @@ func (h settings) purgeDo(w http.ResponseWriter, r *http.Request) error {
 		var list goatcounter.Hits
 		err := list.Purge(ctx, paths)
 		if err != nil {
-			zlog.Error(err)
+			log.Error(ctx, err)
 		}
 	})
 
@@ -514,7 +514,7 @@ func (h settings) merge(w http.ResponseWriter, r *http.Request) error {
 	bgrun.RunFunction(fmt.Sprintf("merge:%d", Site(ctx).ID), func() {
 		err := p.Merge(ctx, merge)
 		if err != nil {
-			zlog.Error(err)
+			log.Error(ctx, err)
 		}
 	})
 
@@ -615,7 +615,7 @@ func (h settings) exportImport(w http.ResponseWriter, r *http.Request) error {
 			if n%5000 == 0 {
 				err := cron.TaskPersistAndStat()
 				if err != nil {
-					zlog.Error(err)
+					log.Error(ctx, err)
 				}
 				cron.WaitPersistAndStat()
 			}
@@ -631,14 +631,14 @@ func (h settings) exportImport(w http.ResponseWriter, r *http.Request) error {
 				blackmail.HeadersAutoreply(),
 				blackmail.BodyMustText(goatcounter.TplEmailImportError{r.Context(), err}.Render))
 			if sendErr != nil {
-				zlog.Error(sendErr)
+				log.Error(ctx, sendErr)
 			}
 		}
 
 		if firstHitAt != nil && !firstHitAt.IsZero() {
 			err := Site(ctx).UpdateFirstHitAt(ctx, *firstHitAt)
 			if err != nil {
-				zlog.Error(err)
+				log.Error(ctx, err)
 			}
 		}
 	})
@@ -766,7 +766,7 @@ func (h settings) usersForm(newUser *goatcounter.User, pErr error) zhttp.Handler
 			pErr = nil
 		}
 		if pErr != nil {
-			zlog.Error(pErr)
+			log.Error(r.Context(), pErr)
 			var code int
 			code, pErr = zhttp.UserError(pErr)
 			w.WriteHeader(code)
@@ -829,7 +829,7 @@ func (h settings) usersAdd(w http.ResponseWriter, r *http.Request) error {
 			blackmail.BodyMustText(goatcounter.TplEmailAddUser{ctx, *account, newUser, goatcounter.GetUser(ctx).Email}.Render),
 		)
 		if err != nil {
-			zlog.Errorf(": %s", err)
+			log.Errorf(ctx, ": %s", err)
 		}
 	})
 

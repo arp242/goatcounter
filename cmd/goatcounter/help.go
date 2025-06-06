@@ -79,6 +79,10 @@ var usage = map[string]string{
 	"version": `
 Show version and build information. This is printed as key=value, separated by
 semicolons.
+
+Flags:
+
+  -json        Output version as JSON.
 `,
 }
 

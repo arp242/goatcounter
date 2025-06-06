@@ -10,9 +10,9 @@ import (
 	"sync"
 	"time"
 
+	"zgo.at/goatcounter/v2/log"
 	"zgo.at/json"
 	"zgo.at/zdb"
-	"zgo.at/zlog"
 	"zgo.at/zstd/zbool"
 	"zgo.at/zstd/zint"
 	"zgo.at/zstd/ztime"
@@ -78,7 +78,7 @@ func (m *ms) Init(db zdb.DB) error {
 	defer func() {
 		err := db.Exec(context.Background(), `delete from store where key='session'`)
 		if err != nil {
-			zlog.Errorf("Memstore.Init: delete DB store: %w", err)
+			log.Errorf(context.Background(), "Memstore.Init: delete DB store: %s", err)
 		}
 	}()
 
@@ -88,14 +88,14 @@ func (m *ms) Init(db zdb.DB) error {
 		if zdb.ErrNoRows(err) {
 			return nil
 		}
-		zlog.Errorf("Memstore.Init: load from DB store: %w", err)
+		log.Errorf(context.Background(), "Memstore.Init: load from DB store: %s", err)
 		return nil
 	}
 
 	var stored storedSession
 	err = json.Unmarshal(s, &stored)
 	if err != nil {
-		zlog.Errorf("Memstore.Init: %w", err)
+		log.Errorf(context.Background(), "Memstore.Init: %s", err)
 		return nil
 	}
 
@@ -125,14 +125,14 @@ func (m *ms) StoreSessions(db zdb.DB) {
 		Hashes:   m.sessionHashes,
 	})
 	if err != nil {
-		zlog.Error(err)
+		log.Error(context.Background(), err)
 		return
 	}
 
 	err = db.Exec(context.Background(),
 		`insert into store (key, value) values ('session', $1)`, d)
 	if err != nil {
-		zlog.Error(err)
+		log.Error(context.Background(), err)
 	}
 }
 
@@ -211,9 +211,8 @@ func (m *ms) Persist(ctx context.Context) ([]Hit, error) {
 }
 
 func (m *ms) processHit(ctx context.Context, h *Hit) bool {
-	defer zlog.Recover(func(l zlog.Log) zlog.Log { return l.Field("hit", fmt.Sprintf("%#v", h)) })
-
-	l := zlog.Module("memstore")
+	l := log.Module("memstore")
+	defer log.Recover(ctx, func(err error) { l.Error(ctx, err, "hit", h) })
 
 	if h.noProcess {
 		return true
@@ -223,7 +222,7 @@ func (m *ms) processHit(ctx context.Context, h *Hit) bool {
 	h.RefURL, _ = url.Parse(h.Ref)
 	if h.RefURL != nil {
 		if isRefspam(h.RefURL.Host) {
-			l.Debugf("refspam ignored: %q", h.RefURL.Host)
+			l.Debugf(ctx, "refspam ignored: %q", h.RefURL.Host)
 			return false
 		}
 	}
@@ -231,7 +230,7 @@ func (m *ms) processHit(ctx context.Context, h *Hit) bool {
 	var site Site
 	err := site.ByID(ctx, h.Site)
 	if err != nil {
-		l.Field("hit", fmt.Sprintf("%#v", h)).Error(err)
+		l.Error(ctx, err, "hit", h)
 		return false
 	}
 	ctx = WithSite(ctx, &site)
@@ -249,9 +248,9 @@ func (m *ms) processHit(ctx context.Context, h *Hit) bool {
 	err = h.Defaults(ctx, false)
 	if err != nil {
 		if errors.As(err, ztype.Ptr(&zvalidate.Validator{})) {
-			l.Field("hit", fmt.Sprintf("%#v", h)).Debug(err)
+			l.Debug(ctx, err.Error(), "hit", h)
 		} else {
-			l.Field("hit", fmt.Sprintf("%#v", h)).Error(err)
+			l.Error(ctx, err, "hit", h)
 		}
 		return false
 	}
@@ -285,12 +284,12 @@ func (m *ms) processHit(ctx context.Context, h *Hit) bool {
 			trim = !slices.Contains(site.Settings.CollectRegions, h.Location[:2])
 		}
 		if trim {
-			var l Location
-			err := l.ByCode(ctx, h.Location[:2])
+			var loc Location
+			err := loc.ByCode(ctx, h.Location[:2])
 			if err != nil {
-				zlog.Errorf("lookup %q: %w", h.Location[:2], err)
+				l.Errorf(ctx, "lookup %q: %s", h.Location[:2], err)
 			}
-			h.Location = l.ISO3166_2
+			h.Location = loc.ISO3166_2
 		}
 	}
 
@@ -300,7 +299,7 @@ func (m *ms) processHit(ctx context.Context, h *Hit) bool {
 
 	err = h.Validate(ctx, false)
 	if err != nil {
-		l.Field("hit", fmt.Sprintf("%#v", h)).Error(err)
+		l.Error(ctx, err, "hit", h)
 		return false
 	}
 
@@ -325,11 +324,10 @@ func (m *ms) EvictSessions() {
 
 		sk := m.sessionHashes[id]
 
-		sessLog.Fields(zlog.F{
-			"session-id":  id,
-			"last-seen":   seen,
-			"session-key": sk,
-		}).Debug("evicting session")
+		sessLog.Debug(context.Background(), "evicting session",
+			"session-id", id,
+			"last-seen", seen,
+			"session-key", sk)
 
 		delete(m.sessions, sk)
 		delete(m.sessionPaths, id)
@@ -347,7 +345,7 @@ func (m *ms) SessionID() zint.Uint128 {
 	return UUID()
 }
 
-var sessLog = zlog.Module("session")
+var sessLog = log.Module("session")
 
 func (m *ms) session(ctx context.Context, siteID, pathID int64, userSessionID, ua, remoteAddr string) (zint.Uint128, zbool.Bool) {
 	sk := sessionKey(userSessionID)
@@ -366,12 +364,11 @@ func (m *ms) session(ctx context.Context, siteID, pathID int64, userSessionID, u
 			m.sessionPaths[id][pathID] = struct{}{}
 		}
 
-		sessLog.Fields(zlog.F{
-			"session-key": sk,
-			"session-id":  id,
-			"path":        pathID,
-			"seen-path":   seenPath,
-		}).Debug("HIT")
+		sessLog.Debug(ctx, "HIT",
+			"session-key", sk,
+			"session-id", id,
+			"path", pathID,
+			"seen-path", seenPath)
 		return id, zbool.Bool(!seenPath)
 	}
 
@@ -382,10 +379,9 @@ func (m *ms) session(ctx context.Context, siteID, pathID int64, userSessionID, u
 	m.sessionSeen[id] = ztime.Now().Unix()
 	m.sessionHashes[id] = sk
 
-	sessLog.Fields(zlog.F{
-		"session-key": sk,
-		"session-id":  id,
-		"path":        pathID,
-	}).Debug("MISS: created new")
+	sessLog.Debug(ctx, "MISS: created new",
+		"session-key", sk,
+		"session-id", id,
+		"path", pathID)
 	return id, true
 }

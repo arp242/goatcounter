@@ -12,10 +12,10 @@ import (
 
 	"golang.org/x/crypto/bcrypt"
 	"zgo.at/errors"
+	"zgo.at/goatcounter/v2/log"
 	"zgo.at/guru"
 	"zgo.at/json"
 	"zgo.at/zdb"
-	"zgo.at/zlog"
 	"zgo.at/zstd/zbool"
 	"zgo.at/zstd/zcrypto"
 	"zgo.at/zstd/ztime"
@@ -499,7 +499,7 @@ func (u User) AccessSettings() bool  { return u.AccessAdmin() || u.Access["all"]
 // the endDate > now then send out a new report and set LastReportAt.
 //
 // The cronjob will send the report if the current date is after the end date.
-func (u User) EmailReportRange() ztime.Range {
+func (u User) EmailReportRange(ctx context.Context) ztime.Range {
 	var (
 		start, end ztime.Time
 		lastReport = ztime.Time{u.LastReportAt.In(u.Settings.Timezone.Loc())}
@@ -521,7 +521,7 @@ func (u User) EmailReportRange() ztime.Range {
 	case EmailReportWeekly:
 		start, end = lastReport.StartOf(week), lastReport.EndOf(week)
 	default:
-		zlog.Errorf("invalid EmailReports value for user %d: %d", u.ID, u.Settings.EmailReports.Int())
+		log.Errorf(ctx, "invalid EmailReports value for user %d: %d", u.ID, u.Settings.EmailReports.Int())
 		return ztime.Range{}
 	}
 

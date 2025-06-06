@@ -10,15 +10,15 @@ import (
 	"zgo.at/blackmail"
 	"zgo.at/errors"
 	"zgo.at/goatcounter/v2"
+	"zgo.at/goatcounter/v2/log"
 	"zgo.at/zdb"
-	"zgo.at/zlog"
 	"zgo.at/zstd/zstring"
 	"zgo.at/zstd/ztime"
 	"zgo.at/ztpl"
 	"zgo.at/ztpl/tplfunc"
 )
 
-var el = zlog.Module("email-report")
+var el = log.Module("email-report")
 
 // EmailReports sends email reports for sites that have this configured.
 func emailReports(ctx context.Context) error {
@@ -32,7 +32,7 @@ func emailReports(ctx context.Context) error {
 		var site goatcounter.Site
 		err := site.ByID(ctx, user.Site)
 		if err != nil {
-			el.Error(err)
+			el.Error(ctx, err)
 			continue
 		}
 
@@ -43,7 +43,7 @@ func emailReports(ctx context.Context) error {
 			return fmt.Errorf("cron.emailReports: user=%d: LastReportAt is after the current time; this should never happen", user.ID)
 		}
 
-		rng := user.EmailReportRange().UTC()
+		rng := user.EmailReportRange(ctx).UTC()
 		if rng.End.After(now) || rng.IsZero() {
 			continue
 		}
@@ -53,7 +53,7 @@ func emailReports(ctx context.Context) error {
 			return fmt.Errorf("cron.emailReports: user=%d: %w", user.ID, err)
 		}
 		if text == nil {
-			el.Debug("no text: bailing")
+			el.Debug(ctx, "no text: bailing")
 			continue
 		}
 
@@ -64,13 +64,13 @@ func emailReports(ctx context.Context) error {
 			blackmail.BodyText(text),
 			blackmail.BodyHTML(html))
 		if err != nil {
-			zlog.Error(err)
+			el.Error(ctx, err)
 			continue
 		}
 
 		err = zdb.Exec(ctx, `update users set last_report_at=$1 where user_id=$2`, ztime.Now(), user.ID)
 		if err != nil {
-			zlog.Error(err)
+			el.Error(ctx, err)
 		}
 	}
 	return nil
@@ -110,7 +110,7 @@ type templateArgs struct {
 
 func reportText(ctx context.Context, site goatcounter.Site, user goatcounter.User) (text, html []byte, subject string, err error) {
 	ctx = goatcounter.WithSite(ctx, &site)
-	rng := user.EmailReportRange().UTC()
+	rng := user.EmailReportRange(ctx).UTC()
 
 	args := templateArgs{
 		Context:     ctx,

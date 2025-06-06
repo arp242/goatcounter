@@ -21,13 +21,13 @@ import (
 	"zgo.at/errors"
 	"zgo.at/goatcounter/v2"
 	"zgo.at/goatcounter/v2/cron"
+	"zgo.at/goatcounter/v2/log"
 	"zgo.at/goatcounter/v2/metrics"
 	"zgo.at/guru"
 	"zgo.at/isbot"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zhttp/header"
-	"zgo.at/zlog"
 	"zgo.at/zstd/zbool"
 	"zgo.at/zstd/zint"
 	"zgo.at/zstd/zslice"
@@ -161,7 +161,7 @@ func (h api) auth(r *http.Request, w http.ResponseWriter, require zint.Bitflag64
 		bufferKeyOnce.Do(func() {
 			bufferKey, err = goatcounter.LoadBufferKey(r.Context())
 			if err != nil {
-				zlog.Error(err)
+				log.Error(r.Context(), err)
 			}
 		})
 		if subtle.ConstantTimeCompare(bufferKey, []byte(key)) == 0 {
@@ -185,7 +185,7 @@ func (h api) auth(r *http.Request, w http.ResponseWriter, require zint.Bitflag64
 	if token.LastUsedAt == nil || token.LastUsedAt.Before(ztime.Now().Add(-24*time.Hour)) {
 		err := token.UpdateLastUsed(r.Context())
 		if err != nil {
-			zlog.Error(err)
+			log.Error(r.Context(), err)
 		}
 	}
 
@@ -619,17 +619,16 @@ func (h api) count(w http.ResponseWriter, r *http.Request) error {
 		cron.WaitPersistAndStat()
 		err := cron.TaskPersistAndStat()
 		if err != nil {
-			zlog.Error(err)
+			log.Error(r.Context(), err)
 		}
 	}
 
 	if !firstHitAt.Equal(site.FirstHitAt) {
 		err := site.UpdateFirstHitAt(r.Context(), firstHitAt)
 		if err != nil {
-			zlog.Module("api-import").Fields(zlog.F{
-				"site":       site.ID,
-				"firstHitAt": firstHitAt.String(),
-			}).Error(err)
+			log.Module("api-import").Error(r.Context(), err,
+				"site", site.ID,
+				"firstHitAt", firstHitAt.String())
 		}
 	}
 

@@ -5,7 +5,7 @@ import (
 	"html/template"
 
 	"zgo.at/goatcounter/v2"
-	"zgo.at/zlog"
+	"zgo.at/goatcounter/v2/log"
 	"zgo.at/zstd/zint"
 	"zgo.at/zstd/ztime"
 )
@@ -57,7 +57,7 @@ var (
 )
 
 func FromSiteWidget(ctx context.Context, w goatcounter.Widget) Widget {
-	ww := NewWidget(w.Name(), 0)
+	ww := NewWidget(ctx, w.Name(), 0)
 	ww.SetSettings(w.GetSettings(ctx))
 
 	return ww
@@ -67,10 +67,10 @@ func FromSiteWidgets(ctx context.Context, www goatcounter.Widgets, params zint.B
 	widgetList := make(List, 0, len(www)+4)
 	if !params.Has(FilterInternal) {
 		// We always need these to know the total number of pageviews.
-		widgetList = append(widgetList, NewWidget("totalcount", 0))
+		widgetList = append(widgetList, NewWidget(ctx, "totalcount", 0))
 	}
 	for i, w := range www {
-		ww := NewWidget(w.Name(), i)
+		ww := NewWidget(ctx, w.Name(), i)
 		ww.SetSettings(w.GetSettings(ctx))
 		widgetList = append(widgetList, ww)
 	}
@@ -127,19 +127,19 @@ func (l List) InitialAndLazy() (initial List, lazy List) {
 // ListAllWidgets returns a static list of all widgets that this user can add.
 func ListAllWidgets() List {
 	return List{
-		NewWidget("browsers", 0),
-		NewWidget("locations", 0),
-		NewWidget("languages", 0),
-		NewWidget("pages", 0),
-		NewWidget("sizes", 0),
-		NewWidget("systems", 0),
-		NewWidget("toprefs", 0),
-		NewWidget("campaigns", 0),
-		NewWidget("totalpages", 0),
+		NewWidget(context.Background(), "browsers", 0),
+		NewWidget(context.Background(), "locations", 0),
+		NewWidget(context.Background(), "languages", 0),
+		NewWidget(context.Background(), "pages", 0),
+		NewWidget(context.Background(), "sizes", 0),
+		NewWidget(context.Background(), "systems", 0),
+		NewWidget(context.Background(), "toprefs", 0),
+		NewWidget(context.Background(), "campaigns", 0),
+		NewWidget(context.Background(), "totalpages", 0),
 	}
 }
 
-func NewWidget(name string, id int) Widget {
+func NewWidget(ctx context.Context, name string, id int) Widget {
 	switch name {
 	case "totalcount":
 		return &TotalCount{}
@@ -163,7 +163,7 @@ func NewWidget(name string, id int) Widget {
 	case "languages":
 		return &Languages{id: id}
 	}
-	zlog.Errorf("unknown widget: %q", name)
+	log.Errorf(ctx, "unknown widget: %q", name)
 	return &Dummy{}
 }
 

@@ -13,8 +13,8 @@ import (
 
 	"zgo.at/blackmail"
 	"zgo.at/errors"
+	"zgo.at/goatcounter/v2/log"
 	"zgo.at/zdb"
-	"zgo.at/zlog"
 	"zgo.at/zstd/zbool"
 	"zgo.at/zstd/zcrypto"
 	"zgo.at/zstd/zint"
@@ -83,8 +83,8 @@ func (e *Export) Create(ctx context.Context, startFrom int64) (*os.File, error) 
 
 // Export all data to a CSV file.
 func (e *Export) Run(ctx context.Context, fp *os.File, mailUser bool) {
-	l := zlog.Module("export").Field("id", e.ID)
-	l.Print("export started")
+	l := log.Module("export").With("id", e.ID)
+	l.Info(ctx, "export started")
 
 	gzfp := gzip.NewWriter(fp)
 	defer fp.Close() // No need to error-check; just for safety.
@@ -135,13 +135,12 @@ func (e *Export) Run(ctx context.Context, fp *os.File, mailUser bool) {
 	}
 
 	if exportErr != nil {
-		l.Field("export", e).Error(exportErr)
-
+		l.Error(ctx, exportErr, "export", e)
 		err := zdb.Exec(ctx,
 			`update exports set error=$1 where export_id=$2`,
 			exportErr.Error(), e.ID)
 		if err != nil {
-			zlog.Error(err)
+			log.Error(ctx, err)
 		}
 
 		_ = gzfp.Close()
@@ -152,12 +151,12 @@ func (e *Export) Run(ctx context.Context, fp *os.File, mailUser bool) {
 
 	err := gzfp.Close()
 	if err != nil {
-		l.Error(err)
+		l.Error(ctx, err)
 		return
 	}
 	err = fp.Sync() // Ensure stat is correct.
 	if err != nil {
-		l.Error(err)
+		l.Error(ctx, err)
 		return
 	}
 
@@ -173,14 +172,14 @@ func (e *Export) Run(ctx context.Context, fp *os.File, mailUser bool) {
 
 	err = fp.Close()
 	if err != nil {
-		l.Error(err)
+		l.Error(ctx, err)
 		return
 	}
 
 	hash, err := zcrypto.HashFile(e.Path)
 	e.Hash = &hash
 	if err != nil {
-		l.Error(err)
+		l.Error(ctx, err)
 		return
 	}
 
@@ -190,7 +189,7 @@ func (e *Export) Run(ctx context.Context, fp *os.File, mailUser bool) {
 		where export_id=$6`,
 		&now, e.NumRows, e.Size, e.Hash, e.LastHitID, e.ID)
 	if err != nil {
-		zlog.Error(err)
+		log.Error(ctx, err)
 	}
 
 	if mailUser {
@@ -202,7 +201,7 @@ func (e *Export) Run(ctx context.Context, fp *os.File, mailUser bool) {
 			blackmail.HeadersAutoreply(),
 			blackmail.BodyMustText(TplEmailExportDone{ctx, *site, *user, *e}.Render))
 		if err != nil {
-			l.Error(err)
+			l.Error(ctx, err)
 		}
 	}
 }
@@ -237,8 +236,8 @@ func Import(
 ) (*time.Time, error) {
 	site := MustGetSite(ctx)
 
-	l := zlog.Module("import").Field("site", site.ID).Field("replace", replace)
-	l.Print("import started")
+	l := log.Module("import").With("site", site.ID, "replace", replace)
+	l.Info(ctx, "import started")
 
 	c := csv.NewReader(fp)
 	header, err := c.Read()
@@ -255,7 +254,7 @@ func Import(
 	if replace {
 		err := site.DeleteAll(ctx)
 		if err != nil {
-			l.Error(err)
+			l.Error(ctx, err)
 			return nil, errors.Wrap(err, "goatcounter.Import")
 		}
 	}
@@ -302,9 +301,9 @@ func Import(
 	}
 	persist(Hit{}, true)
 
-	l.Printf("imported %d rows", n)
+	l.Infof(ctx, "imported %d rows", n)
 	if errs.Len() > 0 {
-		l.Error(errs)
+		l.Error(ctx, errs)
 	}
 
 	if email {
@@ -316,7 +315,7 @@ func Import(
 			blackmail.To(GetUser(ctx).Email),
 			blackmail.BodyMustText(TplEmailImportDone{ctx, *site, n, errs}.Render))
 		if err != nil {
-			l.Error(err)
+			l.Error(ctx, err)
 		}
 	}
 

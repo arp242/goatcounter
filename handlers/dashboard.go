@@ -12,12 +12,12 @@ import (
 
 	"zgo.at/errors"
 	"zgo.at/goatcounter/v2"
+	"zgo.at/goatcounter/v2/log"
 	"zgo.at/goatcounter/v2/metrics"
 	"zgo.at/goatcounter/v2/widgets"
 	"zgo.at/guru"
 	"zgo.at/z18n"
 	"zgo.at/zhttp"
-	"zgo.at/zlog"
 	"zgo.at/zstd/zint"
 	"zgo.at/zstd/zsync"
 	"zgo.at/zstd/ztime"
@@ -53,7 +53,7 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 		zhttp.FlashError(w, err.Error())
 	}
 	if rng.Start.IsZero() || rng.End.IsZero() {
-		rng = timeRange(view.Period, user.Settings.Timezone.Loc(), bool(user.Settings.SundayStartsWeek))
+		rng = timeRange(r.Context(), view.Period, user.Settings.Timezone.Loc(), bool(user.Settings.SundayStartsWeek))
 		if err != nil {
 			return err
 		}
@@ -81,13 +81,12 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 		}))
 	)
 	go func() {
-		defer zlog.Recover(func(l zlog.Log) zlog.Log { return l.Field("filter", view.Filter).FieldsRequest(r) })
-
-		l := zlog.Module("dashboard")
+		defer log.Recover(r.Context(), func(err error) { log.Error(r.Context(), err, "filter", view.Filter, log.AttrHTTP(r)) })
 
 		var (
-			f   []int64
-			err error
+			f     []int64
+			start = ztime.Now()
+			err   error
 		)
 		if view.Filter != "" {
 			f, err = goatcounter.PathFilter(r.Context(), view.Filter, true)
@@ -96,7 +95,7 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 			Paths []int64
 			Err   error
 		}{f, err}
-		l.Since("pathfilter")
+		log.Module("dashboard").Debug(r.Context(), "pathfilter", "took", time.Since(start))
 	}()
 
 	subs, err := site.ListSubs(r.Context())
@@ -136,7 +135,7 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 		initial, lazy = wid.InitialAndLazy()
 	}
 
-	getData := func(w widgets.Widget) {
+	getData := func(w widgets.Widget, start time.Time) {
 		m := metrics.Start("dashboard:" + w.Name())
 		m.AddTag(r.Host)
 		defer m.Done()
@@ -146,14 +145,14 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 			time.Duration(h.dashTimeout)*time.Second)
 		defer cancel()
 
-		l := zlog.Module("dashboard")
+		l := log.Module("dashboard")
 		_, err := w.GetData(ctx, args)
 		if err != nil {
-			l.FieldsRequest(r).Error(err)
+			l.Error(ctx, err, log.AttrHTTP(r))
 			_, err = zhttp.UserError(err)
 			w.SetErr(err)
 		}
-		l.Since(w.Name())
+		l.Debug(r.Context(), w.Name(), "took", time.Since(start))
 	}
 	getHTML := func(w widgets.Widget) {
 		tplName, tplData := w.RenderHTML(r.Context(), shared)
@@ -162,7 +161,7 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 		}
 		tpl, err := ztpl.ExecuteString(tplName, tplData)
 		if err != nil {
-			zlog.Module("dashboard").FieldsRequest(r).Error(err)
+			log.Module("dashboard").Error(r.Context(), err, log.AttrHTTP(r))
 			w.SetHTML(template.HTML("template rendering error: " + template.HTMLEscapeString(err.Error())))
 			return
 		}
@@ -176,8 +175,8 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 			wg.Add(1)
 			go func(w widgets.Widget) {
 				defer wg.Done()
-				defer zlog.Recover(func(l zlog.Log) zlog.Log { return l.Field("data widget", w).FieldsRequest(r) })
-				getData(w)
+				defer log.Recover(r.Context(), func(err error) { log.Error(r.Context(), err, "data widget", w, log.AttrHTTP(r)) })
+				getData(w, ztime.Now())
 			}(w)
 		}
 		zsync.Wait(r.Context(), &wg)
@@ -193,7 +192,7 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 		for _, w := range wid {
 			wg.Add(1)
 			go func(w widgets.Widget) {
-				defer zlog.Recover(func(l zlog.Log) zlog.Log { return l.Field("tpl widget", w).FieldsRequest(r) })
+				defer log.Recover(r.Context(), func(err error) { log.Error(r.Context(), err, "tpl widget", w, log.AttrHTTP(r)) })
 				defer wg.Done()
 
 				getHTML(w)
@@ -216,12 +215,12 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	go func() {
-		defer zlog.Recover()
+		defer log.Recover(r.Context())
 		run := zsync.NewAtMost(2)
 		for _, w := range lazy {
 			func(w widgets.Widget) {
 				run.Run(func() {
-					getData(w)
+					getData(w, ztime.Now())
 					getHTML(w)
 					loader.sendJSON(r, connectID, map[string]any{
 						"id":   w.ID(),
@@ -375,7 +374,7 @@ func (h backend) loadWidget(w http.ResponseWriter, r *http.Request) error {
 //
 //	Any digit
 //	   Last n days.
-func timeRange(r string, tz *time.Location, sundayStartsWeek bool) ztime.Range {
+func timeRange(ctx context.Context, r string, tz *time.Location, sundayStartsWeek bool) ztime.Range {
 	rng := ztime.NewRange(ztime.Now().In(tz)).Current(ztime.Day)
 	switch r {
 	case "0", "day":
@@ -399,8 +398,8 @@ func timeRange(r string, tz *time.Location, sundayStartsWeek bool) ztime.Range {
 		// sure where this happens, so just deal with it here.
 		days, err := strconv.ParseFloat(r, 32)
 		if err != nil {
-			zlog.Field("rng", r).Error(errors.Errorf("timeRange: %w", err))
-			return timeRange("week", tz, sundayStartsWeek)
+			log.Error(ctx, errors.Errorf("timeRange: %w", err), "rng", r)
+			return timeRange(ctx, "week", tz, sundayStartsWeek)
 		}
 		rng.Start = ztime.AddPeriod(rng.Start, -int(math.Round(days)), ztime.Day)
 	}

@@ -3,10 +3,8 @@ package main
 import (
 	"bytes"
 	"context"
-	"fmt"
 	"os"
 	"strings"
-	"sync"
 	"testing"
 
 	"zgo.at/blackmail"
@@ -14,7 +12,6 @@ import (
 	"zgo.at/goatcounter/v2/cron"
 	"zgo.at/goatcounter/v2/gctest"
 	"zgo.at/zli"
-	"zgo.at/zlog"
 )
 
 var pgSQL = false
@@ -29,8 +26,6 @@ func TestUsageTabs(t *testing.T) {
 	}
 }
 
-var mu sync.Mutex
-
 func startTest(t *testing.T) (
 	exit *zli.TestExit, in *bytes.Buffer, out *bytes.Buffer,
 	ctx context.Context, dbc string,
@@ -38,14 +33,6 @@ func startTest(t *testing.T) (
 	t.Helper()
 
 	blackmail.DefaultMailer = blackmail.NewMailer(blackmail.ConnectWriter)
-
-	// TODO: should really have helper function in zlog.
-	mu.Lock()
-	logout := zli.Stdout
-	zlog.Config.SetOutputs(func(l zlog.Log) {
-		fmt.Fprintln(logout, zlog.Config.Format(l))
-	})
-	mu.Unlock()
 
 	goatcounter.Memstore.Reset()
 

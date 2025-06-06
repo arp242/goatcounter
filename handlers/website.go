@@ -18,13 +18,13 @@ import (
 	"zgo.at/blackmail"
 	"zgo.at/errors"
 	"zgo.at/goatcounter/v2"
+	"zgo.at/goatcounter/v2/log"
 	"zgo.at/guru"
 	"zgo.at/tz"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zhttp/auth"
 	"zgo.at/zhttp/mware"
-	"zgo.at/zlog"
 	"zgo.at/zstd/zfs"
 	"zgo.at/zvalidate"
 )
@@ -322,10 +322,9 @@ func (h website) doSignup(w http.ResponseWriter, r *http.Request) error {
 	}
 	tz, err := tz.New(cc, args.Timezone)
 	if err != nil {
-		zlog.FieldsRequest(r).Fields(zlog.F{
-			"timezone": args.Timezone,
-			"args":     fmt.Sprintf("%#v\n", args),
-		}).Error(err)
+		log.Error(r.Context(), err, log.AttrHTTP(r),
+			"timezone", args.Timezone,
+			"args", fmt.Sprintf("%#v\n", args))
 	}
 	site.UserDefaults = goatcounter.UserSettings{
 		Timezone:        tz,
@@ -373,7 +372,7 @@ func (h website) doSignup(w http.ResponseWriter, r *http.Request) error {
 
 	err = user.Login(goatcounter.WithSite(r.Context(), &site))
 	if err != nil {
-		zlog.Errorf("login during account creation: %w", err)
+		log.Errorf(r.Context(), "login during account creation: %s", err)
 	} else {
 		auth.SetCookie(w, *user.LoginToken, cookieDomain(&site, r))
 	}
@@ -386,7 +385,7 @@ func (h website) doSignup(w http.ResponseWriter, r *http.Request) error {
 			blackmail.BodyMustText(goatcounter.TplEmailWelcome{ctx, site, user, goatcounter.Config(ctx).DomainCount}.Render),
 		)
 		if err != nil {
-			zlog.Errorf("welcome email: %s", err)
+			log.Errorf(ctx, "welcome email: %s", err)
 		}
 	})
 
@@ -455,13 +454,13 @@ func (h website) doForgot(w http.ResponseWriter, r *http.Request) error {
 
 	ctx := goatcounter.CopyContextValues(r.Context())
 	bgrun.RunFunction("email:sites", func() {
-		defer zlog.Recover()
+		defer log.Recover(ctx)
 		err := blackmail.Send("Your GoatCounter sites",
 			mail.Address{Name: "GoatCounter", Address: goatcounter.Config(ctx).EmailFrom},
 			blackmail.To(args.Email),
 			blackmail.BodyMustText(goatcounter.TplEmailForgotSite{ctx, sites, args.Email}.Render))
 		if err != nil {
-			zlog.Error(err)
+			log.Error(ctx, err)
 		}
 	})
 

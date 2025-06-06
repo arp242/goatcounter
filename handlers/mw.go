@@ -13,6 +13,7 @@ import (
 	"github.com/sethvargo/go-limiter"
 	"zgo.at/errors"
 	"zgo.at/goatcounter/v2"
+	"zgo.at/goatcounter/v2/log"
 	"zgo.at/guru"
 	"zgo.at/json"
 	"zgo.at/termtext"
@@ -21,7 +22,6 @@ import (
 	"zgo.at/zhttp"
 	"zgo.at/zhttp/auth"
 	"zgo.at/zhttp/header"
-	"zgo.at/zlog"
 	"zgo.at/zstd/znet"
 	"zgo.at/zstd/zruntime"
 	"zgo.at/zstd/zslice"
@@ -43,7 +43,7 @@ var (
 		if u != nil && u.ID > 0 {
 			err := u.UpdateOpenAt(r.Context())
 			if err != nil {
-				zlog.Error(err)
+				log.Error(r.Context(), err)
 			}
 			return nil
 		}
@@ -55,7 +55,7 @@ var (
 		if u != nil && u.ID > 0 {
 			err := u.UpdateOpenAt(r.Context())
 			if err != nil {
-				zlog.Error(err)
+				log.Error(r.Context(), err)
 			}
 			return nil
 		}
@@ -184,7 +184,7 @@ func addctx(db zdb.DB, loadSite bool, dashTimeout int) func(http.Handler) http.H
 								"this will work fine as long as you only have one site, but you *need* to use the "+
 								"configured domain if you add a second site so GoatCounter will know which site to use.",
 								znet.RemovePort(r.Host), *s.Cname)
-							zlog.Print(termtext.WordWrap(txt, 55, strings.Repeat(" ", 25)))
+							log.Info(r.Context(), termtext.WordWrap(txt, 55, strings.Repeat(" ", 25)))
 						}
 					}
 					if err2 == nil && len(sites) == 0 {
@@ -197,7 +197,7 @@ func addctx(db zdb.DB, loadSite bool, dashTimeout int) func(http.Handler) http.H
 					if zdb.ErrNoRows(err) {
 						err = guru.Errorf(400, "no site at this domain (%q)", r.Host)
 					} else {
-						zlog.FieldsRequest(r).Error(err)
+						log.Error(ctx, err, log.AttrHTTP(r))
 					}
 
 					zhttp.ErrPage(w, r, err)
@@ -307,7 +307,7 @@ func noSites(db zdb.DB, w http.ResponseWriter, r *http.Request) {
 		Cname    string
 	}{newGlobals(w, r), &v, tplErr, args.Email, args.Cname})
 	if err != nil {
-		zlog.Error(err)
+		log.Error(r.Context(), err)
 	}
 }
 
@@ -410,7 +410,7 @@ func Ratelimit(withUA bool, getStore func(r *http.Request) (limiter.Store, strin
 			if err != nil {
 				// The memorystore only returns an error if Close() was called.
 				// But log just to be sure.
-				zlog.Module("ratelimit").Field("key", key).Error(err)
+				log.Module("ratelimit").Error(r.Context(), err, "key", key)
 				ok = false
 			}
 

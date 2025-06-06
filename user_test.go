@@ -1,6 +1,7 @@
 package goatcounter_test
 
 import (
+	"context"
 	"testing"
 	"time"
 
@@ -71,7 +72,7 @@ func TestUserEmailReportRange(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run("", func(t *testing.T) {
-			rng := tt.user.EmailReportRange()
+			rng := tt.user.EmailReportRange(context.Background())
 			if !rng.Start.Equal(tt.wantStart) {
 				t.Errorf("start wrong\nwant: %s\nhave: %s\n", tt.wantStart, rng.Start)
 			}

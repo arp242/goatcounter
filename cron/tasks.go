@@ -3,6 +3,7 @@ package cron
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"os"
 	"strings"
 	"time"
@@ -10,8 +11,8 @@ import (
 	"zgo.at/errors"
 	"zgo.at/goatcounter/v2"
 	"zgo.at/goatcounter/v2/acme"
+	"zgo.at/goatcounter/v2/log"
 	"zgo.at/zdb"
-	"zgo.at/zlog"
 	"zgo.at/zstd/ztime"
 )
 
@@ -36,14 +37,14 @@ func oldExports(ctx context.Context) error {
 		f = tmp + f
 		st, err := os.Stat(f)
 		if err != nil {
-			zlog.Errorf("cron.oldExports: %s", err)
+			log.Errorf(ctx, "cron.oldExports: %s", err)
 			continue
 		}
 
 		if st.ModTime().Before(ztime.Now().Add(-24 * time.Hour)) {
 			err := os.Remove(f)
 			if err != nil {
-				zlog.Errorf("cron.oldExports: %s", err)
+				log.Errorf(ctx, "cron.oldExports: %s", err)
 			}
 		}
 	}
@@ -65,7 +66,7 @@ func dataRetention(ctx context.Context) error {
 
 		err = s.DeleteOlderThan(ctx, s.Settings.DataRetention)
 		if err != nil {
-			zlog.Module("cron").Field("site", s.ID).Error(err)
+			log.Module("cron").Error(ctx, err, "site", s.ID)
 		}
 	}
 
@@ -76,24 +77,25 @@ func oldBot(ctx context.Context) error {
 	ival := goatcounter.Interval(ctx, 30)
 	err := zdb.Exec(ctx, `delete from hits where bot > 0 and created_at < `+ival)
 	if err != nil {
-		zlog.Module("cron").Error(err)
+		log.Module("cron").Error(ctx, err)
 	}
 	return nil
 }
 
 func persistAndStat(ctx context.Context) error {
-	l := zlog.Module("cron")
-	l.Debug("persistAndStat started")
+	l := log.Module("cron")
+	l.Debug(ctx, "persistAndStat started")
 
+	start := ztime.Now()
 	hits, err := goatcounter.Memstore.Persist(ctx)
 	if err != nil {
 		return err
 	}
-	if len(hits) > 0 {
-		l = l.Since("memstore")
-	}
 
-	grouped := make(map[int64][]goatcounter.Hit)
+	var (
+		startStats = ztime.Now()
+		grouped    = make(map[int64][]goatcounter.Hit)
+	)
 	for _, h := range hits {
 		if h.Bot > 0 {
 			continue
@@ -103,15 +105,17 @@ func persistAndStat(ctx context.Context) error {
 	for siteID, hits := range grouped {
 		err := UpdateStats(ctx, nil, siteID, hits)
 		if err != nil {
-			l.Fields(zlog.F{
-				"site":  siteID,
-				"paths": hits,
-			}).Error(err)
+			l.Error(ctx, err, "site", siteID, "paths", hits)
 		}
 	}
 
 	if len(hits) > 0 {
-		l.Since("stats").FieldsSince().Debugf("persisted %d hits", len(hits))
+		l.Debug(ctx, "persisted hits",
+			"num", len(hits),
+			slog.Group("took",
+				"memstore", time.Since(start),
+				"stats", time.Since(startStats),
+			))
 	}
 	return err
 }
@@ -176,13 +180,13 @@ func renewACME(ctx context.Context) error {
 	for _, s := range sites {
 		err := acme.Make(ctx, *s.Cname)
 		if err != nil {
-			zlog.Module("cron-acme").Field("cname", *s.Cname).Error(err)
+			log.Module("cron-acme").Error(ctx, err, "cname", *s.Cname)
 			continue
 		}
 
 		err = s.UpdateCnameSetupAt(ctx)
 		if err != nil {
-			zlog.Module("cron-acme").Field("cname", *s.Cname).Error(err)
+			log.Module("cron-acme").Error(ctx, err, "cname", *s.Cname)
 			continue
 		}
 	}
@@ -199,7 +203,7 @@ func vacuumDeleted(ctx context.Context) error {
 	}
 
 	for _, s := range sites {
-		zlog.Module("vacuum").Printf("vacuum site %s/%d", s.Code, s.ID)
+		log.Module("vacuum").Infof(ctx, "vacuum site %s/%d", s.Code, s.ID)
 		err := zdb.TX(ctx, func(ctx context.Context) error {
 			for _, t := range []string{"hits", "paths",
 				"hit_counts", "ref_counts",

@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"context"
 	"testing"
 	"time"
 
@@ -60,7 +61,7 @@ func TestTimeRange(t *testing.T) {
 			ztime.SetNow(t, tt.now)
 
 			t.Run("UTC", func(t *testing.T) {
-				rng := timeRange(tt.rng, time.UTC, false)
+				rng := timeRange(context.Background(), tt.rng, time.UTC, false)
 				gotStart := rng.Start.Format("2006-01-02 15:04:05")
 				gotEnd := rng.End.Format("2006-01-02 15:04:05")
 

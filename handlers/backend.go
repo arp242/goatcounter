@@ -2,17 +2,16 @@ package handlers
 
 import (
 	"net/http"
-	"slices"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/sethvargo/go-limiter"
 	"zgo.at/goatcounter/v2"
+	"zgo.at/goatcounter/v2/log"
 	"zgo.at/guru"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zhttp/mware"
-	"zgo.at/zlog"
 	"zgo.at/zstd/zfs"
 )
 
@@ -58,7 +57,7 @@ func (h backend) Mount(r chi.Router, db zdb.DB, dev bool, domainStatic string, d
 		addcsp(domainStatic),
 		middleware.RedirectSlashes,
 		mware.NoStore())
-	if slices.Contains(zlog.Config.Debug, "req") || slices.Contains(zlog.Config.Debug, "all") {
+	if log.HasDebug("req") {
 		r.Use(mware.RequestLog(nil, nil, "/count"))
 	}
 	if true {

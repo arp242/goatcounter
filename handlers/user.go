@@ -19,11 +19,11 @@ import (
 	"zgo.at/bgrun"
 	"zgo.at/blackmail"
 	"zgo.at/goatcounter/v2"
+	"zgo.at/goatcounter/v2/log"
 	"zgo.at/guru"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zhttp/auth"
-	"zgo.at/zlog"
 	"zgo.at/zvalidate"
 )
 
@@ -132,7 +132,7 @@ func (h user) requestReset(w http.ResponseWriter, r *http.Request) error {
 			blackmail.HeadersAutoreply(),
 			blackmail.BodyMustText(goatcounter.TplEmailPasswordReset{ctx, *site, *u}.Render))
 		if err != nil {
-			zlog.Errorf("password reset: %s", err)
+			log.Errorf(ctx, "password reset: %s", err)
 		}
 	})
 
@@ -176,7 +176,7 @@ func (h user) requestLogin(w http.ResponseWriter, r *http.Request) error {
 			zhttp.FlashError(w, T(r.Context(), "error/login-wrong-pwd|Wrong password for %(email)", args.Email))
 		} else {
 			zhttp.FlashError(w, "Something went wrong :-( An error has been logged for investigation.") // TODO: should be more generic
-			zlog.FieldsRequest(r).Error(err)
+			log.Error(r.Context(), err, log.AttrHTTP(r))
 		}
 		return zhttp.SeeOther(w, "/user/new?email="+url.QueryEscape(args.Email))
 	}
@@ -257,7 +257,7 @@ func (h user) reset(w http.ResponseWriter, r *http.Request) error {
 	err := user.ByResetToken(r.Context(), key)
 	if err != nil {
 		if !zdb.ErrNoRows(err) {
-			zlog.Error(err)
+			log.Error(r.Context(), err)
 		}
 		return guru.New(http.StatusForbidden, T(r.Context(),
 			"error/login-token-expired|Could not find the user for the given token; perhaps it's expired or has already been used?"))
@@ -339,7 +339,7 @@ func (h user) logout(w http.ResponseWriter, r *http.Request) error {
 	u := User(r.Context())
 	err := u.Logout(r.Context())
 	if err != nil {
-		zlog.Errorf("logout: %s", err)
+		log.Errorf(r.Context(), "logout: %s", err)
 	}
 
 	auth.ClearCookie(w, Site(r.Context()).Domain(r.Context()))
@@ -496,7 +496,7 @@ func sendEmailVerify(ctx context.Context, site *goatcounter.Site, user *goatcoun
 			blackmail.To(user.Email),
 			blackmail.BodyMustText(goatcounter.TplEmailVerify{ctx, *site, *user}.Render))
 		if err != nil {
-			zlog.Errorf("blackmail: %s", err)
+			log.Errorf(ctx, "blackmail: %s", err)
 		}
 	})
 }

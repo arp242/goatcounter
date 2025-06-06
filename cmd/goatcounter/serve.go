@@ -1,21 +1,25 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"crypto/tls"
 	"fmt"
+	"log/slog"
 	"net"
 	"net/http"
 	"os"
 	"os/exec"
 	"os/signal"
 	"os/user"
+	"runtime"
 	"runtime/debug"
 	"strings"
 	"syscall"
 	"time"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/oschwald/maxminddb-golang"
 	"github.com/teamwork/reload"
 	"golang.org/x/net/http2"
 	"golang.org/x/net/http2/h2c"
@@ -27,17 +31,18 @@ import (
 	"zgo.at/goatcounter/v2/acme"
 	"zgo.at/goatcounter/v2/cron"
 	"zgo.at/goatcounter/v2/handlers"
+	"zgo.at/goatcounter/v2/log"
+	"zgo.at/slog_align"
 	"zgo.at/z18n"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zli"
-	"zgo.at/zlog"
 	"zgo.at/zstd/zfs"
 	"zgo.at/zstd/zio"
 	"zgo.at/zstd/znet"
+	"zgo.at/zstd/zruntime"
 	"zgo.at/zstd/zstring"
 	"zgo.at/ztpl"
-	"zgo.at/ztpl/tplfunc"
 	"zgo.at/zvalidate"
 )
 
@@ -172,6 +177,8 @@ Flags:
 
   -dev         Start in "dev mode".
 
+  -json        Output logs as JSON instead of aligned text.
+
   -debug       Modules to debug, comma-separated or 'all' for all modules.
                See "goatcounter help debug" for a list of modules.
 `
@@ -185,7 +192,7 @@ func cmdServe(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 		basePath     = f.String("/", "base-path").Pointer()
 		domainStatic = f.String("", "static").Pointer()
 	)
-	dbConnect, dbConn, dev, automigrate, listen, flagTLS, from, websocket, apiMax, ratelimits, err := flagsServe(f, &v)
+	dbConnect, dbConn, dev, automigrate, listen, flagTLS, from, websocket, apiMax, ratelimits, geomd, err := flagsServe(f, &v)
 	if err != nil {
 		return err
 	}
@@ -249,9 +256,11 @@ func cmdServe(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 		}
 
 		return doServe(ctx, db, listen, listenTLS, tlsc, hosts, stop, func() {
-			startupMsg(db)
-			zlog.Printf("ready; serving %d sites on %q; dev=%t; sites: %s",
-				len(cnames), listen, dev, strings.Join(cnames, ", "))
+			log.Module("startup").Info(ctx, "GoatCounter ready", startupAttr(geomd, listen, dev,
+				"num_sites", len(cnames),
+				"sites", cnames,
+			)...)
+
 			if len(cnames) == 0 {
 				dbFlag := ""
 				if dbConnect != defaultDB() {
@@ -265,7 +274,7 @@ func cmdServe(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 				if _, err := os.Stat("/run/.containerenv"); err == nil && os.Getenv("HOSTNAME") != "" {
 					cmd = "podman exec -it " + os.Getenv("HOSTNAME") + " goatcounter"
 				}
-				zlog.Errorf("No sites yet; access the web interface or use the CLI to create one:\n"+
+				log.Warnf(ctx, "No sites yet; access the web interface or use the CLI to create one:\n"+
 					"    %s db %screate site -vhost=.. -user.email=..", cmd, dbFlag)
 			}
 			ready <- struct{}{}
@@ -279,7 +288,6 @@ func doServe(ctx context.Context, db zdb.DB,
 ) error {
 
 	var sig = make(chan os.Signal, 1)
-	zlog.Module("startup").Print(getVersion())
 	ch, err := zhttp.Serve(listenTLS, stop, &http.Server{
 		Addr:        listen,
 		Handler:     h2c.NewHandler(zhttp.HostRoute(hosts), &http2.Server{}),
@@ -306,7 +314,7 @@ func doServe(ctx context.Context, db zdb.DB,
 	bgrun.RunFunction("shutdown", func() {
 		err := cron.TaskPersistAndStat()
 		if err != nil {
-			zlog.Error(err)
+			log.Error(ctx, err)
 		}
 		goatcounter.Memstore.StoreSessions(db)
 	})
@@ -316,7 +324,7 @@ func doServe(ctx context.Context, db zdb.DB,
 	first := true
 	for r := bgrun.Running(); len(r) > 0; r = bgrun.Running() {
 		if first {
-			zlog.Print("Waiting for background tasks; send HUP, TERM, or INT twice to force kill")
+			log.Info(ctx, "Waiting for background tasks; send HUP, TERM, or INT twice to force kill")
 			first = false
 		}
 		time.Sleep(100 * time.Millisecond)
@@ -342,11 +350,16 @@ func defaultDB() string {
 	return "sqlite+./goatcounter-data/db.sqlite3"
 }
 
-func flagsServe(f zli.Flags, v *zvalidate.Validator) (string, string, bool, bool, string, string, string, bool, int, handlers.Ratelimits, error) {
+type geometa struct {
+	path string
+	md   maxminddb.Metadata
+}
+
+func flagsServe(f zli.Flags, v *zvalidate.Validator) (string, string, bool, bool, string, string, string, bool, int, handlers.Ratelimits, geometa, error) {
 	var (
 		dbConnect   = f.String(defaultDB(), "db").Pointer()
 		dbConn      = f.String("16,4", "dbconn").Pointer()
-		debug       = f.String("", "debug").Pointer()
+		debug       = f.StringList(nil, "debug")
 		dev         = f.Bool(false, "dev").Pointer()
 		automigrate = f.Bool(false, "automigrate").Pointer()
 		listen      = f.String(":8080", "listen").Pointer()
@@ -359,18 +372,15 @@ func flagsServe(f zli.Flags, v *zvalidate.Validator) (string, string, bool, bool
 		apiMax      = f.Int(0, "api-max").Pointer()
 		storeEvery  = f.Int(10, "store-every").Pointer()
 		websocket   = f.Bool(false, "websocket").Pointer()
+		json        = f.Bool(false, "json").Pointer()
 	)
 	if err := f.Parse(zli.FromEnv("GOATCOUNTER")); err != nil {
-		return "", "", false, false, "", "", "", false, 0, handlers.Ratelimits{}, err
+		return "", "", false, false, "", "", "", false, 0, handlers.Ratelimits{}, geometa{}, err
 	}
 
-	zlog.Config.SetDebug(*debug)
+	setupLog(*dev, *json, debug.StringsSplit(","))
 	if *dev {
 		zhttp.DefaultDecoder = zhttp.NewDecoder(true, false)
-	}
-
-	if !*dev {
-		zlog.Config.SetFmtTime("Jan _2 15:04:05 ")
 	}
 
 	flagErrors(*errors, v)
@@ -394,19 +404,13 @@ func flagsServe(f zli.Flags, v *zvalidate.Validator) (string, string, bool, bool
 	}
 	geomd, err := goatcounter.InitGeoDB(*geodb)
 	if err != nil {
-		return "", "", false, false, "", "", "", false, 0, handlers.Ratelimits{},
+		return "", "", false, false, "", "", "", false, 0, handlers.Ratelimits{}, geometa{},
 			fmt.Errorf("loading GeoIP database: %w", err)
 	}
 	if *geodb == "" {
 		*geodb = "(builtin)"
 	}
-	zlog.Module("startup").Printf("GeoIP DB: path=%s; build=%s; type=%s; description=%s; nodes=%s",
-		*geodb,
-		time.Unix(int64(geomd.BuildEpoch), 0).UTC().Format("2006-01-02 15:04:05"),
-		geomd.DatabaseType,
-		geomd.Description["en"],
-		tplfunc.Number(geomd.NodeCount, ','),
-	)
+	md := geometa{*geodb, geomd}
 
 	ratelimits := handlers.NewRatelimits()
 	if *ratelimit != "" {
@@ -423,14 +427,14 @@ func flagsServe(f zli.Flags, v *zvalidate.Validator) (string, string, bool, bool
 			r := v.Integer("requests", reqs)
 			s := v.Integer("seconds", secs)
 			if v.HasErrors() {
-				return *dbConnect, *dbConn, *dev, *automigrate, *listen, *flagTLS, *from, *websocket, *apiMax, handlers.Ratelimits{},
+				return *dbConnect, *dbConn, *dev, *automigrate, *listen, *flagTLS, *from, *websocket, *apiMax, handlers.Ratelimits{}, geometa{},
 					fmt.Errorf("invalid -ratelimit flag: %q: %w", *ratelimit, v)
 			}
 			ratelimits.Set(name, int(r), s)
 		}
 	}
 
-	return *dbConnect, *dbConn, *dev, *automigrate, *listen, *flagTLS, *from, *websocket, *apiMax, ratelimits, nil
+	return *dbConnect, *dbConn, *dev, *automigrate, *listen, *flagTLS, *from, *websocket, *apiMax, ratelimits, md, nil
 }
 
 func setupServe(dbConnect, dbConn string, dev bool, flagTLS string, automigrate bool) (zdb.DB, context.Context, *tls.Config, http.HandlerFunc, uint8, error) {
@@ -463,7 +467,7 @@ func setupServe(dbConnect, dbConn string, dev bool, flagTLS string, automigrate 
 				have, err := exec.Command("git", "log", "-n1", "--pretty=format:%H").CombinedOutput()
 				if err == nil {
 					if h := strings.TrimSpace(string(have)); rev != h {
-						zlog.Errorf("goatcounter was built from revision %s but source directory has revision %s", rev[:7], h[:7])
+						log.Errorf(ctx, "goatcounter was built from revision %s but source directory has revision %s", rev[:7], h[:7])
 					}
 				}
 			}
@@ -479,12 +483,13 @@ func setupServe(dbConnect, dbConn string, dev bool, flagTLS string, automigrate 
 		if !dev {
 			return nil, nil, nil, nil, 0, err
 		}
-		zlog.Error(err)
+		log.Error(ctx, err)
 	}
 
 	tlsc, acmeh, listenTLS, secure := acme.Setup(db, flagTLS, dev)
 
 	zhttp.CookieSecure = secure
+	zhttp.ErrPage = handlers.ErrPage
 
 	// Set SameSite=None to allow embedding GoatCounter in a frame and allowing
 	// login; there is no way to make this work with Lax or Strict as far as I
@@ -517,13 +522,14 @@ func setupReload() {
 	}
 
 	go func() {
-		err := reload.Do(zlog.Module("startup").Printf, reload.Dir("./tpl", func() {
+		l := func(s string, a ...any) { log.Module("startup").Infof(context.Background(), s, a...) }
+		err := reload.Do(l, reload.Dir("./tpl", func() {
 			if err := ztpl.Reload("./tpl"); err != nil {
-				zlog.Error(err)
+				log.Error(context.Background(), err)
 			}
 		}))
 		if err != nil {
-			zlog.Errorf("reload.Do: %v", err)
+			log.Errorf(context.Background(), "reload.Do: %v", err)
 		}
 	}()
 }
@@ -545,16 +551,19 @@ func flagErrors(errors string, v *zvalidate.Validator) {
 
 		v.Email("-errors", from)
 		v.Email("-errors", to)
-		zlog.Config.AppendOutputs(func(l zlog.Log) {
-			if l.Level != zlog.LevelErr {
-				return
-			}
-
+		log.OnError = func(module string, r slog.Record) {
 			bgrun.RunFunction("email:error", func() {
-				msg := zlog.Config.Format(l)
+				buf := new(bytes.Buffer)
+				slog_align.NewAlignedHandler(buf, nil).Handle(context.Background(), r)
+				msg := buf.String()
+
 				// Silence spurious errors from some bot.
 				if strings.Contains(msg, `ReferenceError: "Pikaday" is not defined.`) &&
 					strings.Contains(msg, `Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.61 Safari/537.36`) {
+					return
+				}
+				// Don't need to send notifications for these
+				if strings.Contains(msg, `pq: canceling statement due to user request`) {
 					return
 				}
 
@@ -569,11 +578,11 @@ func flagErrors(errors string, v *zvalidate.Validator) {
 					blackmail.BodyText([]byte(msg)))
 				if err != nil {
 					// Just output to stderr I guess, can't really do much more if
-					// zlog fails.
+					// sending email fails.
 					fmt.Fprintf(zli.Stderr, "emailerrors: %s\n", err)
 				}
 			})
-		})
+		}
 	}
 }
 
@@ -612,7 +621,7 @@ func lsSites(ctx context.Context) ([]string, error) {
 	var cnames []string
 	for _, s := range sites {
 		if s.Cname == nil {
-			zlog.Errorf("cname is empty for site %d/%s", s.ID, s.Code)
+			log.Errorf(ctx, "cname is empty for site %d/%s", s.ID, s.Code)
 			continue
 		}
 		cnames = append(cnames, *s.Cname)
@@ -621,38 +630,24 @@ func lsSites(ctx context.Context) ([]string, error) {
 	return cnames, nil
 }
 
-func startupMsg(db zdb.DB) {
-	var msg string
-	err := db.Get(context.Background(), &msg, `select value from store where key='display-once'`)
-	if err != nil {
-		if !zdb.ErrNoRows(err) {
-			zlog.Error(err)
-		}
-		return
-	}
-
-	err = db.Exec(context.Background(), `delete from store where key='display-once'`)
-	if err != nil {
-		zlog.Error(err)
-	}
-
-	fmt.Fprintln(zli.Stdout, box(msg, zli.Red))
-}
-
-func box(msg string, borderColor zli.Color) string {
-	r := func(s string) string { return zli.Colorize(s, borderColor) }
-	b := r("┃")
-
-	s := strings.Split(msg, "\n")
-	for i := range s {
-		s[i] = b + " " + zstring.AlignLeft(s[i], 76) + b
-	}
-	msg = strings.Join(s, "\n")
-
-	return `` +
-		r("┏━━ NOTICE ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓") + "\n" +
-		b + "                                                                             " + b + "\n" +
-		msg + "\n" +
-		b + "                                                                             " + b + "\n" +
-		r("┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛") + "\n"
+func startupAttr(geomd geometa, listen string, dev bool, attr ...any) []any {
+	return append(attr,
+		"listen", listen,
+		"dev", dev,
+		slog.Group("version",
+			"version", goatcounter.Version,
+			"go", runtime.Version(),
+			"GOOS", runtime.GOOS,
+			"GOARCH", runtime.GOARCH,
+			"CGO", zruntime.CGO,
+			"race", zruntime.Race,
+		),
+		slog.Group("geoip",
+			"path", geomd.path,
+			"build", time.Unix(int64(geomd.md.BuildEpoch), 0).UTC().Format("2006-01-02 15:04:05"),
+			"type", geomd.md.DatabaseType,
+			"description", geomd.md.Description["en"],
+			"nodes", geomd.md.NodeCount,
+		),
+	)
 }

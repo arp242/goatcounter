@@ -11,7 +11,7 @@ import (
 
 	"zgo.at/errors"
 	"zgo.at/follow"
-	"zgo.at/zlog"
+	"zgo.at/goatcounter/v2/log"
 )
 
 var reFormat = regexp.MustCompile(`\\\$[\w-_]+`)
@@ -128,7 +128,7 @@ func NewFollow(ctx context.Context, file, format, date, tyme, datetime string, e
 	go func() {
 		err := f.Start(ctx, file)
 		if err != nil {
-			zlog.Error(errors.Errorf("logscan.NewFollow: %w", err))
+			log.Error(ctx, errors.Errorf("logscan.NewFollow: %w", err))
 		}
 	}()
 	s.read = f.Data

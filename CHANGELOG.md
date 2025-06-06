@@ -152,6 +152,10 @@ Features:
 - Make setup of a new installation a bit easier: instead of telling people to
   use the CLI, display a form when the database is 100% empty.
 
+- Add support for JSON logs with the `-json` flag. The `version` command also
+  accepts a `-json` flag for outputting the version information as JSON. Also
+  change the default text logging to look a bit nicer.
+
 Fixes:
 
 - Collecting stats was broken when "sessions" was disabled in the site settings.

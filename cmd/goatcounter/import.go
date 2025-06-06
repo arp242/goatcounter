@@ -17,10 +17,10 @@ import (
 	"zgo.at/errors"
 	"zgo.at/goatcounter/v2"
 	"zgo.at/goatcounter/v2/handlers"
+	"zgo.at/goatcounter/v2/log"
 	"zgo.at/goatcounter/v2/logscan"
 	"zgo.at/json"
 	"zgo.at/zli"
-	"zgo.at/zlog"
 	"zgo.at/zstd/znet"
 	"zgo.at/zstd/zstring"
 )
@@ -211,7 +211,7 @@ Date and time parsing:
 
 func cmdImport(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 	var (
-		debug    = f.String("", "debug").Pointer()
+		debug    = f.StringList(nil, "debug")
 		site     = f.String("", "site").Pointer()
 		format   = f.String("csv", "format").Pointer()
 		date     = f.String("", "date").Pointer()
@@ -225,7 +225,7 @@ func cmdImport(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 		return err
 	}
 
-	return func(debug, site, format, date, tyme, datetime string, silent, follow bool, exclude []string) error {
+	return func(debug []string, site, format, date, tyme, datetime string, silent, follow bool, exclude []string) error {
 		files := f.Args
 		if len(files) == 0 {
 			return fmt.Errorf("need a filename")
@@ -254,7 +254,7 @@ func cmdImport(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 			defer fp.Close()
 		}
 
-		zlog.Config.SetDebug(debug)
+		log.SetDebug(debug)
 
 		url := strings.TrimRight(site, "/")
 		if !zstring.HasPrefixes(url, "http://", "https://") {
@@ -284,7 +284,7 @@ func cmdImport(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 			err = importCSV(fp, url, key, silent)
 		}
 		return err
-	}(*debug, *site, *format, *date, *tyme, *datetime, *silent, *follow, *exclude)
+	}(debug.StringsSplit(","), *site, *format, *date, *tyme, *datetime, *silent, *follow, *exclude)
 }
 
 func importCSV(fp io.ReadCloser, url, key string, silent bool) error {
@@ -388,7 +388,7 @@ func importLog(
 
 		hit.CreatedAt, err = line.Datetime(scan)
 		if err != nil {
-			zlog.Error(err)
+			log.Error(ctx, err)
 			continue
 		}
 
@@ -432,7 +432,7 @@ func persistLog(hits <-chan handlers.APICountRequestHit, url, key string, silent
 
 	err := importSend(url, key, silent, follow, collect)
 	if err != nil {
-		zlog.Error(err)
+		log.Error(context.Background(), err)
 	}
 }
 
@@ -452,7 +452,7 @@ retry:
 	}
 	r.Header.Set("X-Goatcounter-Import", "yes")
 
-	zlog.Module("import-api").Debugf("POST %s with %d hits", url, len(hits))
+	log.Module("import-api").Debugf(context.Background(), "POST %s with %d hits", url, len(hits))
 	resp, err := importClient.Do(r)
 	if err != nil {
 		if i > 5 {
@@ -476,11 +476,10 @@ retry:
 		jsErr := json.Unmarshal(b, &gcErr)
 		if jsErr == nil {
 			for i, e := range gcErr.Errors {
-				zlog.Fields(zlog.F{
-					"lineno": hits[i].LineNo,
-					"line":   strings.TrimRight(hits[i].Line, "\r\n"),
-					"error":  strings.TrimSpace(e),
-				}).Errorf("error processing line %d", hits[i].LineNo)
+				log.Error(context.Background(), fmt.Sprintf("error processing line %d", hits[i].LineNo),
+					"lineno", hits[i].LineNo,
+					"line", strings.TrimRight(hits[i].Line, "\r\n"),
+					"error", strings.TrimSpace(e))
 			}
 		}
 		err := fmt.Errorf("%s: %s: %s", url, resp.Status, b)

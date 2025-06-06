@@ -8,9 +8,9 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
+	"zgo.at/goatcounter/v2/log"
 	"zgo.at/json"
 	zcache2 "zgo.at/zcache/v2"
-	"zgo.at/zlog"
 	"zgo.at/zstd/zint"
 )
 
@@ -91,11 +91,10 @@ func (l *loaderT) sendJSON(r *http.Request, id zint.Uint128, data any) {
 			w.Close()
 		}
 		if !strings.Contains(err.Error(), "use of closed network connection") {
-			zlog.Fields(zlog.F{
-				"connectID": id,
-				"siteID":    Site(r.Context()).ID,
-				"userID":    User(r.Context()).ID,
-			}).FieldsRequest(r).Errorf("loader.send: NextWriter: %s", err)
+			log.Error(r.Context(), fmt.Errorf("loader.send: NextWriter: %w", err), log.AttrHTTP(r),
+				"connectID", id,
+				"siteID", Site(r.Context()).ID,
+				"userID", User(r.Context()).ID)
 		}
 		return
 	}
@@ -103,11 +102,10 @@ func (l *loaderT) sendJSON(r *http.Request, id zint.Uint128, data any) {
 	j, err := json.Marshal(data)
 	if err != nil {
 		if !strings.Contains(err.Error(), "use of closed network connection") {
-			zlog.Fields(zlog.F{
-				"connectID": id,
-				"siteID":    Site(r.Context()).ID,
-				"userID":    User(r.Context()).ID,
-			}).FieldsRequest(r).Errorf("loader.send: %s", err)
+			log.Error(r.Context(), fmt.Errorf("loader.send: %w", err), log.AttrHTTP(r),
+				"connectID", id,
+				"siteID", Site(r.Context()).ID,
+				"userID", User(r.Context()).ID)
 		}
 		return
 	}
@@ -116,11 +114,10 @@ func (l *loaderT) sendJSON(r *http.Request, id zint.Uint128, data any) {
 	w.Close()
 	if err != nil {
 		if !strings.Contains(err.Error(), "use of closed network connection") {
-			zlog.Fields(zlog.F{
-				"connectID": id,
-				"siteID":    Site(r.Context()).ID,
-				"userID":    User(r.Context()).ID,
-			}).FieldsRequest(r).Errorf("loader.send: Write: %s", err)
+			log.Error(r.Context(), fmt.Errorf("loader.send: Write: %w", err), log.AttrHTTP(r),
+				"connectID", id,
+				"siteID", Site(r.Context()).ID,
+				"userID", User(r.Context()).ID)
 		}
 		return
 	}
@@ -151,7 +148,7 @@ func (h backend) loader(w http.ResponseWriter, r *http.Request) error {
 
 	// Read messages.
 	go func() {
-		defer zlog.Recover()
+		defer log.Recover(r.Context())
 		for {
 			t, m, err := c.ReadMessage()
 			if err != nil {

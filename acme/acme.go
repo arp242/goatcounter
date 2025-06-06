@@ -14,14 +14,14 @@ import (
 	"golang.org/x/crypto/acme/autocert"
 	"golang.org/x/sync/singleflight"
 	"zgo.at/goatcounter/v2"
+	"zgo.at/goatcounter/v2/log"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
-	"zgo.at/zlog"
 )
 
 var (
 	manager *autocert.Manager
-	l       = zlog.Module("acme")
+	l       = log.Module("acme")
 )
 
 // cache is like autocert.DirCache, but ensures that certificates end with .pem.
@@ -47,7 +47,7 @@ func (d cache) Put(ctx context.Context, key string, data []byte) error {
 	if !strings.Contains(key, "+") {
 		key += ".pem"
 	}
-	l.Debugf("write pem file: %q", key)
+	l.Debugf(ctx, "write pem file: %q", key)
 	return d.dc.Put(ctx, key, data)
 }
 
@@ -182,7 +182,7 @@ func Setup(db zdb.DB, flag string, dev bool) (*tls.Config, http.HandlerFunc, uin
 	}
 
 	acmeh := func(w http.ResponseWriter, r *http.Request) {
-		l.Debugf("handler request: %q", r.RequestURI)
+		l.Debugf(r.Context(), "handler request: %q", r.RequestURI)
 		manager.HTTPHandler(nil).ServeHTTP(w, r)
 	}
 	return tlsc, acmeh, listen, secure
@@ -239,17 +239,17 @@ func validForwarding(ctx context.Context, domain string) bool {
 
 		addrs, err := net.LookupHost(goatcounter.Config(ctx).Domain)
 		if err != nil {
-			l.Errorf("could not look up host %q: %s", goatcounter.Config(ctx).Domain, err)
+			l.Errorf(ctx, "could not look up host %q: %s", goatcounter.Config(ctx).Domain, err)
 			return []string{}, nil
 		}
 
-		l.Debugf("me: %q", addrs)
+		l.Debugf(ctx, "me: %q", addrs)
 		return addrs, nil
 	})
 	me := x.([]string)
 
 	if len(me) == 0 {
-		l.Debug("len(me)==0)")
+		l.Debug(ctx, "len(me)==0)")
 		return true
 	}
 

@@ -11,8 +11,8 @@ import (
 	"github.com/oschwald/geoip2-golang"
 	"github.com/oschwald/maxminddb-golang"
 	"zgo.at/errors"
+	"zgo.at/goatcounter/v2/log"
 	"zgo.at/zdb"
-	"zgo.at/zlog"
 )
 
 var geodb *geoip2.Reader
@@ -183,7 +183,7 @@ func findGeoName(country, region string) (string, string) {
 		}
 		err := iter.Data(&r)
 		if err != nil {
-			zlog.Error(err)
+			log.Error(context.Background(), err)
 			return "", ""
 		}
 

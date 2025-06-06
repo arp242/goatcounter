@@ -8,9 +8,9 @@ import (
 	"strings"
 
 	"zgo.at/errors"
+	"zgo.at/goatcounter/v2/log"
 	"zgo.at/zcache"
 	"zgo.at/zdb"
-	"zgo.at/zlog"
 	"zgo.at/zstd/zbool"
 	"zgo.at/zstd/zreflect"
 )
@@ -53,10 +53,7 @@ func (p *Path) GetOrInsert(ctx context.Context) error {
 
 		err := p.updateTitle(ctx, p.Title, title)
 		if err != nil {
-			zlog.Fields(zlog.F{
-				"path_id": p.ID,
-				"title":   title,
-			}).Error(err)
+			log.Error(ctx, err, "path_id", p.ID, "title", title)
 		}
 		return nil
 	}
@@ -77,10 +74,7 @@ func (p *Path) GetOrInsert(ctx context.Context) error {
 	if err == nil {
 		err := p.updateTitle(ctx, p.Title, title)
 		if err != nil {
-			zlog.Fields(zlog.F{
-				"path_id": p.ID,
-				"title":   title,
-			}).Error(err)
+			log.Error(ctx, err, "path_id", p.ID, "title", title)
 		}
 		cachePaths(ctx).SetDefault(k, *p)
 		return nil

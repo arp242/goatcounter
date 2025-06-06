@@ -10,11 +10,11 @@ import (
 	"github.com/BurntSushi/toml"
 	"golang.org/x/text/language"
 	"zgo.at/errors"
+	"zgo.at/goatcounter/v2/log"
 	"zgo.at/json"
 	"zgo.at/z18n"
 	"zgo.at/z18n/msgfile"
 	"zgo.at/zdb"
-	"zgo.at/zlog"
 	"zgo.at/zstd/zfs"
 )
 
@@ -66,14 +66,14 @@ func GetBundle(ctx context.Context) *z18n.Bundle {
 	err := over.Get(ctx, false)
 	if err != nil {
 		if !zdb.ErrNoRows(err) {
-			zlog.Error(err)
+			log.Error(ctx, err)
 		}
 		return defaultBundle
 	}
 
 	b, err := newBundle(Translations(ctx))
 	if err != nil {
-		zlog.Error(err)
+		log.Error(ctx, err)
 		return defaultBundle
 	}
 

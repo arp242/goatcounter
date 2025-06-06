@@ -8,14 +8,14 @@ import (
 	"zgo.at/errors"
 	"zgo.at/goatcounter/v2"
 	"zgo.at/goatcounter/v2/db/migrate/gomig"
+	"zgo.at/goatcounter/v2/log"
 	"zgo.at/zdb"
 	"zgo.at/zli"
-	"zgo.at/zlog"
 	"zgo.at/zstd/zfs"
 	"zgo.at/zstd/zslice"
 )
 
-func cmdDBMigrate(f zli.Flags, dbConnect, debug *string, createdb *bool) error {
+func cmdDBMigrate(f zli.Flags, dbConnect *string, debug []string, createdb *bool) error {
 	var (
 		dev  = f.Bool(false, "dev")
 		test = f.Bool(false, "test")
@@ -29,7 +29,7 @@ func cmdDBMigrate(f zli.Flags, dbConnect, debug *string, createdb *bool) error {
 		return errors.New("need a migration or command")
 	}
 
-	zlog.Config.SetDebug(*debug)
+	log.SetDebug(debug)
 
 	db, _, err := connectDB(*dbConnect, "", nil, *createdb, false)
 	if err != nil {

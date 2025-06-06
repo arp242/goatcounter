@@ -10,12 +10,12 @@ import (
 	"golang.org/x/text/language"
 	"zgo.at/errors"
 	"zgo.at/goatcounter/v2"
+	"zgo.at/goatcounter/v2/log"
 	"zgo.at/guru"
 	"zgo.at/z18n"
 	"zgo.at/zdb"
 	"zgo.at/zdb/drivers"
 	"zgo.at/zli"
-	"zgo.at/zlog"
 	"zgo.at/zstd/zcrypto"
 	"zgo.at/zstd/zint"
 	"zgo.at/zstd/zstring"
@@ -361,7 +361,7 @@ func cmdDB(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 
 	var (
 		dbConnect = f.String(defaultDB(), "db").Pointer()
-		debug     = f.String("", "debug").Pointer()
+		debug     = f.StringList(nil, "debug")
 		createdb  = f.Bool(false, "createdb").Pointer()
 	)
 
@@ -391,15 +391,15 @@ start:
 	case "schema-sqlite", "schema-pgsql":
 		return cmdDBSchema(cmd)
 	case "test":
-		return cmdDBTest(f, dbConnect, debug, true)
+		return cmdDBTest(f, dbConnect, debug.StringsSplit(","), true)
 	case "migrate":
-		return cmdDBMigrate(f, dbConnect, debug, createdb)
+		return cmdDBMigrate(f, dbConnect, debug.StringsSplit(","), createdb)
 	case "query":
-		return cmdDBQuery(f, dbConnect, debug, createdb)
+		return cmdDBQuery(f, dbConnect, debug.StringsSplit(","), createdb)
 	case "show":
-		return cmdDBShow(f, cmd, dbConnect, debug, createdb)
+		return cmdDBShow(f, cmd, dbConnect, debug.StringsSplit(","), createdb)
 	case "delete":
-		return cmdDBDelete(f, cmd, dbConnect, debug, createdb)
+		return cmdDBDelete(f, cmd, dbConnect, debug.StringsSplit(","), createdb)
 
 	case "create", "update":
 		tbl, err := getTable(&f, cmd)
@@ -407,15 +407,15 @@ start:
 			return err
 		}
 
-		fun := map[string]func(f zli.Flags, cmd string, dbConnect, debug *string, createdb *bool) error{
+		fun := map[string]func(f zli.Flags, cmd string, dbConnect *string, debug []string, createdb *bool) error{
 			"site":     cmdDBSite,
 			"user":     cmdDBUser,
 			"apitoken": cmdDBAPIToken,
 		}[tbl]
-		return fun(f, cmd, dbConnect, debug, createdb)
+		return fun(f, cmd, dbConnect, debug.StringsSplit(","), createdb)
 
 	case "newdb":
-		err := cmdDBTest(f, dbConnect, debug, false)
+		err := cmdDBTest(f, dbConnect, debug.StringsSplit(","), false)
 		if err == nil {
 			return guru.Errorf(2, "database at %q already exists", *dbConnect)
 		}
@@ -494,7 +494,7 @@ func cmdDBSchema(cmd string) error {
 	return nil
 }
 
-func cmdDBTest(f zli.Flags, dbConnect, debug *string, print bool) error {
+func cmdDBTest(f zli.Flags, dbConnect *string, debug []string, print bool) error {
 	if err := f.Parse(zli.FromEnv("GOATCOUNTER")); err != nil && !errors.As(err, &zli.ErrUnknownEnv{}) {
 		return err
 	}
@@ -502,7 +502,7 @@ func cmdDBTest(f zli.Flags, dbConnect, debug *string, print bool) error {
 	if *dbConnect == "" {
 		return errors.New("must add -db flag")
 	}
-	zlog.Config.SetDebug(*debug)
+	log.SetDebug(debug)
 	db, err := zdb.Connect(context.Background(), zdb.ConnectOptions{Connect: *dbConnect})
 	if err != nil {
 		return err
@@ -528,7 +528,7 @@ func cmdDBTest(f zli.Flags, dbConnect, debug *string, print bool) error {
 	return nil
 }
 
-func cmdDBQuery(f zli.Flags, dbConnect, debug *string, createdb *bool) error {
+func cmdDBQuery(f zli.Flags, dbConnect *string, debug []string, createdb *bool) error {
 	var (
 		format = f.String("table", "format")
 	)
@@ -544,7 +544,7 @@ func cmdDBQuery(f zli.Flags, dbConnect, debug *string, createdb *bool) error {
 		return errors.New("need a query")
 	}
 
-	zlog.Config.SetDebug(*debug)
+	log.SetDebug(debug)
 
 	db, ctx, err := connectDB(*dbConnect, "", nil, *createdb, false)
 	if err != nil {
@@ -589,11 +589,11 @@ func getManyFinder(ctx context.Context, f *zli.Flags, cmd string, find []string)
 	return finder, tbl, err
 }
 
-func dbParseFlag(f zli.Flags, dbConnect, debug *string, createdb *bool) (zdb.DB, context.Context, error) {
+func dbParseFlag(f zli.Flags, dbConnect *string, debug []string, createdb *bool) (zdb.DB, context.Context, error) {
 	if err := f.Parse(zli.FromEnv("GOATCOUNTER")); err != nil && !errors.As(err, &zli.ErrUnknownEnv{}) {
 		return nil, nil, err
 	}
-	zlog.Config.SetDebug(*debug)
+	log.SetDebug(debug)
 
 	db, _, err := connectDB(*dbConnect, "", []string{"pending"}, *createdb, false)
 	if err != nil {
@@ -605,7 +605,7 @@ func dbParseFlag(f zli.Flags, dbConnect, debug *string, createdb *bool) (zdb.DB,
 	return db, ctx, nil
 }
 
-func cmdDBShow(f zli.Flags, cmd string, dbConnect, debug *string, createdb *bool) error {
+func cmdDBShow(f zli.Flags, cmd string, dbConnect *string, debug []string, createdb *bool) error {
 	var (
 		find   = f.StringList(nil, "find")
 		format = f.String("vertical", "format")
@@ -641,7 +641,7 @@ func cmdDBShow(f zli.Flags, cmd string, dbConnect, debug *string, createdb *bool
 	return nil
 }
 
-func cmdDBDelete(f zli.Flags, cmd string, dbConnect, debug *string, createdb *bool) error {
+func cmdDBDelete(f zli.Flags, cmd string, dbConnect *string, debug []string, createdb *bool) error {
 	var (
 		find  = f.StringList(nil, "find")
 		force = f.Bool(false, "force").Pointer()
@@ -660,7 +660,7 @@ func cmdDBDelete(f zli.Flags, cmd string, dbConnect, debug *string, createdb *bo
 	return finder.Delete(ctx, *force)
 }
 
-func cmdDBSite(f zli.Flags, cmd string, dbConnect, debug *string, createdb *bool) error {
+func cmdDBSite(f zli.Flags, cmd string, dbConnect *string, debug []string, createdb *bool) error {
 	// TODO(depr): The second values are for compat with <2.0
 	var (
 		vhost = f.String("", "vhost", "domain")
@@ -810,7 +810,7 @@ func findParent(ctx context.Context, link string) (goatcounter.Site, error) {
 	return s, err
 }
 
-func cmdDBUser(f zli.Flags, cmd string, dbConnect, debug *string, createdb *bool) error {
+func cmdDBUser(f zli.Flags, cmd string, dbConnect *string, debug []string, createdb *bool) error {
 	var (
 		site   = f.String("", "site")
 		email  = f.String("", "email")
@@ -939,7 +939,7 @@ func getAccess(a string) goatcounter.UserAccesses {
 	}
 }
 
-func cmdDBAPIToken(f zli.Flags, cmd string, dbConnect, debug *string, createdb *bool) error {
+func cmdDBAPIToken(f zli.Flags, cmd string, dbConnect *string, debug []string, createdb *bool) error {
 	var (
 		user = f.String("", "user")
 		name = f.String("", "name")

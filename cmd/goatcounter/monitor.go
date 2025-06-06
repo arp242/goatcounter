@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"time"
 
+	"zgo.at/goatcounter/v2/log"
 	"zgo.at/zdb"
 	"zgo.at/zli"
-	"zgo.at/zlog"
 )
 
 const usageMonitor = `
@@ -39,7 +39,7 @@ func cmdMonitor(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 	var (
 		dbConnect = f.String(defaultDB(), "db").Pointer()
 		dbConn    = f.String("16,4", "dbconn").Pointer()
-		debug     = f.String("", "debug").Pointer()
+		debug     = f.StringList(nil, "debug")
 		period    = f.Int(120, "period").Pointer()
 		once      = f.Bool(false, "once").Pointer()
 		site      = f.Int(0, "site").Pointer()
@@ -48,8 +48,8 @@ func cmdMonitor(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 		return err
 	}
 
-	return func(dbConnect, dbConn, debug string, period, site int, once bool) error {
-		zlog.Config.SetDebug(debug)
+	return func(dbConnect, dbConn string, debug []string, period, site int, once bool) error {
+		log.SetDebug(debug)
 
 		db, ctx, err := connectDB(dbConnect, dbConn, []string{"pending"}, false, false)
 		if err != nil {
@@ -67,7 +67,7 @@ func cmdMonitor(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 			query += ` created_at > datetime(datetime(), '-%d seconds')`
 		}
 
-		l := zlog.Module("monitor")
+		l := log.Module("monitor")
 		timer := time.NewTicker(time.Duration(period) * time.Second)
 		ready <- struct{}{}
 		for {
@@ -77,12 +77,12 @@ func cmdMonitor(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 				if once {
 					return err
 				}
-				l.Error(err)
+				l.Error(ctx, err)
 			}
 			if n == 0 {
-				l.Errorf("no hits in last %d seconds", period)
+				l.Errorf(ctx, "no hits in last %d seconds", period)
 			} else {
-				l.Printf("%d hits in last %d seconds", n, period)
+				l.Infof(ctx, "%d hits in last %d seconds", n, period)
 			}
 
 			if once {
@@ -98,5 +98,5 @@ func cmdMonitor(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 				return nil
 			}
 		}
-	}(*dbConnect, *dbConn, *debug, *period, *site, *once)
+	}(*dbConnect, *dbConn, debug.StringsSplit(","), *period, *site, *once)
 }

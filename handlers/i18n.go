@@ -12,12 +12,13 @@ import (
 	"golang.org/x/text/language"
 	"zgo.at/blackmail"
 	"zgo.at/goatcounter/v2"
+	"zgo.at/goatcounter/v2/log"
 	"zgo.at/guru"
 	"zgo.at/z18n/msgfile"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zhttp/mware"
-	"zgo.at/zlog"
+	"zgo.at/zstd/zcontext"
 	"zgo.at/zstd/zfilepath"
 	"zgo.at/zstd/zfs"
 	"zgo.at/zstd/ztest"
@@ -279,13 +280,14 @@ func (h i18n) submit(w http.ResponseWriter, r *http.Request) error {
 
 	msg := fmt.Sprintf("User: %d; language: %q\n\n%s", User(r.Context()).ID, file, t)
 
+	ctx := zcontext.WithoutTimeout(r.Context())
 	go func() {
 		err := blackmail.Send("GoatCounter translation updates",
-			blackmail.From("", User(r.Context()).Email),
+			blackmail.From("", User(ctx).Email),
 			blackmail.To("support@goatcounter.com"),
 			blackmail.BodyText([]byte(msg)))
 		if err != nil {
-			zlog.Error(err)
+			log.Error(ctx, err)
 		}
 	}()
 
