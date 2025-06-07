@@ -88,6 +88,7 @@ Flags:
                    common          Common Log Format (CLF)
                    common-vhost    Common Log Format (CLF) with virtual host
                    bunny           Bunny CDN log format
+                   caddy           Caddy JSON logs
                    log:[fmt]       Custom log format; see "goatcounter help
                                    logfile" for details.
 
@@ -196,8 +197,9 @@ Date and time parsing:
 
         ansic          Mon Jan _2 15:04:05 2006
         unix           Mon Jan _2 15:04:05 MST 2006
-        unixmilli      1746644937044
-        unixsec        1746644937
+        unixsec        1748882749
+        unixmilli      1748882749120
+        unixnano       1748882749120576768
         rfc822         02 Jan 06 15:04 MST
         rfc822z        02 Jan 06 15:04 -0700
         rfc850         Monday, 02-Jan-06 15:04:05 MST
@@ -207,6 +209,9 @@ Date and time parsing:
         rfc3339nano    2006-01-02T15:04:05.999999999Z07:00
 
     The full documentation is available at https://pkg.go.dev/time
+
+    The 'caddy' format _also_ accepts:
+       'unix_seconds_float', 'unix_milli_float' and 'unix_nano' for datetime
 `
 
 func cmdImport(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
@@ -386,7 +391,7 @@ func importLog(
 			UserAgent: line.UserAgent(),
 		}
 
-		hit.CreatedAt, err = line.Datetime(scan)
+		hit.CreatedAt, err = scan.Datetime(line)
 		if err != nil {
 			log.Error(ctx, err)
 			continue
