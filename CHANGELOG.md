@@ -4,8 +4,8 @@ This list is not comprehensive, and only lists new features and major changes,
 but not every minor bugfix. The goatcounter.com service generally runs the
 latest master.
 
-unreleased, v2.6.0
-------------------
+2025-06-08 v2.6.0
+-----------------
 This release changes a number of default values. In most cases this shouldn't
 break anything, but be sure to read the section.
 
@@ -18,11 +18,12 @@ This release requires Go 1.21.
 
   The previous defaults were "production ready", but in practice many people
   don't use the built-in TLS and ACME certificate generation but a proxy like
-  nginx or Caddy. In addition, it's also easier to get started with.
+  nginx or Caddy. In addition, it's also easier to get started with the new
+  defaults.
 
-- The default db location changed from `./db/goatcounter.sqlite3` to
-  `./goatcounter-data/db.sqlite`. The old file will still be used as a default
-  if it exists, so this shouldn't break any existing setups.
+- The default SQLite database location changed from `./db/goatcounter.sqlite3`
+  to `./goatcounter-data/db.sqlite3`. The old file will still be used as a
+  default if it exists, so this shouldn't break any existing setups.
 
 - The default ACME secrets location changed from `./acme-secrets` to
   `./goatcounter-data/acme-secrets`. The old directory will still be used as a
@@ -92,12 +93,10 @@ This release requires Go 1.21.
   per path. We can't show anything useful on the dashboard, but we can use it to
   show correct totals on the visitor counter.
 
-- Sites are no longer soft-deleted. The deletion is still as a background job as
-  it may take a while.
+- Sites are no longer soft-deleted for 7 days. The deletion is still as a
+  background job as it may take a while.
 
 ### Fixes
-
-- Better print styling.
 
 - Use img-based fallback if sendBeacon fails in count.js. This helps with some
   sites that forbid using connect-src from the CSP (e.g. neocities).
@@ -117,6 +116,8 @@ This release requires Go 1.21.
   database. SQLite doesn't try to create the file until the first SQL command,
   which happens to be the version check. This would fail with a confusing
   `requires SQLite 3.35.0 or newer; have ""` error.
+
+- Better styling when printing the dashboard.
 
 - Correctly populate the `languages` table when creating a new database.
   Previously collecting language statistics didn't work correct due to this.

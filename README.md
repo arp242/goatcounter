@@ -84,7 +84,6 @@ database file or a PostgreSQL connection. Alternatively you can use Docker, as
 documented in the section below.
 
 [releases]: https://github.com/arp242/goatcounter/releases
-[latest]: https://github.com/arp242/goatcounter/tree/release-2.5
 
 ### Running
 You can start a server with:
@@ -214,7 +213,7 @@ You need Go 1.21 or newer and a C compiler. If you compile it with
 
 You can build from source with:
 
-    % git clone --branch=release-2.5 https://github.com/arp242/goatcounter
+    % git clone --branch=release-2.6 https://github.com/arp242/goatcounter
     % cd goatcounter
     % go build ./cmd/goatcounter
 
