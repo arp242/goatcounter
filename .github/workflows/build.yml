@@ -31,7 +31,7 @@ jobs:
         id: 'meta'
         with:
           images: 'arp242/goatcounter'
-          tags:   "type=semver,pattern={{version}}\ntype=semver,pattern={{major}}.{{minor}}\ntype=sha"
+          tags:   "type=semver,pattern={{version}}\ntype=semver,pattern={{major}}.{{minor}}"
       - uses: 'docker/build-push-action@v6'
         with:
           context:    '.'
@@ -44,6 +44,6 @@ jobs:
           platforms:  'linux/amd64,linux/arm64'
           tags:       ${{ steps.meta.outputs.tags }}
           labels:     ${{ steps.meta.outputs.labels }}
-          push:       ${{ github.event_name != 'pull_request' }}
+          push:       ${{ github.event_name != 'pull_request' && github.ref_name != 'main' }}
           cache-from: 'type=registry,ref=arp242/goatcounter:latest'
           cache-to:   'type=inline'
