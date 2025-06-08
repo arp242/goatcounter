@@ -174,7 +174,7 @@ func TestDebug(t *testing.T) {
 
 func TestAttrHTTP(t *testing.T) {
 	r, _ := http.NewRequest("GET", "http://example.com/path", nil)
-	r.Header.Set("User-Agent", "TestBrowser/1.0")
+	r.Header.Set("User-Agent", "Mozilla/5.0 TestBrowser/1.0")
 
 	t.Run("align", func(t *testing.T) {
 		buf := new(bytes.Buffer)
@@ -183,12 +183,12 @@ func TestAttrHTTP(t *testing.T) {
 		Info(context.Background(), "msg", "attr1", "val1", AttrHTTP(r))
 		have := buf.String()
 		want := `
-			13:14 INFO  msg  [log/log.go:105]
-			             attr1           = val1
-			             http.method     = GET
-			             http.url        = http://example.com/path
-			             http.host       = example.com
-			             http.user_agent = TestBrowser/1.0
+			13:14 INFO  msg  [log/log.go:106]
+			             attr1     = val1
+			             http.verb = GET
+			             http.url  = http://example.com/path
+			             http.host = example.com
+			             http.ua   = ~Z TestBrowser/1.0
 			`
 		if d := ztest.Diff(have, want, ztest.DiffNormalizeWhitespace); d != "" {
 			t.Error(d)
@@ -205,9 +205,9 @@ func TestAttrHTTP(t *testing.T) {
 			"attr1": "val1",
 			"http": {
 				"host": "example.com",
-				"method": "GET",
+				"verb": "GET",
 				"url": "http://example.com/path",
-				"user_agent": "TestBrowser/1.0"
+				"ua": "~Z TestBrowser/1.0"
 			},
 			"level": "INFO",
 			"msg": "msg",

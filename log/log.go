@@ -24,6 +24,7 @@ import (
 	"time"
 
 	"zgo.at/errors"
+	"zgo.at/gadget"
 	"zgo.at/zstd/zdebug"
 )
 
@@ -260,10 +261,10 @@ func (l *Logger) newRecord(ctx context.Context, level slog.Level, msg string, at
 // AttrHTTP adds attributes from a HTTP request.
 func AttrHTTP(r *http.Request) slog.Attr {
 	return slog.Group("http",
-		"method", r.Method,
+		"verb", r.Method,
 		"url", r.URL.String(),
 		"host", r.Host,
-		"user_agent", r.UserAgent(),
+		"ua", gadget.ShortenUA(r.UserAgent()),
 	)
 }
 
