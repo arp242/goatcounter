@@ -1,6 +1,6 @@
 module zgo.at/goatcounter/v2
 
-go 1.24.3
+go 1.24.4
 
 require (
 	code.soquee.net/otp v0.0.4
@@ -18,11 +18,11 @@ require (
 	github.com/russross/blackfriday/v2 v2.1.0
 	github.com/sethvargo/go-limiter v1.0.0
 	github.com/teamwork/reload v1.4.2
-	golang.org/x/crypto v0.38.0
+	golang.org/x/crypto v0.39.0
 	golang.org/x/image v0.27.0
-	golang.org/x/net v0.40.0
-	golang.org/x/sync v0.14.0
-	golang.org/x/text v0.25.0
+	golang.org/x/net v0.41.0
+	golang.org/x/sync v0.15.0
+	golang.org/x/text v0.26.0
 	zgo.at/bgrun v0.0.0-00010101000000-000000000000
 	zgo.at/blackmail v0.0.0-20241118175226-9a8f9442bb0d
 	zgo.at/errors v1.4.0
@@ -61,8 +61,8 @@ require (
 	github.com/fsnotify/fsnotify v1.9.0 // indirect
 	github.com/lib/pq v1.10.9 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
-	golang.org/x/mod v0.24.0 // indirect
+	golang.org/x/mod v0.25.0 // indirect
 	golang.org/x/sys v0.33.0 // indirect
-	golang.org/x/tools v0.33.0 // indirect
+	golang.org/x/tools v0.34.0 // indirect
 	zgo.at/runewidth v0.1.0 // indirect
 )
