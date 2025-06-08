@@ -20,6 +20,20 @@ func TestMain(m *testing.M) {
 	m.Run()
 }
 
+func newAlign(buf *bytes.Buffer) slog.Handler {
+	h := slog_align.NewAlignedHandler(buf, &slog.HandlerOptions{
+		ReplaceAttr: func(groups []string, a slog.Attr) slog.Attr {
+			if a.Key == "module" {
+				return slog.Attr{}
+			}
+			return a
+		},
+	})
+	h.SetColor(false)
+	h.SetInlineLocation(true)
+	return h
+}
+
 func TestContext(t *testing.T) {
 	// Replace line numbers from stack trace, so we're not constantly
 	// updating the tests.
@@ -41,14 +55,7 @@ func TestContext(t *testing.T) {
 
 	doAlign := func(ctx context.Context) string {
 		buf := new(bytes.Buffer)
-		slog.SetDefault(slog.New(slog_align.NewAlignedHandler(buf, &slog.HandlerOptions{
-			ReplaceAttr: func(groups []string, a slog.Attr) slog.Attr {
-				if a.Key == "module" {
-					return slog.Attr{}
-				}
-				return a
-			},
-		})))
+		slog.SetDefault(slog.New(newAlign(buf)))
 		do(ctx)
 		return re.ReplaceAllString(buf.String(), `$1.go:XXX`)
 	}
@@ -171,7 +178,7 @@ func TestAttrHTTP(t *testing.T) {
 
 	t.Run("align", func(t *testing.T) {
 		buf := new(bytes.Buffer)
-		slog.SetDefault(slog.New(slog_align.NewAlignedHandler(buf, nil)))
+		slog.SetDefault(slog.New(newAlign(buf)))
 
 		Info(context.Background(), "msg", "attr1", "val1", AttrHTTP(r))
 		have := buf.String()
@@ -214,7 +221,7 @@ func TestAttrHTTP(t *testing.T) {
 
 func TestRecover(t *testing.T) {
 	buf := new(bytes.Buffer)
-	slog.SetDefault(slog.New(slog_align.NewAlignedHandler(buf, nil)))
+	slog.SetDefault(slog.New(newAlign(buf)))
 	go func() {
 		defer Recover(context.Background())
 		panic("oh noes!")

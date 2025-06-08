@@ -113,8 +113,8 @@ func persistAndStat(ctx context.Context) error {
 		l.Debug(ctx, "persisted hits",
 			"num", len(hits),
 			slog.Group("took",
-				"memstore", time.Since(start),
-				"stats", time.Since(startStats),
+				"memstore", time.Since(start).Round(time.Millisecond),
+				"stats", time.Since(startStats).Round(time.Millisecond),
 			))
 	}
 	return err

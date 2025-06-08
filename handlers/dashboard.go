@@ -95,7 +95,8 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 			Paths []int64
 			Err   error
 		}{f, err}
-		log.Module("dashboard").Debug(r.Context(), "pathfilter", "took", time.Since(start))
+		log.Module("dashboard").Debug(r.Context(), "pathfilter",
+			"took", time.Since(start).Round(time.Millisecond))
 	}()
 
 	subs, err := site.ListSubs(r.Context())

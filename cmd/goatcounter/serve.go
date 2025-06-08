@@ -554,7 +554,19 @@ func flagErrors(errors string, v *zvalidate.Validator) {
 		log.OnError = func(module string, r slog.Record) {
 			bgrun.RunFunction("email:error", func() {
 				buf := new(bytes.Buffer)
-				slog_align.NewAlignedHandler(buf, nil).Handle(context.Background(), r)
+				h := slog_align.NewAlignedHandler(buf, &slog.HandlerOptions{
+					ReplaceAttr: func(groups []string, a slog.Attr) slog.Attr {
+						if a.Key == "module" || a.Key == "_err" {
+							return slog.Attr{}
+						}
+						return a
+					},
+				})
+				h.SetTimeFormat("Jan _2 15:04:05 ")
+				h.SetColor(false)
+				h.SetInlineLocation(false)
+				h.Handle(context.Background(), r)
+
 				msg := buf.String()
 
 				// Silence spurious errors from some bot.
@@ -568,9 +580,11 @@ func flagErrors(errors string, v *zvalidate.Validator) {
 				}
 
 				subject := zstring.GetLine(msg, 1)
-				if i := strings.Index(subject, "ERROR: "); i > -1 {
-					subject = subject[i+7:]
+				if len(subject) > 15 { // Remove date: "Jun  8 00:51:41"
+					subject = strings.TrimSpace(subject[15:])
 				}
+				subject = strings.TrimPrefix(subject, "ERROR")
+				subject = strings.TrimLeft(subject, " \t:")
 
 				err := blackmail.Send(subject,
 					blackmail.From("", from),

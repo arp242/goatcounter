@@ -32,7 +32,7 @@ require (
 	zgo.at/isbot v1.0.0
 	zgo.at/jfmt v0.0.0-20240726113937-e6436421fade
 	zgo.at/json v0.0.0-20221020004326-fe4f75bb278e
-	zgo.at/slog_align v0.0.0-20250607115149-1f10c1d07000
+	zgo.at/slog_align v0.0.0-20250608122414-fe848f5abf9c
 	zgo.at/termtext v1.5.0
 	zgo.at/tz v0.0.0-20240819050900-3c7bf6122612
 	zgo.at/z18n v0.0.0-20240522230155-4d5af439f8c4

@@ -159,8 +159,8 @@ zgo.at/json v0.0.0-20221020004326-fe4f75bb278e h1:rEyfeeAnUDOYdH9PVHe5EZ8seo1V1U
 zgo.at/json v0.0.0-20221020004326-fe4f75bb278e/go.mod h1:yvrHxciuKpi1XgJoCIfg/EDybcgkcXvjV2tCVp8O2ks=
 zgo.at/runewidth v0.1.0 h1:ED4PzJpYJlZMDEkoz+iPKjb5NrwbKnWPXDMJlNlfk9g=
 zgo.at/runewidth v0.1.0/go.mod h1:Ugl6FGPF5Ib/NRu2UAV2wVthEgYfEz51Bu/uyNbWZSw=
-zgo.at/slog_align v0.0.0-20250607115149-1f10c1d07000 h1:6rxiEpFJtsVGL/rjAaLWGKVmoZ1Zv3tiOCwX23VvoyM=
-zgo.at/slog_align v0.0.0-20250607115149-1f10c1d07000/go.mod h1:EUS70SYZRKBqYL2iWwlNWYWJIzDRduUrJ0n/Kh3QQH8=
+zgo.at/slog_align v0.0.0-20250608122414-fe848f5abf9c h1:l2M922Y7zyXB5sq032cJw/Q1E2yINRH1+Dr7FPMHzMU=
+zgo.at/slog_align v0.0.0-20250608122414-fe848f5abf9c/go.mod h1:EUS70SYZRKBqYL2iWwlNWYWJIzDRduUrJ0n/Kh3QQH8=
 zgo.at/termtext v1.5.0 h1:4p9GVUDYUR8oWvpxOZsO5ZrNSkA99bp8gXNKxKj+Kl0=
 zgo.at/termtext v1.5.0/go.mod h1:AcdAAiydkqSFadljJaEj9jv7bpyJxfQqGtPWyZCLenQ=
 zgo.at/tz v0.0.0-20240819050900-3c7bf6122612 h1:cg4VMBRZ8qFJ9n/HqfQmZmtOIRfrlb6Q43S2M34yx8c=
