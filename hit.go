@@ -156,7 +156,7 @@ func (h *Hit) cleanPath(ctx context.Context) {
 		q.Del("_x_tr_hl")
 		q.Del("_x_tr_pto")
 		if q.Has("_x_tr_tl") { // Rename the destination language.
-			q.Set("translate-to", q.Get("_x_tr_tl"))
+			//q.Set("translate-to", q.Get("_x_tr_tl"))
 			q.Del("_x_tr_tl")
 		}
 
