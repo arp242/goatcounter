@@ -26,6 +26,11 @@ var (
 	TestSeqSession = zint.Uint128{TestSession[0], TestSession[1] + 1}
 )
 
+var (
+	memlog  = log.Module("memstore")
+	sesslog = log.Module("session")
+)
+
 type sessionKey string
 
 type ms struct {
@@ -86,16 +91,17 @@ func (m *ms) Init(db zdb.DB) error {
 	err := db.Get(context.Background(), &s, `select value from store where key='session'`)
 	if err != nil {
 		if zdb.ErrNoRows(err) {
+			memlog.Debugf(context.Background(), "no sessions stored in DB")
 			return nil
 		}
-		log.Errorf(context.Background(), "Memstore.Init: load from DB store: %s", err)
+		memlog.Errorf(context.Background(), "load from DB store: %s", err)
 		return nil
 	}
 
 	var stored storedSession
 	err = json.Unmarshal(s, &stored)
 	if err != nil {
-		log.Errorf(context.Background(), "Memstore.Init: %s", err)
+		memlog.Errorf(context.Background(), "unmarshal from DB store: %s", err)
 		return nil
 	}
 
@@ -111,6 +117,11 @@ func (m *ms) Init(db zdb.DB) error {
 	if stored.Seen != nil {
 		m.sessionSeen = stored.Seen
 	}
+	memlog.Debug(context.Background(), "restored sessions from DB",
+		"sessions", len(m.sessions),
+		"sessionHashes", len(m.sessionHashes),
+		"sessionPaths", len(m.sessionPaths),
+		"sessionSeen", len(m.sessionSeen))
 	return nil
 }
 
@@ -125,15 +136,21 @@ func (m *ms) StoreSessions(db zdb.DB) {
 		Hashes:   m.sessionHashes,
 	})
 	if err != nil {
-		log.Error(context.Background(), err)
+		memlog.Error(context.Background(), err)
 		return
 	}
 
 	err = db.Exec(context.Background(),
 		`insert into store (key, value) values ('session', $1)`, d)
 	if err != nil {
-		log.Error(context.Background(), err)
+		memlog.Error(context.Background(), err)
 	}
+
+	memlog.Debug(context.Background(), "stored sessions in DB on shutdown",
+		"sessions", len(m.sessions),
+		"sessionHashes", len(m.sessionHashes),
+		"sessionPaths", len(m.sessionPaths),
+		"sessionSeen", len(m.sessionSeen))
 }
 
 func (m *ms) Append(hits ...Hit) {
@@ -211,8 +228,7 @@ func (m *ms) Persist(ctx context.Context) ([]Hit, error) {
 }
 
 func (m *ms) processHit(ctx context.Context, h *Hit) bool {
-	l := log.Module("memstore")
-	defer log.Recover(ctx, func(err error) { l.Error(ctx, err, "hit", h) })
+	defer log.Recover(ctx, func(err error) { memlog.Error(ctx, err, "hit", h) })
 
 	if h.noProcess {
 		return true
@@ -222,7 +238,7 @@ func (m *ms) processHit(ctx context.Context, h *Hit) bool {
 	h.RefURL, _ = url.Parse(h.Ref)
 	if h.RefURL != nil {
 		if isRefspam(h.RefURL.Host) {
-			l.Debugf(ctx, "refspam ignored: %q", h.RefURL.Host)
+			memlog.Debugf(ctx, "refspam ignored: %q", h.RefURL.Host)
 			return false
 		}
 	}
@@ -230,7 +246,7 @@ func (m *ms) processHit(ctx context.Context, h *Hit) bool {
 	var site Site
 	err := site.ByID(ctx, h.Site)
 	if err != nil {
-		l.Error(ctx, err, "hit", h)
+		memlog.Error(ctx, err, "hit", h)
 		return false
 	}
 	ctx = WithSite(ctx, &site)
@@ -248,9 +264,9 @@ func (m *ms) processHit(ctx context.Context, h *Hit) bool {
 	err = h.Defaults(ctx, false)
 	if err != nil {
 		if errors.As(err, ztype.Ptr(&zvalidate.Validator{})) {
-			l.Debug(ctx, err.Error(), "hit", h)
+			memlog.Debug(ctx, err.Error(), "hit", h)
 		} else {
-			l.Error(ctx, err, "hit", h)
+			memlog.Error(ctx, err, "hit", h)
 		}
 		return false
 	}
@@ -287,7 +303,7 @@ func (m *ms) processHit(ctx context.Context, h *Hit) bool {
 			var loc Location
 			err := loc.ByCode(ctx, h.Location[:2])
 			if err != nil {
-				l.Errorf(ctx, "lookup %q: %s", h.Location[:2], err)
+				memlog.Errorf(ctx, "lookup %q: %s", h.Location[:2], err)
 			}
 			h.Location = loc.ISO3166_2
 		}
@@ -299,10 +315,9 @@ func (m *ms) processHit(ctx context.Context, h *Hit) bool {
 
 	err = h.Validate(ctx, false)
 	if err != nil {
-		l.Error(ctx, err, "hit", h)
+		memlog.Error(ctx, err, "hit", h)
 		return false
 	}
-
 	return true
 }
 
@@ -324,7 +339,7 @@ func (m *ms) EvictSessions() {
 
 		sk := m.sessionHashes[id]
 
-		sessLog.Debug(context.Background(), "evicting session",
+		sesslog.Debug(context.Background(), "evicting session",
 			"session-id", id,
 			"last-seen", seen,
 			"session-key", sk)
@@ -345,8 +360,6 @@ func (m *ms) SessionID() zint.Uint128 {
 	return UUID()
 }
 
-var sessLog = log.Module("session")
-
 func (m *ms) session(ctx context.Context, siteID, pathID int64, userSessionID, ua, remoteAddr string) (zint.Uint128, zbool.Bool) {
 	sk := sessionKey(userSessionID)
 	if userSessionID == "" {
@@ -364,7 +377,7 @@ func (m *ms) session(ctx context.Context, siteID, pathID int64, userSessionID, u
 			m.sessionPaths[id][pathID] = struct{}{}
 		}
 
-		sessLog.Debug(ctx, "HIT",
+		sesslog.Debug(ctx, "HIT",
 			"session-key", sk,
 			"session-id", id,
 			"path", pathID,
@@ -379,7 +392,7 @@ func (m *ms) session(ctx context.Context, siteID, pathID int64, userSessionID, u
 	m.sessionSeen[id] = ztime.Now().Unix()
 	m.sessionHashes[id] = sk
 
-	sessLog.Debug(ctx, "MISS: created new",
+	sesslog.Debug(ctx, "MISS: created new",
 		"session-key", sk,
 		"session-id", id,
 		"path", pathID)

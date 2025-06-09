@@ -223,18 +223,18 @@ const helpDebug = `
 List of debug modules for the -debug flag; you can add multiple separated by
 commas.
 
-    all            Show debug logs for all of the below.
+    all            Show debug logs for all of the below
 
-    acme           ACME certificate creation.
-    cli-trace      Show stack traces in errors on the CLI.
-    cron           Background "cron" jobs.
-    cron-acme      Cron jobs for ACME certificate creations.
-    dashboard      Dashboard view.
-    export         Export creation.
-    import         Imports.
-    import-api     Imports from the API.
-    memstore       Storing of pageviews in the database.
-    monitor        Additional logs in "goatcounter monitor" .
-    session        Internal "session" generation to track visitors .
-    vacuum         Deletion of old deleted sites and old pageviews.
+    acme           ACME certificate creation
+    cli-trace      Show stack traces in errors on the CLI
+    cron           Background "cron" jobs
+    cron-acme      Cron jobs for ACME certificate creations
+    dashboard      Dashboard view
+    export         Export creation
+    import         Imports
+    import-api     Imports from the API
+    memstore       Storing of pageviews in the database
+    monitor        Additional logs in "goatcounter monitor"
+    session        Internal "session" generation to track visitors
+    vacuum         Deletion of deleted sites and old pageviews
 `
