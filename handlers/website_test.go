@@ -16,7 +16,7 @@ func TestWebsiteTpl(t *testing.T) {
 		path, want string
 	}{
 		{"/", "doesn’t track users with"},
-		{"/help/privacy", "Screen size"},
+		{"/help/privacy", "for browsers it looks like"},
 		{"/help/terms", "The “services” are any software, application, product, or service"},
 		{"/why", "Footnotes"},
 		{"/design", "Firefox on iOS is just displayed as Safari"},
