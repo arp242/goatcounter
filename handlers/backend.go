@@ -111,18 +111,16 @@ func (h backend) Mount(r chi.Router, db zdb.DB, dev bool, domainStatic string, d
 	}
 
 	{
-		headers := http.Header{
-			"Strict-Transport-Security": []string{"max-age=7776000"},
-			"X-Content-Type-Options":    []string{"nosniff"},
-			"X-Frame-Options":           []string{},
-		}
-
 		{
 			af := r.With(keyAuth, loggedIn, addz18n())
 			bosmang{}.mount(af, db)
 		}
 
-		a := r.With(mware.Headers(headers), keyAuth, addz18n())
+		a := r.With(mware.Headers(http.Header{
+			"Strict-Transport-Security": []string{"max-age=7776000"},
+			"X-Content-Type-Options":    []string{"nosniff"},
+			"X-Frame-Options":           []string{}, // Clear default from zhttp
+		}), keyAuth, addz18n())
 		user{}.mount(a, ratelimits)
 		{
 			ap := a.With(loggedInOrPublic, addz18n())

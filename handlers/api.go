@@ -70,6 +70,7 @@ func (h api) mount(r chi.Router, db zdb.DB, ratelimits Ratelimits) {
 	}
 
 	a := r.With(
+		addCORS(),
 		middleware.AllowContentType("application/json"),
 		Ratelimit(false, func(r *http.Request) (limiter.Store, string) {
 			switch r.URL.Path {
@@ -82,6 +83,30 @@ func (h api) mount(r chi.Router, db zdb.DB, ratelimits Ratelimits) {
 			}
 		}),
 	)
+
+	// Explicitly handle all verbs/endpoints so the setCORS() middleware is run
+	// for OPTIONS.
+	//
+	// If we'd just do a.Options(..) then something like "/api/v0/xxx" will
+	// return 405 instead of 404.
+	a.HandleFunc("/api/*", zhttp.Wrap(func(w http.ResponseWriter, r *http.Request) error {
+		if r.Method == "OPTIONS" {
+			return nil
+		}
+
+		// Make sure we return with a 405 if we have a handler with a different
+		// verb.
+		//
+		// TODO: this is rather ugly :-/
+		rctx := chi.RouteContext(r.Context())
+		if rctx.Routes.Find(rctx, "POST", r.URL.Path) != "/api/*" ||
+			rctx.Routes.Find(rctx, "GET", r.URL.Path) != "/api/*" ||
+			rctx.Routes.Find(rctx, "PATCH", r.URL.Path) != "/api/*" ||
+			rctx.Routes.Find(rctx, "DELETE", r.URL.Path) != "/api/*" {
+			return guru.New(405, "method not allowed")
+		}
+		return guru.New(404, "not found")
+	}))
 
 	a.Get("/api/v0/test", zhttp.Wrap(h.test))
 	a.Post("/api/v0/test", zhttp.Wrap(h.test))

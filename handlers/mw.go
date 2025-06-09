@@ -442,3 +442,21 @@ func Ratelimit(withUA bool, getStore func(r *http.Request) (limiter.Store, strin
 		})
 	}
 }
+
+func addCORS() func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			o := r.Header.Get("Origin")
+			if o != "" {
+				w.Header().Add("Access-Control-Allow-Credentials", "true")
+				w.Header().Add("Access-Control-Allow-Origin", "*")
+				if r.Method == "OPTIONS" {
+					w.Header().Add("Access-Control-Allow-Headers", "Authorization, Content-Type")
+					w.Header().Add("Access-Control-Allow-Methods", "DELETE, GET, HEAD, OPTIONS, PATCH, POST, PUT")
+					w.Header().Add("Allow", "DELETE, GET, HEAD, OPTIONS, PATCH, POST, PUT")
+				}
+			}
+			next.ServeHTTP(w, r)
+		})
+	}
+}
