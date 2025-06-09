@@ -74,7 +74,11 @@ var (
 				Secure:   zhttp.CookieSecure,
 				SameSite: zhttp.CookieSameSite,
 			})
-			return guru.New(303, goatcounter.Config(r.Context()).BasePath+"/")
+			hide := ""
+			if r.URL.Query().Get("hideui") != "" {
+				hide += "?hideui=1"
+			}
+			return guru.New(303, goatcounter.Config(r.Context()).BasePath+"/"+hide)
 		}
 		if c, err := r.Cookie("access-token"); err == nil && s.Settings.CanView(c.Value) {
 			return nil
@@ -341,14 +345,12 @@ func addcsp(domainStatic string) func(http.Handler) http.Handler {
 				ds = append(ds, domainStatic)
 			}
 
-			var frame []string
+			frame := defaultFrameAncestors
 			if s := goatcounter.GetSite(r.Context()); s != nil && len(s.Settings.AllowEmbed) > 0 {
 				frame = make([]string, 0, len(s.Settings.AllowEmbed))
 				for _, d := range s.Settings.AllowEmbed {
 					frame = append(frame, d)
 				}
-			} else {
-				frame = defaultFrameAncestors
 			}
 
 			switch {
