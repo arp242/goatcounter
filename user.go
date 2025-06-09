@@ -294,11 +294,18 @@ func (u *User) ByID(ctx context.Context, id int64) error {
 	return errors.Wrap(err, "User.ByID")
 }
 
-// ByEmail gets a user by email address.
+// ByEmail gets a user by email address for the current account.
 func (u *User) ByEmail(ctx context.Context, email string) error {
 	err := zdb.Get(ctx, u, `select * from users where lower(email) = lower(?) and site_id = ?`,
 		email, MustGetSite(ctx).IDOrParent())
-	return errors.Wrap(err, "User.ByEmail")
+	return errors.Wrapf(err, "User.ByEmail(%q)", email)
+}
+
+// ByEmail gets a user by email address for the current account.
+func (u *User) BySiteAndEmail(ctx context.Context, siteID int64, email string) error {
+	err := zdb.Get(ctx, u, `select * from users where lower(email) = lower(?) and site_id = ?`,
+		email, siteID)
+	return errors.Wrapf(err, "User.ByEmail(%d, %q)", siteID, email)
 }
 
 // Find a user: by ID if ident is a number, or by email if it's not.

@@ -1791,3 +1791,6 @@ meaning.
   loc     = ["tpl/_dashboard_pages_rows.gohtml:28"]
   default = "Y-axis scale"
 
+["p/num-accounts"]
+  default = "This account contains %(n) sites:"
+  one     = "This account contains 1 site:"

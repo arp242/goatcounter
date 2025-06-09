@@ -15,3 +15,7 @@
 ["dashboard/month-ago"]
   default = "%(n) months ago"
   one     = "1 month ago"
+
+["p/num-accounts"]
+  default = "This account contains %(n) sites:"
+  one     = "This account contains 1 site:"
