@@ -6,52 +6,36 @@ below.
 
 Identifiable information
 ------------------------
-
-The [GDPR][gdpr] applies to data which “*could be attributed to a natural person
-by the use of additional information*”, and does “*not apply to anonymous
+The [GDPR][gdpr] applies to data which *“could be attributed to a natural person
+by the use of additional information”*, and does *“not apply to anonymous
 information, namely information which does not relate to an identified or
 identifiable natural person or to personal data rendered anonymous in such a
-manner that the data subject is not or no longer identifiable*”.
+manner that the data subject is not or no longer identifiable”*.
 
-With the collected data it’s extremely hard to identify a natural person, even
-by someone with full access to the database (i.e. me).
+The full details on how GoatCounter stores data is in [Privacy Policy]. In
+brief: it stores "aggregate data" rather than every individual pageview. It also
+only stores the "computed" data instead of the source it was created from (such
+as the IP address or User-Agent header).
 
-It’s prohibitively expensive to retrieve the IP address from the hash. The most
-unique information being stored right now is the full `User-Agent` header; which
-can be fairly unique (depending on your browser, especially some mobile ones
-send a lot of personal information like firmware version) especially when
-combined with the country, but even this is very limited.
+This means you can see "40 people used Firefox today" and "20 people entered the
+site via example.com", but *not* "10 people using Firefox entered the site via
+example.com".
 
-Other information such as the URL or `Referer` do not relate to an identified
-person.
-
-It’s true that certain “additional information” from other parties could reveal
-more – such as correlating the `User-Agent` and location – but would be hard,
-and the retrieved data would be limited (everyone in Indonesia using Firefox is
-a rather large pool of people). To determine whether a personal is identifiable
-“*account should be taken of all the means reasonably likely to be used*”, and
-this doesn’t strike me as reasonably likely.
-
-If a user (i.e. a customer on your site) would contact me for their rights to
-have insight in their data and/or have it removed, then I would have no way to
-reliably do so, even if they would provide me with most of their computer’s
-information. It might be possible if they provide their browsing history, but if
-you have full access to all their browsing data then what do you need
-GoatCounter’s data for?
-
+It’s essentially impossible to identify any person, even with full access to the
+database. If a someone would contact me for their rights to have insight in
+their data and/or have it removed then I would have no way to do this.
 
 Legitimate interest
 -------------------
-
 A second point is that consent is not the only legitimate basis for processing
-data; there may also be a legitimate interest: “*The legitimate interests of a
+data; there may also be a legitimate interest: *“The legitimate interests of a
 controller (..) may provide a legal basis for processing, (..) taking into
 consideration the reasonable expectations of data subjects based on their
-relationship with the controller.*”
+relationship with the controller.”*
 
 Insight in how many customers are using your product seems to be a “legitimate
 interest” to me, as well as a reasonable expectation. A real-world analogy might
-be a store keeping track of  how many people enter through which doors and at
+be a store keeping track of how many people enter through which doors and at
 which times, perhaps also recording if they arrived by car, bike, or on foot.
 
 The problems start when the store also records your license plate number, or
@@ -67,7 +51,6 @@ I am not the first to arrive at this conclusion:
 
 Conclusion
 ----------
-
 In conclusion; it should *probably* be safe to add GoatCounter without a GDPR
 consent notice; but there are a few things to keep in mind:
 
@@ -76,8 +59,8 @@ consent notice; but there are a few things to keep in mind:
 2. EU Regulations such as the GDPR are interpreted and enforced different across
    member states.
 3. Other national laws may apply as well.
-4. I am not a lawyer 😅 But the similar Fathom interpretation *has* been
-   reviewed by one.
+4. I am not a lawyer; but the similar Fathom interpretation *has* been reviewed
+   by one.
 
 Note that nothing is preventing you from adding a consent notice, if you want to
 be sure. There is an example for it on the "Site Code" page in your dashboard.
@@ -85,4 +68,5 @@ be sure. There is an example for it on the "Site Code" page in your dashboard.
 Other than that, it’s advised you consult a lawyer if you want detailed legal
 advice specific to your situation.
 
+[Privacy Policy]: /help/privacy
 [gdpr]: https://eur-lex.europa.eu/legal-content/EN/TXT/PDF/?uri=CELEX:32016R0679
