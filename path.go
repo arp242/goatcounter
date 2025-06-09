@@ -12,6 +12,7 @@ import (
 	"zgo.at/zcache"
 	"zgo.at/zdb"
 	"zgo.at/zstd/zbool"
+	"zgo.at/zstd/zjson"
 	"zgo.at/zstd/zreflect"
 )
 
@@ -151,30 +152,93 @@ func (p Path) Merge(ctx context.Context, paths Paths) error {
 
 	siteID := MustGetSite(ctx).ID
 	err := zdb.TX(ctx, func(ctx context.Context) error {
+		// Update stats and counts tables, except hit_stats
 		for _, tt := range zreflect.Values(Tables, "", "") {
-			t := tt.(tbl)
+			var (
+				t      = tt.(tbl)
+				i      = slices.Index(t.Columns, "path_id")
+				sel    = append([]string{}, t.Columns...)
+				selCTE = append([]string{}, t.Columns...)
+				group  = append([]string{}, t.Columns...)
+			)
+			if t.Table == "hit_stats" {
+				continue
+			}
 
-			sel := append([]string{}, t.Columns...)
-			sel[slices.Index(sel, "path_id")] = ":path_id"
-			q := fmt.Sprintf(`
-				insert into %[1]s (%[2]s)
-					select %[3]s from %[1]s
-					where site_id = :site_id and path_id in (:paths)
-				%[4]s`,
-				t.Table, strings.Join(t.Columns, ", "),
-				strings.Join(sel, ", "), t.OnConflict(ctx))
+			sel[i] = ":path_id"
+			selCTE = slices.Delete(selCTE, i, i+1)
+			l := len(selCTE) - 1
 
-			err := zdb.Exec(ctx, q, map[string]any{
-				"path_id": p.ID,
-				"site_id": siteID,
-				"paths":   pathIDs,
+			selCTE[l] = fmt.Sprintf("sum(%[1]s) as %[1]s", selCTE[l])
+
+			group = append(group[i+1:len(group)-1], "site_id")
+
+			err := zdb.Exec(ctx, `load:paths.Merge`, map[string]any{
+				"Table":      t.Table,
+				"SelectCTE":  strings.Join(selCTE, ", "),
+				"Select":     strings.Join(sel, ", "),
+				"Columns":    strings.Join(t.Columns, ", "),
+				"OnConflict": t.OnConflict(ctx),
+				"Group":      strings.Join(group, ", "),
+				"path_id":    p.ID,
+				"site_id":    siteID,
+				"paths":      pathIDs,
 			})
+			if err != nil {
+				return err
+			}
+			err = zdb.Exec(ctx, `delete from `+t.Table+` where site_id=? and path_id in (?)`,
+				siteID, pathIDs)
 			if err != nil {
 				return err
 			}
 		}
 
-		err := zdb.Exec(ctx, `update hits set path_id = ? where site_id = ? and path_id in (?)`,
+		// Update hit_stats; for PostgreSQL we can update inline, for SQLite we
+		// need to select + delete all and re-insert.
+		loadPathIDs := append([]int64{}, pathIDs...)
+		if zdb.SQLDialect(ctx) == zdb.DialectSQLite {
+			loadPathIDs = append(loadPathIDs, p.ID)
+		}
+		var hitStats []struct {
+			Day   string `db:"day"`
+			Stats []byte `db:"stats"`
+		}
+		err := zdb.Select(ctx, &hitStats, `load:paths.Merge-hit_stats`, map[string]any{
+			"site_id": siteID,
+			"paths":   loadPathIDs,
+		})
+		if err != nil {
+			return err
+		}
+		if zdb.SQLDialect(ctx) == zdb.DialectSQLite {
+			err := zdb.Exec(ctx, `delete from hit_stats where site_id=? and path_id in (?)`,
+				siteID, pathIDs)
+			if err != nil {
+				return err
+			}
+		}
+
+		ins := Tables.HitStats.Bulk(ctx)
+		if zdb.SQLDialect(ctx) == zdb.DialectSQLite {
+			ins = zdb.NewBulkInsert(ctx, "hit_stats", []string{"site_id", "path_id", "day", "stats"})
+		}
+		for _, d := range hitStats {
+			var ru [][]int
+			zjson.MustUnmarshal(d.Stats, &ru)
+			for _, s := range ru[1:] {
+				for i := range s {
+					ru[0][i] += s[i]
+				}
+			}
+			ins.Values(siteID, p.ID, d.Day[:10], zjson.MustMarshal(ru[0]))
+		}
+		if err := ins.Finish(); err != nil {
+			return err
+		}
+
+		// Update hits and delete old paths.
+		err = zdb.Exec(ctx, `update hits set path_id = ? where site_id = ? and path_id in (?)`,
 			p.ID, siteID, pathIDs)
 		if err != nil {
 			return err

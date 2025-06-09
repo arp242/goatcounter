@@ -1,0 +1,9 @@
+select
+	day,
+	{{psql "jsonb_agg(stats::jsonb)"}}
+	{{sqlite "json_group_array(json(stats))"}}
+	as stats
+from hit_stats
+where site_id = :site_id and path_id in (:paths)
+group by day
+order by day asc

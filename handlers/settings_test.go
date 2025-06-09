@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 	"time"
 
@@ -11,6 +12,7 @@ import (
 	"zgo.at/goatcounter/v2"
 	"zgo.at/goatcounter/v2/gctest"
 	"zgo.at/zdb"
+	"zgo.at/zstd/ztest"
 	"zgo.at/zstd/ztype"
 )
 
@@ -303,4 +305,106 @@ func TestSettingsSitesRemove(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestSettingsMerge(t *testing.T) {
+	do := func(ctx context.Context, t *testing.T, params map[string]string) {
+		form := formBody(params)
+		r, rr := newTest(ctx, "POST", "/settings/merge", strings.NewReader(form))
+		r.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+		login(t, r)
+		newBackend(zdb.MustGetDB(ctx)).ServeHTTP(rr, r)
+		ztest.Code(t, rr, 303)
+		bgrun.Wait("")
+	}
+
+	check := func(ctx context.Context, t *testing.T, want string) {
+		t.Helper()
+		have := new(strings.Builder)
+		for _, q := range []string{
+			`select * from paths         order by path_id`,
+			`select * from hit_counts    order by path_id`,
+			`select * from hit_stats     order by path_id`,
+			`select * from browser_stats order by path_id`,
+			`select * from system_stats  join systems using(system_id) order by path_id`,
+		} {
+			zdb.Dump(ctx, have, q)
+		}
+
+		if d := ztest.Diff(have.String(), want, ztest.DiffNormalizeWhitespace); d != "" {
+			t.Error(d)
+		}
+	}
+
+	var (
+		uaLinux = `Mozilla/5.0 (X11; Linux x86_64; rv:139.0) Gecko/20100101 Firefox/139.0`
+		uaMac   = `Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:139.0) Gecko/20100101 Firefox/139.0`
+		uaWin   = `Mozilla/5.0 (Windows NT 10.0; WOW64; rv:139.0) Gecko/20100101 Firefox/139.0`
+	)
+
+	t.Run("merge one path", func(t *testing.T) {
+		ctx := gctest.DB(t)
+		gctest.StoreHits(ctx, t, false,
+			goatcounter.Hit{FirstVisit: true, Path: "/one", UserAgentHeader: uaLinux},
+			goatcounter.Hit{FirstVisit: true, Path: "/two", UserAgentHeader: uaMac},
+			goatcounter.Hit{FirstVisit: true, Path: "/three", UserAgentHeader: uaWin})
+
+		do(ctx, t, map[string]string{
+			"merge_with": "1",
+			"paths":      "2",
+		})
+		check(ctx, t, `
+			path_id  site_id  path    title  event
+			1        1        /one           0
+			3        1        /three         0
+
+			site_id  path_id  hour                 total
+			1        1        2025-06-13 12:00:00  2
+			1        3        2025-06-13 12:00:00  1
+
+			site_id  path_id  day                  stats
+			1        1        2025-06-13 00:00:00  [0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0]
+			1        3        2025-06-13 00:00:00  [0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0]
+
+			site_id  path_id  browser_id  day                  count
+			1        1        1           2025-06-13 00:00:00  2
+			1        3        1           2025-06-13 00:00:00  1
+
+			site_id  path_id  system_id  day                  count  name     version
+            1        1        1          2025-06-13 00:00:00  1      Linux
+            1        1        2          2025-06-13 00:00:00  1      macOS    10.14
+            1        3        3          2025-06-13 00:00:00  1      Windows  10
+		`)
+	})
+
+	t.Run("merge two paths", func(t *testing.T) {
+		ctx := gctest.DB(t)
+		gctest.StoreHits(ctx, t, false,
+			goatcounter.Hit{FirstVisit: true, Path: "/one", UserAgentHeader: uaLinux},
+			goatcounter.Hit{FirstVisit: true, Path: "/two", UserAgentHeader: uaMac},
+			goatcounter.Hit{FirstVisit: true, Path: "/three", UserAgentHeader: uaWin})
+
+		do(ctx, t, map[string]string{
+			"merge_with": "1",
+			"paths":      "2,3",
+		})
+		check(ctx, t, `
+			path_id  site_id  path  title  event
+			1        1        /one         0
+
+			site_id  path_id  hour                 total
+			1        1        2025-06-13 12:00:00  3
+
+			site_id  path_id  day                  stats
+			1        1        2025-06-13 00:00:00  [0,0,0,0,0,0,0,0,0,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0]
+
+			site_id  path_id  browser_id  day                  count
+			1        1        1           2025-06-13 00:00:00  3
+
+			site_id  path_id  system_id  day                  count  name     version
+            1        1        1          2025-06-13 00:00:00  1      Linux
+            1        1        2          2025-06-13 00:00:00  1      macOS    10.14
+            1        1        3          2025-06-13 00:00:00  1      Windows  10
+		`)
+	})
 }

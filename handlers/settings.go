@@ -518,8 +518,8 @@ func (h settings) merge(w http.ResponseWriter, r *http.Request) error {
 		}
 	})
 
-	zhttp.Flash(w, T(r.Context(),
-		"notify/started-background-process|Started in the background; may take about 10-20 seconds to fully process."))
+	zhttp.Flash(w, T(r.Context(), `notify/started-background-process|
+		Started in the background; may take about 10-20 seconds to fully process.`))
 	return zhttp.SeeOther(w, "/settings/purge")
 }
 
