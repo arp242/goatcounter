@@ -1032,6 +1032,21 @@ type (
 		// slower.
 		PathByName bool `json:"path_by_name" query:"path_by_name"`
 	}
+
+	apiCountTotalResponse struct {
+		// Total number of visitors (including events).
+		Total int `json:"total"`
+
+		// Total number of visitors for events.
+		TotalEvents int `json:"total_events"`
+
+		// Total number of visitors in UTC. The browser, system, etc, stats are
+		// always in UTC.
+		TotalUTC int `json:"total_utc"`
+
+		// Total overview per day and hour.
+		Stats []goatcounter.HitListStat `json:"stats"`
+	}
 )
 
 // GET /api/v0/stats/total stats
@@ -1042,7 +1057,7 @@ type (
 // paginated.
 //
 // Query: apiCountTotalRequest
-// Response 200: goatcounter.TotalCount
+// Response 200: apiCountTotalResponse
 func (h api) countTotal(w http.ResponseWriter, r *http.Request) error {
 	m := metrics.Start("/api/v0/stats/*")
 	defer m.Done()
@@ -1068,13 +1083,33 @@ func (h api) countTotal(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	tc, err := goatcounter.GetTotalCount(r.Context(), ztime.NewRange(args.Start).To(args.End),
-		includeIDs, false)
-	if err != nil {
-		return err
+	var (
+		wg          sync.WaitGroup
+		total       goatcounter.HitList
+		tc          goatcounter.TotalCount
+		tcErr, oErr error
+		rng         = ztime.NewRange(args.Start).To(args.End)
+	)
+	wg.Add(2)
+	func() {
+		defer wg.Done()
+		defer log.Recover(r.Context())
+		tc, tcErr = goatcounter.GetTotalCount(r.Context(), rng, includeIDs, false)
+	}()
+	func() {
+		defer wg.Done()
+		defer log.Recover(r.Context())
+		_, oErr = total.Totals(r.Context(), rng, includeIDs, true, false)
+	}()
+	wg.Wait()
+	if tcErr != nil {
+		return tcErr
+	}
+	if oErr != nil {
+		return oErr
 	}
 
-	return zhttp.JSON(w, tc)
+	return zhttp.JSON(w, apiCountTotalResponse{tc.Total, tc.TotalEvents, tc.TotalUTC, total.Stats})
 }
 
 type (

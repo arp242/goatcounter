@@ -559,7 +559,7 @@ paginated.</p>
 				<h4>Responses</h4>
 				<ul>
 					<li><code class="param-name">200 OK</code>
-								<a href="#goatcounter.TotalCount">goatcounter.TotalCount</a>
+								<a href="#handlers.apiCountTotalResponse">handlers.apiCountTotalResponse</a>
 							<sup>(application/json)</sup>
 					</li>
 					<li><code class="param-name">400 Bad Request</code>
@@ -812,18 +812,6 @@ This is stored as JSON in the database.</p>
 <p></p>
 
 		</div>
-		<h3 id="goatcounter.TotalCount">goatcounter.TotalCount <a class="permalink" href="#goatcounter.TotalCount">§</a></h3>
-		<div class="endpoint model">
-			<p class="info"></p>
-			<h4>total <sup>integer</sup></h4>
-<p>Total number of visitors (including events).</p>
-<h4>total_events <sup>integer</sup></h4>
-<p>Total number of visitors for events.</p>
-<h4>total_utc <sup>integer</sup></h4>
-<p>Total number of visitors in UTC. The browser, system, etc, stats are
-always in UTC.</p>
-
-		</div>
 		<h3 id="goatcounter.User">goatcounter.User <a class="permalink" href="#goatcounter.User">§</a></h3>
 		<div class="endpoint model">
 			<p class="info">User entry.</p>
@@ -974,6 +962,20 @@ identifier.</p>
 <p>Get values for include_paths and exclude_paths by path name, rather
 than path ID. This is more convenient in some cases, but also a bit
 slower.</p>
+
+		</div>
+		<h3 id="handlers.apiCountTotalResponse">handlers.apiCountTotalResponse <a class="permalink" href="#handlers.apiCountTotalResponse">§</a></h3>
+		<div class="endpoint model">
+			<p class="info"></p>
+			<h4>total <sup>integer</sup></h4>
+<p>Total number of visitors (including events).</p>
+<h4>total_events <sup>integer</sup></h4>
+<p>Total number of visitors for events.</p>
+<h4>total_utc <sup>integer</sup></h4>
+<p>Total number of visitors in UTC. The browser, system, etc, stats are
+always in UTC.</p>
+<h4>stats <sup>array [type: <a href="#goatcounter.HitListStat">goatcounter.HitListStat</a>]</sup></h4>
+<p>Total overview per day and hour.</p>
 
 		</div>
 		<h3 id="handlers.apiError">handlers.apiError <a class="permalink" href="#handlers.apiError">§</a></h3>

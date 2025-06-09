@@ -83,7 +83,7 @@ A quick overview of all the endpoints:
 | `GET   /api/v0/export/{id}/download` | Download CSV export                    |
 | **Statistics**                       |                                        |
 | `GET   /api/v0/stats/total`          | List total pageview counts             |
-| `GET   /api/v0/stats/hits`           | Get pageview and visitor statistics    |
+| `GET   /api/v0/stats/hits`           | Get view/visitor statistics per path   |
 | `GET   /api/v0/stats/hits/{path_id}` | Get referral stats for a path          |
 | `GET   /api/v0/stats/{page}`         | Get stats for browser, system, etc.    |
 | `GET   /api/v0/stats/{page}/{id}`    | Detailed stats (e.g. browser version)  |

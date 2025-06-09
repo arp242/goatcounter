@@ -406,8 +406,10 @@ func addTotals(hh HitLists, daily bool, totalDisplay *int) {
 }
 
 type TotalCount struct {
-	Total       int `db:"total" json:"total"`               // Total number of visitors (including events).
-	TotalEvents int `db:"total_events" json:"total_events"` // Total number of visitors for events.
+	// Total number of visitors (including events).
+	Total int `db:"total" json:"total"`
+	// Total number of visitors for events.
+	TotalEvents int `db:"total_events" json:"total_events"`
 	// Total number of visitors in UTC. The browser, system, etc, stats are
 	// always in UTC.
 	TotalUTC int `db:"total_utc" json:"total_utc"`
