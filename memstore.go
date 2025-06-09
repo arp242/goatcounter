@@ -210,7 +210,7 @@ func (m *ms) Persist(ctx context.Context) ([]Hit, error) {
 	newHits := make([]Hit, 0, len(hits))
 	ins := zdb.NewBulkInsert(ctx, "hits", []string{"site_id", "path_id", "ref_id",
 		"browser_id", "system_id", "size_id", "location", "language", "created_at", "bot",
-		"session", "first_visit"})
+		"session", "first_visit", "campaign"})
 	for _, h := range hits {
 		if m.processHit(ctx, &h) {
 			// Don't return hits that failed validation; otherwise cron will try to
@@ -219,7 +219,8 @@ func (m *ms) Persist(ctx context.Context) ([]Hit, error) {
 
 			if !h.NoStore {
 				ins.Values(h.Site, h.PathID, h.RefID, h.BrowserID, h.SystemID, h.SizeID,
-					h.Location, h.Language, h.CreatedAt.Round(time.Second), h.Bot, h.Session, h.FirstVisit)
+					h.Location, h.Language, h.CreatedAt.Round(time.Second), h.Bot, h.Session,
+					h.FirstVisit, h.CampaignID)
 			}
 		}
 	}
