@@ -104,16 +104,22 @@ func (h vcounter) counter(w http.ResponseWriter, r *http.Request) error {
 		noBranding = r.URL.Query().Get("no_branding") != ""
 		style      = r.URL.Query().Get("style")
 	)
-	path = "/" + strings.Trim(path, "/")
+
+	// Sanitize slashes, but only if we can't find the path (so events work).
+	var p goatcounter.Path
+	err := p.ByPath(r.Context(), path)
+	if err != nil {
+		if !zdb.ErrNoRows(err) {
+			return err
+		}
+		path = "/" + strings.Trim(path, "/")
+	}
 
 	if ext == "json" {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 	}
 
-	var (
-		rng ztime.Range
-		err error
-	)
+	var rng ztime.Range
 	startArg := r.URL.Query().Get("start")
 	if startArg != "" {
 		switch startArg {

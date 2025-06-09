@@ -37,9 +37,17 @@ func (p *Path) Validate(ctx context.Context) error {
 }
 
 func (p *Path) ByID(ctx context.Context, id int64) error {
-	return errors.Wrapf(zdb.Get(ctx, p,
+	err := zdb.Get(ctx, p,
 		`/* Path.ByID */ select * from paths where path_id=? and site_id=?`,
-		id, MustGetSite(ctx).ID), "Path.ByID %d", id)
+		id, MustGetSite(ctx).ID)
+	return errors.Wrapf(err, "Path.ByID(%d)", id)
+}
+
+func (p *Path) ByPath(ctx context.Context, path string) error {
+	err := zdb.Get(ctx, p,
+		`/* Path.ByPath */ select * from paths where site_id=? and lower(path) = lower(?)`,
+		MustGetSite(ctx).ID, path)
+	return errors.Wrapf(err, "Path.ByPath(%q)", path)
 }
 
 func (p *Path) GetOrInsert(ctx context.Context) error {
