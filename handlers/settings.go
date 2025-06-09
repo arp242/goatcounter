@@ -119,6 +119,11 @@ func (h settings) mount(r chi.Router, ratelimits Ratelimits) {
 			return h.delete(nil)(w, r)
 		}))
 		admin.Post("/settings/delete-account", zhttp.Wrap(h.deleteDo))
+
+		admin.Get("/settings/merge-account", zhttp.Wrap(func(w http.ResponseWriter, r *http.Request) error {
+			return h.mergeAccount(nil)(w, r)
+		}))
+		admin.Post("/settings/merge-account", zhttp.Wrap(h.mergeAccountDo))
 	}
 
 }
@@ -719,6 +724,108 @@ func (h settings) deleteDo(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 	return zhttp.SeeOther(w, "https://"+goatcounter.Config(r.Context()).Domain)
+}
+
+func (h settings) mergeAccount(verr *zvalidate.Validator) zhttp.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) error {
+		user := User(r.Context())
+
+		sites := make(map[int64]goatcounter.Sites)
+		if user.EmailVerified {
+			var users goatcounter.Users
+			err := users.ByEmail(r.Context(), user.Email)
+			if err != nil {
+				return err
+			}
+			users = slices.DeleteFunc(users, func(u goatcounter.User) bool { return u.ID == user.ID })
+			for _, u := range users {
+				if !u.EmailVerified.Bool() || !u.AccessAdmin() {
+					continue
+				}
+
+				var s goatcounter.Sites
+				err := s.ForAccount(r.Context(), u.Site)
+				if err != nil {
+					return err
+				}
+				for _, ss := range s {
+					if ss.Parent == nil {
+						sites[ss.ID] = s
+						break
+					}
+				}
+			}
+		}
+
+		return zhttp.Template(w, "settings_merge.gohtml", struct {
+			Globals
+			Sites    map[int64]goatcounter.Sites
+			Validate *zvalidate.Validator
+		}{newGlobals(w, r), sites, verr})
+	}
+}
+
+func (h settings) mergeAccountDo(w http.ResponseWriter, r *http.Request) error {
+	var args struct {
+		MergeID int64 `json:"mergeID"`
+	}
+	if _, err := zhttp.Decode(r, &args); err != nil {
+		return err
+	}
+
+	user := User(r.Context())
+	if !user.EmailVerified {
+		return guru.New(401, "current user does not have a verified email")
+	}
+	var mergeAccount goatcounter.Site
+	err := mergeAccount.ByID(r.Context(), args.MergeID)
+	if err != nil {
+		return err
+	}
+	var mergeUser goatcounter.User
+	err = mergeUser.BySiteAndEmail(r.Context(), mergeAccount.ID, user.Email)
+	if err != nil {
+		return err
+	}
+	if !mergeUser.EmailVerified.Bool() {
+		return guru.New(400, "user email is not verified")
+	}
+	if !mergeUser.AccessAdmin() {
+		return guru.New(400, "user is not an admin")
+	}
+
+	var mergeSites goatcounter.Sites
+	err = mergeSites.ForAccount(r.Context(), mergeAccount.ID)
+	if err != nil {
+		return err
+	}
+
+	mergeSiteIDs := make([]int64, 0, len(mergeSites))
+	for _, m := range mergeSites {
+		mergeSiteIDs = append(mergeSiteIDs, m.ID)
+	}
+
+	err = zdb.TX(r.Context(), func(ctx context.Context) error {
+		account := Account(r.Context())
+		err := zdb.Exec(ctx, `update sites set parent = ? where site_id in (?)`, account.ID, mergeSiteIDs)
+		if err != nil {
+			return err
+		}
+
+		err = zdb.Exec(ctx, `update users set site_id=? where site_id in (?) and lower(email) <> lower(?)`,
+			account.ID, mergeSiteIDs, user.Email)
+		if err != nil {
+			return err
+		}
+		return zdb.Exec(ctx, `delete from users where site_id in (?) and  lower(email) = lower(?)`,
+			mergeSiteIDs, user.Email)
+	})
+	if err != nil {
+		return err
+	}
+
+	zhttp.Flash(w, "okay")
+	return zhttp.SeeOther(w, "/settings/merge-account")
 }
 
 func (h settings) users(verr *zvalidate.Validator) zhttp.HandlerFunc {

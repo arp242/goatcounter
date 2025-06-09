@@ -8,6 +8,7 @@
 	<a class="{{if has_prefix .Path "/settings/sites"}}active{{end}}"  href="{{.Base}}/settings/sites">{{.T "link/sites|Sites"}}</a>
 		{{if .GoatcounterCom}}
 		<a class="{{if has_prefix .Path "/settings/delete-account"}}active{{end}}" href="{{.Base}}/settings/delete-account">{{.T "link/rm-account|Delete account"}}</a>
+		<a class="{{if has_prefix .Path "/settings/merge-account"}}active{{end}}" href="{{.Base}}/settings/merge-account">{{.T "link/merge-account|Merge account"}}</a>
 		{{end}}
 	{{end}}
 	{{if .User.AccessSuperuser}}

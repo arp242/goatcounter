@@ -1,0 +1,45 @@
+{{template "_backend_top.gohtml" .}}
+{{template "_settings_nav.gohtml" .}}
+
+<h2 id="merge">{{.T "header/merge-account|Merge account"}}</h2>
+<p>{{.T `p/merge-account|
+	You can merge accounts that have an admin user with a verified email that is
+	identical to your current email.
+`}}</p>
+
+{{if not .User.EmailVerified}}
+	<p>
+	{{.T `p/verify-email|
+		Your email address %(email) is not verified; you need to verify your email before you can merge accounts.
+	` (map "email" .User.Email)}}
+	{{.T "p/change-email|Change the email address in the %[settings]." (tag "a" (printf `href="%s/user"` .Base))}}
+	</p>
+{{else}}
+	{{range $accountID, $sites := .Sites}}
+		{{$account := ""}}
+		{{range $s := $sites}}
+			{{if eq $s.ID $accountID}}{{$account = $s}}{{break}}{{end}}
+		{{end}}
+
+		<h2>{{$account.Display $.Context}}</h2>
+		{{$.T `p/num-accounts|This account contains %(n) sites:` (plural (len $sites))}}
+		<ul>
+			{{range $s := $sites}}
+				<li><a href="{{$s.URL $.Context}}">{{$s.Display $.Context}}</a></li>
+			{{end}}
+		</ul>
+
+		<form method="post" action="{{$.Base}}/settings/merge-account"
+			data-confirm={{$.T "label/merge-account-confirmation|Are you sure you want to merge this account?"}}>
+			<input type="hidden" name="csrf" value="{{$.User.CSRFToken}}">
+			<input type="hidden" name="mergeID" value="{{$accountID}}">
+
+			<button type="submit">{{$.T "button/merge|Merge"}}</button>
+		</form>
+		<br>
+	{{else}}
+	<p>{{.T `p/merge-no-accounts|No accounts found with a matching verified email.`}}</p>
+	{{end}}
+{{end}}
+
+{{template "_backend_bottom.gohtml" .}}

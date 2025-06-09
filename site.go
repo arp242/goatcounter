@@ -660,9 +660,8 @@ func (s *Sites) ListSubs(ctx context.Context) error {
 		MustGetSite(ctx).ID, StateActive), "Sites.ListSubs")
 }
 
-// ForThisAccount gets all sites associated with this account.
-func (s *Sites) ForThisAccount(ctx context.Context, excludeCurrent bool) error {
-	site := MustGetSite(ctx)
+// ForAccount gets all sites associated with an account.
+func (s *Sites) ForAccount(ctx context.Context, accountID int64) error {
 	err := zdb.Select(ctx, s, `/* Sites.ForThisAccount */
 		select * from sites
 		where state=$1 and (parent=$2 or site_id=$2) or (
@@ -670,7 +669,14 @@ func (s *Sites) ForThisAccount(ctx context.Context, excludeCurrent bool) error {
 			site_id = (select parent from sites where site_id=$2)
 		) and state=$1
 		order by code
-		`, StateActive, site.ID)
+		`, StateActive, accountID)
+	return errors.Wrap(err, "Sites.ForAccount")
+}
+
+// ForThisAccount gets all sites associated with this account.
+func (s *Sites) ForThisAccount(ctx context.Context, excludeCurrent bool) error {
+	site := MustGetSite(ctx)
+	err := s.ForAccount(ctx, site.ID)
 	if err != nil {
 		return errors.Wrap(err, "Sites.ForThisAccount")
 	}
