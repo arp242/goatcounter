@@ -9,8 +9,25 @@ but you may need to update it in the future for new features.
 
 Latest
 ------
+No changes
+
+v5 (9 June 2025)
+----------------
+    <script data-goatcounter="{{.SiteURL}}/count"
+            async src="//{{.CountDomain}}/count.v5.js"
+            crossorigin="anonymous"
+            integrity="sha384-atnOLvQb9t+jTSipvd75X2yginT4PjVbqDdlJAmxMm+wYElFmeR6EmLP5bYeoRVQ"></script>
+
 - Use `<img>`-based fallback if `navigator.sendBeacon` fails, for example due to
   Content-Security-Policy errors.
+
+- Expose `window.goatcounter.filter()` and `window.goatcounter.get_data()`.
+
+- No longer check for `window.goatcounter.vars` and `window.counter` These were
+  changed a week or so after the initial release over five years ago. AFAIK no
+  one is using them. If you do, then use `window.goatcounter` (or
+  `data-goatcounter-settings`) instead of `window.goatcounter.vars` and
+  `data-goatcounter="url"` on the script tag instead of `window.counter`.
 
 v4 (8 Dec 2023)
 ---------------
