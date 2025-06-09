@@ -210,7 +210,7 @@ func init() {
 			// TODO: add "campiagns page"; link in "settings_main".
 			{href: "export", label: "Export format"},
 			{href: "sessions", label: "Sessions and visitors"},
-			{href: "api", label: "API"},
+			{href: "api", label: "JSON API"},
 			{href: "faq", label: "FAQ"},
 			{href: "translating", label: "Translating GoatCounter"}}},
 		{label: "Legal", items: []x{

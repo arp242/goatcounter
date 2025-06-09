@@ -614,25 +614,31 @@
             "type": "integer"
           },
           {
+            "description": "Get values for include_paths and exclude_paths by path name, rather\nthan path ID. This is more convenient in some cases, but also a bit\nslower.",
+            "in": "query",
+            "name": "path_by_name",
+            "type": "boolean"
+          },
+          {
             "description": "Group by day, rather than by hour. This only affects the Hits.Max\nvalue: if enabled it's set to the highest value for that day, rather\nthan the highest value for the hour.",
             "in": "query",
             "name": "daily",
             "type": "boolean"
           },
           {
-            "description": "Include only these paths; default is to include everything.",
+            "description": "Include only these path IDs; default is to include everything.\n\nIf path_by_name is set, it will look up paths by name instead of ID.",
             "in": "query",
             "items": {
-              "type": "integer"
+              "type": "string"
             },
             "name": "include_paths",
             "type": "array"
           },
           {
-            "description": "Exclude these paths, for pagination.",
+            "description": "Exclude these path IDs, for pagination.\n\nIf path_by_name is set, it will look up paths by name instead of ID.",
             "in": "query",
             "items": {
-              "type": "integer"
+              "type": "string"
             },
             "name": "exclude_paths",
             "type": "array"
@@ -772,10 +778,16 @@
             "type": "string"
           },
           {
-            "description": "Include only these paths; default is to include everything.",
+            "description": "Get values for include_paths and exclude_paths by path name, rather\nthan path ID. This is more convenient in some cases, but also a bit\nslower.",
+            "in": "query",
+            "name": "path_by_name",
+            "type": "boolean"
+          },
+          {
+            "description": "Include only these path IDs; default is to include everything.\n\nIf path_by_name is set, it will look up paths by name instead of ID.",
             "in": "query",
             "items": {
-              "type": "integer"
+              "type": "string"
             },
             "name": "include_paths",
             "type": "array"
@@ -859,10 +871,16 @@
             "type": "integer"
           },
           {
-            "description": "Include only these paths; default is to include everything.",
+            "description": "Get values for include_paths and exclude_paths by path name, rather\nthan path ID. This is more convenient in some cases, but also a bit\nslower.",
+            "in": "query",
+            "name": "path_by_name",
+            "type": "boolean"
+          },
+          {
+            "description": "Include only these path IDs; default is to include everything.\n\nIf path_by_name is set, it will look up paths by name instead of ID.",
             "in": "query",
             "items": {
-              "type": "integer"
+              "type": "string"
             },
             "name": "include_paths",
             "type": "array"
@@ -952,10 +970,16 @@
             "type": "integer"
           },
           {
-            "description": "Include only these paths; default is to include everything.",
+            "description": "Get values for include_paths and exclude_paths by path name, rather\nthan path ID. This is more convenient in some cases, but also a bit\nslower.",
+            "in": "query",
+            "name": "path_by_name",
+            "type": "boolean"
+          },
+          {
+            "description": "Include only these path IDs; default is to include everything.\n\nIf path_by_name is set, it will look up paths by name instead of ID.",
             "in": "query",
             "items": {
-              "type": "integer"
+              "type": "string"
             },
             "name": "include_paths",
             "type": "array"
@@ -1162,7 +1186,7 @@
           "readOnly": true
         },
         "link_domain": {
-          "description": "Site domain for linking (www.arp242.net).",
+          "description": "Site domain for linking (www.arp242.net). Note this can be a full URL and\nis a bit misnamed.",
           "type": "string"
         },
         "parent": {

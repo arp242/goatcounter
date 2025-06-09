@@ -767,7 +767,8 @@ toprefs.</p>
 <p>Domain code (e.g. &#34;arp242&#34;, which makes arp242.goatcounter.com). Only
 used for goatcounter.com and not when self-hosting.</p>
 <h4>link_domain <sup>string</sup></h4>
-<p>Site domain for linking (www.arp242.net).</p>
+<p>Site domain for linking (www.arp242.net). Note this can be a full URL and
+is a bit misnamed.</p>
 <h4>setttings <sup></sup></h4>
 <p></p>
 <h4>user_defaults <sup></sup></h4>
@@ -967,8 +968,12 @@ identifier.</p>
 <p>Start time, should be rounded to the hour.</p>
 <h4>end <sup>string [format: date-time] [default: current time]</sup></h4>
 <p>End time, should be rounded to the hour.</p>
-<h4>include_paths <sup>array [type: integer]</sup></h4>
-<p>Include only these paths; default is to include everything.</p>
+<h4>include_paths <sup>array [type: string]</sup></h4>
+<p>Include only these path IDs; default is to include everything.</p><p>If path_by_name is set, it will look up paths by name instead of ID.</p>
+<h4>path_by_name <sup>boolean</sup></h4>
+<p>Get values for include_paths and exclude_paths by path name, rather
+than path ID. This is more convenient in some cases, but also a bit
+slower.</p>
 
 		</div>
 		<h3 id="handlers.apiError">handlers.apiError <a class="permalink" href="#handlers.apiError">§</a></h3>
@@ -999,10 +1004,14 @@ field set, but not both.</p>
 <p>Group by day, rather than by hour. This only affects the Hits.Max
 value: if enabled it&#39;s set to the highest value for that day, rather
 than the highest value for the hour.</p>
-<h4>include_paths <sup>array [type: integer]</sup></h4>
-<p>Include only these paths; default is to include everything.</p>
-<h4>exclude_paths <sup>array [type: integer]</sup></h4>
-<p>Exclude these paths, for pagination.</p>
+<h4>include_paths <sup>array [type: string]</sup></h4>
+<p>Include only these path IDs; default is to include everything.</p><p>If path_by_name is set, it will look up paths by name instead of ID.</p>
+<h4>exclude_paths <sup>array [type: string]</sup></h4>
+<p>Exclude these path IDs, for pagination.</p><p>If path_by_name is set, it will look up paths by name instead of ID.</p>
+<h4>path_by_name <sup>boolean</sup></h4>
+<p>Get values for include_paths and exclude_paths by path name, rather
+than path ID. This is more convenient in some cases, but also a bit
+slower.</p>
 <h4>limit <sup>integer [default: 20] [range: 1-100]</sup></h4>
 <p>Maximum number of pages to get.</p>
 
@@ -1083,8 +1092,12 @@ than the highest value for the hour.</p>
 <p>Start time, should be rounded to the hour.</p>
 <h4>end <sup>string [format: date-time] [default: current time]</sup></h4>
 <p>End time, should be rounded to the hour.</p>
-<h4>include_paths <sup>array [type: integer]</sup></h4>
-<p>Include only these paths; default is to include everything.</p>
+<h4>include_paths <sup>array [type: string]</sup></h4>
+<p>Include only these path IDs; default is to include everything.</p><p>If path_by_name is set, it will look up paths by name instead of ID.</p>
+<h4>path_by_name <sup>boolean</sup></h4>
+<p>Get values for include_paths and exclude_paths by path name, rather
+than path ID. This is more convenient in some cases, but also a bit
+slower.</p>
 <h4>limit <sup>integer [default: 20] [range: 1-100]</sup></h4>
 <p>Maximum number of pages to get.</p>
 <h4>offset <sup>integer</sup></h4>
@@ -1121,7 +1134,11 @@ than the highest value for the hour.</p>
 			<p class="info">A Location maps time instants to the zone in use at that time.
 Typically, the Location represents the collection of time offsets
 in use in a geographical area. For many Locations the time offset varies
-depending on whether daylight savings time is in use at the time instant.</p>
+depending on whether daylight savings time is in use at the time instant.
+
+Location is used to provide a time zone in a printed Time value and for
+calculations involving intervals that may cross daylight savings time
+boundaries.</p>
 			
 		</div>
 		<h3 id="tz.Zone">tz.Zone <a class="permalink" href="#tz.Zone">§</a></h3>

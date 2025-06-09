@@ -113,6 +113,9 @@ func (t APIToken) FormatPermissions() string {
 	if t.Permissions.Has(APIPermSiteUpdate) {
 		all = append(all, "site-update")
 	}
+	if t.Permissions.Has(APIPermStats) {
+		all = append(all, "stats")
+	}
 	return "'" + strings.Join(all, "', '") + "'"
 }
 

@@ -902,6 +902,33 @@ func TestAPIHits(t *testing.T) {
 				}]
 			}]
 		}`},
+
+		{"include by name", "path_by_name=true&limit=1&exclude_paths=&include_paths=/10&daily=true&start=2020-06-17&end=2020-06-19", 200,
+			func(ctx context.Context, t *testing.T) { many(ctx, t) }, `{
+			"more": false,
+			"total": 1,
+			"hits": [{
+				"count": 1,
+				"event": false,
+				"max": 1,
+				"path": "/10",
+				"path_id": 10,
+				"title": "title - 10",
+				"stats": [{
+					"daily": 0,
+					"day": "2020-06-17",
+					"hourly": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+				}, {
+					"daily": 1,
+					"day": "2020-06-18",
+					"hourly": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+				}, {
+					"daily": 0,
+					"day": "2020-06-19",
+					"hourly": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+				}]
+			}]
+		}`},
 	}
 
 	perm := goatcounter.APIPermStats

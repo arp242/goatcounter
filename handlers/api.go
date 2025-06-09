@@ -864,11 +864,20 @@ type (
 		// than the highest value for the hour.
 		Daily bool `json:"daily" query:"daily"`
 
-		// Include only these paths; default is to include everything.
-		IncludePaths goatcounter.Ints `json:"include_paths" query:"include_paths"`
+		// Include only these path IDs; default is to include everything.
+		//
+		// If path_by_name is set, it will look up paths by name instead of ID.
+		IncludePaths goatcounter.Strings `json:"include_paths" query:"include_paths"`
 
-		// Exclude these paths, for pagination.
-		ExcludePaths goatcounter.Ints `json:"exclude_paths" query:"exclude_paths"`
+		// Exclude these path IDs, for pagination.
+		//
+		// If path_by_name is set, it will look up paths by name instead of ID.
+		ExcludePaths goatcounter.Strings `json:"exclude_paths" query:"exclude_paths"`
+
+		// Get values for include_paths and exclude_paths by path name, rather
+		// than path ID. This is more convenient in some cases, but also a bit
+		// slower.
+		PathByName bool `json:"path_by_name" query:"path_by_name"`
 
 		// Maximum number of pages to get {range: 1-100, default: 20}.
 		Limit int `json:"limit" query:"limit"`
@@ -916,9 +925,14 @@ func (h api) hits(w http.ResponseWriter, r *http.Request) error {
 		args.End = ztime.Now()
 	}
 
+	includeIDs, excludeIDs, err := findPaths(r.Context(), args.PathByName, args.IncludePaths, args.ExcludePaths)
+	if err != nil {
+		return err
+	}
+
 	var pages goatcounter.HitLists
 	tdu, more, err := pages.List(r.Context(), ztime.NewRange(args.Start).To(args.End),
-		args.IncludePaths, args.ExcludePaths, args.Limit, args.Daily)
+		includeIDs, excludeIDs, args.Limit, args.Daily)
 	if err != nil {
 		return err
 	}
@@ -1008,8 +1022,15 @@ type (
 		// End time, should be rounded to the hour {datetime, default: current time}.
 		End time.Time `json:"end" query:"end"`
 
-		// Include only these paths; default is to include everything.
-		IncludePaths goatcounter.Ints `json:"include_paths" query:"include_paths"`
+		// Include only these path IDs; default is to include everything.
+		//
+		// If path_by_name is set, it will look up paths by name instead of ID.
+		IncludePaths goatcounter.Strings `json:"include_paths" query:"include_paths"`
+
+		// Get values for include_paths and exclude_paths by path name, rather
+		// than path ID. This is more convenient in some cases, but also a bit
+		// slower.
+		PathByName bool `json:"path_by_name" query:"path_by_name"`
 	}
 )
 
@@ -1042,8 +1063,13 @@ func (h api) countTotal(w http.ResponseWriter, r *http.Request) error {
 		args.End = ztime.Now()
 	}
 
+	includeIDs, _, err := findPaths(r.Context(), args.PathByName, args.IncludePaths, nil)
+	if err != nil {
+		return err
+	}
+
 	tc, err := goatcounter.GetTotalCount(r.Context(), ztime.NewRange(args.Start).To(args.End),
-		args.IncludePaths, false)
+		includeIDs, false)
 	if err != nil {
 		return err
 	}
@@ -1059,8 +1085,15 @@ type (
 		// End time, should be rounded to the hour {datetime, default: current time}.
 		End time.Time `json:"end" query:"end"`
 
-		// Include only these paths; default is to include everything.
-		IncludePaths goatcounter.Ints `json:"include_paths" query:"include_paths"`
+		// Include only these path IDs; default is to include everything.
+		//
+		// If path_by_name is set, it will look up paths by name instead of ID.
+		IncludePaths goatcounter.Strings `json:"include_paths" query:"include_paths"`
+
+		// Get values for include_paths and exclude_paths by path name, rather
+		// than path ID. This is more convenient in some cases, but also a bit
+		// slower.
+		PathByName bool `json:"path_by_name" query:"path_by_name"`
 
 		// Maximum number of pages to get {range: 1-100, default: 20}.
 		Limit int `json:"limit" query:"limit"`
@@ -1138,7 +1171,11 @@ func (h api) stats(w http.ResponseWriter, r *http.Request) error {
 	case "toprefs":
 		f = stats.ListTopRefs
 	}
-	err = f(r.Context(), ztime.NewRange(args.Start).To(args.End), args.IncludePaths, args.Limit, args.Offset)
+	includeIDs, _, err := findPaths(r.Context(), args.PathByName, args.IncludePaths, nil)
+	if err != nil {
+		return err
+	}
+	err = f(r.Context(), ztime.NewRange(args.Start).To(args.End), includeIDs, args.Limit, args.Offset)
 	if err != nil {
 		return err
 	}
@@ -1221,8 +1258,12 @@ func (h api) statsDetail(w http.ResponseWriter, r *http.Request) error {
 			return stats.ListCampaign(ctx, n, rng, pathFilter, limit, offset)
 		}
 	}
+	includeIDs, _, err := findPaths(r.Context(), args.PathByName, args.IncludePaths, nil)
+	if err != nil {
+		return err
+	}
 	err = f(r.Context(), chi.URLParam(r, "id"), ztime.NewRange(args.Start).To(args.End),
-		args.IncludePaths, args.Limit, args.Offset)
+		includeIDs, args.Limit, args.Offset)
 	if err != nil {
 		return err
 	}
@@ -1231,4 +1272,49 @@ func (h api) statsDetail(w http.ResponseWriter, r *http.Request) error {
 		Stats: stats.Stats,
 		More:  stats.More,
 	})
+}
+
+func findPaths(ctx context.Context, byName bool, includePaths, excludePaths goatcounter.Strings) ([]int64, []int64, error) {
+	var (
+		includeIDs = make([]int64, 0, len(includePaths))
+		excludeIDs = make([]int64, 0, len(excludePaths))
+	)
+	if byName {
+		var err error
+		if len(includePaths) > 0 {
+			includeIDs, err = goatcounter.FindPathIDs(ctx, includePaths)
+			if err != nil {
+				return nil, nil, err
+			}
+			if len(includeIDs) == 0 {
+				includeIDs = append(includeIDs, -1)
+			}
+		}
+		if len(excludePaths) > 0 {
+			excludeIDs, err = goatcounter.FindPathIDs(ctx, excludePaths)
+			if err != nil {
+				return nil, nil, err
+			}
+			if len(excludeIDs) == 0 {
+				excludeIDs = append(excludeIDs, -1)
+			}
+		}
+		return includeIDs, excludeIDs, nil
+	}
+
+	for _, s := range includePaths {
+		n, err := strconv.ParseInt(s, 10, 64)
+		if err != nil {
+			return nil, nil, guru.Errorf(400, "invalid number in include_paths: %w", err)
+		}
+		includeIDs = append(includeIDs, n)
+	}
+	for _, s := range excludePaths {
+		n, err := strconv.ParseInt(s, 10, 64)
+		if err != nil {
+			return nil, nil, guru.Errorf(400, "invalid number in exclude_paths: %w", err)
+		}
+		excludeIDs = append(excludeIDs, n)
+	}
+	return includeIDs, excludeIDs, nil
 }

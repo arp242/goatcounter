@@ -200,7 +200,7 @@ func (p *Paths) List(ctx context.Context, siteID, after int64, limit int) (bool,
 
 // PathFilter returns a list of IDs matching the path name.
 //
-// if matchTitle is true it will match the title as well.
+// If matchTitle is true it will match the title as well.
 func PathFilter(ctx context.Context, filter string, matchTitle bool) ([]int64, error) {
 	var paths []int64
 	err := zdb.Select(ctx, &paths, "load:paths.PathFilter", map[string]any{
@@ -218,4 +218,13 @@ func PathFilter(ctx context.Context, filter string, matchTitle bool) ([]int64, e
 		paths = []int64{-1}
 	}
 	return paths, nil
+}
+
+// FindPathsIDs finds path IDs by exact matches on the name.
+func FindPathIDs(ctx context.Context, list []string) ([]int64, error) {
+	var paths []int64
+	err := zdb.Select(ctx, &paths,
+		`select path_id from paths where site_id=? and lower(path) in (?)`,
+		MustGetSite(ctx).ID, list)
+	return paths, errors.Wrap(err, "FindPathIDs")
 }
