@@ -16,14 +16,14 @@ Technical details
 -----------------
 The way visitors are identified is as follows:
 
-1. A sessionHash is created as hash(siteID + User-Agent + IP).
+1. A sessionID is created as concat(siteID, User-Agent, IP).
 
-2. Store this in memory as a sessionHash→UUIDv4 map for 8 hours.
+2. Store this in memory as a sessionID → UUIDv4 mapping for 8 hours.
 
-3. Store a UUIDv4→seen_paths map (again in memory), so we can count new visits
-   for new paths.
+3. Store a UUID → seen_paths mapping (again in memory), so we can count new
+   visits for different paths.
 
-4. Use the UUIDv4 in the database and such.
+4. Use the UUID in the database and such.
 
 The IP address and User-Agent are never stored to the database or disk, and
 there is no conceivable way to trace the random UUID back to this.
