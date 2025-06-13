@@ -13,6 +13,7 @@ import (
 	"zgo.at/goatcounter/v2/gctest"
 	"zgo.at/zdb"
 	"zgo.at/zstd/ztest"
+	"zgo.at/zstd/ztime"
 	"zgo.at/zstd/ztype"
 )
 
@@ -340,14 +341,15 @@ func TestSettingsMerge(t *testing.T) {
 		uaLinux = `Mozilla/5.0 (X11; Linux x86_64; rv:139.0) Gecko/20100101 Firefox/139.0`
 		uaMac   = `Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:139.0) Gecko/20100101 Firefox/139.0`
 		uaWin   = `Mozilla/5.0 (Windows NT 10.0; WOW64; rv:139.0) Gecko/20100101 Firefox/139.0`
+		now     = ztime.FromString("2025-06-13 12:13:40")
 	)
 
 	t.Run("merge one path", func(t *testing.T) {
 		ctx := gctest.DB(t)
 		gctest.StoreHits(ctx, t, false,
-			goatcounter.Hit{FirstVisit: true, Path: "/one", UserAgentHeader: uaLinux},
-			goatcounter.Hit{FirstVisit: true, Path: "/two", UserAgentHeader: uaMac},
-			goatcounter.Hit{FirstVisit: true, Path: "/three", UserAgentHeader: uaWin})
+			goatcounter.Hit{FirstVisit: true, CreatedAt: now, Path: "/one", UserAgentHeader: uaLinux},
+			goatcounter.Hit{FirstVisit: true, CreatedAt: now, Path: "/two", UserAgentHeader: uaMac},
+			goatcounter.Hit{FirstVisit: true, CreatedAt: now, Path: "/three", UserAgentHeader: uaWin})
 
 		do(ctx, t, map[string]string{
 			"merge_with": "1",
@@ -380,9 +382,9 @@ func TestSettingsMerge(t *testing.T) {
 	t.Run("merge two paths", func(t *testing.T) {
 		ctx := gctest.DB(t)
 		gctest.StoreHits(ctx, t, false,
-			goatcounter.Hit{FirstVisit: true, Path: "/one", UserAgentHeader: uaLinux},
-			goatcounter.Hit{FirstVisit: true, Path: "/two", UserAgentHeader: uaMac},
-			goatcounter.Hit{FirstVisit: true, Path: "/three", UserAgentHeader: uaWin})
+			goatcounter.Hit{FirstVisit: true, CreatedAt: now, Path: "/one", UserAgentHeader: uaLinux},
+			goatcounter.Hit{FirstVisit: true, CreatedAt: now, Path: "/two", UserAgentHeader: uaMac},
+			goatcounter.Hit{FirstVisit: true, CreatedAt: now, Path: "/three", UserAgentHeader: uaWin})
 
 		do(ctx, t, map[string]string{
 			"merge_with": "1",
