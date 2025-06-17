@@ -600,7 +600,7 @@ func dbParseFlag(f zli.Flags, dbConnect *string, debug []string, createdb *bool)
 		return nil, nil, err
 	}
 
-	ctx := goatcounter.NewContext(db)
+	ctx := goatcounter.NewContext(context.Background(), db)
 	ctx = z18n.With(ctx, z18n.NewBundle(language.English).Locale("en"))
 	return db, ctx, nil
 }

@@ -36,7 +36,7 @@ func cmdSaas(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 	var (
 		domain = f.String("goatcounter.localhost:8081,static.goatcounter.localhost:8081", "domain").Pointer()
 	)
-	dbConnect, dbConn, dev, automigrate, listen, flagTLS, from, websocket, apiMax, ratelimits, geomd, err := flagsServe(f, &v)
+	dbConnect, dbConn, dev, automigrate, listen, flagTLS, from, websocket, apiMax, ratelimits, geodb, err := flagsServe(f, &v)
 	if err != nil {
 		return err
 	}
@@ -56,7 +56,7 @@ func cmdSaas(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 			return v
 		}
 
-		db, ctx, tlsc, acmeh, listenTLS, err := setupServe(dbConnect, dbConn, dev, flagTLS, automigrate)
+		db, ctx, tlsc, acmeh, listenTLS, err := setupServe(dbConnect, dbConn, dev, flagTLS, automigrate, geodb)
 		if err != nil {
 			return err
 		}
@@ -83,7 +83,7 @@ func cmdSaas(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 		}
 
 		return doServe(ctx, db, listen, listenTLS, tlsc, hosts, stop, func() {
-			log.Module("startup").Info(ctx, "GoatCounter ready", startupAttr(geomd, listen, dev,
+			log.Module("startup").Info(ctx, "GoatCounter ready", startupAttr(geodb, listen, dev,
 				"domain", domain,
 			)...)
 			ready <- struct{}{}

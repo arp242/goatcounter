@@ -37,11 +37,6 @@ var Static embed.FS
 //go:embed tpl/*
 var Templates embed.FS
 
-// GeoDB contains the GeoIP countries database.
-//
-//go:embed pack/GeoLite2-Country.mmdb.gz
-var GeoDB []byte
-
 // State column values.
 const (
 	StateActive  = "a"

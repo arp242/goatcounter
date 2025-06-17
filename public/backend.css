@@ -55,7 +55,8 @@ h3, h4     { margin-bottom: 0; }
 h3+p, h4+p { margin-top: 0; }
 h3.border  { border-bottom: 1px solid #666; margin-bottom: .2em; }
 
-form .err  { color: var(--form-error-text); display: block; }
+form .err      { color: var(--form-error-text); display: block; }
+form .disabled { color:var(--pageviews-text); cursor:not-allowed;}
 
 span.red  { color: var(--form-error-text); }
 input.red { border: 1px solid var(--input-error-border) !important; }

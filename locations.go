@@ -1,52 +1,15 @@
 package goatcounter
 
 import (
-	"bytes"
-	"compress/gzip"
 	"context"
-	"io"
 	"net"
 	"strings"
 
-	"github.com/oschwald/geoip2-golang"
-	"github.com/oschwald/maxminddb-golang"
 	"zgo.at/errors"
+	"zgo.at/goatcounter/v2/pkg/geo"
 	"zgo.at/goatcounter/v2/pkg/log"
 	"zgo.at/zdb"
 )
-
-var geodb *geoip2.Reader
-
-// InitGeoDB sets up the geoDB database located at the given path.
-//
-// The database can be the "Countries" or "Cities" version.
-//
-// It will use the embeded "Countries" database if path is an empty string.
-func InitGeoDB(path string) (maxminddb.Metadata, error) {
-	if path != "" {
-		var err error
-		geodb, err = geoip2.Open(path)
-		if err != nil {
-			return maxminddb.Metadata{}, err
-		}
-		GeoDB = nil // Save some memory.
-		return geodb.DB().Metadata, nil
-	}
-
-	gz, err := gzip.NewReader(bytes.NewReader(GeoDB))
-	if err != nil {
-		return maxminddb.Metadata{}, err
-	}
-	d, err := io.ReadAll(gz)
-	if err != nil {
-		return maxminddb.Metadata{}, err
-	}
-	geodb, err = geoip2.FromBytes(d)
-	if err != nil {
-		return maxminddb.Metadata{}, err
-	}
-	return geodb.DB().Metadata, nil
-}
 
 type Location struct {
 	ID int64 `db:"location_id"`
@@ -72,7 +35,7 @@ func (l *Location) ByCode(ctx context.Context, code string) error {
 	if zdb.ErrNoRows(err) {
 		l.ISO3166_2 = code
 		l.Country, l.Region, _ = strings.Cut(code, "-")
-		l.CountryName, l.RegionName = findGeoName(l.Country, l.Region)
+		l.CountryName, l.RegionName = findGeoName(ctx, l.Country, l.Region)
 		err = l.insert(ctx)
 	}
 	if err != nil {
@@ -87,8 +50,9 @@ func (l *Location) ByCode(ctx context.Context, code string) error {
 //
 // This will insert a row in the locations table if one doesn't exist yet.
 func (l *Location) Lookup(ctx context.Context, ip string) error {
+	geodb := geo.Get(ctx)
 	if geodb == nil {
-		panic("Location.Lookup: geo.Init not called")
+		return errors.New("Location.Lookup: no geodb on context")
 	}
 
 	loc, err := geodb.City(net.ParseIP(ip))
@@ -167,7 +131,12 @@ func (l *Locations) ListCountries(ctx context.Context) error {
 // (Countries is much faster, ~100ms) which is not a great worst case scenario,
 // but in most cases it should be (much) faster, and this should get called
 // extremely infrequently anyway, if ever.
-func findGeoName(country, region string) (string, string) {
+func findGeoName(ctx context.Context, country, region string) (string, string) {
+	geodb := geo.Get(ctx)
+	if geodb == nil {
+		panic("Location.Lookup: ")
+	}
+
 	hasRegions := geodb.Metadata().DatabaseType == "City"
 	iter := geodb.DB().Data()
 	for iter.Next() {

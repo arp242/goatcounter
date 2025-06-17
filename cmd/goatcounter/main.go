@@ -267,7 +267,7 @@ func connectDB(connect, dbConn string, migrate []string, create, dev bool) (zdb.
 	} else {
 		ins()
 	}
-	return db, goatcounter.NewContext(db), nil
+	return db, goatcounter.NewContext(context.Background(), db), nil
 }
 
 func setupLog(dev, asJSON bool, debug []string) {

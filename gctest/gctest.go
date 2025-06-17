@@ -12,6 +12,7 @@ import (
 	"zgo.at/goatcounter/v2"
 	"zgo.at/goatcounter/v2/cron"
 	"zgo.at/goatcounter/v2/db/migrate/gomig"
+	"zgo.at/goatcounter/v2/pkg/geo"
 	"zgo.at/z18n"
 	"zgo.at/zdb"
 	"zgo.at/zdb/drivers/go-sqlite3"
@@ -24,13 +25,15 @@ var pgSQL = false
 
 func init() {
 	sqlite3.DefaultHook(goatcounter.SQLiteHook)
-	goatcounter.InitGeoDB("")
 }
 
 // Context creates a new test context.
 func Context(db zdb.DB) context.Context {
-	ctx := goatcounter.NewContext(db)
+	ctx := goatcounter.NewContext(context.Background(), db)
 	ctx = z18n.With(ctx, z18n.NewBundle(language.BritishEnglish).Locale("en-GB"))
+	geodb, _ := geo.Open("")
+	ctx = geo.With(ctx, geodb)
+
 	goatcounter.Config(ctx).BcryptMinCost = true
 	goatcounter.Config(ctx).GoatcounterCom = true
 	goatcounter.Config(ctx).Domain = "test"

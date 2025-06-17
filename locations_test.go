@@ -6,12 +6,14 @@ import (
 
 	. "zgo.at/goatcounter/v2"
 	"zgo.at/goatcounter/v2/gctest"
+	"zgo.at/goatcounter/v2/pkg/geo"
 	"zgo.at/zdb"
 	"zgo.at/zstd/ztest"
 )
 
 func TestLocations(t *testing.T) {
-	ctx := gctest.DB(t)
+	geodb, _ := geo.Open("")
+	ctx := geo.With(gctest.DB(t), geodb)
 
 	run := func() {
 		{
@@ -56,7 +58,7 @@ func TestLocations(t *testing.T) {
 	// Run it multiple times, since it should always give the same resuts.
 	run()
 	run()
-	ctx = NewContext(zdb.MustGetDB(ctx)) // Reset cache
+	ctx = NewContext(ctx, zdb.MustGetDB(ctx)) // Reset cache
 	run()
 }
 

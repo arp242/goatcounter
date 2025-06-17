@@ -6,6 +6,7 @@ import (
 	"runtime/debug"
 	"time"
 
+	"zgo.at/goatcounter/v2/pkg/geo"
 	"zgo.at/z18n"
 	"zgo.at/zcache"
 	"zgo.at/zdb"
@@ -158,7 +159,6 @@ func MustGetUser(ctx context.Context) *User {
 // can be passed to background functions.
 func CopyContextValues(ctx context.Context) context.Context {
 	n := zdb.WithDB(context.Background(), zdb.MustGetDB(ctx))
-
 	if c := ctx.Value(keyCacheSites); c != nil {
 		n = context.WithValue(n, keyCacheSites, c.(*zcache.Cache))
 	}
@@ -207,15 +207,19 @@ func CopyContextValues(ctx context.Context) context.Context {
 	if l := z18n.Get(ctx); l != nil {
 		n = z18n.With(n, l)
 	}
+	if g := geo.Get(ctx); g != nil {
+		n = geo.With(n, g)
+	}
 	return n
 }
 
 // NewContext creates a new context with all values set.
-func NewContext(db zdb.DB) context.Context {
-	ctx := zdb.WithDB(context.Background(), db)
-	ctx = NewCache(ctx)
-	ctx = NewConfig(ctx)
-	return ctx
+func NewContext(ctx context.Context, db zdb.DB) context.Context {
+	n := zdb.WithDB(context.Background(), db)
+	n = geo.With(n, geo.Get(ctx))
+	n = NewCache(n)
+	n = NewConfig(n)
+	return n
 }
 
 func NewCache(ctx context.Context) context.Context {

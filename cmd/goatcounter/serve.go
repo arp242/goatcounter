@@ -19,7 +19,6 @@ import (
 	"time"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/oschwald/maxminddb-golang"
 	"github.com/teamwork/reload"
 	"golang.org/x/net/http2"
 	"golang.org/x/net/http2/h2c"
@@ -31,6 +30,8 @@ import (
 	"zgo.at/goatcounter/v2/cron"
 	"zgo.at/goatcounter/v2/handlers"
 	"zgo.at/goatcounter/v2/pkg/bgrun"
+	"zgo.at/goatcounter/v2/pkg/geo"
+	"zgo.at/goatcounter/v2/pkg/geo/geoip2"
 	"zgo.at/goatcounter/v2/pkg/log"
 	"zgo.at/slog_align"
 	"zgo.at/z18n"
@@ -139,12 +140,26 @@ Flags:
                version.
 
                GoatCounter will automatically use the first .mmdb file in
-               ./goatcounter-data, if any exists.
+               ./goatcounter-data, if any exists. GoatCounter comes with a
+               Countries version built-in, and will use that if this flag isn't
+               given and there is no file in ./goatcounter-data. You only need
+               this if you want to use a newer/different version, or if you want
+               to record regions.
 
-               GoatCounter comes with a Countries version built-in, and will use
-               that if this flag isn't given and there is no file in
-               ./goatcounter-data. You only need this if you want to use a
-               newer/different version, or if you want to record regions.
+               This can also be a MaxMind account ID and license key, in which
+               case GoatCounter will automatically download a Cities database
+               from MaxMind and update it every week. The format for this is:
+
+                   maxmind:account_id:license[:path]
+
+               :path may be omitted and defaults to goatcounter-data/auto.mmdb.
+
+               For example:
+
+                   -geodb 123456:abcdef
+                   -geodb 123456:abcdef:/home/goatcounter/cities.mmd
+
+               Updates are only done on restarts.
 
   -ratelimit   Set rate limits for various actions; the syntax is
                "name:num-requests/seconds"; multiple values are separated by
@@ -192,7 +207,7 @@ func cmdServe(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 		basePath     = f.String("/", "base-path").Pointer()
 		domainStatic = f.String("", "static").Pointer()
 	)
-	dbConnect, dbConn, dev, automigrate, listen, flagTLS, from, websocket, apiMax, ratelimits, geomd, err := flagsServe(f, &v)
+	dbConnect, dbConn, dev, automigrate, listen, flagTLS, from, websocket, apiMax, ratelimits, geodb, err := flagsServe(f, &v)
 	if err != nil {
 		return err
 	}
@@ -223,7 +238,7 @@ func cmdServe(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 			return v
 		}
 
-		db, ctx, tlsc, acmeh, listenTLS, err := setupServe(dbConnect, dbConn, dev, flagTLS, automigrate)
+		db, ctx, tlsc, acmeh, listenTLS, err := setupServe(dbConnect, dbConn, dev, flagTLS, automigrate, geodb)
 		if err != nil {
 			return err
 		}
@@ -256,7 +271,7 @@ func cmdServe(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 		}
 
 		return doServe(ctx, db, listen, listenTLS, tlsc, hosts, stop, func() {
-			log.Module("startup").Info(ctx, "GoatCounter ready", startupAttr(geomd, listen, dev,
+			log.Module("startup").Info(ctx, "GoatCounter ready", startupAttr(geodb, listen, dev,
 				"num_sites", len(cnames),
 				"sites", cnames,
 			)...)
@@ -350,12 +365,7 @@ func defaultDB() string {
 	return "sqlite+./goatcounter-data/db.sqlite3"
 }
 
-type geometa struct {
-	path string
-	md   maxminddb.Metadata
-}
-
-func flagsServe(f zli.Flags, v *zvalidate.Validator) (string, string, bool, bool, string, string, string, bool, int, handlers.Ratelimits, geometa, error) {
+func flagsServe(f zli.Flags, v *zvalidate.Validator) (string, string, bool, bool, string, string, string, bool, int, handlers.Ratelimits, *geoip2.Reader, error) {
 	var (
 		dbConnect   = f.String(defaultDB(), "db").Pointer()
 		dbConn      = f.String("16,4", "dbconn").Pointer()
@@ -367,7 +377,7 @@ func flagsServe(f zli.Flags, v *zvalidate.Validator) (string, string, bool, bool
 		flagTLS     = f.String("http", "tls").Pointer()
 		errors      = f.String("", "errors").Pointer()
 		from        = f.String("", "email-from").Pointer()
-		geodb       = f.String("", "geodb").Pointer()
+		geodbFlag   = f.String("", "geodb").Pointer()
 		ratelimit   = f.String("", "ratelimit").Pointer()
 		apiMax      = f.Int(0, "api-max").Pointer()
 		storeEvery  = f.Int(10, "store-every").Pointer()
@@ -375,7 +385,7 @@ func flagsServe(f zli.Flags, v *zvalidate.Validator) (string, string, bool, bool
 		json        = f.Bool(false, "json").Pointer()
 	)
 	if err := f.Parse(zli.FromEnv("GOATCOUNTER")); err != nil {
-		return "", "", false, false, "", "", "", false, 0, handlers.Ratelimits{}, geometa{}, err
+		return "", "", false, false, "", "", "", false, 0, handlers.Ratelimits{}, nil, err
 	}
 
 	setupLog(*dev, *json, debug.StringsSplit(","))
@@ -393,24 +403,23 @@ func flagsServe(f zli.Flags, v *zvalidate.Validator) (string, string, bool, bool
 	v.Range("-store-every", int64(*storeEvery), 1, 0)
 	cron.SetPersistInterval(time.Duration(*storeEvery) * time.Second)
 
-	if *geodb == "" {
+	if *geodbFlag == "" {
 		ls, _ := os.ReadDir("goatcounter-data")
 		for _, f := range ls {
 			if strings.HasSuffix(f.Name(), ".mmdb") {
-				*geodb = "goatcounter-data/" + f.Name()
+				*geodbFlag = "goatcounter-data/" + f.Name()
 				break
 			}
 		}
 	}
-	geomd, err := goatcounter.InitGeoDB(*geodb)
+	geodb, err := geo.Open(*geodbFlag)
 	if err != nil {
-		return "", "", false, false, "", "", "", false, 0, handlers.Ratelimits{}, geometa{},
+		return "", "", false, false, "", "", "", false, 0, handlers.Ratelimits{}, nil,
 			fmt.Errorf("loading GeoIP database: %w", err)
 	}
-	if *geodb == "" {
-		*geodb = "(builtin)"
+	if *geodbFlag == "" {
+		*geodbFlag = "(builtin)"
 	}
-	md := geometa{*geodb, geomd}
 
 	ratelimits := handlers.NewRatelimits()
 	if *ratelimit != "" {
@@ -427,17 +436,17 @@ func flagsServe(f zli.Flags, v *zvalidate.Validator) (string, string, bool, bool
 			r := v.Integer("requests", reqs)
 			s := v.Integer("seconds", secs)
 			if v.HasErrors() {
-				return *dbConnect, *dbConn, *dev, *automigrate, *listen, *flagTLS, *from, *websocket, *apiMax, handlers.Ratelimits{}, geometa{},
+				return *dbConnect, *dbConn, *dev, *automigrate, *listen, *flagTLS, *from, *websocket, *apiMax, handlers.Ratelimits{}, nil,
 					fmt.Errorf("invalid -ratelimit flag: %q: %w", *ratelimit, v)
 			}
 			ratelimits.Set(name, int(r), s)
 		}
 	}
 
-	return *dbConnect, *dbConn, *dev, *automigrate, *listen, *flagTLS, *from, *websocket, *apiMax, ratelimits, md, nil
+	return *dbConnect, *dbConn, *dev, *automigrate, *listen, *flagTLS, *from, *websocket, *apiMax, ratelimits, geodb, nil
 }
 
-func setupServe(dbConnect, dbConn string, dev bool, flagTLS string, automigrate bool) (zdb.DB, context.Context, *tls.Config, http.HandlerFunc, uint8, error) {
+func setupServe(dbConnect, dbConn string, dev bool, flagTLS string, automigrate bool, geodb *geoip2.Reader) (zdb.DB, context.Context, *tls.Config, http.HandlerFunc, uint8, error) {
 	if dev {
 		setupReload()
 	}
@@ -448,6 +457,7 @@ func setupServe(dbConnect, dbConn string, dev bool, flagTLS string, automigrate 
 	}
 
 	ctx = z18n.With(ctx, z18n.NewBundle(language.English).Locale("en"))
+	ctx = geo.With(ctx, geodb)
 
 	if dev {
 		if !zio.Exists("db/migrate") || !zio.Exists("tpl") || !zio.Exists("public") {
@@ -644,7 +654,8 @@ func lsSites(ctx context.Context) ([]string, error) {
 	return cnames, nil
 }
 
-func startupAttr(geomd geometa, listen string, dev bool, attr ...any) []any {
+func startupAttr(geodb *geoip2.Reader, listen string, dev bool, attr ...any) []any {
+	md := geodb.DB().Metadata
 	return append(attr,
 		"listen", listen,
 		"dev", dev,
@@ -657,11 +668,11 @@ func startupAttr(geomd geometa, listen string, dev bool, attr ...any) []any {
 			"race", zruntime.Race,
 		),
 		slog.Group("geoip",
-			"path", geomd.path,
-			"build", time.Unix(int64(geomd.md.BuildEpoch), 0).UTC().Format("2006-01-02 15:04:05"),
-			"type", geomd.md.DatabaseType,
-			"description", geomd.md.Description["en"],
-			"nodes", geomd.md.NodeCount,
+			"path", geodb.DB().Path,
+			"build", time.Unix(int64(md.BuildEpoch), 0).UTC().Format("2006-01-02 15:04:05"),
+			"type", md.DatabaseType,
+			"description", md.Description["en"],
+			"nodes", md.NodeCount,
 		),
 	)
 }

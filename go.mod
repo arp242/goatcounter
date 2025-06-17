@@ -13,8 +13,6 @@ require (
 	github.com/gorilla/websocket v1.5.3
 	github.com/mattn/go-sqlite3 v1.14.28
 	github.com/monoculum/formam/v3 v3.6.1-0.20221106124510-6a93f49ac1f8
-	github.com/oschwald/geoip2-golang v1.11.0
-	github.com/oschwald/maxminddb-golang v1.13.1
 	github.com/russross/blackfriday/v2 v2.1.0
 	github.com/sethvargo/go-limiter v1.0.0
 	github.com/teamwork/reload v1.4.2
@@ -22,6 +20,7 @@ require (
 	golang.org/x/image v0.27.0
 	golang.org/x/net v0.41.0
 	golang.org/x/sync v0.15.0
+	golang.org/x/sys v0.33.0
 	golang.org/x/text v0.26.0
 	zgo.at/blackmail v0.0.0-20241118175226-9a8f9442bb0d
 	zgo.at/errors v1.4.0
@@ -46,19 +45,12 @@ require (
 	zgo.at/zvalidate v0.0.0-20250318041547-3c1bd3bca262
 )
 
-// https://github.com/oschwald/maxminddb-golang/pull/75
-replace github.com/oschwald/maxminddb-golang => github.com/arp242/maxminddb-golang v1.8.1-0.20221021031716-eb1bbbb3fc5d
-
-// https://github.com/oschwald/geoip2-golang/pull/68
-replace github.com/oschwald/geoip2-golang => github.com/arp242/geoip2-golang v1.4.1-0.20220825052315-37df63691c60
-
 require (
 	github.com/andybalholm/cascadia v1.3.3 // indirect
 	github.com/fsnotify/fsnotify v1.9.0 // indirect
 	github.com/lib/pq v1.10.9 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
 	golang.org/x/mod v0.25.0 // indirect
-	golang.org/x/sys v0.33.0 // indirect
 	golang.org/x/tools v0.34.0 // indirect
 	zgo.at/runewidth v0.1.0 // indirect
 )

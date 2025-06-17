@@ -22,6 +22,7 @@ import (
 	"zgo.at/goatcounter/v2/acme"
 	"zgo.at/goatcounter/v2/cron"
 	"zgo.at/goatcounter/v2/pkg/bgrun"
+	"zgo.at/goatcounter/v2/pkg/geo"
 	"zgo.at/goatcounter/v2/pkg/log"
 	"zgo.at/guru"
 	"zgo.at/zdb"
@@ -130,10 +131,19 @@ func (h settings) mount(r chi.Router, ratelimits Ratelimits) {
 
 func (h settings) main(verr *zvalidate.Validator) zhttp.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) error {
+		cities := false
+		geodb := geo.Get(r.Context())
+		if geodb == nil {
+			log.Error(r.Context(), "geodb is nil")
+		} else {
+			cities = strings.Contains(strings.ToLower(geodb.Metadata().DatabaseType), "city")
+		}
+
 		return zhttp.Template(w, "settings_main.gohtml", struct {
 			Globals
 			Validate *zvalidate.Validator
-		}{newGlobals(w, r), verr})
+			Cities   bool
+		}{newGlobals(w, r), verr, cities})
 	}
 }
 

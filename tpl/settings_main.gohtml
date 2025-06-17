@@ -124,17 +124,29 @@
 
 			<input type="hidden" name="settings.collect[]" value="1">
 			{{range $cf := .Site.Settings.CollectFlags .Context}}
-				<label><input type="checkbox" name="settings.collect[]" value="{{$cf.Flag}}" {{if $.Site.Settings.Collect.Has $cf.Flag}}checked{{end}}>
+				<label {{if and (eq $cf.Label "Region") (not $.Cities)}}class="disabled"{{end}}>
+					<input type="checkbox" name="settings.collect[]" value="{{$cf.Flag}}"
+						{{if $.Site.Settings.Collect.Has $cf.Flag}}checked{{end}}
+						{{if and (eq $cf.Label "Region") (not $.Cities)}}disabled{{end}}
+					>
 					<span style="min-width: 5.5em; display: inline-block;">{{$cf.Label}}</span>
 					<div>{{$cf.Help | unsafe}}</div></label>
 				{{if eq $cf.Label "Region"}}
-					<div style="margin-left: 2em;">
-						<label for="collect_regions">{{$.T "label/for-following-countries|For the following countries only:"}}</label>
-						<input type="text" id="collect_regions" name="settings.collect_regions" value="{{$.Site.Settings.CollectRegions}}">
-						<span class="help">{{$.T `help/for-the-following-countries|
-							List of country codes (%[list]; use the alpha-2 code); leave blank to collect for all countries (if enabled).
-						` (tag "a" `href="https://en.wikipedia.org/wiki/List_of_ISO_3166_country_codes#Current_ISO_3166_country_codes" target="_blank"`)}}</span>
-					</div>
+					{{if $.Cities}}
+						<div style="margin-left: 2em;">
+							<label for="collect_regions">{{$.T "label/for-following-countries|For the following countries only:"}}</label>
+							<input type="text" id="collect_regions" name="settings.collect_regions" value="{{$.Site.Settings.CollectRegions}}">
+							<span class="help">{{$.T `help/for-the-following-countries|
+								List of country codes (%[list]; use the alpha-2 code); leave blank to collect for all countries (if enabled).
+							` (tag "a" `href="https://en.wikipedia.org/wiki/List_of_ISO_3166_country_codes#Current_ISO_3166_country_codes" target="_blank"`)}}</span>
+						</div>
+					{{else}}
+						{{$.T `help/need-cities|
+							This option requires the “Cities” version of the
+							GeoIP database. See the <tt>-geo</tt> flag in
+							<tt>goatcounter help serve</tt>.
+						`}}
+					{{end}}
 				{{end}}
 			{{end}}
 
