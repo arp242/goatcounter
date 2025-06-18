@@ -1003,9 +1003,11 @@ field set, but not both.</p>
 <h4>end <sup>string [format: date-time] [default: current time]</sup></h4>
 <p>End time, should be rounded to the hour.</p>
 <h4>daily <sup>boolean</sup></h4>
-<p>Group by day, rather than by hour. This only affects the Hits.Max
-value: if enabled it&#39;s set to the highest value for that day, rather
-than the highest value for the hour.</p>
+<p>Set Max value in the response to the highest daily value, instead of
+hourly.</p><p>Both the Hourly and Daily are always included in the response – this
+only affects the Max value, which is useful if you want to draw
+charts like the GoatCounter dashboard: you need to know the maximum
+Y-axis value of the chart to draw it.</p>
 <h4>include_paths <sup>array [type: string]</sup></h4>
 <p>Include only these path IDs; default is to include everything.</p><p>If path_by_name is set, it will look up paths by name instead of ID.</p>
 <h4>exclude_paths <sup>array [type: string]</sup></h4>

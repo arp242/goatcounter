@@ -859,9 +859,13 @@ type (
 		// End time, should be rounded to the hour {datetime, default: current time}.
 		End time.Time `json:"end" query:"end"`
 
-		// Group by day, rather than by hour. This only affects the Hits.Max
-		// value: if enabled it's set to the highest value for that day, rather
-		// than the highest value for the hour.
+		// Set Max value in the response to the highest daily value, instead of
+		// hourly.
+		//
+		// Both the Hourly and Daily are always included in the response – this
+		// only affects the Max value, which is useful if you want to draw
+		// charts like the GoatCounter dashboard: you need to know the maximum
+		// Y-axis value of the chart to draw it.
 		Daily bool `json:"daily" query:"daily"`
 
 		// Include only these path IDs; default is to include everything.

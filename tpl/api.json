@@ -620,7 +620,7 @@
             "type": "boolean"
           },
           {
-            "description": "Group by day, rather than by hour. This only affects the Hits.Max\nvalue: if enabled it's set to the highest value for that day, rather\nthan the highest value for the hour.",
+            "description": "Set Max value in the response to the highest daily value, instead of\nhourly.\n\nBoth the Hourly and Daily are always included in the response – this\nonly affects the Max value, which is useful if you want to draw\ncharts like the GoatCounter dashboard: you need to know the maximum\nY-axis value of the chart to draw it.",
             "in": "query",
             "name": "daily",
             "type": "boolean"
