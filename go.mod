@@ -4,24 +4,36 @@ go 1.24.4
 
 require (
 	code.soquee.net/otp v0.0.4
-	github.com/BurntSushi/toml v1.5.0
-	github.com/PuerkitoBio/goquery v1.10.3
 	github.com/bmatcuk/doublestar/v4 v4.8.1
 	github.com/boombuler/barcode v1.0.2
 	github.com/go-chi/chi/v5 v5.2.1
 	github.com/google/uuid v1.6.0
 	github.com/gorilla/websocket v1.5.3
+	github.com/lib/pq v1.10.9 // indirect
 	github.com/mattn/go-sqlite3 v1.14.28
 	github.com/monoculum/formam/v3 v3.6.1-0.20221106124510-6a93f49ac1f8
+	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0
 	github.com/sethvargo/go-limiter v1.0.0
-	github.com/teamwork/reload v1.4.2
+)
+
+// golang.org/x
+require (
 	golang.org/x/crypto v0.39.0
 	golang.org/x/image v0.27.0
+	golang.org/x/mod v0.25.0 // indirect
 	golang.org/x/net v0.41.0
 	golang.org/x/sync v0.15.0
 	golang.org/x/sys v0.33.0
 	golang.org/x/text v0.26.0
+	golang.org/x/tools v0.34.0 // indirect
+)
+
+// Things I maintain
+require (
+	github.com/BurntSushi/toml v1.5.0
+	github.com/fsnotify/fsnotify v1.9.0 // indirect
+	github.com/teamwork/reload v1.4.2
 	zgo.at/blackmail v0.0.0-20241118175226-9a8f9442bb0d
 	zgo.at/errors v1.4.0
 	zgo.at/follow v0.0.0-20250412000721-fecf5127a123
@@ -30,6 +42,7 @@ require (
 	zgo.at/isbot v1.0.0
 	zgo.at/jfmt v0.0.0-20240726113937-e6436421fade
 	zgo.at/json v0.0.0-20221020004326-fe4f75bb278e
+	zgo.at/runewidth v0.1.0 // indirect
 	zgo.at/slog_align v0.0.0-20250608122414-fe848f5abf9c
 	zgo.at/termtext v1.5.0
 	zgo.at/tz v0.0.0-20240819050900-3c7bf6122612
@@ -43,14 +56,4 @@ require (
 	zgo.at/zstd v0.0.0-20250313035723-1ece53b5d53e
 	zgo.at/ztpl v0.0.0-20250522073924-f73b178f1791
 	zgo.at/zvalidate v0.0.0-20250318041547-3c1bd3bca262
-)
-
-require (
-	github.com/andybalholm/cascadia v1.3.3 // indirect
-	github.com/fsnotify/fsnotify v1.9.0 // indirect
-	github.com/lib/pq v1.10.9 // indirect
-	github.com/rivo/uniseg v0.4.7 // indirect
-	golang.org/x/mod v0.25.0 // indirect
-	golang.org/x/tools v0.34.0 // indirect
-	zgo.at/runewidth v0.1.0 // indirect
 )
