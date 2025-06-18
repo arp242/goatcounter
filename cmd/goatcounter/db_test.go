@@ -173,10 +173,10 @@ func TestDBSite(t *testing.T) {
 			"-db="+dbc,
 			"-find=1", "-find=update.example.com")
 		wantExit(t, exit, out, 0)
-		if !grep(out.String(), `site_id +1`) {
+		if !grep(out.String(), `site_id\s+1`) {
 			t.Error(out.String())
 		}
-		if !grep(out.String(), `site_id +2`) {
+		if !grep(out.String(), `site_id\s+2`) {
 			t.Error(out.String())
 		}
 		out.Reset()
@@ -286,10 +286,10 @@ func TestDBUser(t *testing.T) {
 			"-db="+dbc,
 			"-find=1", "-find=new@new.new")
 		wantExit(t, exit, out, 0)
-		if r := `user_id +1`; !grep(out.String(), r) {
+		if r := `user_id\s+1`; !grep(out.String(), r) {
 			t.Errorf("user 1 not found in output (via regexp %q):\n%s", r, out.String())
 		}
-		if r := `user_id +2`; !grep(out.String(), r) {
+		if r := `user_id\s+2`; !grep(out.String(), r) {
 			t.Errorf("user 2 not found in output (via regexp %q):\n%s", r, out.String())
 		}
 		out.Reset()
