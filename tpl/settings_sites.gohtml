@@ -12,6 +12,16 @@
 	<p>You can add as many as you want.</p>
 `}}
 
+{{if and (not .GoatcounterCom) .User.AccessSuperuser}}
+	<p>{{.T `p/add-multiple-accounts|
+		You can use the <code>goatcounter db create site</code> command from the CLI
+		to create multiple accounts. These will be entirely separate and won't share
+		users or anything else. For example:
+	`}}</p>
+
+	<pre>% goatcounter db create site -vhost=stats.example.com -email=me@example.com</pre>
+{{end}}
+
 <form method="post" action="{{.Base}}/settings/sites/add">
 	<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
 	<table class="auto">
