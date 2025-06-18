@@ -12,7 +12,7 @@ import (
 	"golang.org/x/text/language"
 	"zgo.at/blackmail"
 	"zgo.at/goatcounter/v2"
-	"zgo.at/goatcounter/v2/log"
+	"zgo.at/goatcounter/v2/pkg/log"
 	"zgo.at/guru"
 	"zgo.at/z18n/msgfile"
 	"zgo.at/zdb"

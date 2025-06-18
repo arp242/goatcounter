@@ -23,7 +23,6 @@ require (
 	golang.org/x/net v0.41.0
 	golang.org/x/sync v0.15.0
 	golang.org/x/text v0.26.0
-	zgo.at/bgrun v0.0.0-00010101000000-000000000000
 	zgo.at/blackmail v0.0.0-20241118175226-9a8f9442bb0d
 	zgo.at/errors v1.4.0
 	zgo.at/follow v0.0.0-20250412000721-fecf5127a123
@@ -46,9 +45,6 @@ require (
 	zgo.at/ztpl v0.0.0-20250522073924-f73b178f1791
 	zgo.at/zvalidate v0.0.0-20250318041547-3c1bd3bca262
 )
-
-// Need to finish this and put it in its own repo.
-replace zgo.at/bgrun => ./bgrun
 
 // https://github.com/oschwald/maxminddb-golang/pull/75
 replace github.com/oschwald/maxminddb-golang => github.com/arp242/maxminddb-golang v1.8.1-0.20221021031716-eb1bbbb3fc5d

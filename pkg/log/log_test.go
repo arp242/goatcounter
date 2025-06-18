@@ -66,17 +66,17 @@ func TestContext(t *testing.T) {
 		t.Run("align", func(t *testing.T) {
 			have := doAlign(ctx)
 			want := `
-				13:14 INFO  MSG  [log/log.go:XXX]
+				13:14 INFO  MSG  [pkg/log/log.go:XXX]
 				attr = 123
-				13:14 INFO  MOD: MSG  [log/log_test.go:XXX]
+				13:14 INFO  MOD: MSG  [pkg/log/log_test.go:XXX]
 				attr = 123
-				13:14 ERROR oh noes  [log/log.go:XXX]
+				13:14 ERROR oh noes  [pkg/log/log.go:XXX]
 				stacktrace =
-				log.go:XXX   zgo.at/goatcounter/v2/log.(*Logger).Error
+				log.go:XXX   zgo.at/goatcounter/v2/pkg/log.(*Logger).Error
 				some attr  = xxx
-				13:14 ERROR M: oh noes  [log/log_test.go:XXX]
+				13:14 ERROR M: oh noes  [pkg/log/log_test.go:XXX]
 				stacktrace =
-				log.go:XXX   zgo.at/goatcounter/v2/log.(*Logger).Error
+				log.go:XXX   zgo.at/goatcounter/v2/pkg/log.(*Logger).Error
 				some attr  = xxx
 			`
 			if d := ztest.Diff(have, want, ztest.DiffNormalizeWhitespace); d != "" {
@@ -89,8 +89,8 @@ func TestContext(t *testing.T) {
 			want := `
 				{"time":"1985-06-18T13:14:15.000000123Z","level":"INFO","msg":"MSG","attr":123}
 				{"time":"1985-06-18T13:14:15.000000123Z","level":"INFO","msg":"MOD: MSG","attr":123,"module":"MOD"}
-				{"time":"1985-06-18T13:14:15.000000123Z","level":"ERROR","msg":"oh noes","stacktrace":"\n\tlog.go:XXX   zgo.at/goatcounter/v2/log.(*Logger).Error\n","some attr":"xxx"}
-				{"time":"1985-06-18T13:14:15.000000123Z","level":"ERROR","msg":"M: oh noes","stacktrace":"\n\tlog.go:XXX   zgo.at/goatcounter/v2/log.(*Logger).Error\n","some attr":"xxx","module":"M"}
+				{"time":"1985-06-18T13:14:15.000000123Z","level":"ERROR","msg":"oh noes","stacktrace":"\n\tlog.go:XXX   zgo.at/goatcounter/v2/pkg/log.(*Logger).Error\n","some attr":"xxx"}
+				{"time":"1985-06-18T13:14:15.000000123Z","level":"ERROR","msg":"M: oh noes","stacktrace":"\n\tlog.go:XXX   zgo.at/goatcounter/v2/pkg/log.(*Logger).Error\n","some attr":"xxx","module":"M"}
 			`
 			if d := ztest.Diff(have, want, ztest.DiffNormalizeWhitespace); d != "" {
 				t.Error(d)
@@ -106,26 +106,26 @@ func TestContext(t *testing.T) {
 		t.Run("align", func(t *testing.T) {
 			have := doAlign(ctx)
 			want := `
-				13:14 INFO  MSG  [log/log.go:XXX]
+				13:14 INFO  MSG  [pkg/log/log.go:XXX]
 				attr = 123
 				one  = 1
 				moar = [xx yy]
 				one  = another one
-				13:14 INFO  MOD: MSG  [log/log_test.go:XXX]
+				13:14 INFO  MOD: MSG  [pkg/log/log_test.go:XXX]
 				attr = 123
 				one  = 1
 				moar = [xx yy]
 				one  = another one
-				13:14 ERROR oh noes  [log/log.go:XXX]
+				13:14 ERROR oh noes  [pkg/log/log.go:XXX]
 				stacktrace =
-				log.go:XXX   zgo.at/goatcounter/v2/log.(*Logger).Error
+				log.go:XXX   zgo.at/goatcounter/v2/pkg/log.(*Logger).Error
 				some attr  = xxx
 				one        = 1
 				moar       = [xx yy]
 				one        = another one
-				13:14 ERROR M: oh noes  [log/log_test.go:XXX]
+				13:14 ERROR M: oh noes  [pkg/log/log_test.go:XXX]
 				stacktrace =
-				log.go:XXX   zgo.at/goatcounter/v2/log.(*Logger).Error
+				log.go:XXX   zgo.at/goatcounter/v2/pkg/log.(*Logger).Error
 				some attr  = xxx
 				one        = 1
 				moar       = [xx yy]
@@ -141,8 +141,8 @@ func TestContext(t *testing.T) {
 			want := `
 				{"time":"1985-06-18T13:14:15.000000123Z","level":"INFO","msg":"MSG","attr":123,"one":1,"moar":["xx","yy"],"one":"another one"}
 				{"time":"1985-06-18T13:14:15.000000123Z","level":"INFO","msg":"MOD: MSG","attr":123,"module":"MOD","one":1,"moar":["xx","yy"],"one":"another one"}
-				{"time":"1985-06-18T13:14:15.000000123Z","level":"ERROR","msg":"oh noes","stacktrace":"\n\tlog.go:XXX   zgo.at/goatcounter/v2/log.(*Logger).Error\n","some attr":"xxx","one":1,"moar":["xx","yy"],"one":"another one"}
-				{"time":"1985-06-18T13:14:15.000000123Z","level":"ERROR","msg":"M: oh noes","stacktrace":"\n\tlog.go:XXX   zgo.at/goatcounter/v2/log.(*Logger).Error\n","some attr":"xxx","module":"M","one":1,"moar":["xx","yy"],"one":"another one"}
+				{"time":"1985-06-18T13:14:15.000000123Z","level":"ERROR","msg":"oh noes","stacktrace":"\n\tlog.go:XXX   zgo.at/goatcounter/v2/pkg/log.(*Logger).Error\n","some attr":"xxx","one":1,"moar":["xx","yy"],"one":"another one"}
+				{"time":"1985-06-18T13:14:15.000000123Z","level":"ERROR","msg":"M: oh noes","stacktrace":"\n\tlog.go:XXX   zgo.at/goatcounter/v2/pkg/log.(*Logger).Error\n","some attr":"xxx","module":"M","one":1,"moar":["xx","yy"],"one":"another one"}
 			`
 			if d := ztest.Diff(have, want, ztest.DiffNormalizeWhitespace); d != "" {
 				t.Error(d)
@@ -183,7 +183,7 @@ func TestAttrHTTP(t *testing.T) {
 		Info(context.Background(), "msg", "attr1", "val1", AttrHTTP(r))
 		have := buf.String()
 		want := `
-			13:14 INFO  msg  [log/log.go:106]
+			13:14 INFO  msg  [pkg/log/log.go:106]
 			             attr1     = val1
 			             http.verb = GET
 			             http.url  = http://example.com/path

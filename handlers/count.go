@@ -7,7 +7,7 @@ import (
 	"github.com/monoculum/formam/v3"
 	"golang.org/x/text/language"
 	"zgo.at/goatcounter/v2"
-	"zgo.at/goatcounter/v2/metrics"
+	"zgo.at/goatcounter/v2/pkg/metrics"
 	"zgo.at/isbot"
 	"zgo.at/zhttp"
 	"zgo.at/zstd/ztime"

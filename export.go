@@ -13,7 +13,7 @@ import (
 
 	"zgo.at/blackmail"
 	"zgo.at/errors"
-	"zgo.at/goatcounter/v2/log"
+	"zgo.at/goatcounter/v2/pkg/log"
 	"zgo.at/zdb"
 	"zgo.at/zstd/zbool"
 	"zgo.at/zstd/zcrypto"

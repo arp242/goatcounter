@@ -13,7 +13,7 @@ import (
 	"github.com/sethvargo/go-limiter"
 	"zgo.at/errors"
 	"zgo.at/goatcounter/v2"
-	"zgo.at/goatcounter/v2/log"
+	"zgo.at/goatcounter/v2/pkg/log"
 	"zgo.at/guru"
 	"zgo.at/json"
 	"zgo.at/termtext"

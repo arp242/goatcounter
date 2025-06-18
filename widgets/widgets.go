@@ -5,7 +5,7 @@ import (
 	"html/template"
 
 	"zgo.at/goatcounter/v2"
-	"zgo.at/goatcounter/v2/log"
+	"zgo.at/goatcounter/v2/pkg/log"
 	"zgo.at/zstd/zint"
 	"zgo.at/zstd/ztime"
 )

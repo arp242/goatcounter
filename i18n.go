@@ -10,7 +10,7 @@ import (
 	"github.com/BurntSushi/toml"
 	"golang.org/x/text/language"
 	"zgo.at/errors"
-	"zgo.at/goatcounter/v2/log"
+	"zgo.at/goatcounter/v2/pkg/log"
 	"zgo.at/json"
 	"zgo.at/z18n"
 	"zgo.at/z18n/msgfile"

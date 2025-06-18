@@ -240,9 +240,9 @@ func (l *Logger) newRecord(ctx context.Context, level slog.Level, msg string, at
 			"zgo.at/goatcounter/v2/handlers.backend.Mount.addz18n",
 			"zgo.at/goatcounter/v2/handlers.init.Add",
 			"zgo.at/goatcounter/v2/handlers.init.Filter",
-			"zgo.at/goatcounter/v2/log.(*Logger).newRecord",
-			"zgo.at/goatcounter/v2/log.Error",
-			"zgo.at/goatcounter/v2/log.Test",
+			"zgo.at/goatcounter/v2/pkg/log.(*Logger).newRecord",
+			"zgo.at/goatcounter/v2/pkg/log.Error",
+			"zgo.at/goatcounter/v2/pkg/log.Test",
 			"zgo.at/zhttp.HostRoute",
 			"zgo.at/zhttp/mware",
 		)))

@@ -21,7 +21,7 @@ import (
 	"github.com/boombuler/barcode/qr"
 	"github.com/russross/blackfriday/v2"
 	"zgo.at/errors"
-	"zgo.at/goatcounter/v2/log"
+	"zgo.at/goatcounter/v2/pkg/log"
 	"zgo.at/z18n"
 	"zgo.at/zhttp"
 	"zgo.at/zstd/zfs"

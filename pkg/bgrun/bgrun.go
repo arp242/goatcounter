@@ -183,7 +183,7 @@ func (r *Runner) run(name string, fun func(context.Context) error) error {
 				Task:    j.task.name,
 				From:    inst.from,
 				Started: inst.started,
-				Took:    time.Now().Sub(inst.started),
+				Took:    time.Since(inst.started),
 			})
 			if len(r.hist) > r.maxHist {
 				r.hist = r.hist[len(r.hist)-r.maxHist:]

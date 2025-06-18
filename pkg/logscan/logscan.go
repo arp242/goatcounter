@@ -15,7 +15,7 @@ import (
 	"github.com/bmatcuk/doublestar/v4"
 	"zgo.at/errors"
 	"zgo.at/follow"
-	"zgo.at/goatcounter/v2/log"
+	"zgo.at/goatcounter/v2/pkg/log"
 )
 
 var reFormat = regexp.MustCompile(`\\\$[\w-_]+`)

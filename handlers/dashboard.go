@@ -12,8 +12,8 @@ import (
 
 	"zgo.at/errors"
 	"zgo.at/goatcounter/v2"
-	"zgo.at/goatcounter/v2/log"
-	"zgo.at/goatcounter/v2/metrics"
+	"zgo.at/goatcounter/v2/pkg/log"
+	"zgo.at/goatcounter/v2/pkg/metrics"
 	"zgo.at/goatcounter/v2/widgets"
 	"zgo.at/guru"
 	"zgo.at/z18n"

@@ -8,7 +8,7 @@ import (
 	"strings"
 
 	"zgo.at/errors"
-	"zgo.at/goatcounter/v2/log"
+	"zgo.at/goatcounter/v2/pkg/log"
 	"zgo.at/zcache"
 	"zgo.at/zdb"
 	"zgo.at/zstd/zbool"

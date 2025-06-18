@@ -7,8 +7,8 @@ import (
 	"sync/atomic"
 	"time"
 
-	"zgo.at/bgrun"
-	"zgo.at/goatcounter/v2/log"
+	"zgo.at/goatcounter/v2/pkg/bgrun"
+	"zgo.at/goatcounter/v2/pkg/log"
 	"zgo.at/zstd/zruntime"
 	"zgo.at/zstd/zsync"
 )

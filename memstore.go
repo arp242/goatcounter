@@ -10,7 +10,7 @@ import (
 	"sync"
 	"time"
 
-	"zgo.at/goatcounter/v2/log"
+	"zgo.at/goatcounter/v2/pkg/log"
 	"zgo.at/json"
 	"zgo.at/zdb"
 	"zgo.at/zstd/zbool"

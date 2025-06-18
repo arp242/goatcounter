@@ -14,7 +14,7 @@ import (
 	"golang.org/x/crypto/acme/autocert"
 	"golang.org/x/sync/singleflight"
 	"zgo.at/goatcounter/v2"
-	"zgo.at/goatcounter/v2/log"
+	"zgo.at/goatcounter/v2/pkg/log"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
 )
