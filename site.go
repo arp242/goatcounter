@@ -65,7 +65,7 @@ type Site struct {
 	FirstHitAt time.Time  `db:"first_hit_at" json:"first_hit_at"`
 }
 
-// ClearCache clears the  cache for this site.
+// ClearCache clears the cache for this site.
 func (s Site) ClearCache(ctx context.Context, full bool) {
 	cacheSites(ctx).Delete(strconv.FormatInt(s.ID, 10))
 

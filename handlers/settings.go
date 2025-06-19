@@ -827,12 +827,21 @@ func (h settings) mergeAccountDo(w http.ResponseWriter, r *http.Request) error {
 		if err != nil {
 			return err
 		}
-		return zdb.Exec(ctx, `delete from users where site_id in (?) and  lower(email) = lower(?)`,
+		return zdb.Exec(ctx, `delete from users where site_id in (?) and lower(email) = lower(?)`,
 			mergeSiteIDs, user.Email)
 	})
 	if err != nil {
 		return err
 	}
+
+	Account(r.Context()).ClearCache(r.Context(), false)
+	for _, s := range mergeSites {
+		s.ClearCache(r.Context(), false)
+	}
+	log.Info(r.Context(), "merged site",
+		"account", Account(r.Context()).ID,
+		"merge_ids", mergeSiteIDs,
+		"email", mergeUser.Email)
 
 	zhttp.Flash(w, "okay")
 	return zhttp.SeeOther(w, "/settings/merge-account")
