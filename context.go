@@ -8,7 +8,7 @@ import (
 
 	"zgo.at/goatcounter/v2/pkg/geo"
 	"zgo.at/z18n"
-	"zgo.at/zcache"
+	"zgo.at/zcache/v2"
 	"zgo.at/zdb"
 	"zgo.at/zhttp/ctxkey"
 )
@@ -160,40 +160,40 @@ func MustGetUser(ctx context.Context) *User {
 func CopyContextValues(ctx context.Context) context.Context {
 	n := zdb.WithDB(context.Background(), zdb.MustGetDB(ctx))
 	if c := ctx.Value(keyCacheSites); c != nil {
-		n = context.WithValue(n, keyCacheSites, c.(*zcache.Cache))
+		n = context.WithValue(n, keyCacheSites, c.(*zcache.Cache[int64, *Site]))
 	}
 	if c := ctx.Value(keyCacheUA); c != nil {
-		n = context.WithValue(n, keyCacheUA, c.(*zcache.Cache))
+		n = context.WithValue(n, keyCacheUA, c.(*zcache.Cache[string, UserAgent]))
 	}
 	if c := ctx.Value(keyCacheBrowsers); c != nil {
-		n = context.WithValue(n, keyCacheBrowsers, c.(*zcache.Cache))
+		n = context.WithValue(n, keyCacheBrowsers, c.(*zcache.Cache[string, Browser]))
 	}
 	if c := ctx.Value(keyCacheSystems); c != nil {
-		n = context.WithValue(n, keyCacheSystems, c.(*zcache.Cache))
+		n = context.WithValue(n, keyCacheSystems, c.(*zcache.Cache[string, System]))
 	}
 	if c := ctx.Value(keyCachePaths); c != nil {
-		n = context.WithValue(n, keyCachePaths, c.(*zcache.Cache))
+		n = context.WithValue(n, keyCachePaths, c.(*zcache.Cache[string, Path]))
 	}
 	if c := ctx.Value(keyCacheRefs); c != nil {
-		n = context.WithValue(n, keyCacheRefs, c.(*zcache.Cache))
+		n = context.WithValue(n, keyCacheRefs, c.(*zcache.Cache[string, Ref]))
 	}
 	if c := ctx.Value(keyCacheSizes); c != nil {
-		n = context.WithValue(n, keyCacheSizes, c.(*zcache.Cache))
+		n = context.WithValue(n, keyCacheSizes, c.(*zcache.Cache[string, Size]))
 	}
 	if c := ctx.Value(keyCacheLoc); c != nil {
-		n = context.WithValue(n, keyCacheLoc, c.(*zcache.Cache))
+		n = context.WithValue(n, keyCacheLoc, c.(*zcache.Cache[string, *Location]))
 	}
 	if c := ctx.Value(keyCacheCampaigns); c != nil {
-		n = context.WithValue(n, keyCacheCampaigns, c.(*zcache.Cache))
+		n = context.WithValue(n, keyCacheCampaigns, c.(*zcache.Cache[string, *Campaign]))
 	}
 	if c := ctx.Value(keyCacheI18n); c != nil {
-		n = context.WithValue(n, keyCacheI18n, c.(*zcache.Cache))
+		n = context.WithValue(n, keyCacheI18n, c.(*zcache.Cache[string, *OverrideTranslations]))
 	}
 	if c := ctx.Value(keyChangedTitles); c != nil {
-		n = context.WithValue(n, keyChangedTitles, c.(*zcache.Cache))
+		n = context.WithValue(n, keyChangedTitles, c.(*zcache.Cache[string, []string]))
 	}
 	if c := ctx.Value(keyCacheSitesProxy); c != nil {
-		n = context.WithValue(n, keyCacheSitesProxy, c.(*zcache.Proxy))
+		n = context.WithValue(n, keyCacheSitesProxy, c.(*zcache.Proxy[string, int64, *Site]))
 	}
 	if c := Config(ctx); c != nil {
 		n = context.WithValue(n, keyConfig, c)
@@ -223,20 +223,20 @@ func NewContext(ctx context.Context, db zdb.DB) context.Context {
 }
 
 func NewCache(ctx context.Context) context.Context {
-	s := zcache.New(24*time.Hour, 1*time.Hour)
+	s := zcache.New[int64, *Site](24*time.Hour, 1*time.Hour)
 	ctx = context.WithValue(ctx, keyCacheSites, s)
-	ctx = context.WithValue(ctx, keyCacheSitesProxy, zcache.NewProxy(s))
+	ctx = context.WithValue(ctx, keyCacheSitesProxy, zcache.NewProxy[string, int64, *Site](s))
 
-	ctx = context.WithValue(ctx, keyCacheUA, zcache.New(1*time.Hour, 5*time.Minute))
-	ctx = context.WithValue(ctx, keyCacheBrowsers, zcache.New(1*time.Hour, 5*time.Minute))
-	ctx = context.WithValue(ctx, keyCacheSystems, zcache.New(1*time.Hour, 5*time.Minute))
-	ctx = context.WithValue(ctx, keyCachePaths, zcache.New(1*time.Hour, 5*time.Minute))
-	ctx = context.WithValue(ctx, keyCacheRefs, zcache.New(1*time.Hour, 5*time.Minute))
-	ctx = context.WithValue(ctx, keyCacheSizes, zcache.New(1*time.Hour, 5*time.Minute))
-	ctx = context.WithValue(ctx, keyCacheLoc, zcache.New(zcache.NoExpiration, zcache.NoExpiration))
-	ctx = context.WithValue(ctx, keyCacheCampaigns, zcache.New(24*time.Hour, 15*time.Minute))
-	ctx = context.WithValue(ctx, keyCacheI18n, zcache.New(zcache.NoExpiration, zcache.NoExpiration))
-	ctx = context.WithValue(ctx, keyChangedTitles, zcache.New(48*time.Hour, 1*time.Hour))
+	ctx = context.WithValue(ctx, keyCacheUA, zcache.New[string, UserAgent](1*time.Hour, 5*time.Minute))
+	ctx = context.WithValue(ctx, keyCacheBrowsers, zcache.New[string, Browser](1*time.Hour, 5*time.Minute))
+	ctx = context.WithValue(ctx, keyCacheSystems, zcache.New[string, System](1*time.Hour, 5*time.Minute))
+	ctx = context.WithValue(ctx, keyCachePaths, zcache.New[string, Path](1*time.Hour, 5*time.Minute))
+	ctx = context.WithValue(ctx, keyCacheRefs, zcache.New[string, Ref](1*time.Hour, 5*time.Minute))
+	ctx = context.WithValue(ctx, keyCacheSizes, zcache.New[string, Size](1*time.Hour, 5*time.Minute))
+	ctx = context.WithValue(ctx, keyCacheLoc, zcache.New[string, *Location](zcache.NoExpiration, zcache.NoExpiration))
+	ctx = context.WithValue(ctx, keyCacheCampaigns, zcache.New[string, *Campaign](24*time.Hour, 15*time.Minute))
+	ctx = context.WithValue(ctx, keyCacheI18n, zcache.New[string, *OverrideTranslations](zcache.NoExpiration, zcache.NoExpiration))
+	ctx = context.WithValue(ctx, keyChangedTitles, zcache.New[string, []string](48*time.Hour, 1*time.Hour))
 	return ctx
 }
 
@@ -251,75 +251,75 @@ func Config(ctx context.Context) *GlobalConfig {
 	return &GlobalConfig{}
 }
 
-func cacheSites(ctx context.Context) *zcache.Cache {
+func cacheSites(ctx context.Context) *zcache.Cache[int64, *Site] {
 	if c := ctx.Value(keyCacheSites); c != nil {
-		return c.(*zcache.Cache)
+		return c.(*zcache.Cache[int64, *Site])
 	}
-	return zcache.New(0, 0)
+	return zcache.New[int64, *Site](0, 0)
 }
-func cacheUA(ctx context.Context) *zcache.Cache {
+func cacheUA(ctx context.Context) *zcache.Cache[string, UserAgent] {
 	if c := ctx.Value(keyCacheUA); c != nil {
-		return c.(*zcache.Cache)
+		return c.(*zcache.Cache[string, UserAgent])
 	}
-	return zcache.New(0, 0)
+	return zcache.New[string, UserAgent](0, 0)
 }
-func cacheBrowsers(ctx context.Context) *zcache.Cache {
+func cacheBrowsers(ctx context.Context) *zcache.Cache[string, Browser] {
 	if c := ctx.Value(keyCacheBrowsers); c != nil {
-		return c.(*zcache.Cache)
+		return c.(*zcache.Cache[string, Browser])
 	}
-	return zcache.New(0, 0)
+	return zcache.New[string, Browser](0, 0)
 }
-func cacheSystems(ctx context.Context) *zcache.Cache {
+func cacheSystems(ctx context.Context) *zcache.Cache[string, System] {
 	if c := ctx.Value(keyCacheSystems); c != nil {
-		return c.(*zcache.Cache)
+		return c.(*zcache.Cache[string, System])
 	}
-	return zcache.New(0, 0)
+	return zcache.New[string, System](0, 0)
 }
-func cachePaths(ctx context.Context) *zcache.Cache {
+func cachePaths(ctx context.Context) *zcache.Cache[string, Path] {
 	if c := ctx.Value(keyCachePaths); c != nil {
-		return c.(*zcache.Cache)
+		return c.(*zcache.Cache[string, Path])
 	}
-	return zcache.New(0, 0)
+	return zcache.New[string, Path](0, 0)
 }
-func cacheRefs(ctx context.Context) *zcache.Cache {
+func cacheRefs(ctx context.Context) *zcache.Cache[string, Ref] {
 	if c := ctx.Value(keyCacheRefs); c != nil {
-		return c.(*zcache.Cache)
+		return c.(*zcache.Cache[string, Ref])
 	}
-	return zcache.New(0, 0)
+	return zcache.New[string, Ref](0, 0)
 }
-func cacheSizes(ctx context.Context) *zcache.Cache {
+func cacheSizes(ctx context.Context) *zcache.Cache[string, Size] {
 	if c := ctx.Value(keyCacheSizes); c != nil {
-		return c.(*zcache.Cache)
+		return c.(*zcache.Cache[string, Size])
 	}
-	return zcache.New(0, 0)
+	return zcache.New[string, Size](0, 0)
 }
-func cacheLoc(ctx context.Context) *zcache.Cache {
+func cacheLoc(ctx context.Context) *zcache.Cache[string, *Location] {
 	if c := ctx.Value(keyCacheLoc); c != nil {
-		return c.(*zcache.Cache)
+		return c.(*zcache.Cache[string, *Location])
 	}
-	return zcache.New(0, 0)
+	return zcache.New[string, *Location](0, 0)
 }
-func cacheCampaigns(ctx context.Context) *zcache.Cache {
+func cacheCampaigns(ctx context.Context) *zcache.Cache[string, *Campaign] {
 	if c := ctx.Value(keyCacheCampaigns); c != nil {
-		return c.(*zcache.Cache)
+		return c.(*zcache.Cache[string, *Campaign])
 	}
-	return zcache.New(0, 0)
+	return zcache.New[string, *Campaign](0, 0)
 }
-func cacheI18n(ctx context.Context) *zcache.Cache {
+func cacheI18n(ctx context.Context) *zcache.Cache[string, *OverrideTranslations] {
 	if c := ctx.Value(keyCacheI18n); c != nil {
-		return c.(*zcache.Cache)
+		return c.(*zcache.Cache[string, *OverrideTranslations])
 	}
-	return zcache.New(0, 0)
+	return zcache.New[string, *OverrideTranslations](0, 0)
 }
-func cacheChangedTitles(ctx context.Context) *zcache.Cache {
+func cacheChangedTitles(ctx context.Context) *zcache.Cache[string, []string] {
 	if c := ctx.Value(keyChangedTitles); c != nil {
-		return c.(*zcache.Cache)
+		return c.(*zcache.Cache[string, []string])
 	}
-	return zcache.New(0, 0)
+	return zcache.New[string, []string](0, 0)
 }
-func cacheSitesHost(ctx context.Context) *zcache.Proxy {
+func cacheSitesHost(ctx context.Context) *zcache.Proxy[string, int64, *Site] {
 	if c := ctx.Value(keyCacheSitesProxy); c != nil {
-		return c.(*zcache.Proxy)
+		return c.(*zcache.Proxy[string, int64, *Site])
 	}
-	return zcache.NewProxy(zcache.New(0, 0))
+	return zcache.NewProxy[string, int64, *Site](zcache.New[int64, *Site](0, 0))
 }

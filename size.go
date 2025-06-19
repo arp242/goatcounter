@@ -6,7 +6,6 @@ import (
 	"strconv"
 
 	"zgo.at/errors"
-	"zgo.at/zcache"
 	"zgo.at/zdb"
 )
 
@@ -30,8 +29,8 @@ func (s *Size) GetOrInsert(ctx context.Context, size Floats) error {
 	k := fmt.Sprintf("%v", size)
 	c, ok := cacheSizes(ctx).Get(k)
 	if ok {
-		*s = c.(Size)
-		cacheSizes(ctx).Touch(k, zcache.DefaultExpiration)
+		*s = c
+		cacheSizes(ctx).Touch(k)
 		return nil
 	}
 
@@ -39,7 +38,7 @@ func (s *Size) GetOrInsert(ctx context.Context, size Floats) error {
 	// unknown size.
 	if len(size) != 3 {
 		s.ID = 0
-		cacheSizes(ctx).SetDefault(k, *s)
+		cacheSizes(ctx).Set(k, *s)
 		return nil
 	}
 
@@ -48,7 +47,7 @@ func (s *Size) GetOrInsert(ctx context.Context, size Floats) error {
 	err := zdb.Get(ctx, s, `/* Size.GetOrInsert */
 		select * from sizes where size = ? limit 1`, s.String())
 	if err == nil {
-		cacheSizes(ctx).SetDefault(k, *s)
+		cacheSizes(ctx).Set(k, *s)
 		return nil
 	}
 	if !zdb.ErrNoRows(err) {
@@ -62,6 +61,6 @@ func (s *Size) GetOrInsert(ctx context.Context, size Floats) error {
 		return errors.Wrap(err, "Size.GetOrInsert insert")
 	}
 
-	cacheSizes(ctx).SetDefault(k, *s)
+	cacheSizes(ctx).Set(k, *s)
 	return nil
 }

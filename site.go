@@ -67,12 +67,12 @@ type Site struct {
 
 // ClearCache clears the cache for this site.
 func (s Site) ClearCache(ctx context.Context, full bool) {
-	cacheSites(ctx).Delete(strconv.FormatInt(s.ID, 10))
+	cacheSites(ctx).Delete(s.ID)
 
 	// TODO: be more selective about this.
 	if full {
-		cachePaths(ctx).Flush()
-		cacheChangedTitles(ctx).Flush()
+		cachePaths(ctx).Reset()
+		cacheChangedTitles(ctx).Reset()
 	}
 }
 
@@ -277,8 +277,8 @@ func (s *Site) UpdateCode(ctx context.Context, code string) error {
 		return errors.Wrap(err, "Site.UpdateCode")
 	}
 
-	cacheSites(ctx).Delete(strconv.FormatInt(s.ID, 10))
-	cacheSitesHost(ctx).Flush()
+	cacheSites(ctx).Delete(s.ID)
+	cacheSitesHost(ctx).Reset()
 	return nil
 }
 
@@ -351,7 +351,7 @@ func (s *Site) Delete(ctx context.Context, deleteChildren bool) error {
 
 			// Just clear the entire sites cache; this operation is rare enough
 			// that it doesn't really matter.
-			cacheSites(ctx).Flush()
+			cacheSites(ctx).Reset()
 		}
 
 		// Update the site code so people can delete a site and then immediately
@@ -418,10 +418,9 @@ func (s *Site) ByID(ctx context.Context, id int64) error {
 
 // ByIDState gets a site by ID and state. This may return deleted sites.
 func (s *Site) ByIDState(ctx context.Context, id int64, state string) error {
-	k := strconv.FormatInt(id, 10)
-	ss, ok := cacheSites(ctx).Get(k)
+	ss, ok := cacheSites(ctx).Get(id)
 	if ok {
-		*s = *ss.(*Site)
+		*s = *ss
 		return nil
 	}
 
@@ -431,7 +430,7 @@ func (s *Site) ByIDState(ctx context.Context, id int64, state string) error {
 	if err != nil {
 		return errors.Wrapf(err, "Site.ByIDState %d", id)
 	}
-	cacheSites(ctx).SetDefault(k, s)
+	cacheSites(ctx).Set(id, s)
 	return nil
 }
 
@@ -446,7 +445,7 @@ func (s *Site) ByCode(ctx context.Context, code string) error {
 func (s *Site) ByHost(ctx context.Context, host string) error {
 	ss, ok := cacheSitesHost(ctx).Get(host)
 	if ok {
-		*s = *ss.(*Site)
+		*s = *ss
 		return nil
 	}
 
@@ -458,7 +457,7 @@ func (s *Site) ByHost(ctx context.Context, host string) error {
 		if err != nil {
 			return errors.Wrap(err, "site.ByHost: from custom domain")
 		}
-		cacheSitesHost(ctx).Set(strconv.FormatInt(s.ID, 10), host, s)
+		cacheSitesHost(ctx).Set(s.ID, host, s)
 		return nil
 	}
 
@@ -474,7 +473,7 @@ func (s *Site) ByHost(ctx context.Context, host string) error {
 	if err != nil {
 		return errors.Wrap(err, "site.ByHost: from code")
 	}
-	cacheSitesHost(ctx).Set(strconv.FormatInt(s.ID, 10), host, s)
+	cacheSitesHost(ctx).Set(s.ID, host, s)
 	return nil
 }
 

@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	"zgo.at/errors"
-	"zgo.at/zcache"
 	"zgo.at/zdb"
 	"zgo.at/zstd/ztime"
 	"zgo.at/zstd/ztype"
@@ -113,8 +112,8 @@ func (r *Ref) GetOrInsert(ctx context.Context) error {
 	}
 	c, ok := cacheRefs(ctx).Get(k)
 	if ok {
-		*r = c.(Ref)
-		cacheRefs(ctx).Touch(k, zcache.DefaultExpiration)
+		*r = c
+		cacheRefs(ctx).Touch(k)
 		return nil
 	}
 
@@ -129,7 +128,7 @@ func (r *Ref) GetOrInsert(ctx context.Context) error {
 		where lower(ref) = lower(?) and ref_scheme = ?
 		limit 1`, r.Ref, r.RefScheme)
 	if err == nil {
-		cacheRefs(ctx).SetDefault(k, *r)
+		cacheRefs(ctx).Set(k, *r)
 		return nil
 	}
 	if !zdb.ErrNoRows(err) {
@@ -143,7 +142,7 @@ func (r *Ref) GetOrInsert(ctx context.Context) error {
 		return errors.Wrap(err, "Ref.GetOrInsert insert")
 	}
 
-	cacheRefs(ctx).SetDefault(k, *r)
+	cacheRefs(ctx).Set(k, *r)
 	return nil
 }
 

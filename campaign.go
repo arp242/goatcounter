@@ -44,7 +44,7 @@ func (c *Campaign) Insert(ctx context.Context) error {
 func (c *Campaign) ByName(ctx context.Context, name string) error {
 	k := c.Name
 	if cc, ok := cacheCampaigns(ctx).Get(k); ok {
-		*c = *cc.(*Campaign)
+		*c = *cc
 		return nil
 	}
 
@@ -54,6 +54,6 @@ func (c *Campaign) ByName(ctx context.Context, name string) error {
 		return errors.Wrap(err, "Campaign.ByName")
 	}
 
-	cacheCampaigns(ctx).SetDefault(k, c)
+	cacheCampaigns(ctx).Set(k, c)
 	return nil
 }

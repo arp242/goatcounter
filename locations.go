@@ -27,7 +27,7 @@ type Location struct {
 // ByCode gets a location by ISO-3166-2 code; e.g. "US" or "US-TX".
 func (l *Location) ByCode(ctx context.Context, code string) error {
 	if ll, ok := cacheLoc(ctx).Get(code); ok {
-		*l = *ll.(*Location)
+		*l = *ll
 		return nil
 	}
 
@@ -42,7 +42,7 @@ func (l *Location) ByCode(ctx context.Context, code string) error {
 		return errors.Wrap(err, "Location.ByCode")
 	}
 
-	cacheLoc(ctx).SetDefault(l.ISO3166_2, l)
+	cacheLoc(ctx).Set(l.ISO3166_2, l)
 	return nil
 }
 
@@ -70,7 +70,7 @@ func (l *Location) Lookup(ctx context.Context, ip string) error {
 		l.ISO3166_2 += "-" + l.Region
 	}
 	if ll, ok := cacheLoc(ctx).Get(l.ISO3166_2); ok {
-		*l = *ll.(*Location)
+		*l = *ll
 		return nil
 	}
 
@@ -84,7 +84,7 @@ func (l *Location) Lookup(ctx context.Context, ip string) error {
 		return errors.Wrap(err, "Location.Lookup")
 	}
 
-	cacheLoc(ctx).SetDefault(l.ISO3166_2, l)
+	cacheLoc(ctx).Set(l.ISO3166_2, l)
 	return nil
 }
 

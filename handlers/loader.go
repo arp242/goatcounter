@@ -10,7 +10,7 @@ import (
 	"github.com/gorilla/websocket"
 	"zgo.at/goatcounter/v2/pkg/log"
 	"zgo.at/json"
-	zcache2 "zgo.at/zcache/v2"
+	"zgo.at/zcache/v2"
 	"zgo.at/zstd/zint"
 )
 
@@ -32,11 +32,11 @@ import (
 // we can't use just the connection itself as an ID. We also can't use the
 // userID because a user can have two tabs open. So, we need a connection ID.
 type loaderT struct {
-	conns *zcache2.Cache[zint.Uint128, *loaderClient]
+	conns *zcache.Cache[zint.Uint128, *loaderClient]
 }
 
 var loader = loaderT{
-	conns: zcache2.New[zint.Uint128, *loaderClient](zcache2.DefaultExpiration, zcache2.NoExpiration),
+	conns: zcache.New[zint.Uint128, *loaderClient](zcache.DefaultExpiration, zcache.NoExpiration),
 }
 
 type loaderClient struct {

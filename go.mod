@@ -47,8 +47,7 @@ require (
 	zgo.at/termtext v1.5.0
 	zgo.at/tz v0.0.0-20240819050900-3c7bf6122612
 	zgo.at/z18n v0.0.0-20240522230155-4d5af439f8c4
-	zgo.at/zcache v1.2.0
-	zgo.at/zcache/v2 v2.1.0
+	zgo.at/zcache/v2 v2.2.0
 	zgo.at/zdb v0.0.0-20250528164418-859852b74fef
 	zgo.at/zhttp v0.0.0-20250606234350-7e8bad41bf7d
 	zgo.at/zli v0.0.0-20250614004402-078b5fce471c

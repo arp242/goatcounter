@@ -6,7 +6,6 @@ import (
 	"zgo.at/errors"
 	"zgo.at/gadget"
 	"zgo.at/isbot"
-	"zgo.at/zcache"
 	"zgo.at/zdb"
 )
 
@@ -21,8 +20,8 @@ func (p *UserAgent) GetOrInsert(ctx context.Context) error {
 	shortUA := gadget.ShortenUA(p.UserAgent)
 	c, ok := cacheUA(ctx).Get(p.UserAgent)
 	if ok {
-		*p = c.(UserAgent)
-		cacheUA(ctx).Touch(shortUA, zcache.DefaultExpiration)
+		*p = c
+		cacheUA(ctx).Touch(shortUA)
 		return nil
 	}
 
@@ -46,7 +45,7 @@ func (p *UserAgent) GetOrInsert(ctx context.Context) error {
 
 	p.Isbot = uint8(isbot.UserAgent(p.UserAgent))
 
-	cacheUA(ctx).SetDefault(shortUA, *p)
+	cacheUA(ctx).Set(shortUA, *p)
 	return nil
 }
 
@@ -60,8 +59,8 @@ func (b *Browser) GetOrInsert(ctx context.Context, name, version string) error {
 	k := name + version
 	c, ok := cacheBrowsers(ctx).Get(k)
 	if ok {
-		*b = c.(Browser)
-		cacheBrowsers(ctx).Touch(k, zcache.DefaultExpiration)
+		*b = c
+		cacheBrowsers(ctx).Touch(k)
 		return nil
 	}
 
@@ -79,7 +78,7 @@ func (b *Browser) GetOrInsert(ctx context.Context, name, version string) error {
 	if err != nil {
 		return errors.Wrapf(err, "Browser.GetOrInsert %q %q", name, version)
 	}
-	cacheBrowsers(ctx).SetDefault(k, *b)
+	cacheBrowsers(ctx).Set(k, *b)
 	return nil
 }
 
@@ -93,8 +92,8 @@ func (s *System) GetOrInsert(ctx context.Context, name, version string) error {
 	k := name + version
 	c, ok := cacheSystems(ctx).Get(k)
 	if ok {
-		*s = c.(System)
-		cacheSystems(ctx).Touch(k, zcache.DefaultExpiration)
+		*s = c
+		cacheSystems(ctx).Touch(k)
 		return nil
 	}
 
@@ -112,6 +111,6 @@ func (s *System) GetOrInsert(ctx context.Context, name, version string) error {
 	if err != nil {
 		return errors.Wrapf(err, "System.GetOrInsert %q %q", name, version)
 	}
-	cacheSystems(ctx).SetDefault(k, *s)
+	cacheSystems(ctx).Set(k, *s)
 	return nil
 }

@@ -87,10 +87,8 @@ zgo.at/tz v0.0.0-20240819050900-3c7bf6122612 h1:cg4VMBRZ8qFJ9n/HqfQmZmtOIRfrlb6Q
 zgo.at/tz v0.0.0-20240819050900-3c7bf6122612/go.mod h1:UMT8M059Fm0DBlbdu68P5oBkhKeAZDAxTqHcsJ+Qd80=
 zgo.at/z18n v0.0.0-20240522230155-4d5af439f8c4 h1:H69hFT4lTSyFj6giWaeFJJslobuYQwpfn6X/T84x7wE=
 zgo.at/z18n v0.0.0-20240522230155-4d5af439f8c4/go.mod h1:hyMzuQ1BFVoFEMTaWr9qj9tWMUpJM6s4f0OFbijhkeA=
-zgo.at/zcache v1.2.0 h1:++0dNWOrmUBa10WSja+eHx5bEO2PzZLRY6MJlBD47yk=
-zgo.at/zcache v1.2.0/go.mod h1:xWQo2ha/bamTmx8CbfrZl9Nf8AoT5uNh2hWfbQi8TiE=
-zgo.at/zcache/v2 v2.1.0 h1:USo+ubK+R4vtjw4viGzTe/zjXyPw6R7SK/RL3epBBxs=
-zgo.at/zcache/v2 v2.1.0/go.mod h1:gyCeoLVo01QjDZynjime8xUGHHMbsLiPyUTBpDGd4Gk=
+zgo.at/zcache/v2 v2.2.0 h1:K29/IPjMniZfveYE+IRXfrl11tMzHkIPuyGrfVZ2fGo=
+zgo.at/zcache/v2 v2.2.0/go.mod h1:gyCeoLVo01QjDZynjime8xUGHHMbsLiPyUTBpDGd4Gk=
 zgo.at/zdb v0.0.0-20250528164418-859852b74fef h1:SfY9kMzSNnzrpXG9EgO8Ona/ljzdYyXfWzLumFkZrPI=
 zgo.at/zdb v0.0.0-20250528164418-859852b74fef/go.mod h1:QzZpCz/2PyRNvKwm0oTXg+k7lShZdaaogo90JoC66m8=
 zgo.at/zhttp v0.0.0-20250606234350-7e8bad41bf7d h1:nQilmSAGyB8VlAAHBgnVhla3kBYmncZOYKwkAVT2z0k=

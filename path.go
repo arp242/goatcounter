@@ -9,7 +9,6 @@ import (
 
 	"zgo.at/errors"
 	"zgo.at/goatcounter/v2/pkg/log"
-	"zgo.at/zcache"
 	"zgo.at/zdb"
 	"zgo.at/zstd/zbool"
 	"zgo.at/zstd/zjson"
@@ -57,8 +56,8 @@ func (p *Path) GetOrInsert(ctx context.Context) error {
 	k := strconv.FormatInt(site.ID, 10) + p.Path
 	c, ok := cachePaths(ctx).Get(k)
 	if ok {
-		*p = c.(Path)
-		cachePaths(ctx).Touch(k, zcache.DefaultExpiration)
+		*p = c
+		cachePaths(ctx).Touch(k)
 
 		err := p.updateTitle(ctx, p.Title, title)
 		if err != nil {
@@ -85,7 +84,7 @@ func (p *Path) GetOrInsert(ctx context.Context) error {
 		if err != nil {
 			log.Error(ctx, err, "path_id", p.ID, "title", title)
 		}
-		cachePaths(ctx).SetDefault(k, *p)
+		cachePaths(ctx).Set(k, *p)
 		return nil
 	}
 
@@ -97,7 +96,7 @@ func (p *Path) GetOrInsert(ctx context.Context) error {
 		return errors.Wrap(err, "Path.GetOrInsert insert")
 	}
 
-	cachePaths(ctx).SetDefault(k, *p)
+	cachePaths(ctx).Set(k, *p)
 	return nil
 }
 
@@ -109,16 +108,15 @@ func (p Path) updateTitle(ctx context.Context, currentTitle, newTitle string) er
 	k := strconv.FormatInt(p.ID, 10)
 	_, ok := cacheChangedTitles(ctx).Get(k)
 	if !ok {
-		cacheChangedTitles(ctx).SetDefault(k, []string{newTitle})
+		cacheChangedTitles(ctx).Set(k, []string{newTitle})
 		return nil
 	}
 
 	var titles []string
-	cacheChangedTitles(ctx).Modify(k, func(v any) any {
-		vv := v.([]string)
-		vv = append(vv, newTitle)
-		titles = vv
-		return vv
+	cacheChangedTitles(ctx).Modify(k, func(v []string) []string {
+		v = append(v, newTitle)
+		titles = v
+		return v
 	})
 
 	grouped := make(map[string]int)
