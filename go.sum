@@ -1,13 +1,9 @@
-code.soquee.net/otp v0.0.4 h1:ANxYY0VMAkjx7LhCBOQo7yoYRCFbJWD+T1Q9cjZqP5I=
-code.soquee.net/otp v0.0.4/go.mod h1:uRGadR4aJxaHpudNJxmCad1v8IBzdWGwnYXU9STqTqk=
 filippo.io/edwards25519 v1.1.0 h1:FNf4tywRC1HmFuKW5xopWpigGjJKiJSV0Cqo0cJWDaA=
 filippo.io/edwards25519 v1.1.0/go.mod h1:BxyFTGdWcka3PhytdK4V28tE5sGfRvvvRV7EaN4VDT4=
 github.com/BurntSushi/toml v1.5.0 h1:W5quZX/G/csjUnuI8SUYlsHs9M38FC7znL0lIO+DvMg=
 github.com/BurntSushi/toml v1.5.0/go.mod h1:ukJfTF/6rtPPRCnwkur4qwRxa8vTRFBF0uk2lLoLwho=
 github.com/bmatcuk/doublestar/v4 v4.8.1 h1:54Bopc5c2cAvhLRAzqOGCYHYyhcDHsFF4wWIR5wKP38=
 github.com/bmatcuk/doublestar/v4 v4.8.1/go.mod h1:xBQ8jztBU6kakFMg+8WGxn0c6z1fTSPVIjEY1Wr7jzc=
-github.com/boombuler/barcode v1.0.2 h1:79yrbttoZrLGkL/oOI8hBrUKucwOL0oOjUgEguGMcJ4=
-github.com/boombuler/barcode v1.0.2/go.mod h1:paBWMcWSl3LHKBqUq+rly7CNSldXjb2rDl3JlRe0mD8=
 github.com/fsnotify/fsnotify v1.6.0/go.mod h1:sl3t1tCWJFWoRz9R8WJCbQihKKwmorjAbSClcnxKAGw=
 github.com/fsnotify/fsnotify v1.9.0 h1:2Ml+OJNzbYCTzsxtv8vKSFD9PbJjmhYF14k/jKC7S9k=
 github.com/fsnotify/fsnotify v1.9.0/go.mod h1:8jBTzvmWwFyi3Pb8djgCCO5IBqzKJ/Jwo8TRcHyHii0=
@@ -77,6 +73,8 @@ zgo.at/jfmt v0.0.0-20240726113937-e6436421fade h1:1FbpqgZbIvTyViQnvcdwE6yg7xgwMx
 zgo.at/jfmt v0.0.0-20240726113937-e6436421fade/go.mod h1:g2hlv4nhSZZuigOPEzsWJzgz9qa5/FJ06F0nirLGeCk=
 zgo.at/json v0.0.0-20221020004326-fe4f75bb278e h1:rEyfeeAnUDOYdH9PVHe5EZ8seo1V1UdbIAMmusS1LjQ=
 zgo.at/json v0.0.0-20221020004326-fe4f75bb278e/go.mod h1:yvrHxciuKpi1XgJoCIfg/EDybcgkcXvjV2tCVp8O2ks=
+zgo.at/otp v0.0.0-20250619162254-96c2c40ec359 h1:BnqNFPCn13CikUm6II4kJmmQlGO9W0pkBbG99blUED0=
+zgo.at/otp v0.0.0-20250619162254-96c2c40ec359/go.mod h1:xiGO6Fs3qqbEwBYdtn7BRFJ1VIFgqF/uXYZKzaiEZoc=
 zgo.at/runewidth v0.1.0 h1:ED4PzJpYJlZMDEkoz+iPKjb5NrwbKnWPXDMJlNlfk9g=
 zgo.at/runewidth v0.1.0/go.mod h1:Ugl6FGPF5Ib/NRu2UAV2wVthEgYfEz51Bu/uyNbWZSw=
 zgo.at/slog_align v0.0.0-20250608122414-fe848f5abf9c h1:l2M922Y7zyXB5sq032cJw/Q1E2yINRH1+Dr7FPMHzMU=

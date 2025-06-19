@@ -2,7 +2,6 @@ package goatcounter
 
 import (
 	"context"
-	"crypto/rand"
 	"database/sql"
 	"database/sql/driver"
 	"fmt"
@@ -15,14 +14,13 @@ import (
 	"zgo.at/goatcounter/v2/pkg/log"
 	"zgo.at/guru"
 	"zgo.at/json"
+	"zgo.at/otp"
 	"zgo.at/zdb"
 	"zgo.at/zstd/zbool"
 	"zgo.at/zstd/zcrypto"
 	"zgo.at/zstd/ztime"
 	"zgo.at/zstd/ztype"
 )
-
-const totpSecretLen = 16
 
 // User entry.
 type User struct {
@@ -142,11 +140,7 @@ func (u *User) Insert(ctx context.Context, allowBlankPassword bool) error {
 	}
 
 	u.TOTPEnabled = zbool.Bool(false)
-	u.TOTPSecret = make([]byte, totpSecretLen)
-	_, err = rand.Read(u.TOTPSecret)
-	if err != nil {
-		return errors.Wrap(err, "User.Insert")
-	}
+	u.TOTPSecret = otp.Secret()
 
 	query := `insert into users `
 	args := []any{u.Site, u.Email, u.Password, u.TOTPSecret, u.Settings, u.Access, u.CreatedAt, u.LastReportAt}
@@ -401,20 +395,15 @@ func (u *User) EnableTOTP(ctx context.Context) error {
 func (u *User) DisableTOTP(ctx context.Context) error {
 	// Reset the totp secret to something new so that we don't end up re-using the
 	// old secret by mistake and so that we're sure that it's invalidated.
-	secret := make([]byte, totpSecretLen)
-	_, err := rand.Read(secret)
-	if err != nil {
-		return errors.Wrap(err, "User.DisableTOTP")
-	}
-
-	err = zdb.Exec(ctx, `update users set
-		totp_enabled=0, totp_secret=$1 where user_id=$2 and site_id=$3`,
-		secret, u.ID, MustGetSite(ctx).IDOrParent())
-	if err != nil {
-		return errors.Wrap(err, "User.DisableTOTP")
-	}
-	u.TOTPSecret = secret
+	u.TOTPSecret = otp.Secret()
 	u.TOTPEnabled = zbool.Bool(false)
+
+	err := zdb.Exec(ctx, `update users set
+		totp_enabled=0, totp_secret=$1 where user_id=$2 and site_id=$3`,
+		u.TOTPSecret, u.ID, MustGetSite(ctx).IDOrParent())
+	if err != nil {
+		return errors.Wrap(err, "User.DisableTOTP")
+	}
 	return nil
 }
 

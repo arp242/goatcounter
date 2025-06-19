@@ -3,9 +3,7 @@ module zgo.at/goatcounter/v2
 go 1.24.4
 
 require (
-	code.soquee.net/otp v0.0.4
 	github.com/bmatcuk/doublestar/v4 v4.8.1
-	github.com/boombuler/barcode v1.0.2
 	github.com/go-chi/chi/v5 v5.2.1
 	github.com/google/uuid v1.6.0
 	github.com/gorilla/websocket v1.5.3
@@ -42,6 +40,7 @@ require (
 	zgo.at/isbot v1.0.0
 	zgo.at/jfmt v0.0.0-20240726113937-e6436421fade
 	zgo.at/json v0.0.0-20221020004326-fe4f75bb278e
+	zgo.at/otp v0.0.0-20250619162254-96c2c40ec359
 	zgo.at/runewidth v0.1.0 // indirect
 	zgo.at/slog_align v0.0.0-20250608122414-fe848f5abf9c
 	zgo.at/termtext v1.5.0

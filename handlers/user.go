@@ -11,7 +11,6 @@ import (
 	"strconv"
 	"time"
 
-	"code.soquee.net/otp"
 	"github.com/go-chi/chi/v5"
 	"github.com/sethvargo/go-limiter"
 	"golang.org/x/crypto/bcrypt"
@@ -21,6 +20,7 @@ import (
 	"zgo.at/goatcounter/v2/pkg/bgrun"
 	"zgo.at/goatcounter/v2/pkg/log"
 	"zgo.at/guru"
+	"zgo.at/otp"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zhttp/auth"
@@ -221,17 +221,9 @@ func (h user) totpLogin(w http.ResponseWriter, r *http.Request) error {
 		return zhttp.SeeOther(w, "/user/new")
 	}
 
-	tokInt, err := strconv.ParseInt(args.Token, 10, 32)
-	if err != nil {
-		return err
-	}
-
-	// Check a 30 second window on either side of the current time as well. It's
-	// common for clocks to be slightly out of sync and this prevents most
-	// errors and is what the spec recommends.
 	if !testTOTP {
-		tokGen := otp.NewOTP(u.TOTPSecret, 6, sha1.New, otp.TOTP(30*time.Second, time.Now))
-		if tokGen(0, nil) != int32(tokInt) && tokGen(-1, nil) != int32(tokInt) && tokGen(1, nil) != int32(tokInt) {
+		o := otp.New(u.TOTPSecret, 6, sha1.New, otp.TOTP(30*time.Second, time.Now))
+		if !o.Verify(args.Token, 1) {
 			zhttp.FlashError(w, mfaError)
 			return h.totpForm(w, r, *u.LoginToken, args.LoginMAC)
 		}
@@ -367,16 +359,8 @@ func (h user) enableTOTP(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	tokGen := otp.NewOTP(u.TOTPSecret, 6, sha1.New, otp.TOTP(30*time.Second, time.Now))
-	tokInt, err := strconv.ParseInt(args.Token, 10, 32)
-	if err != nil {
-		return err
-	}
-
-	// Check a 30 second window on either side of the current time as well. It's
-	// common for clocks to be slightly out of sync and this prevents most errors
-	// and is what the spec recommends.
-	if tokGen(0, nil) != int32(tokInt) && tokGen(-1, nil) != int32(tokInt) && tokGen(1, nil) != int32(tokInt) {
+	o := otp.New(u.TOTPSecret, 6, sha1.New, otp.TOTP(30*time.Second, time.Now))
+	if !o.Verify(args.Token, 1) {
 		zhttp.FlashError(w, mfaError)
 		return zhttp.SeeOther(w, "/user/auth")
 	}

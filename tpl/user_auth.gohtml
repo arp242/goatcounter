@@ -46,7 +46,7 @@
 
 				{{/* z18n: "Secret" as in the secret MFA token; for example: "Secret: VNUZWLNDEVS6OTBVQK7FFTCLA4" */}}
 				<div>{{.T "label/secret|Secret"}}: <code>{{ .User.TOTPSecret | base32 }}</code></div>
-				{{totp_barcode .User.Email (base32 .User.TOTPSecret) }}<br>
+				{{totp_barcode .User.Email .User.TOTPSecret}}<br>
 
 				<label for="totp_token">{{.T "label/verifictation-token|Verification token"}}: </label><br>
 				<input type="text" name="totp_token" id="totp_token" required

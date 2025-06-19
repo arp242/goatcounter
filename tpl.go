@@ -5,10 +5,8 @@ import (
 
 	"context"
 	"encoding/base32"
-	"encoding/base64"
 	"fmt"
 	"html/template"
-	"image/png"
 	"io/fs"
 	"math"
 	"reflect"
@@ -17,11 +15,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/boombuler/barcode"
-	"github.com/boombuler/barcode/qr"
 	"github.com/russross/blackfriday/v2"
 	"zgo.at/errors"
 	"zgo.at/goatcounter/v2/pkg/log"
+	"zgo.at/otp"
 	"zgo.at/z18n"
 	"zgo.at/zhttp"
 	"zgo.at/zstd/zfs"
@@ -314,31 +311,14 @@ func init() {
 		return tplfunc.Number(n, u.Settings.NumberFormat)
 	})
 
-	tplfunc.Add("totp_barcode", func(email, s string) template.HTML {
-		qrCode, err := qr.Encode(
-			fmt.Sprintf("otpauth://totp/GoatCounter:%s?secret=%s&issuer=GoatCounter", email, s),
-			qr.M, qr.Auto)
+	tplfunc.Add("totp_barcode", func(email string, secret []byte) template.HTML {
+		img, err := otp.URL(secret, "GoatCounter", email).PNGDataURL(200)
 		if err != nil {
 			log.Error(context.Background(), errors.Wrap(err, "encoding QR code"))
 			return template.HTML("Error generating the QR code; this has been logged for investigation.")
 		}
-
-		qrCode, err = barcode.Scale(qrCode, 200, 200)
-		if err != nil {
-			log.Error(context.Background(), errors.Wrap(err, "scaling QR code"))
-			return template.HTML("Error generating the QR code; this has been logged for investigation.")
-		}
-
-		buf := bytes.NewBufferString("data:image/png;base64,")
-		err = png.Encode(base64.NewEncoder(base64.StdEncoding, buf), qrCode)
-		if err != nil {
-			log.Error(context.Background(), errors.Wrap(err, "encoding QR code as PNG"))
-			return template.HTML("Error generating the QR code; this has been logged for investigation.")
-		}
-
 		return template.HTML(fmt.Sprintf(
-			`<img alt="TOTP Secret Barcode" title="TOTP Secret Barcode" src="%s">`,
-			buf.String()))
+			`<img alt="TOTP Secret Barcode" title="TOTP Secret Barcode" src="%s">`, img))
 	})
 }
 
