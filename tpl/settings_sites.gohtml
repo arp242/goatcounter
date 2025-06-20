@@ -34,11 +34,7 @@
 					<td><a href="{{$s.URL $.Context}}">{{$s.Domain $.Context}}</a></td>
 				{{end}}
 				<td>
-					{{if and $.GoatcounterCom (not $s.Parent)}}
-						{{$.T "error/delete-main-site|Can’t delete main site"}}
-					{{else}}
-						<a href="{{$.Base}}/settings/sites/remove/{{$s.ID}}">{{$.T "button/delete|delete"}}</a>
-					{{end}}
+					<a href="{{$.Base}}/settings/sites/remove/{{$s.ID}}">{{$.T "button/delete|delete"}}</a>
 					{{if eq $s.ID $.Site.ID}}&nbsp;&nbsp;&nbsp;{{$.T "label/mark-current|(current)"}}{{end}}
 				</td>
 			</tr>{{end}}

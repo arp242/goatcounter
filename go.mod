@@ -15,18 +15,6 @@ require (
 	github.com/sethvargo/go-limiter v1.0.0
 )
 
-// golang.org/x
-require (
-	golang.org/x/crypto v0.39.0
-	golang.org/x/image v0.27.0
-	golang.org/x/mod v0.25.0 // indirect
-	golang.org/x/net v0.41.0
-	golang.org/x/sync v0.15.0
-	golang.org/x/sys v0.33.0
-	golang.org/x/text v0.26.0
-	golang.org/x/tools v0.34.0 // indirect
-)
-
 // Things I maintain
 require (
 	github.com/BurntSushi/toml v1.5.0
@@ -48,10 +36,22 @@ require (
 	zgo.at/z18n v0.0.0-20240522230155-4d5af439f8c4
 	zgo.at/zcache/v2 v2.2.0
 	zgo.at/zdb v0.0.0-20250528164418-859852b74fef
-	zgo.at/zhttp v0.0.0-20250606234350-7e8bad41bf7d
+	zgo.at/zhttp v0.0.0-20250610161844-8012cbd86542
 	zgo.at/zli v0.0.0-20250614004402-078b5fce471c
 	zgo.at/zprof v0.0.0-20211217104121-c3c12596d8f0
 	zgo.at/zstd v0.0.0-20250313035723-1ece53b5d53e
 	zgo.at/ztpl v0.0.0-20250522073924-f73b178f1791
 	zgo.at/zvalidate v0.0.0-20250318041547-3c1bd3bca262
+)
+
+// golang.org/x
+require (
+	golang.org/x/crypto v0.39.0
+	golang.org/x/image v0.28.0
+	golang.org/x/mod v0.25.0 // indirect
+	golang.org/x/net v0.41.0
+	golang.org/x/sync v0.15.0
+	golang.org/x/sys v0.33.0
+	golang.org/x/text v0.26.0
+	golang.org/x/tools v0.34.0 // indirect
 )
