@@ -345,7 +345,7 @@ Martin
 
 ["error/date-past"]
   loc     = ["handlers/handlers.go:67"]
-  default = "That would be before the site’s creation; GoatCounter is not *that* good ;-)"
+  default = "That would be before the site’s creation"
 
 ["error/delete-main-site"]
   loc     = ["tpl/settings_sites.gohtml:28"]

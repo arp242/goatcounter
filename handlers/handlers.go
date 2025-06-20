@@ -117,7 +117,7 @@ func newGlobals(w http.ResponseWriter, r *http.Request) Globals {
 		HideUI:         r.URL.Query().Get("hideui") != "",
 		JSTranslations: map[string]string{
 			"error/date-future":           T(ctx, "error/date-future|That would be in the future"),
-			"error/date-past":             T(ctx, "error/date-past|That would be before the site’s creation; GoatCounter is not *that* good ;-)"),
+			"error/date-past":             T(ctx, "error/date-past|That would be before the site’s creation"),
 			"error/date-mismatch":         T(ctx, "error/date-mismatch|end date is before start date"),
 			"error/load-url":              T(ctx, "error/load-url|Could not load %(url): %(error)", z18n.P{"url": "%(url)", "error": "%(error)"}),
 			"notify/saved":                T(ctx, "notify/saved|Saved!"),

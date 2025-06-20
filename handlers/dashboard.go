@@ -370,7 +370,7 @@ func (h backend) loadWidget(w http.ResponseWriter, r *http.Request) error {
 //	   The start date is set to exactly this period ago. The end date is set to
 //	   the end of the current day.
 //
-//	week-cur, month-cur
+//	week-cur, month-cur, year-cur
 //	   The current week or month; both the start and return are modified.
 //
 //	Any digit
@@ -383,6 +383,8 @@ func timeRange(ctx context.Context, r string, tz *time.Location, sundayStartsWee
 		rng = rng.Current(ztime.Week(sundayStartsWeek))
 	case "month-cur":
 		rng = rng.Current(ztime.Month)
+	case "year-cur":
+		rng = rng.Current(ztime.Year)
 	case "week":
 		rng = rng.Last(ztime.Week(sundayStartsWeek))
 	case "month":

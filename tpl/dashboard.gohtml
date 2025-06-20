@@ -102,7 +102,8 @@
 				<span>
 					{{.T "nav-dash/current|Current"}} {{/* z18n: as in: "Current [week] [month] ...*/}}
 					<button class="link" name="period" value="week-cur">{{.T "nav-dash/week|week"}}</button> ·
-					<button class="link" name="period" value="month-cur">{{.T "nav-dash/month|month"}}</button>
+					<button class="link" name="period" value="month-cur">{{.T "nav-dash/month|month"}}</button> ·
+					<button class="link" name="period" value="year-cur">{{.T "nav-dash/year|year"}}</button>
 				</span>
 			</span>
 		</div>
@@ -130,7 +131,8 @@
 			<span>
 				<button class="link" name="move" value="day-b">{{.T "nav-dash/day|day"}}</button> ·
 				<button class="link" name="move" value="week-b">{{.T "nav-dash/week|week"}}</button> ·
-				<button class="link" name="move" value="month-b">{{.T "nav-dash/month|month"}}</button>
+				<button class="link" name="move" value="month-b">{{.T "nav-dash/month|month"}}</button> ·
+				<button class="link" name="move" value="year-b">{{.T "nav-dash/year|year"}}</button>
 			</span>
 		</div>
 		<div id="dash-timerange">{{.Period}}</div>
@@ -138,7 +140,8 @@
 			<span>
 				<button class="link" name="move" value="day-f">{{.T "nav-dash/day|day"}}</button> ·
 				<button class="link" name="move" value="week-f">{{.T "nav-dash/week|week"}}</button> ·
-				<button class="link" name="move" value="month-f">{{.T "nav-dash/month|month"}}</button>
+				<button class="link" name="move" value="month-f">{{.T "nav-dash/month|month"}}</button> ·
+				<button class="link" name="move" value="year-f">{{.T "nav-dash/year|year"}}</button>
 			</span>
 			{{.T "nav-dash/forward|forward"}} →&#xfe0e; {{/* z18n: as in: "[day] [week] [month] forward →" */}}
 		</div>

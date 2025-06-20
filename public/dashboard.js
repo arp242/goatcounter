@@ -190,6 +190,10 @@
 					start.setDate(1)
 					end = new Date(end.getFullYear(), end.getMonth() + 1, 0)
 					break
+				case 'year-cur':
+					start = new Date(start.getFullYear(), 0, 1)
+					end = new Date(end.getFullYear(), 12, 0)
+					break
 			}
 
 			$('#hl-period').val(this.value).attr('disabled', false)
@@ -206,12 +210,14 @@
 				return alert(T('error/date-future'))
 
 			switch (this.value) {
-				case 'day-b':     start.setDate(start.getDate()   - 1); end.setDate(end.getDate()   - 1); break;
-				case 'week-b':    start.setDate(start.getDate()   - 7); end.setDate(end.getDate()   - 7); break;
-				case 'month-b':   start.setMonth(start.getMonth() - 1); end.setMonth(end.getMonth() - 1); break;
-				case 'day-f':     start.setDate(start.getDate()   + 1); end.setDate(end.getDate()   + 1); break;
-				case 'week-f':    start.setDate(start.getDate()   + 7); end.setDate(end.getDate()   + 7); break;
-				case 'month-f':   start.setMonth(start.getMonth() + 1); end.setMonth(end.getMonth() + 1); break;
+				case 'day-b':     start.setDate(start.getDate()     - 1); end.setDate(end.getDate()     - 1); break;
+				case 'week-b':    start.setDate(start.getDate()     - 7); end.setDate(end.getDate()     - 7); break;
+				case 'month-b':   start.setMonth(start.getMonth()   - 1); end.setMonth(end.getMonth()   - 1); break;
+				case 'year-b':    start.setYear(start.getFullYear() - 1); end.setYear(end.getFullYear() - 1); break;
+				case 'day-f':     start.setDate(start.getDate()     + 1); end.setDate(end.getDate()     + 1); break;
+				case 'week-f':    start.setDate(start.getDate()     + 7); end.setDate(end.getDate()     + 7); break;
+				case 'month-f':   start.setMonth(start.getMonth()   + 1); end.setMonth(end.getMonth()   + 1); break;
+				case 'year-f':    start.setYear(start.getFullYear() + 1); end.setYear(end.getFullYear() + 1); break;
 			}
 			if (start.getDate() === 1 && this.value.substr(0, 5) === 'month')
 				end = new Date(start.getFullYear(), start.getMonth() + 1, 0)
