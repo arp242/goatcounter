@@ -7,9 +7,27 @@ volumes:
 services:
   # PostgreSQL, suitable for running the tests or GoatCounter.
   postgres:
-    image:   'postgres:17-alpine'
-    ports:   ['127.0.0.1:5432:5432']
-    volumes: ['postgres-data:/var/lib/postgresql/data']
+    image:    'postgres:17-alpine'
+    ports:    ['127.0.0.1:5432:5432']
+    volumes:  ['postgres-data:/var/lib/postgresql/data']
+    shm_size: '1gb'
+    command: [
+      '-c', 'shared_buffers=1GB',
+      '-c', 'effective_cache_size=10GB',
+      '-c', 'maintenance_work_mem=500MB',
+      '-c', 'work_mem=200MB',
+      '-c', 'wal_level=minimal',
+      '-c', 'max_wal_senders=0',
+      '-c', 'min_wal_size=256MB',
+      '-c', 'max_wal_size=4GB',
+      '-c', 'random_page_cost=1.5',
+      '-c', 'effective_io_concurrency=256',
+      '-c', 'default_statistics_target=1000',
+      '-c', 'max_parallel_workers_per_gather=4',
+      '-c', 'max_parallel_maintenance_workers=4',
+      '-c', 'max_worker_processes=8',
+      '-c', 'max_parallel_workers=8',
+    ]
     environment:
       'POSTGRES_USER':     'goatcounter'
       'POSTGRES_PASSWORD': 'goatcounter'
