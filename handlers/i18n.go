@@ -183,7 +183,7 @@ func (h i18n) new(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	zhttp.Flash(w, fmt.Sprintf("%q added", args.Language))
+	zhttp.Flash(w, r, fmt.Sprintf("%q added", args.Language))
 	return zhttp.SeeOther(w, "/i18n")
 }
 
@@ -262,7 +262,7 @@ func (h i18n) set(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	zhttp.Flash(w, fmt.Sprintf("language set to %q", lang))
+	zhttp.Flash(w, r, fmt.Sprintf("language set to %q", lang))
 	return zhttp.SeeOther(w, "/i18n")
 }
 
@@ -291,6 +291,6 @@ func (h i18n) submit(w http.ResponseWriter, r *http.Request) error {
 		}
 	}()
 
-	zhttp.Flash(w, "email sent to support@goatcounter.com; I'll take a look as soon as possible.")
+	zhttp.Flash(w, r, "email sent to support@goatcounter.com; I'll take a look as soon as possible.")
 	return zhttp.SeeOther(w, "/i18n/"+file)
 }

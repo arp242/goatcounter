@@ -113,10 +113,6 @@ production you probably want something like:
 
     % goatcounter serve -listen=:443 -tls=tls,rdr,acme
 
-Or if you're using nginx or Caddy, use `-tls=proxy`:
-
-    % goatcounter serve -tls=proxy
-
 See `goatcounter help serve` for details.
 
 [bench]: https://github.com/arp242/goatcounter/blob/main/docs/benchmark.md

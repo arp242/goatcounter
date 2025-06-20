@@ -50,7 +50,7 @@ func (h settings) userPrefSave(w http.ResponseWriter, r *http.Request) error {
 	args.User.Settings.Theme = args.Theme
 
 	if oldFewerNums && !args.User.Settings.FewerNumbers && args.User.Settings.FewerNumbersLockUntil.After(ztime.Now()) {
-		zhttp.FlashError(w, "Nice try")
+		zhttp.FlashError(w, r, "Nice try")
 		return zhttp.SeeOther(w, "/user/pref")
 	}
 
@@ -94,7 +94,7 @@ func (h settings) userPrefSave(w http.ResponseWriter, r *http.Request) error {
 		sendEmailVerify(r.Context(), Site(r.Context()), &args.User, goatcounter.Config(r.Context()).EmailFrom)
 	}
 
-	zhttp.Flash(w, T(r.Context(), "notify/saved|Saved!"))
+	zhttp.Flash(w, r, T(r.Context(), "notify/saved|Saved!"))
 	return zhttp.SeeOther(w, "/user/pref")
 }
 
@@ -208,7 +208,7 @@ func (h settings) userDashboardSave(w http.ResponseWriter, r *http.Request) erro
 		if err != nil {
 			return err
 		}
-		zhttp.Flash(w, T(r.Context(), "notify/reset-to-default|Reset to defaults!"))
+		zhttp.Flash(w, r, T(r.Context(), "notify/reset-to-default|Reset to defaults!"))
 		return zhttp.SeeOther(w, "/user/dashboard")
 	}
 
@@ -252,7 +252,7 @@ func (h settings) userDashboardSave(w http.ResponseWriter, r *http.Request) erro
 		return err
 	}
 
-	zhttp.Flash(w, "Saved!")
+	zhttp.Flash(w, r, "Saved!")
 	return zhttp.SeeOther(w, "/user/dashboard")
 }
 

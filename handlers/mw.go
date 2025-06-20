@@ -34,7 +34,7 @@ var Started time.Time
 
 var (
 	redirect = func(w http.ResponseWriter, r *http.Request) error {
-		zhttp.Flash(w, "Need to log in")
+		zhttp.Flash(w, r, "Need to log in")
 		return guru.New(303, goatcounter.Config(r.Context()).BasePath+"/user/new")
 	}
 
@@ -71,8 +71,8 @@ var (
 				Value:    a,
 				Path:     "/",
 				HttpOnly: true,
-				Secure:   zhttp.CookieSecure,
-				SameSite: zhttp.CookieSameSite,
+				Secure:   zhttp.IsSecure(r),
+				SameSite: zhttp.CookieSameSiteHelper(r),
 			})
 			hide := ""
 			if r.URL.Query().Get("hideui") != "" {
@@ -285,7 +285,7 @@ func noSites(db zdb.DB, w http.ResponseWriter, r *http.Request) {
 				return err
 			}
 
-			auth.SetCookie(w, *u.LoginToken, cookieDomain(&s, r))
+			auth.SetCookie(w, r, *u.LoginToken, cookieDomain(&s, r))
 			return nil
 		})
 		if tplErr != nil {

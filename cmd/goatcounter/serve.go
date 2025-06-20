@@ -496,26 +496,10 @@ func setupServe(dbConnect, dbConn string, dev bool, flagTLS string, automigrate 
 		log.Error(ctx, err)
 	}
 
-	tlsc, acmeh, listenTLS, secure := acme.Setup(db, flagTLS, dev)
+	tlsc, acmeh, listenTLS := acme.Setup(db, flagTLS, dev)
 
-	zhttp.CookieSecure = secure
 	zhttp.ErrPage = handlers.ErrPage
-
-	// Set SameSite=None to allow embedding GoatCounter in a frame and allowing
-	// login; there is no way to make this work with Lax or Strict as far as I
-	// can find (there is no way to add exceptions for trusted sites).
-	//
-	// This is not a huge problem because every POST/DELETE/etc. request already
-	// has a CSRF token in the request, which protects against the same thing as
-	// SameSite does. We could enable it only for sites that have "embed
-	// GoatCounter" enabled (which aren't that many sites), but then people need
-	// to logout and login again to reset the cookie, which isn't ideal.
-	//
-	// Only do this for secure connections, as Google Chrome developers decided
-	// to silently reject these cookies if there's no TLS.
-	if secure {
-		zhttp.CookieSameSite = http.SameSiteNoneMode
-	}
+	zhttp.CookieSameSiteHelper = handlers.SameSite
 
 	err = goatcounter.Memstore.Init(db)
 	if err != nil {

@@ -224,10 +224,10 @@ func ErrPage(w http.ResponseWriter, r *http.Request, reported error) {
 		}
 		fmt.Fprintf(w, "Error %d: %s", code, userErr)
 
-	case !hasStatus && r.Referer() != "" &&
-		(ct == "application/x-www-form-urlencoded" || strings.HasPrefix(ct, "multipart/") ||
-			ctresp == "application/x-www-form-urlencoded" || strings.HasPrefix(ctresp, "multipart/")):
-		zhttp.FlashError(w, userErr.Error())
+	case (!hasStatus && r.Referer() != "" &&
+		(ct == "application/x-www-form-urlencoded" || ctresp == "application/x-www-form-urlencoded")) ||
+		(strings.HasPrefix(ct, "multipart/") || strings.HasPrefix(ctresp, "multipart/")):
+		zhttp.FlashError(w, r, userErr.Error())
 		zhttp.SeeOther(w, r.Referer())
 
 	default:
@@ -250,4 +250,25 @@ func ErrPage(w http.ResponseWriter, r *http.Request, reported error) {
 			log.Error(r.Context(), err, log.AttrHTTP(r))
 		}
 	}
+}
+
+// Set SameSite=None to allow embedding GoatCounter in a frame and allowing
+// login; there is no way to make this work with Lax or Strict as far as I can
+// find (there is no way to add exceptions for trusted sites).
+//
+// This is not a huge problem because every POST/DELETE/etc. request already has
+// a CSRF token in the request, which protects against the same thing as
+// SameSite does.
+//
+// Only do this for secure connections, as Google Chrome developers decided to
+// silently reject these cookies if there's no TLS.
+func SameSite(r *http.Request) http.SameSite {
+	if zhttp.IsSecure(r) {
+		// Ideally we'd like to check AllowEmbed setting and only send it when
+		// logging in on a frame, but that seems tricky.
+		if s := goatcounter.GetSite(r.Context()); s != nil && len(s.Settings.AllowEmbed) > 0 {
+			return http.SameSiteNoneMode
+		}
+	}
+	return http.SameSiteLaxMode
 }

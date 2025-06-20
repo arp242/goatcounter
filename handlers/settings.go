@@ -216,7 +216,7 @@ func (h settings) mainSave(w http.ResponseWriter, r *http.Request) error {
 		})
 	}
 
-	zhttp.Flash(w, T(r.Context(), "notify/saved|Saved!"))
+	zhttp.Flash(w, r, T(r.Context(), "notify/saved|Saved!"))
 	return zhttp.SeeOther(w, "/settings")
 }
 
@@ -241,7 +241,7 @@ func (h settings) changeCode(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	zhttp.Flash(w, T(r.Context(), "notify/saved|Saved!"))
+	zhttp.Flash(w, r, T(r.Context(), "notify/saved|Saved!"))
 	return zhttp.SeeOther(w, site.URL(r.Context())+"/settings/main")
 }
 
@@ -306,7 +306,7 @@ func (h settings) sitesAdd(w http.ResponseWriter, r *http.Request) error {
 			return err
 		}
 
-		zhttp.Flash(w, T(r.Context(),
+		zhttp.Flash(w, r, T(r.Context(),
 			"notify/restored-previously-deleted-site|Site ‘%(url)’ was previously deleted; restored site with all data.",
 			newSite.URL(r.Context())))
 		return zhttp.SeeOther(w, "/settings/sites")
@@ -326,11 +326,11 @@ func (h settings) sitesAdd(w http.ResponseWriter, r *http.Request) error {
 		return nil
 	})
 	if err != nil {
-		zhttp.FlashError(w, err.Error())
+		zhttp.FlashError(w, r, err.Error())
 		return zhttp.SeeOther(w, "/settings/sites")
 	}
 
-	zhttp.Flash(w, T(r.Context(), "notify/site-added|Site ‘%(url)’ added.", newSite.URL(r.Context())))
+	zhttp.Flash(w, r, T(r.Context(), "notify/site-added|Site ‘%(url)’ added.", newSite.URL(r.Context())))
 	return zhttp.SeeOther(w, "/settings/sites")
 }
 
@@ -390,7 +390,7 @@ func (h settings) sitesRemove(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	zhttp.Flash(w, T(r.Context(), "notify/site-removed|Site ‘%(url)’ removed.", s.URL(r.Context())))
+	zhttp.Flash(w, r, T(r.Context(), "notify/site-removed|Site ‘%(url)’ removed.", s.URL(r.Context())))
 
 	// Redirect to parent if we're removing the current site.
 	if sID == Site(r.Context()).ID && s.Parent != nil {
@@ -445,7 +445,7 @@ func (h settings) sitesCopySettings(w http.ResponseWriter, r *http.Request) erro
 		}
 	}
 
-	zhttp.Flash(w, T(r.Context(), "notify/settings-copied-to-site|Settings copied to the selected sites."))
+	zhttp.Flash(w, r, T(r.Context(), "notify/settings-copied-to-site|Settings copied to the selected sites."))
 	return zhttp.SeeOther(w, "/settings/sites")
 }
 
@@ -495,7 +495,7 @@ func (h settings) purgeDo(w http.ResponseWriter, r *http.Request) error {
 		}
 	})
 
-	zhttp.Flash(w, T(r.Context(),
+	zhttp.Flash(w, r, T(r.Context(),
 		"notify/started-background-process|Started in the background; may take about 10-20 seconds to fully process."))
 	return zhttp.SeeOther(w, "/settings/purge")
 }
@@ -533,7 +533,7 @@ func (h settings) merge(w http.ResponseWriter, r *http.Request) error {
 		}
 	})
 
-	zhttp.Flash(w, T(r.Context(), `notify/started-background-process|
+	zhttp.Flash(w, r, T(r.Context(), `notify/started-background-process|
 		Started in the background; may take about 10-20 seconds to fully process.`))
 	return zhttp.SeeOther(w, "/settings/purge")
 }
@@ -572,7 +572,7 @@ func (h settings) exportDownload(w http.ResponseWriter, r *http.Request) error {
 	fp, err := os.Open(export.Path)
 	if err != nil {
 		if os.IsNotExist(err) {
-			zhttp.FlashError(w, T(r.Context(), "error/export-expired|It looks like there is no export yet or the export has expired."))
+			zhttp.FlashError(w, r, T(r.Context(), "error/export-expired|It looks like there is no export yet or the export has expired."))
 			return zhttp.SeeOther(w, "/settings/export")
 		}
 
@@ -658,7 +658,7 @@ func (h settings) exportImport(w http.ResponseWriter, r *http.Request) error {
 		}
 	})
 
-	zhttp.Flash(w, T(r.Context(),
+	zhttp.Flash(w, r, T(r.Context(),
 		"notify/import-started-in-background|Import started in the background; you’ll get an email when it’s done."))
 	return zhttp.SeeOther(w, "/settings/export")
 }
@@ -684,7 +684,7 @@ func (h settings) exportImportGA(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	zhttp.Flash(w, T(r.Context(), "notify/import-ga-okay|Data processed successfully."))
+	zhttp.Flash(w, r, T(r.Context(), "notify/import-ga-okay|Data processed successfully."))
 	return zhttp.SeeOther(w, "/settings/export")
 }
 
@@ -707,7 +707,7 @@ func (h settings) exportStart(w http.ResponseWriter, r *http.Request) error {
 	bgrun.RunFunction(fmt.Sprintf("export web:%d", Site(ctx).ID),
 		func() { export.Run(ctx, fp, true) })
 
-	zhttp.Flash(w, T(r.Context(), "notify/export-started-in-background|Export started in the background; you’ll get an email with a download link when it’s done."))
+	zhttp.Flash(w, r, T(r.Context(), "notify/export-started-in-background|Export started in the background; you’ll get an email with a download link when it’s done."))
 	return zhttp.SeeOther(w, "/settings/export")
 }
 
@@ -843,7 +843,7 @@ func (h settings) mergeAccountDo(w http.ResponseWriter, r *http.Request) error {
 		"merge_ids", mergeSiteIDs,
 		"email", mergeUser.Email)
 
-	zhttp.Flash(w, "okay")
+	zhttp.Flash(w, r, "okay")
 	return zhttp.SeeOther(w, "/settings/merge-account")
 }
 
@@ -958,7 +958,7 @@ func (h settings) usersAdd(w http.ResponseWriter, r *http.Request) error {
 		}
 	})
 
-	zhttp.Flash(w, T(r.Context(), "notify/user-added|User ‘%(email)’ added.", newUser.Email))
+	zhttp.Flash(w, r, T(r.Context(), "notify/user-added|User ‘%(email)’ added.", newUser.Email))
 	return zhttp.SeeOther(w, "/settings/users")
 }
 
@@ -1016,7 +1016,7 @@ func (h settings) usersEdit(w http.ResponseWriter, r *http.Request) error {
 		return h.usersForm(&editUser, err)(w, r)
 	}
 
-	zhttp.Flash(w, T(r.Context(), "notify/users-edited|User ‘%(email)’ edited.", editUser.Email))
+	zhttp.Flash(w, r, T(r.Context(), "notify/users-edited|User ‘%(email)’ edited.", editUser.Email))
 	return zhttp.SeeOther(w, "/settings/users")
 }
 
@@ -1044,7 +1044,7 @@ func (h settings) usersRemove(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	zhttp.Flash(w, T(r.Context(), "notify/user-removed|User ‘%(email)’ removed.", user.Email))
+	zhttp.Flash(w, r, T(r.Context(), "notify/user-removed|User ‘%(email)’ removed.", user.Email))
 	return zhttp.SeeOther(w, "/settings/users")
 }
 

@@ -95,7 +95,7 @@ func (h bosmang) runTask(w http.ResponseWriter, r *http.Request) error {
 		}
 	})
 
-	zhttp.Flash(w, fmt.Sprintf("Task %q started", id))
+	zhttp.Flash(w, r, fmt.Sprintf("Task %q started", id))
 	return zhttp.SeeOther(w, "/bosmang/bgrun")
 }
 
@@ -149,7 +149,7 @@ func (h bosmang) login(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	domain := cookieDomain(&site, r)
-	auth.SetCookie(w, *user.LoginToken, domain)
+	auth.SetCookie(w, r, *user.LoginToken, domain)
 	http.SetCookie(w, &http.Cookie{
 		Domain:   znet.RemovePort(domain),
 		Name:     "is_bosmang",
@@ -157,8 +157,8 @@ func (h bosmang) login(w http.ResponseWriter, r *http.Request) error {
 		Path:     "/",
 		Expires:  time.Now().Add(8 * time.Hour),
 		HttpOnly: true,
-		Secure:   zhttp.CookieSecure,
-		SameSite: zhttp.CookieSameSite,
+		Secure:   zhttp.IsSecure(r),
+		SameSite: zhttp.CookieSameSiteHelper(r),
 	})
 
 	return zhttp.SeeOther(w, site.URL(r.Context()))

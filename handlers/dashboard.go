@@ -50,7 +50,7 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 
 	rng, err := getPeriod(w, r, site, user)
 	if err != nil {
-		zhttp.FlashError(w, err.Error())
+		zhttp.FlashError(w, r, err.Error())
 	}
 	if rng.Start.IsZero() || rng.End.IsZero() {
 		rng = timeRange(r.Context(), view.Period, user.Settings.Timezone.Loc(), bool(user.Settings.SundayStartsWeek))
