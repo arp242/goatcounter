@@ -8,7 +8,9 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
+	"zgo.at/errors"
 	"zgo.at/goatcounter/v2/pkg/log"
+	"zgo.at/guru"
 	"zgo.at/json"
 	"zgo.at/zcache/v2"
 	"zgo.at/zstd/zint"
@@ -141,6 +143,9 @@ func (h backend) loader(w http.ResponseWriter, r *http.Request) error {
 	}
 	c, err := u.Upgrade(w, r, nil)
 	if err != nil {
+		if errors.As(err, &websocket.HandshakeError{}) {
+			return guru.WithCode(400, err)
+		}
 		return err
 	}
 
