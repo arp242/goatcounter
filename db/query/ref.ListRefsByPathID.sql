@@ -6,6 +6,7 @@ with x as (
 	where
 		site_id = :site and path_id = :path and hour >= :start and hour <= :end
 	group by ref_id
+	order by count desc, ref_id
 	limit :limit offset :offset
 )
 select
@@ -16,4 +17,4 @@ select
 	coalesce(refs.ref, '') as name
 from x
 left join refs using (ref_id)
-order by count desc, ref
+order by count desc, ref_id
