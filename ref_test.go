@@ -15,10 +15,10 @@ func TestListRefsByPathID(t *testing.T) {
 	ctx := gctest.DB(t)
 
 	gctest.StoreHits(ctx, t, false,
-		Hit{Path: "/x", Ref: "http://example.com"},
-		Hit{Path: "/x", Ref: "http://example.com"},
-		Hit{Path: "/x", Ref: "http://example.org"},
-		Hit{Path: "/y", Ref: "http://example.org"})
+		Hit{Path: "/x", Ref: "http://example.com", FirstVisit: true},
+		Hit{Path: "/x", Ref: "http://example.com", FirstVisit: true},
+		Hit{Path: "/x", Ref: "http://example.org", FirstVisit: true},
+		Hit{Path: "/y", Ref: "http://example.org", FirstVisit: true})
 
 	rng := ztime.NewRange(ztime.Now().Add(-1 * time.Hour)).To(ztime.Now().Add(1 * time.Hour))
 
@@ -31,11 +31,11 @@ func TestListRefsByPathID(t *testing.T) {
 	want := `{
 		"more": false,
 		"stats": [{
-			"count": 0,
+			"count": 2,
 			"name": "example.com",
 			"ref_scheme": "h"
 		}, {
-			"count": 0,
+			"count": 1,
 			"name": "example.org",
 			"ref_scheme": "h"
 		}]}`

@@ -398,9 +398,9 @@ func TestStatsByRef(t *testing.T) {
 	ctx := gctest.DB(t)
 
 	gctest.StoreHits(ctx, t, false,
-		Hit{Path: "/a", Ref: "https://example.com"},
-		Hit{Path: "/b", Ref: "https://example.com"},
-		Hit{Path: "/a", Ref: "https://example.org"})
+		Hit{Path: "/a", Ref: "https://example.com", FirstVisit: true},
+		Hit{Path: "/b", Ref: "https://example.com", FirstVisit: true},
+		Hit{Path: "/a", Ref: "https://example.org", FirstVisit: true})
 
 	var have HitStats
 	err := have.ListTopRef(ctx, "example.com", ztime.NewRange(ztime.Now().Add(-1*time.Hour)).To(ztime.Now().Add(1*time.Hour)),
@@ -412,7 +412,7 @@ func TestStatsByRef(t *testing.T) {
 	want := `{
 		"more": false,
 		"stats": [{
-			"count": 0,
+			"count": 1,
 			"name": "/a"
 		}]
 	}`
