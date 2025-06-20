@@ -1,0 +1,9 @@
+delete from browser_stats  where count=0;
+delete from system_stats   where count=0;
+delete from location_stats where count=0;
+delete from language_stats where count=0;
+delete from size_stats     where count=0;
+delete from campaign_stats where count=0;
+delete from hit_stats      where stats='[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]';
+delete from hit_counts     where total=0;
+delete from ref_counts     where total=0;

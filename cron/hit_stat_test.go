@@ -26,7 +26,7 @@ func TestHitStats(t *testing.T) {
 		{Site: site.ID, CreatedAt: now, Path: "/zxc"},
 	}...)
 
-	check := func(wantT, want0, want1 string) {
+	check := func(wantT, want0 string) {
 		t.Helper()
 
 		var stats goatcounter.HitLists
@@ -41,16 +41,12 @@ func TestHitStats(t *testing.T) {
 		if wantT != gotT {
 			t.Fatalf("wrong totals\nhave: %s\nwant: %s", gotT, wantT)
 		}
-		if len(stats) != 2 {
-			t.Fatalf("len(stats) is not 2: %d", len(stats))
+		if len(stats) != 1 {
+			t.Fatalf("len(stats) is not 1: %d", len(stats))
 		}
 
 		if d := ztest.Diff(string(zjson.MustMarshal(stats[0])), want0, ztest.DiffJSON); d != "" {
 			t.Error("first wrong\n" + d)
-		}
-
-		if d := ztest.Diff(string(zjson.MustMarshal(stats[1])), want1, ztest.DiffJSON); d != "" {
-			t.Error("second wrong\n" + d)
 		}
 	}
 
@@ -66,20 +62,7 @@ func TestHitStats(t *testing.T) {
 				"hourly": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0],
 				"daily":  1
 			}]}
-		`,
-		`{
-			"count":  0,
-			"path_id":       2,
-			"path":          "/zxc",
-			"event":         false,
-			"title":         "",
-			"max":           0,
-			"stats": [{
-				"day":           "2019-08-31",
-				"hourly": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-				"daily":  0
-			}]}`,
-	)
+		`)
 
 	gctest.StoreHits(ctx, t, false, []goatcounter.Hit{
 		{Site: site.ID, CreatedAt: now.Add(2 * time.Hour), Path: "/asd", Title: "aSd", FirstVisit: true},
@@ -97,20 +80,7 @@ func TestHitStats(t *testing.T) {
 				"day":            "2019-08-31",
 				"hourly":  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0],
 				"daily":   2
-		}]}`,
-		`{
-			"count":  0,
-			"path_id":       2,
-			"path":          "/zxc",
-			"event":         false,
-			"title":         "",
-			"max":           0,
-			"stats":[{
-				"day":            "2019-08-31",
-				"hourly":  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-				"daily":   0
-		}]}`,
-	)
+		}]}`)
 }
 
 func TestHitStatsNoCollect(t *testing.T) {

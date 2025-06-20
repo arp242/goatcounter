@@ -44,7 +44,9 @@ func updateRefCounts(ctx context.Context, hits []goatcounter.Hit) error {
 			ins    = goatcounter.Tables.RefCounts.Bulk(ctx)
 		)
 		for _, v := range grouped {
-			ins.Values(siteID, v.pathID, v.hour, v.refID, v.total)
+			if v.total > 0 {
+				ins.Values(siteID, v.pathID, v.hour, v.refID, v.total)
+			}
 		}
 		return ins.Finish()
 	})
