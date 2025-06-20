@@ -128,7 +128,8 @@ func (l *loaderT) sendJSON(r *http.Request, id zint.Uint128, data any) {
 func (h backend) loader(w http.ResponseWriter, r *http.Request) error {
 	ids := r.URL.Query().Get("id")
 	if ids == "" {
-		return fmt.Errorf("no id parameter")
+		w.Header().Set("Content-Type", "text/plain")
+		return guru.New(400, "no id parameter")
 	}
 	id, err := zint.ParseUint128(ids, 16)
 	if err != nil {
