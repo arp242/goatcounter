@@ -892,7 +892,6 @@ func (h settings) usersForm(newUser *goatcounter.User, pErr error) zhttp.Handler
 			pErr = nil
 		}
 		if pErr != nil {
-			log.Error(r.Context(), pErr)
 			var code int
 			code, pErr = zhttp.UserError(pErr)
 			w.WriteHeader(code)
