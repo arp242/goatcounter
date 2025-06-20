@@ -14,7 +14,7 @@
 	</div>
 
 	{{if .Err}}
-		<em>{{t .Context "p/error|Error: %(error-message)" .Err}}</em>
+		<em>{{t .Context "p/error|Error: %(error-message)" .Err.Error}}</em>
 	{{else}}
 		<table class="count-list count-list-pages" data-max="{{.Max}}" data-scale="{{.Max}}">
 			<tbody class="pages">{{template "_dashboard_pages_rows.gohtml" .}}</tbody>

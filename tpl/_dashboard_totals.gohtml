@@ -19,7 +19,7 @@
 	</div>
 
 	{{if .Err}}
-		<em>{{t .Context "p/error|Error: %(error-message)" .Err}}</em>
+		<em>{{t .Context "p/error|Error: %(error-message)" .Err.Error}}</em>
 	{{else}}
 		<table class="count-list">{{template "_dashboard_totals_row.gohtml" .}}</table>
 	{{end}}
