@@ -179,7 +179,7 @@ func (w Pages) RenderHTML(ctx context.Context, shared SharedData) (string, any) 
 	}{
 		ctx, shared.Site, shared.User,
 		w.id, w.loaded, w.err, w.Pages, shared.Args.Rng, shared.Args.Daily,
-		shared.Args.ForcedDaily, 1, w.Max,
+		shared.Args.ForcedDaily, len(w.Exclude) + 1, w.Max,
 		w.Display, shared.Total, shared.TotalEvents, w.More,
 		w.Style, w.Refs, shared.Args.ShowRefs,
 		w.Diff,
