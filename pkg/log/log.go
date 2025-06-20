@@ -260,12 +260,29 @@ func (l *Logger) newRecord(ctx context.Context, level slog.Level, msg string, at
 
 // AttrHTTP adds attributes from a HTTP request.
 func AttrHTTP(r *http.Request) slog.Attr {
-	return slog.Group("http",
+	attr := []any{
 		"verb", r.Method,
 		"url", r.URL.String(),
 		"host", r.Host,
 		"ua", gadget.ShortenUA(r.UserAgent()),
-	)
+	}
+	if r.Form != nil {
+		form := make([]any, 0, len(r.Form)*2)
+		for k, v := range r.Form {
+			for i := range v {
+				if len(v[i]) > 1024 {
+					v[i] = v[i][:1024] + "…"
+				}
+			}
+			if len(v) == 1 {
+				form = append(form, k, v[0])
+			} else {
+				form = append(form, k, v)
+			}
+		}
+		attr = append(attr, slog.Group("form", form...))
+	}
+	return slog.Group("http", attr...)
 }
 
 // Recover from a panic.
