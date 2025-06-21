@@ -91,6 +91,7 @@ func persistAndStat(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
+	tookMemstore := time.Since(start).Round(time.Millisecond)
 
 	var (
 		startStats = ztime.Now()
@@ -113,7 +114,7 @@ func persistAndStat(ctx context.Context) error {
 		l.Debug(ctx, "persisted hits",
 			"num", len(hits),
 			slog.Group("took",
-				"memstore", time.Since(start).Round(time.Millisecond),
+				"memstore", tookMemstore,
 				"stats", time.Since(startStats).Round(time.Millisecond),
 			))
 	}
