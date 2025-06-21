@@ -211,7 +211,7 @@ func (m *ms) Persist(ctx context.Context) ([]Hit, error) {
 		newHits = make([]Hit, 0, len(hits))
 		bot     = zdb.NewBulkInsert(ctx, "bots", []string{"site_id", "path", "bot", "user_agent", "created_at"})
 		ins     = zdb.NewBulkInsert(ctx, "hits", []string{"site_id", "path_id", "ref_id", "browser_id", "system_id",
-			"size_id", "location", "language", "created_at", "session", "first_visit", "campaign"})
+			"width", "location", "language", "created_at", "session", "first_visit", "campaign"})
 	)
 	for _, h := range hits {
 		if m.processHit(ctx, &h) {
@@ -222,7 +222,11 @@ func (m *ms) Persist(ctx context.Context) ([]Hit, error) {
 			if h.Bot > 0 {
 				bot.Values(h.Site, h.Path, h.Bot, h.UserAgentHeader, h.CreatedAt)
 			} else if !h.NoStore {
-				ins.Values(h.Site, h.PathID, h.RefID, h.BrowserID, h.SystemID, h.SizeID, h.Location,
+				var w *float64
+				if len(h.Size) > 0 {
+					w = &h.Size[0]
+				}
+				ins.Values(h.Site, h.PathID, h.RefID, h.BrowserID, h.SystemID, w, h.Location,
 					h.Language, h.CreatedAt.Round(time.Second), h.Session, h.FirstVisit, h.CampaignID)
 			}
 		}

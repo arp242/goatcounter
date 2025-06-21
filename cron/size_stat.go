@@ -25,7 +25,7 @@ func updateSizeStats(ctx context.Context, hits []goatcounter.Hit) error {
 
 			var width int
 			if len(h.Size) > 0 {
-				width = int(h.Size[0]) // TODO: apply scaling?
+				width = int(h.Size[0])
 			}
 
 			day := h.CreatedAt.Format("2006-01-02")

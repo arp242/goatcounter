@@ -94,30 +94,30 @@ func TestMemstoreCollect(t *testing.T) {
 		want           string
 	}{
 		{all, Strings{}, `
-			session                           path    ref          ref_scheme  size     location  first_visit
-			00112233445566778899aabbccddeeff  /test   example.com  h           5,6,7.0  NL        0
-			00112233445566778899aabbccddeeff  /other  xxx          c           5,6,7.0  ID-BA     1
+			session                           path    ref          ref_scheme  width  location  first_visit
+			00112233445566778899aabbccddeeff  /test   example.com  h           5      NL        0
+			00112233445566778899aabbccddeeff  /other  xxx          c           5      ID-BA     1
 		`},
 
 		{CollectNothing, Strings{}, `
-			session  path  ref  ref_scheme  size  location  first_visit
+			session  path  ref  ref_scheme  width  location  first_visit
 		`},
 
 		{all ^ CollectLocationRegion, Strings{}, `
-			session                           path    ref          ref_scheme  size     location  first_visit
-			00112233445566778899aabbccddeeff  /test   example.com  h           5,6,7.0  NL        0
-			00112233445566778899aabbccddeeff  /other  xxx          c           5,6,7.0  ID        1
+			session                           path    ref          ref_scheme  width  location  first_visit
+			00112233445566778899aabbccddeeff  /test   example.com  h           5      NL        0
+			00112233445566778899aabbccddeeff  /other  xxx          c           5      ID        1
 		`},
 
 		{all, Strings{"US"}, `
-			session                           path    ref          ref_scheme  size     location  first_visit
-			00112233445566778899aabbccddeeff  /test   example.com  h           5,6,7.0  NL        0
-			00112233445566778899aabbccddeeff  /other  xxx          c           5,6,7.0  ID        1
+			session                           path    ref          ref_scheme  width  location  first_visit
+			00112233445566778899aabbccddeeff  /test   example.com  h           5      NL        0
+			00112233445566778899aabbccddeeff  /other  xxx          c           5      ID        1
 		`},
 		{all, Strings{"ID"}, `
-			session                           path    ref          ref_scheme  size     location  first_visit
-			00112233445566778899aabbccddeeff  /test   example.com  h           5,6,7.0  NL        0
-			00112233445566778899aabbccddeeff  /other  xxx          c           5,6,7.0  ID-BA     1
+			session                           path    ref          ref_scheme  width  location  first_visit
+			00112233445566778899aabbccddeeff  /test   example.com  h           5      NL        0
+			00112233445566778899aabbccddeeff  /other  xxx          c           5      ID-BA     1
 		`},
 	}
 
@@ -148,11 +148,10 @@ func TestMemstoreCollect(t *testing.T) {
 			})
 
 			have := zdb.DumpString(ctx, `
-				select session, paths.path, refs.ref, refs.ref_scheme, sizes.size, location, first_visit
+				select session, paths.path, refs.ref, refs.ref_scheme, width, location, first_visit
 				from hits
 				join paths using (path_id)
 				left join refs  using (ref_id)
-				left join sizes using (size_id)
 			`)
 			if d := zdb.Diff(have, tt.want); d != "" {
 				t.Error(d)

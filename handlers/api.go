@@ -477,7 +477,10 @@ type APICountRequestHit struct {
 	// string.
 	Ref string `json:"ref" query:"r"`
 
-	// Screen size as "x,y,scaling"
+	// Screen width.
+	//
+	// For compatibility it also accepts the size as "width,height,scaling", but
+	// the height and scaling are not used and this format is deprecated.
 	Size goatcounter.Floats `json:"size" query:"s"`
 
 	// Query parameters for this pageview, used to get campaign parameters.

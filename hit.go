@@ -19,11 +19,11 @@ type Hit struct {
 	Site       int64        `db:"site_id" json:"-"`
 	PathID     int64        `db:"path_id" json:"-"`
 	RefID      int64        `db:"ref_id" json:"-"`
-	SizeID     *int64       `db:"size_id" json:"-"`
 	BrowserID  int64        `db:"browser_id" json:"-"`
 	SystemID   int64        `db:"system_id" json:"-"`
 	CampaignID *int64       `db:"campaign" json:"-"`
 	Session    zint.Uint128 `db:"session" json:"-"`
+	Width      *int16       `db:"width" json:"width"`
 
 	Path  string     `db:"-" json:"p,omitempty"`
 	Title string     `db:"-" json:"t,omitempty"`
@@ -270,16 +270,6 @@ func (h *Hit) Defaults(ctx context.Context, initial bool) error {
 		}
 		h.RefID = ref.ID
 
-		// Get or insert size.
-		if site.Settings.Collect.Has(CollectScreenSize) {
-			var size Size
-			err = size.GetOrInsert(ctx, h.Size)
-			if err != nil {
-				return errors.Wrap(err, "Hit.Defaults")
-			}
-			h.SizeID = &size.ID
-		}
-
 		// Get or insert browser and system.
 		if site.Settings.Collect.Has(CollectUserAgent) {
 			ua := UserAgent{UserAgent: h.UserAgentHeader}
@@ -339,13 +329,12 @@ type Hits []Hit
 func (h *Hits) TestList(ctx context.Context, siteOnly bool) error {
 	var hh []struct {
 		Hit
-		B    int64      `db:"browser_id"`
-		S    int64      `db:"system_id"`
-		P    string     `db:"path"`
-		T    string     `db:"title"`
-		E    zbool.Bool `db:"event"`
-		R    string     `db:"ref"`
-		Size Floats     `db:"size"`
+		B int64      `db:"browser_id"`
+		S int64      `db:"system_id"`
+		P string     `db:"path"`
+		T string     `db:"title"`
+		E zbool.Bool `db:"event"`
+		R string     `db:"ref"`
 	}
 
 	err := zdb.Select(ctx, &hh, `/* Hits.TestList */
@@ -356,12 +345,10 @@ func (h *Hits) TestList(ctx context.Context, siteOnly bool) error {
 			paths.path,
 			paths.title,
 			paths.event,
-			refs.ref,
-			sizes.size
+			refs.ref
 		from hits
 		join paths using (path_id)
 		left join refs  using (ref_id)
-		left join sizes using (size_id)
 		{{:site_only where hits.site_id = :site}}
 		order by hit_id asc`,
 		map[string]any{
@@ -379,8 +366,6 @@ func (h *Hits) TestList(ctx context.Context, siteOnly bool) error {
 		x.Hit.Title = x.T
 		x.Hit.Event = x.E
 		x.Hit.Ref = x.R
-		x.Hit.Size = x.Size
-
 		*h = append(*h, x.Hit)
 	}
 	return nil

@@ -1467,7 +1467,7 @@
           "type": "string"
         },
         "size": {
-          "description": "Screen size as \"x,y,scaling\"",
+          "description": "Screen width.\n\nFor compatibility it also accepts the size as \"width,height,scaling\", but\nthe height and scaling are not used and this format is deprecated.",
           "type": "array",
           "items": {
             "type": "number"

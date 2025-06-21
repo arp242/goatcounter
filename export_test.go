@@ -97,7 +97,7 @@ func TestExport(t *testing.T) {
 			"finished_at": null,
 			"num_rows": 4,
 			"size": "0.1",
-			"hash": "sha256-cdf77d4392ccc90944a02ca1ba589d01c206c88719b86a7aebb5b6bac8f92596",
+			"hash": "sha256-5693275ad40714397103b96ff38cada8becf2d98f17962cb63c932617673b928",
 			"error": null
 		}`, "\t", "")
 		got := string(zjson.MustMarshalIndent(export, "", ""))

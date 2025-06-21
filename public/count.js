@@ -25,7 +25,7 @@
 			r: (vars.referrer === undefined ? goatcounter.referrer : vars.referrer),
 			t: (vars.title    === undefined ? goatcounter.title    : vars.title),
 			e: !!(vars.event || goatcounter.event),
-			s: [window.screen.width, window.screen.height, (window.devicePixelRatio || 1)],
+			s: window.screen.width,
 			b: is_bot(),
 			q: location.search,
 		}

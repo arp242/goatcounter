@@ -75,7 +75,7 @@ func TestBackendCount(t *testing.T) {
 			Title:     "XX",
 			Ref:       "example.com",
 			RefScheme: ztype.Ptr("h"),
-			Size:      goatcounter.Floats{40, 50, 1},
+			Width:     ztype.Ptr(int16(40)),
 		}},
 
 		{"campaign", url.Values{"p": {"/foo.html"}, "q": {"ref=AAA"}}, nil, 200, goatcounter.Hit{
@@ -87,6 +87,19 @@ func TestBackendCount(t *testing.T) {
 			Path:      "/foo.html",
 			Ref:       "AAA",
 			RefScheme: ztype.Ptr("c"),
+		}},
+
+		{"width,height,dpr", url.Values{"p": {"/a"}, "s": {"1920,1080,2"}}, nil, 200, goatcounter.Hit{
+			Path:  "/a",
+			Width: ztype.Ptr(int16(1920)),
+		}},
+		{"width,height", url.Values{"p": {"/a"}, "s": {"1920,1080"}}, nil, 200, goatcounter.Hit{
+			Path:  "/a",
+			Width: ztype.Ptr(int16(1920)),
+		}},
+		{"width", url.Values{"p": {"/a"}, "s": {"1920"}}, nil, 200, goatcounter.Hit{
+			Path:  "/a",
+			Width: ztype.Ptr(int16(1920)),
 		}},
 
 		{"bot", url.Values{"p": {"/a"}, "b": {"150"}}, nil, 200, goatcounter.Hit{

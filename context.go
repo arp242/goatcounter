@@ -59,7 +59,6 @@ var (
 	keyCacheSystems    = &struct{ n string }{""}
 	keyCachePaths      = &struct{ n string }{""}
 	keyCacheRefs       = &struct{ n string }{""}
-	keyCacheSizes      = &struct{ n string }{""}
 	keyCacheLoc        = &struct{ n string }{""}
 	keyCacheCampaigns  = &struct{ n string }{""}
 	keyChangedTitles   = &struct{ n string }{""}
@@ -177,9 +176,6 @@ func CopyContextValues(ctx context.Context) context.Context {
 	if c := ctx.Value(keyCacheRefs); c != nil {
 		n = context.WithValue(n, keyCacheRefs, c.(*zcache.Cache[string, Ref]))
 	}
-	if c := ctx.Value(keyCacheSizes); c != nil {
-		n = context.WithValue(n, keyCacheSizes, c.(*zcache.Cache[string, Size]))
-	}
 	if c := ctx.Value(keyCacheLoc); c != nil {
 		n = context.WithValue(n, keyCacheLoc, c.(*zcache.Cache[string, *Location]))
 	}
@@ -232,7 +228,6 @@ func NewCache(ctx context.Context) context.Context {
 	ctx = context.WithValue(ctx, keyCacheSystems, zcache.New[string, System](1*time.Hour, 5*time.Minute))
 	ctx = context.WithValue(ctx, keyCachePaths, zcache.New[string, Path](1*time.Hour, 5*time.Minute))
 	ctx = context.WithValue(ctx, keyCacheRefs, zcache.New[string, Ref](1*time.Hour, 5*time.Minute))
-	ctx = context.WithValue(ctx, keyCacheSizes, zcache.New[string, Size](1*time.Hour, 5*time.Minute))
 	ctx = context.WithValue(ctx, keyCacheLoc, zcache.New[string, *Location](zcache.NoExpiration, zcache.NoExpiration))
 	ctx = context.WithValue(ctx, keyCacheCampaigns, zcache.New[string, *Campaign](24*time.Hour, 15*time.Minute))
 	ctx = context.WithValue(ctx, keyCacheI18n, zcache.New[string, *OverrideTranslations](zcache.NoExpiration, zcache.NoExpiration))
@@ -286,12 +281,6 @@ func cacheRefs(ctx context.Context) *zcache.Cache[string, Ref] {
 		return c.(*zcache.Cache[string, Ref])
 	}
 	return zcache.New[string, Ref](0, 0)
-}
-func cacheSizes(ctx context.Context) *zcache.Cache[string, Size] {
-	if c := ctx.Value(keyCacheSizes); c != nil {
-		return c.(*zcache.Cache[string, Size])
-	}
-	return zcache.New[string, Size](0, 0)
 }
 func cacheLoc(ctx context.Context) *zcache.Cache[string, *Location] {
 	if c := ctx.Value(keyCacheLoc); c != nil {

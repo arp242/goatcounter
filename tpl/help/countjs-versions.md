@@ -9,7 +9,8 @@ but you may need to update it in the future for new features.
 
 Latest
 ------
-No changes
+
+- Only send screen width (instead of width, height, and devicePixelRatio).
 
 v5 (9 June 2025)
 ----------------
