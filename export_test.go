@@ -39,7 +39,6 @@ func TestExport(t *testing.T) {
 			systems.name  || ' ' || systems.version  as system,
 
 			-- hits.session,
-			hits.bot,
 			hits.ref,
 			hits.ref_scheme as ref_s,
 			hits.size,
@@ -92,13 +91,13 @@ func TestExport(t *testing.T) {
 			"id": 1,
 			"site_id": 2,
 			"start_from_hit_id": 0,
-			"last_hit_id": 5,
+			"last_hit_id": 4,
 			"path": "%(ANY)goatcounter-export-gctest2-%(YEAR)%(MONTH)%(DAY)T%(ANY)Z-0.csv.gz",
 			"created_at": "%(YEAR)-%(MONTH)-%(DAY)T%(ANY)Z",
 			"finished_at": null,
-			"num_rows": 5,
+			"num_rows": 4,
 			"size": "0.1",
-			"hash": "sha256-7fb7060000c3e8a1e05bc9f6156fc5571218a234b0a62b4ad6d67a529ad13707",
+			"hash": "sha256-cdf77d4392ccc90944a02ca1ba589d01c206c88719b86a7aebb5b6bac8f92596",
 			"error": null
 		}`, "\t", "")
 		got := string(zjson.MustMarshalIndent(export, "", ""))

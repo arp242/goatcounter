@@ -1,0 +1,16 @@
+create table bots (
+	site_id        integer        not null,
+	path           text           not null,
+	bot            integer        not null,
+	user_agent     text           not null,
+	created_at     timestamp      not null                 {{check_timestamp "created_at"}}
+);
+insert into bots (site_id, path, bot, user_agent, created_at)
+	select hits.site_id, paths.path, hits.bot, '', hits.created_at
+	from hits
+	join paths using(path_id)
+	where bot > 0 order by hits.created_at desc;
+create index "bots#site_id#created_at" on bots(site_id, created_at desc);
+
+delete from hits where bot > 0;
+alter table hits drop column bot;

@@ -207,24 +207,31 @@ func (m *ms) Persist(ctx context.Context) ([]Hit, error) {
 	m.hits = make([]Hit, 0, 16)
 	m.hitMu.Unlock()
 
-	newHits := make([]Hit, 0, len(hits))
-	ins := zdb.NewBulkInsert(ctx, "hits", []string{"site_id", "path_id", "ref_id",
-		"browser_id", "system_id", "size_id", "location", "language", "created_at", "bot",
-		"session", "first_visit", "campaign"})
+	var (
+		newHits = make([]Hit, 0, len(hits))
+		bot     = zdb.NewBulkInsert(ctx, "bots", []string{"site_id", "path", "bot", "user_agent", "created_at"})
+		ins     = zdb.NewBulkInsert(ctx, "hits", []string{"site_id", "path_id", "ref_id", "browser_id", "system_id",
+			"size_id", "location", "language", "created_at", "session", "first_visit", "campaign"})
+	)
 	for _, h := range hits {
 		if m.processHit(ctx, &h) {
 			// Don't return hits that failed validation; otherwise cron will try to
 			// insert them.
 			newHits = append(newHits, h)
 
-			if !h.NoStore {
-				ins.Values(h.Site, h.PathID, h.RefID, h.BrowserID, h.SystemID, h.SizeID,
-					h.Location, h.Language, h.CreatedAt.Round(time.Second), h.Bot, h.Session,
-					h.FirstVisit, h.CampaignID)
+			if h.Bot > 0 {
+				bot.Values(h.Site, h.Path, h.Bot, h.UserAgentHeader, h.CreatedAt)
+			} else if !h.NoStore {
+				ins.Values(h.Site, h.PathID, h.RefID, h.BrowserID, h.SystemID, h.SizeID, h.Location,
+					h.Language, h.CreatedAt.Round(time.Second), h.Session, h.FirstVisit, h.CampaignID)
 			}
 		}
 	}
 
+	// Just log errors on inserting bots; not that important.
+	if err := bot.Finish(); err != nil {
+		memlog.Errorf(ctx, "storing bots: %s", err)
+	}
 	return newHits, ins.Finish()
 }
 

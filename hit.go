@@ -31,7 +31,7 @@ type Hit struct {
 	Event zbool.Bool `db:"-" json:"e,omitempty"`
 	Size  Floats     `db:"-" json:"s,omitempty"`
 	Query string     `db:"-" json:"q,omitempty"`
-	Bot   int        `db:"bot" json:"b,omitempty"`
+	Bot   int        `db:"-" json:"b,omitempty"`
 
 	RefScheme       *string    `db:"ref_scheme" json:"-"`
 	UserAgentHeader string     `db:"-" json:"-"`
@@ -251,41 +251,45 @@ func (h *Hit) Defaults(ctx context.Context, initial bool) error {
 		return nil
 	}
 
-	// Get or insert path.
-	path := Path{Path: h.Path, Title: h.Title, Event: h.Event}
-	err := path.GetOrInsert(ctx)
-	if err != nil {
-		return errors.Wrap(err, "Hit.Defaults")
-	}
-	h.PathID = path.ID
-
-	// Get or insert ref.
-	ref := Ref{Ref: h.Ref, RefScheme: h.RefScheme}
-	err = ref.GetOrInsert(ctx)
-	if err != nil {
-		return errors.Wrap(err, "Hit.Defaults")
-	}
-	h.RefID = ref.ID
-
-	// Get or insert size.
-	if site.Settings.Collect.Has(CollectScreenSize) {
-		var size Size
-		err = size.GetOrInsert(ctx, h.Size)
+	// Only find references for non-bots; filters out quite some junk from
+	// vulnerability scanners and whatnot
+	if h.Bot == 0 {
+		// Get or insert path.
+		path := Path{Path: h.Path, Title: h.Title, Event: h.Event}
+		err := path.GetOrInsert(ctx)
 		if err != nil {
 			return errors.Wrap(err, "Hit.Defaults")
 		}
-		h.SizeID = &size.ID
-	}
+		h.PathID = path.ID
 
-	// Get or insert browser and system.
-	if site.Settings.Collect.Has(CollectUserAgent) {
-		ua := UserAgent{UserAgent: h.UserAgentHeader}
-		err = ua.GetOrInsert(ctx)
+		// Get or insert ref.
+		ref := Ref{Ref: h.Ref, RefScheme: h.RefScheme}
+		err = ref.GetOrInsert(ctx)
 		if err != nil {
 			return errors.Wrap(err, "Hit.Defaults")
 		}
-		h.BrowserID = ua.BrowserID
-		h.SystemID = ua.SystemID
+		h.RefID = ref.ID
+
+		// Get or insert size.
+		if site.Settings.Collect.Has(CollectScreenSize) {
+			var size Size
+			err = size.GetOrInsert(ctx, h.Size)
+			if err != nil {
+				return errors.Wrap(err, "Hit.Defaults")
+			}
+			h.SizeID = &size.ID
+		}
+
+		// Get or insert browser and system.
+		if site.Settings.Collect.Has(CollectUserAgent) {
+			ua := UserAgent{UserAgent: h.UserAgentHeader}
+			err = ua.GetOrInsert(ctx)
+			if err != nil {
+				return errors.Wrap(err, "Hit.Defaults")
+			}
+			h.BrowserID = ua.BrowserID
+			h.SystemID = ua.SystemID
+		}
 	}
 
 	return nil
@@ -314,7 +318,7 @@ func (h *Hit) Validate(ctx context.Context, initial bool) error {
 		v.Len("path", h.Path, 1, 2048)
 		v.Len("title", h.Title, 0, 1024)
 		v.Len("user_agent_header", h.UserAgentHeader, 0, 512)
-	} else {
+	} else if h.Bot == 0 {
 		v.Required("path_id", h.PathID)
 
 		if MustGetSite(ctx).Settings.Collect.Has(CollectUserAgent) {

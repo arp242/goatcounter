@@ -75,7 +75,6 @@ create table hits (
 
 	session        {{blob}}       default null,
 	first_visit    integer        default 0,
-	bot            integer        default 0,
 
 	browser_id     integer        not null,
 	system_id      integer        not null,
@@ -88,6 +87,15 @@ create table hits (
 );
 create index "hits#site_id#created_at" on hits(site_id, created_at desc);
 {{cluster "hits" "hits#site_id#created_at"}}
+
+create table bots (
+	site_id        integer        not null,
+	path           text           not null,
+	bot            integer        not null,
+	user_agent     text           not null,
+	created_at     timestamp      not null                 {{check_timestamp "created_at"}}
+);
+create index "bots#site_id#created_at" on bots(site_id, created_at desc);
 
 create table paths (
 	path_id        {{auto_increment}},
@@ -356,6 +364,9 @@ insert into version values
 	('2023-12-15-1-rm-updates'),
 	('2024-08-19-1-sizes-idx'),
 	('2024-08-19-1-rm-updates2'),
-	('2024-04-23-1-collect-hits');
+	('2024-04-23-1-collect-hits'),
+	-- 2.7
+	('2025-06-20-1-empty-counts'),
+	('2025-06-21-1-bots');
 
 -- vim:ft=sql:tw=0

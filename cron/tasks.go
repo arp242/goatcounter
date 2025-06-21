@@ -75,7 +75,7 @@ func dataRetention(ctx context.Context) error {
 
 func oldBot(ctx context.Context) error {
 	ival := goatcounter.Interval(ctx, 30)
-	err := zdb.Exec(ctx, `delete from hits where bot > 0 and created_at < `+ival)
+	err := zdb.Exec(ctx, `delete from bots where created_at < `+ival)
 	if err != nil {
 		log.Module("cron").Error(ctx, err)
 	}

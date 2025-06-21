@@ -117,7 +117,7 @@ func (e *Export) Run(ctx context.Context, fp *os.File, mailUser bool) {
 
 		for _, hit := range hits {
 			c.Write([]string{hit.Path, hit.Title, hit.Event, hit.UserAgent,
-				hit.Browser, hit.System, hit.Session.String(), hit.Bot, hit.Ref,
+				hit.Browser, hit.System, hit.Session.String(), "0", hit.Ref,
 				hit.RefScheme, hit.Size, hit.Location, hit.FirstVisit,
 				hit.CreatedAt})
 		}
@@ -442,7 +442,6 @@ func (h *ExportRows) Export(ctx context.Context, limit, paginate int64) (int64, 
 			coalesce(systems.name  || ' ' || systems.version, '')  as system,
 
 			hits.session,
-			hits.bot,
 			coalesce(refs.ref, '')        as ref,
 			coalesce(refs.ref_scheme, '') as ref_s,
 			coalesce(sizes.size, '')      as size,
