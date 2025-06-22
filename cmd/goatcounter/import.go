@@ -105,7 +105,7 @@ Flags:
                anything.
 
                The syntax is [field]:[pattern]; the [field] is one of the fields
-               listed in "help logile". The pattern can be prefixed with "glob:"
+               listed in "help logfile". The pattern can be prefixed with "glob:"
                or "re:" to get globbing or regular expressions:
 
                    path:.gif                             Anywhere in the path
