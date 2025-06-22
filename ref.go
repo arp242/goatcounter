@@ -134,14 +134,16 @@ func (r *Ref) GetOrInsert(ctx context.Context) error {
 		return nil
 	}
 	if !zdb.ErrNoRows(err) {
-		return errors.Wrap(err, "Ref.GetOrInsert get")
+		return errors.Wrapf(err, "Ref.GetOrInsert %q %q: %w",
+			ztype.Deref(r.RefScheme, "<nil>"), r.Ref, err)
 	}
 
 	r.ID, err = zdb.InsertID[RefID](ctx, "ref_id",
 		`insert into refs (ref, ref_scheme) values (?, ?)`,
 		r.Ref, r.RefScheme)
 	if err != nil {
-		return errors.Wrap(err, "Ref.GetOrInsert insert")
+		return errors.Wrapf(err, "Ref.GetOrInsert %q %q: %w",
+			ztype.Deref(r.RefScheme, "<nil>"), r.Ref, err)
 	}
 
 	cacheRefs(ctx).Set(k, *r)

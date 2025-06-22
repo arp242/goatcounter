@@ -571,7 +571,8 @@ func flagErrors(errors string, v *zvalidate.Validator) {
 				// Don't need to send notifications for these
 				if strings.Contains(msg, `pq: canceling statement due to user request`) ||
 					strings.Contains(msg, `write: broken pipe`) ||
-					strings.Contains(msg, `write: connection reset by peer`) {
+					strings.Contains(msg, `write: connection reset by peer`) ||
+					strings.Contains(msg, ": context canceled") {
 					return
 				}
 

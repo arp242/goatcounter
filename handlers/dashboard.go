@@ -26,9 +26,6 @@ import (
 	"zgo.at/zvalidate"
 )
 
-// DailyView forces the "view by day" if the number of selected days is larger than this.
-const DailyView = 90
-
 func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 	m := metrics.Start("dashboard")
 	m.AddTag(r.Host)
@@ -69,10 +66,8 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 	if _, ok := q["daily"]; ok {
 		view.Daily = q.Get("daily") == "on" || q.Get("daily") == "true"
 	}
-	_, forcedDaily := getDaily(r, rng)
-	if forcedDaily {
-		view.Daily = true
-	}
+	var forcedDaily bool
+	view.Daily, forcedDaily = getDaily(r, rng)
 
 	// Get path IDs to filter first, as they're used by the widgets.
 	var (
@@ -332,11 +327,11 @@ func (h backend) loadWidget(w http.ResponseWriter, r *http.Request) error {
 		} else {
 			p.Max, err = strconv.Atoi(r.URL.Query().Get("max"))
 			if err != nil {
-				return err
+				return guru.Errorf(400, `"max" query parameter wrong: %w`, err)
 			}
 			p.Exclude, err = zint.Split[goatcounter.PathID](r.URL.Query().Get("exclude"), ",")
 			if err != nil {
-				return err
+				return guru.Errorf(400, `"exclude" query parameter wrong: %w`, err)
 			}
 		}
 	}
@@ -439,8 +434,12 @@ func getPeriod(w http.ResponseWriter, r *http.Request, site *goatcounter.Site, u
 }
 
 func getDaily(r *http.Request, rng ztime.Range) (daily bool, forced bool) {
-	if rng.End.Sub(rng.Start).Hours()/24 >= DailyView {
+	// Force daily view for large timespans and force hourly for very short
+	// ones, as it looks horrible otherwise.
+	if d := rng.End.Sub(rng.Start).Hours() / 24; d >= 90 {
 		return true, true
+	} else if d <= 6 {
+		return false, true
 	}
 	d := strings.ToLower(r.URL.Query().Get("daily"))
 	return d == "on" || d == "true", false

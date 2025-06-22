@@ -200,10 +200,7 @@ func addctx(db zdb.DB, loadSite bool, dashTimeout int) func(http.Handler) http.H
 				if err != nil {
 					if zdb.ErrNoRows(err) {
 						err = guru.Errorf(400, "no site at this domain (%q)", r.Host)
-					} else {
-						log.Error(ctx, err, log.AttrHTTP(r))
 					}
-
 					zhttp.ErrPage(w, r, err)
 					return
 				}

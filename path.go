@@ -29,12 +29,10 @@ func (p *Path) Defaults(ctx context.Context) {}
 
 func (p *Path) Validate(ctx context.Context) error {
 	v := NewValidate(ctx)
-
 	v.UTF8("path", p.Path)
 	v.UTF8("title", p.Title)
 	v.Len("path", p.Path, 1, 2048)
 	v.Len("title", p.Title, 0, 1024)
-
 	return v.ErrorOrNil()
 }
 
@@ -71,7 +69,7 @@ func (p *Path) GetOrInsert(ctx context.Context) error {
 	p.Defaults(ctx)
 	err := p.Validate(ctx)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "Path.GetOrInsert")
 	}
 
 	err = zdb.Get(ctx, p, `/* Path.GetOrInsert */
