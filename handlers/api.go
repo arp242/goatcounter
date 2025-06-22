@@ -9,7 +9,6 @@ import (
 	"os"
 	"path/filepath"
 	"slices"
-	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -31,6 +30,7 @@ import (
 	"zgo.at/zstd/zbool"
 	"zgo.at/zstd/zint"
 	"zgo.at/zstd/zslice"
+	"zgo.at/zstd/zstrconv"
 	"zgo.at/zstd/ztime"
 	"zgo.at/zvalidate"
 )
@@ -240,7 +240,7 @@ func (h api) auth(r *http.Request, w http.ResponseWriter, require zint.Bitflag64
 
 type apiExportRequest struct {
 	// Pagination cursor; only export hits with an ID greater than this.
-	StartFromHitID int64 `json:"start_from_hit_id"`
+	StartFromHitID goatcounter.HitID `json:"start_from_hit_id"`
 }
 
 // For testing various generic properties about the API.
@@ -364,7 +364,7 @@ func (h api) exportGet(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	v := goatcounter.NewValidate(r.Context())
-	id := v.Integer("id", chi.URLParam(r, "id"))
+	id := goatcounter.ExportID(v.Integer32("id", chi.URLParam(r, "id")))
 	if v.HasErrors() {
 		return v
 	}
@@ -397,7 +397,7 @@ func (h api) exportDownload(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	v := goatcounter.NewValidate(r.Context())
-	id := v.Integer("id", chi.URLParam(r, "id"))
+	id := goatcounter.ExportID(v.Integer32("id", chi.URLParam(r, "id")))
 	if v.HasErrors() {
 		return v
 	}
@@ -689,7 +689,7 @@ func (h api) siteList(w http.ResponseWriter, r *http.Request) error {
 
 func (h api) siteFind(r *http.Request) (*goatcounter.Site, error) {
 	v := goatcounter.NewValidate(r.Context())
-	id := v.Integer("id", chi.URLParam(r, "id"))
+	id := goatcounter.SiteID(v.Integer32("id", chi.URLParam(r, "id")))
 	if v.HasErrors() {
 		return nil, v
 	}
@@ -809,7 +809,7 @@ type (
 		Limit int `json:"limit"`
 
 		// Only select paths after this ID, for pagination.
-		After int64 `json:"after"`
+		After goatcounter.PathID `json:"after"`
 	}
 	apiPathsResponse struct {
 		// List of paths, sorted by ID.
@@ -986,7 +986,7 @@ func (h api) refs(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	v := zvalidate.New()
-	path := v.Integer("path_id", chi.URLParam(r, "path_id"))
+	path := goatcounter.PathID(v.Integer32("path_id", chi.URLParam(r, "path_id")))
 	if v.HasErrors() {
 		return v
 	}
@@ -1193,7 +1193,7 @@ func (h api) stats(w http.ResponseWriter, r *http.Request) error {
 
 	var (
 		stats goatcounter.HitStats
-		f     func(ctx context.Context, rng ztime.Range, pathFilter []int64, limit, offset int) error
+		f     func(ctx context.Context, rng ztime.Range, pathFilter []goatcounter.PathID, limit, offset int) error
 	)
 	switch page {
 	case "browsers":
@@ -1205,7 +1205,7 @@ func (h api) stats(w http.ResponseWriter, r *http.Request) error {
 	case "languages":
 		f = stats.ListLanguages
 	case "sizes":
-		f = func(ctx context.Context, rng ztime.Range, pathFilter []int64, _, _ int) error {
+		f = func(ctx context.Context, rng ztime.Range, pathFilter []goatcounter.PathID, _, _ int) error {
 			return stats.ListSizes(ctx, rng, pathFilter)
 		}
 	case "campaigns":
@@ -1278,7 +1278,7 @@ func (h api) statsDetail(w http.ResponseWriter, r *http.Request) error {
 
 	var (
 		stats goatcounter.HitStats
-		f     func(ctx context.Context, id string, rng ztime.Range, pathFilter []int64, limit, offset int) error
+		f     func(ctx context.Context, id string, rng ztime.Range, pathFilter []goatcounter.PathID, limit, offset int) error
 	)
 	switch page {
 	case "browsers":
@@ -1292,8 +1292,8 @@ func (h api) statsDetail(w http.ResponseWriter, r *http.Request) error {
 	case "toprefs":
 		f = stats.ListTopRef
 	case "campaigns":
-		f = func(ctx context.Context, id string, rng ztime.Range, pathFilter []int64, limit, offset int) error {
-			n, err := strconv.ParseInt(id, 0, 64)
+		f = func(ctx context.Context, id string, rng ztime.Range, pathFilter []goatcounter.PathID, limit, offset int) error {
+			n, err := zstrconv.ParseInt[goatcounter.CampaignID](id, 0)
 			if err != nil {
 				return err
 			}
@@ -1316,10 +1316,10 @@ func (h api) statsDetail(w http.ResponseWriter, r *http.Request) error {
 	})
 }
 
-func findPaths(ctx context.Context, byName bool, includePaths, excludePaths goatcounter.Strings) ([]int64, []int64, error) {
+func findPaths(ctx context.Context, byName bool, includePaths, excludePaths goatcounter.Strings) ([]goatcounter.PathID, []goatcounter.PathID, error) {
 	var (
-		includeIDs = make([]int64, 0, len(includePaths))
-		excludeIDs = make([]int64, 0, len(excludePaths))
+		includeIDs = make([]goatcounter.PathID, 0, len(includePaths))
+		excludeIDs = make([]goatcounter.PathID, 0, len(excludePaths))
 	)
 	if byName {
 		var err error
@@ -1345,14 +1345,14 @@ func findPaths(ctx context.Context, byName bool, includePaths, excludePaths goat
 	}
 
 	for _, s := range includePaths {
-		n, err := strconv.ParseInt(s, 10, 64)
+		n, err := zstrconv.ParseInt[goatcounter.PathID](s, 10)
 		if err != nil {
 			return nil, nil, guru.Errorf(400, "invalid number in include_paths: %w", err)
 		}
 		includeIDs = append(includeIDs, n)
 	}
 	for _, s := range excludePaths {
-		n, err := strconv.ParseInt(s, 10, 64)
+		n, err := zstrconv.ParseInt[goatcounter.PathID](s, 10)
 		if err != nil {
 			return nil, nil, guru.Errorf(400, "invalid number in exclude_paths: %w", err)
 		}

@@ -37,10 +37,9 @@ func TestSettingsTpl(t *testing.T) {
 
 		{
 			setup: func(ctx context.Context, t *testing.T) {
-				one := int64(1)
 				ss := goatcounter.Site{
 					Code:   "subsite",
-					Parent: &one,
+					Parent: ztype.Ptr(goatcounter.SiteID(1)),
 				}
 				err := ss.Insert(ctx)
 				if err != nil {
@@ -120,7 +119,7 @@ func TestSettingsSitesAdd(t *testing.T) {
 			name: "already exists for this account",
 			setup: func(ctx context.Context, t *testing.T) {
 				s := goatcounter.Site{
-					Parent: ztype.Ptr(int64(1)),
+					Parent: ztype.Ptr(goatcounter.SiteID(1)),
 					Cname:  ztype.Ptr("add.example.com"),
 					Code:   "add",
 				}
@@ -169,7 +168,7 @@ func TestSettingsSitesAdd(t *testing.T) {
 			name: "undelete",
 			setup: func(ctx context.Context, t *testing.T) {
 				s := goatcounter.Site{
-					Parent: ztype.Ptr(int64(1)),
+					Parent: ztype.Ptr(goatcounter.SiteID(1)),
 					Cname:  ztype.Ptr("add.example.com"),
 					Code:   "add",
 				}
@@ -241,7 +240,7 @@ func TestSettingsSitesRemove(t *testing.T) {
 			name: "remove",
 			setup: func(ctx context.Context, t *testing.T) {
 				err := (&goatcounter.Site{
-					Parent: ztype.Ptr(int64(1)),
+					Parent: ztype.Ptr(goatcounter.SiteID(1)),
 					Cname:  ztype.Ptr("add.example.com"),
 					Code:   "add",
 				}).Insert(ctx)

@@ -31,10 +31,10 @@ type (
 	Args struct {
 		Rng         ztime.Range
 		Offset      int
-		PathFilter  []int64
+		PathFilter  []goatcounter.PathID
 		Daily       bool
 		ForcedDaily bool
-		ShowRefs    int64
+		ShowRefs    goatcounter.PathID
 	}
 
 	// SharedData gets passed to every widget.

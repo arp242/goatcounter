@@ -152,7 +152,7 @@ func initData(ctx context.Context, db zdb.DB, t testing.TB) context.Context {
 func StoreHits(ctx context.Context, t *testing.T, wantFail bool, hits ...goatcounter.Hit) []goatcounter.Hit {
 	t.Helper()
 
-	siteID := int64(1)
+	siteID := goatcounter.SiteID(1)
 	if s := goatcounter.GetSite(ctx); s != nil {
 		siteID = s.ID
 	}
@@ -177,7 +177,7 @@ func StoreHits(ctx context.Context, t *testing.T, wantFail bool, hits ...goatcou
 		t.Fatal("gc.StoreHits: no error while wantError is true")
 	}
 
-	sites := make(map[int64]struct{})
+	sites := make(map[goatcounter.SiteID]struct{})
 	for _, h := range hits {
 		sites[h.Site] = struct{}{}
 	}

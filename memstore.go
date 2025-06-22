@@ -38,10 +38,10 @@ type ms struct {
 	hits  []Hit
 
 	sessionMu     sync.RWMutex
-	sessions      map[sessionKey]zint.Uint128         // sessionKey → sessionID
-	sessionHashes map[zint.Uint128]sessionKey         // sessionID → sessionKey
-	sessionPaths  map[zint.Uint128]map[int64]struct{} // SessionID → path_id
-	sessionSeen   map[zint.Uint128]int64              // SessionID → lastseen
+	sessions      map[sessionKey]zint.Uint128          // sessionKey → sessionID
+	sessionHashes map[zint.Uint128]sessionKey          // sessionID → sessionKey
+	sessionPaths  map[zint.Uint128]map[PathID]struct{} // SessionID → path_id
+	sessionSeen   map[zint.Uint128]int64               // SessionID → lastseen
 
 	testHook bool
 }
@@ -49,10 +49,10 @@ type ms struct {
 var Memstore ms
 
 type storedSession struct {
-	Sessions map[sessionKey]zint.Uint128         `json:"sessions"`
-	Hashes   map[zint.Uint128]sessionKey         `json:"hashes"`
-	Paths    map[zint.Uint128]map[int64]struct{} `json:"paths"`
-	Seen     map[zint.Uint128]int64              `json:"seen"`
+	Sessions map[sessionKey]zint.Uint128          `json:"sessions"`
+	Hashes   map[zint.Uint128]sessionKey          `json:"hashes"`
+	Paths    map[zint.Uint128]map[PathID]struct{} `json:"paths"`
+	Seen     map[zint.Uint128]int64               `json:"seen"`
 }
 
 func (m *ms) Reset() {
@@ -61,7 +61,7 @@ func (m *ms) Reset() {
 
 	m.sessions = make(map[sessionKey]zint.Uint128)
 	m.sessionHashes = make(map[zint.Uint128]sessionKey)
-	m.sessionPaths = make(map[zint.Uint128]map[int64]struct{})
+	m.sessionPaths = make(map[zint.Uint128]map[PathID]struct{})
 	m.sessionSeen = make(map[zint.Uint128]int64)
 	TestSeqSession = zint.Uint128{TestSession[0], TestSession[1] + 1}
 }
@@ -372,7 +372,7 @@ func (m *ms) SessionID() zint.Uint128 {
 	return UUID()
 }
 
-func (m *ms) session(ctx context.Context, siteID, pathID int64, userSessionID, ua, remoteAddr string) (zint.Uint128, zbool.Bool) {
+func (m *ms) session(ctx context.Context, siteID SiteID, pathID PathID, userSessionID, ua, remoteAddr string) (zint.Uint128, zbool.Bool) {
 	sk := sessionKey(userSessionID)
 	if userSessionID == "" {
 		sk = sessionKey(fmt.Sprintf("%s-%s-%d", ua, remoteAddr, siteID))
@@ -400,7 +400,7 @@ func (m *ms) session(ctx context.Context, siteID, pathID int64, userSessionID, u
 	// New session
 	id = m.SessionID()
 	m.sessions[sk] = id
-	m.sessionPaths[id] = map[int64]struct{}{pathID: struct{}{}}
+	m.sessionPaths[id] = map[PathID]struct{}{pathID: struct{}{}}
 	m.sessionSeen[id] = ztime.Now().Unix()
 	m.sessionHashes[id] = sk
 

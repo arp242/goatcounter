@@ -19,6 +19,7 @@ import (
 	"zgo.at/z18n"
 	"zgo.at/zhttp"
 	"zgo.at/zstd/zint"
+	"zgo.at/zstd/zstrconv"
 	"zgo.at/zstd/zsync"
 	"zgo.at/zstd/ztime"
 	"zgo.at/ztpl"
@@ -61,7 +62,7 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 		view.Period = q.Get("hl-period")
 	}
 
-	showRefs, _ := strconv.ParseInt(q.Get("showrefs"), 10, 64)
+	showRefs, _ := zstrconv.ParseInt[goatcounter.PathID](q.Get("showrefs"), 10)
 	if _, ok := q["filter"]; ok {
 		view.Filter = q.Get("filter")
 	}
@@ -76,7 +77,7 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 	// Get path IDs to filter first, as they're used by the widgets.
 	var (
 		pathFilter = make(chan (struct {
-			Paths []int64
+			Paths []goatcounter.PathID
 			Err   error
 		}))
 	)
@@ -84,7 +85,7 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 		defer log.Recover(r.Context(), func(err error) { log.Error(r.Context(), err, "filter", view.Filter, log.AttrHTTP(r)) })
 
 		var (
-			f     []int64
+			f     []goatcounter.PathID
 			start = ztime.Now()
 			err   error
 		)
@@ -92,7 +93,7 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 			f, err = goatcounter.PathFilter(r.Context(), view.Filter, true)
 		}
 		pathFilter <- struct {
-			Paths []int64
+			Paths []goatcounter.PathID
 			Err   error
 		}{f, err}
 		log.Module("dashboard").Debug(r.Context(), "pathfilter",
@@ -265,9 +266,9 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 		Globals
 		CountDomain string
 		SubSites    []string
-		ShowRefs    int64
+		ShowRefs    goatcounter.PathID
 		Period      ztime.Range
-		PathFilter  []int64
+		PathFilter  []goatcounter.PathID
 		ForcedDaily bool
 		Widgets     widgets.List
 		View        goatcounter.View
@@ -327,13 +328,13 @@ func (h backend) loadWidget(w http.ResponseWriter, r *http.Request) error {
 		args.Args.Daily, args.Args.ForcedDaily = getDaily(r, rng)
 
 		if key != "" {
-			p.RefsForPath, _ = strconv.ParseInt(key, 10, 64)
+			p.RefsForPath, _ = zstrconv.ParseInt[goatcounter.PathID](key, 10)
 		} else {
 			p.Max, err = strconv.Atoi(r.URL.Query().Get("max"))
 			if err != nil {
 				return err
 			}
-			p.Exclude, err = zint.Split(r.URL.Query().Get("exclude"), ",")
+			p.Exclude, err = zint.Split[goatcounter.PathID](r.URL.Query().Get("exclude"), ",")
 			if err != nil {
 				return err
 			}
@@ -445,7 +446,7 @@ func getDaily(r *http.Request, rng ztime.Range) (daily bool, forced bool) {
 	return d == "on" || d == "true", false
 }
 
-func getPathFilter(v *zvalidate.Validator, r *http.Request) []int64 {
+func getPathFilter(v *zvalidate.Validator, r *http.Request) []goatcounter.PathID {
 	f := r.URL.Query().Get("filter")
 	if f == "" {
 		return nil

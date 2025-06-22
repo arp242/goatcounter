@@ -76,7 +76,7 @@ func ImportGA(ctx context.Context, fp io.Reader) error {
 
 	var (
 		siteID = MustGetSite(ctx).ID
-		paths  = make(map[string]int64)
+		paths  = make(map[string]PathID)
 	)
 	for p := range pages {
 		pp := Path{

@@ -43,7 +43,7 @@ func TestHitStats(t *testing.T) {
 		}
 	}
 
-	for _, filter := range [][]int64{nil} {
+	for _, filter := range [][]PathID{nil} {
 		// Browsers
 		{
 			var list HitStats
@@ -404,7 +404,7 @@ func TestStatsByRef(t *testing.T) {
 
 	var have HitStats
 	err := have.ListTopRef(ctx, "example.com", ztime.NewRange(ztime.Now().Add(-1*time.Hour)).To(ztime.Now().Add(1*time.Hour)),
-		[]int64{1}, 10, 0)
+		[]PathID{1}, 10, 0)
 	if err != nil {
 		t.Fatal(err)
 	}

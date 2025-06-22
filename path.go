@@ -15,9 +15,11 @@ import (
 	"zgo.at/zstd/zreflect"
 )
 
+type PathID int32
+
 type Path struct {
-	ID    int64      `db:"path_id" json:"id"` // Path ID
-	Site  int64      `db:"site_id" json:"-"`
+	ID    PathID     `db:"path_id" json:"id"` // Path ID
+	Site  SiteID     `db:"site_id" json:"-"`
 	Path  string     `db:"path" json:"path"`   // Path name
 	Title string     `db:"title" json:"title"` // Page title
 	Event zbool.Bool `db:"event" json:"event"` // Is this an event?
@@ -36,7 +38,7 @@ func (p *Path) Validate(ctx context.Context) error {
 	return v.ErrorOrNil()
 }
 
-func (p *Path) ByID(ctx context.Context, id int64) error {
+func (p *Path) ByID(ctx context.Context, id PathID) error {
 	err := zdb.Get(ctx, p,
 		`/* Path.ByID */ select * from paths where path_id=? and site_id=?`,
 		id, MustGetSite(ctx).ID)
@@ -53,7 +55,7 @@ func (p *Path) ByPath(ctx context.Context, path string) error {
 func (p *Path) GetOrInsert(ctx context.Context) error {
 	site := MustGetSite(ctx)
 	title := p.Title
-	k := strconv.FormatInt(site.ID, 10) + p.Path
+	k := strconv.Itoa(int(site.ID)) + p.Path
 	c, ok := cachePaths(ctx).Get(k)
 	if ok {
 		*p = c
@@ -89,7 +91,7 @@ func (p *Path) GetOrInsert(ctx context.Context) error {
 	}
 
 	// Insert new row.
-	p.ID, err = zdb.InsertID(ctx, "path_id",
+	p.ID, err = zdb.InsertID[PathID](ctx, "path_id",
 		`insert into paths (site_id, path, title, event) values (?, ?, ?, ?)`,
 		site.ID, p.Path, p.Title, p.Event)
 	if err != nil {
@@ -105,7 +107,7 @@ func (p Path) updateTitle(ctx context.Context, currentTitle, newTitle string) er
 		return nil
 	}
 
-	k := strconv.FormatInt(p.ID, 10)
+	k := strconv.Itoa(int(p.ID))
 	_, ok := cacheChangedTitles(ctx).Get(k)
 	if !ok {
 		cacheChangedTitles(ctx).Set(k, []string{newTitle})
@@ -140,7 +142,7 @@ func (p Path) updateTitle(ctx context.Context, currentTitle, newTitle string) er
 
 // Merge the given paths in to this one.
 func (p Path) Merge(ctx context.Context, paths Paths) error {
-	pathIDs := make([]int64, 0, len(paths))
+	pathIDs := make([]PathID, 0, len(paths))
 	for _, pp := range paths {
 		if pp.ID == p.ID { // Shouldn't happen, but just in case.
 			return fmt.Errorf("Path.Merge: destination ID %d also in paths to merge", p.ID)
@@ -194,7 +196,7 @@ func (p Path) Merge(ctx context.Context, paths Paths) error {
 
 		// Update hit_stats; for PostgreSQL we can update inline, for SQLite we
 		// need to select + delete all and re-insert.
-		loadPathIDs := append([]int64{}, pathIDs...)
+		loadPathIDs := append([]PathID{}, pathIDs...)
 		if zdb.SQLDialect(ctx) == zdb.DialectSQLite {
 			loadPathIDs = append(loadPathIDs, p.ID)
 		}
@@ -249,7 +251,7 @@ func (p Path) Merge(ctx context.Context, paths Paths) error {
 type Paths []Path
 
 // List all paths for a site.
-func (p *Paths) List(ctx context.Context, siteID, after int64, limit int) (bool, error) {
+func (p *Paths) List(ctx context.Context, siteID SiteID, after PathID, limit int) (bool, error) {
 	err := zdb.Select(ctx, p, "load:paths.List", map[string]any{
 		"site":  siteID,
 		"after": after,
@@ -271,8 +273,8 @@ func (p *Paths) List(ctx context.Context, siteID, after int64, limit int) (bool,
 // PathFilter returns a list of IDs matching the path name.
 //
 // If matchTitle is true it will match the title as well.
-func PathFilter(ctx context.Context, filter string, matchTitle bool) ([]int64, error) {
-	var paths []int64
+func PathFilter(ctx context.Context, filter string, matchTitle bool) ([]PathID, error) {
+	var paths []PathID
 	err := zdb.Select(ctx, &paths, "load:paths.PathFilter", map[string]any{
 		"site":        MustGetSite(ctx).ID,
 		"filter":      "%" + filter + "%",
@@ -285,14 +287,14 @@ func PathFilter(ctx context.Context, filter string, matchTitle bool) ([]int64, e
 	// Nothing matches: make sure there's a slice with an invalid path_id, so
 	// the queries using the result don't select anything.
 	if len(paths) == 0 {
-		paths = []int64{-1}
+		paths = []PathID{-1}
 	}
 	return paths, nil
 }
 
 // FindPathsIDs finds path IDs by exact matches on the name.
-func FindPathIDs(ctx context.Context, list []string) ([]int64, error) {
-	var paths []int64
+func FindPathIDs(ctx context.Context, list []string) ([]PathID, error) {
+	var paths []PathID
 	err := zdb.Select(ctx, &paths,
 		`select path_id from paths where site_id=? and lower(path) in (?)`,
 		MustGetSite(ctx).ID, list)

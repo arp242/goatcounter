@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"database/sql/driver"
 	"fmt"
-	"strconv"
 	"strings"
 	"time"
 
@@ -18,14 +17,17 @@ import (
 	"zgo.at/zdb"
 	"zgo.at/zstd/zbool"
 	"zgo.at/zstd/zcrypto"
+	"zgo.at/zstd/zstrconv"
 	"zgo.at/zstd/ztime"
 	"zgo.at/zstd/ztype"
 )
 
+type UserID int32
+
 // User entry.
 type User struct {
-	ID   int64 `db:"user_id" json:"id,readonly"`
-	Site int64 `db:"site_id" json:"site,readonly"`
+	ID   UserID `db:"user_id" json:"id,readonly"`
+	Site SiteID `db:"site_id" json:"site,readonly"`
 
 	Email         string       `db:"email" json:"email"`
 	EmailVerified zbool.Bool   `db:"email_verified" json:"email_verified,readonly"`
@@ -152,7 +154,7 @@ func (u *User) Insert(ctx context.Context, allowBlankPassword bool) error {
 		args = append(args, u.EmailToken)
 	}
 
-	u.ID, err = zdb.InsertID(ctx, "user_id", query, args)
+	u.ID, err = zdb.InsertID[UserID](ctx, "user_id", query, args)
 	if err != nil {
 		if zdb.ErrUnique(err) {
 			return guru.New(400, "this user already exists")
@@ -282,7 +284,7 @@ func (u *User) ByEmailToken(ctx context.Context, key string) error {
 }
 
 // ByID gets a user by id.
-func (u *User) ByID(ctx context.Context, id int64) error {
+func (u *User) ByID(ctx context.Context, id UserID) error {
 	err := zdb.Get(ctx, u, `select * from users where user_id=? and site_id=?`,
 		id, MustGetSite(ctx).IDOrParent())
 	return errors.Wrap(err, "User.ByID")
@@ -296,7 +298,7 @@ func (u *User) ByEmail(ctx context.Context, email string) error {
 }
 
 // ByEmail gets a user by email address for the current account.
-func (u *User) BySiteAndEmail(ctx context.Context, siteID int64, email string) error {
+func (u *User) BySiteAndEmail(ctx context.Context, siteID SiteID, email string) error {
 	err := zdb.Get(ctx, u, `select * from users where lower(email) = lower(?) and site_id = ?`,
 		email, siteID)
 	return errors.Wrapf(err, "User.ByEmail(%d, %q)", siteID, email)
@@ -304,7 +306,7 @@ func (u *User) BySiteAndEmail(ctx context.Context, siteID int64, email string) e
 
 // Find a user: by ID if ident is a number, or by email if it's not.
 func (u *User) Find(ctx context.Context, ident string) error {
-	id, err := strconv.ParseInt(ident, 10, 64)
+	id, err := zstrconv.ParseInt[UserID](ident, 10)
 	if err == nil {
 		return errors.Wrap(u.ByID(ctx, id), "User.Find")
 	}
@@ -535,7 +537,7 @@ func (u User) EmailShort() string {
 type Users []User
 
 // List all users for a site.
-func (u *Users) List(ctx context.Context, siteID int64) error {
+func (u *Users) List(ctx context.Context, siteID SiteID) error {
 	var s Site
 	err := s.ByID(ctx, siteID)
 	if err != nil {
@@ -564,7 +566,7 @@ func (u *Users) ByEmail(ctx context.Context, email string) error {
 }
 
 // BySite gets all users for a site.
-func (u *Users) BySite(ctx context.Context, siteID int64) error {
+func (u *Users) BySite(ctx context.Context, siteID SiteID) error {
 	err := zdb.Select(ctx, u,
 		`select * from users where site_id=? order by user_id asc`, siteID)
 	return errors.Wrap(err, "Users.BySite")
@@ -582,10 +584,10 @@ func (u *Users) Find(ctx context.Context, ident []string) error {
 }
 
 // IDs gets a list of all IDs for these users.
-func (u *Users) IDs() []int64 {
-	ids := make([]int64, 0, len(*u))
+func (u *Users) IDs() []int32 {
+	ids := make([]int32, 0, len(*u))
 	for _, uu := range *u {
-		ids = append(ids, uu.ID)
+		ids = append(ids, int32(uu.ID))
 	}
 	return ids
 }

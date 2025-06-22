@@ -11,8 +11,10 @@ import (
 	"zgo.at/zdb"
 )
 
+type LocationID int32
+
 type Location struct {
-	ID int64 `db:"location_id"`
+	ID LocationID `db:"location_id"`
 
 	Country     string `db:"country"`
 	Region      string `db:"region"`
@@ -98,7 +100,7 @@ func (l Location) LookupIP(ctx context.Context, ip string) string {
 }
 
 func (l *Location) insert(ctx context.Context) (err error) {
-	l.ID, err = zdb.InsertID(ctx, "location_id",
+	l.ID, err = zdb.InsertID[LocationID](ctx, "location_id",
 		`insert into locations (country, region, country_name, region_name) values (?, ?, ?, ?)`,
 		l.Country, l.Region, l.CountryName, l.RegionName)
 	if err != nil {

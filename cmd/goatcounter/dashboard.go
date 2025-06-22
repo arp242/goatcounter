@@ -7,7 +7,6 @@ import (
 	"math"
 	"net/http"
 	"os"
-	"strconv"
 	"strings"
 	"time"
 
@@ -16,6 +15,7 @@ import (
 	"zgo.at/termtext"
 	"zgo.at/zli"
 	"zgo.at/zstd/zint"
+	"zgo.at/zstd/zstrconv"
 	"zgo.at/zstd/zstring"
 	"zgo.at/zstd/ztime"
 )
@@ -104,7 +104,7 @@ func parseRange(rangeFlag string) (ztime.Range, error) {
 	}
 
 	// -range 30 for last 30 days.
-	n, err := strconv.ParseInt(rangeFlag, 0, 64)
+	n, err := zstrconv.ParseInt[int64](rangeFlag, 0)
 	if err == nil {
 		rng.Start = now.AddPeriod(int(-n), ztime.Day).Time
 		return rng, nil

@@ -19,7 +19,7 @@ func updateHitStats(ctx context.Context, hits []goatcounter.Hit) error {
 			count  []int
 			day    string
 			hour   string
-			pathID int64
+			pathID goatcounter.PathID
 		}
 		grouped := map[string]gt{}
 		for _, h := range hits {
@@ -29,7 +29,7 @@ func updateHitStats(ctx context.Context, hits []goatcounter.Hit) error {
 
 			day := h.CreatedAt.Format("2006-01-02")
 			dayHour := h.CreatedAt.Format("2006-01-02 15:00:00")
-			k := day + strconv.FormatInt(h.PathID, 10)
+			k := day + strconv.Itoa(int(h.PathID))
 			v := grouped[k]
 			if len(v.count) == 0 {
 				v.day = day
@@ -73,7 +73,7 @@ func updateHitStats(ctx context.Context, hits []goatcounter.Hit) error {
 	return errors.Wrap(err, "cron.updateHitStats")
 }
 
-func existingHitStats(ctx context.Context, siteID int64, day string, pathID int64) ([]int, error) {
+func existingHitStats(ctx context.Context, siteID goatcounter.SiteID, day string, pathID goatcounter.PathID) ([]int, error) {
 	var ex []struct {
 		Stats []byte `db:"stats"`
 	}

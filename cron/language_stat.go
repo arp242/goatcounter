@@ -16,7 +16,7 @@ func updateLanguageStats(ctx context.Context, hits []goatcounter.Hit) error {
 			count    int
 			day      string
 			language string
-			pathID   int64
+			pathID   goatcounter.PathID
 		}
 		grouped := map[string]gt{}
 		for _, h := range hits {
@@ -25,7 +25,7 @@ func updateLanguageStats(ctx context.Context, hits []goatcounter.Hit) error {
 			}
 
 			day := h.CreatedAt.Format("2006-01-02")
-			k := day + ztype.Deref(h.Language, "") + strconv.FormatInt(h.PathID, 10)
+			k := day + ztype.Deref(h.Language, "") + strconv.Itoa(int(h.PathID))
 			v := grouped[k]
 			if v.count == 0 {
 				v.day = day

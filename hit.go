@@ -14,14 +14,16 @@ import (
 	"zgo.at/zstd/ztime"
 )
 
+type HitID int64
+
 type Hit struct {
-	ID         int64        `db:"hit_id" json:"-"`
-	Site       int64        `db:"site_id" json:"-"`
-	PathID     int64        `db:"path_id" json:"-"`
-	RefID      int64        `db:"ref_id" json:"-"`
-	BrowserID  int64        `db:"browser_id" json:"-"`
-	SystemID   int64        `db:"system_id" json:"-"`
-	CampaignID *int64       `db:"campaign" json:"-"`
+	ID         HitID        `db:"hit_id" json:"-"`
+	Site       SiteID       `db:"site_id" json:"-"`
+	PathID     PathID       `db:"path_id" json:"-"`
+	RefID      RefID        `db:"ref_id" json:"-"`
+	BrowserID  BrowserID    `db:"browser_id" json:"-"`
+	SystemID   SystemID     `db:"system_id" json:"-"`
+	CampaignID *CampaignID  `db:"campaign" json:"-"`
 	Session    zint.Uint128 `db:"session" json:"-"`
 	Width      *int16       `db:"width" json:"width"`
 
@@ -329,8 +331,8 @@ type Hits []Hit
 func (h *Hits) TestList(ctx context.Context, siteOnly bool) error {
 	var hh []struct {
 		Hit
-		B int64      `db:"browser_id"`
-		S int64      `db:"system_id"`
+		B BrowserID  `db:"browser_id"`
+		S SystemID   `db:"system_id"`
 		P string     `db:"path"`
 		T string     `db:"title"`
 		E zbool.Bool `db:"event"`
@@ -372,7 +374,7 @@ func (h *Hits) TestList(ctx context.Context, siteOnly bool) error {
 }
 
 // Purge the given paths.
-func (h *Hits) Purge(ctx context.Context, pathIDs []int64) error {
+func (h *Hits) Purge(ctx context.Context, pathIDs []PathID) error {
 	query := `/* Hits.Purge */
 		delete from %s where site_id=? and path_id in (?)`
 

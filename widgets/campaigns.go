@@ -3,10 +3,10 @@ package widgets
 import (
 	"context"
 	"html/template"
-	"strconv"
 
 	"zgo.at/goatcounter/v2"
 	"zgo.at/z18n"
+	"zgo.at/zstd/zstrconv"
 )
 
 type Campaigns struct {
@@ -17,7 +17,7 @@ type Campaigns struct {
 	s      goatcounter.WidgetSettings
 
 	Limit    int
-	Campaign int64
+	Campaign goatcounter.CampaignID
 	Stats    goatcounter.HitStats
 }
 
@@ -37,7 +37,7 @@ func (w *Campaigns) SetSettings(s goatcounter.WidgetSettings) {
 		w.Limit = int(x.(float64))
 	}
 	if x := s["key"].Value; x != nil {
-		w.Campaign, _ = strconv.ParseInt(x.(string), 10, 64)
+		w.Campaign, _ = zstrconv.ParseInt[goatcounter.CampaignID](x.(string), 10)
 	}
 }
 
@@ -66,7 +66,7 @@ func (w Campaigns) RenderHTML(ctx context.Context, shared SharedData) (string, a
 		Header       string
 		TotalUTC     int
 		Stats        goatcounter.HitStats
-		Campaign     int64
+		Campaign     goatcounter.CampaignID
 	}{ctx, goatcounter.Config(ctx).BasePath, w.id, true, shared.RowsOnly, w.Campaign == 0, w.loaded, w.err,
 		isCol(ctx, goatcounter.CollectReferrer), w.Label(ctx),
 		shared.TotalUTC, w.Stats, w.Campaign}

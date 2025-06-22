@@ -95,7 +95,7 @@ func persistAndStat(ctx context.Context) error {
 
 	var (
 		startStats = ztime.Now()
-		grouped    = make(map[int64][]goatcounter.Hit)
+		grouped    = make(map[goatcounter.SiteID][]goatcounter.Hit)
 	)
 	for _, h := range hits {
 		if h.Bot > 0 {
@@ -124,7 +124,7 @@ func persistAndStat(ctx context.Context) error {
 // UpdateStats updates all the stats tables.
 //
 // Exported for tests.
-func UpdateStats(ctx context.Context, site *goatcounter.Site, siteID int64, hits []goatcounter.Hit) error {
+func UpdateStats(ctx context.Context, site *goatcounter.Site, siteID goatcounter.SiteID, hits []goatcounter.Hit) error {
 	if site == nil {
 		site = new(goatcounter.Site)
 		err := site.ByID(ctx, siteID)

@@ -86,7 +86,7 @@ func runImportClean(ctx context.Context, t *testing.T) func() {
 			t.Fatal(err)
 		}
 
-		var paths []int64
+		var paths []goatcounter.PathID
 		err = zdb.Select(ctx, &paths, `select path_id from paths`)
 		if err != nil {
 			t.Fatal(err)

@@ -126,7 +126,7 @@ func (h bosmang) sites(w http.ResponseWriter, r *http.Request) error {
 
 func (h bosmang) login(w http.ResponseWriter, r *http.Request) error {
 	v := zvalidate.New()
-	id := v.Integer("id", chi.URLParam(r, "id"))
+	id := goatcounter.SiteID(v.Integer32("id", chi.URLParam(r, "id")))
 	if v.HasErrors() {
 		return v
 	}

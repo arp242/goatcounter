@@ -14,8 +14,8 @@ func updateSystemStats(ctx context.Context, hits []goatcounter.Hit) error {
 		type gt struct {
 			count    int
 			day      string
-			systemID int64
-			pathID   int64
+			systemID goatcounter.SystemID
+			pathID   goatcounter.PathID
 		}
 		grouped := map[string]gt{}
 		for _, h := range hits {
@@ -27,7 +27,7 @@ func updateSystemStats(ctx context.Context, hits []goatcounter.Hit) error {
 			}
 
 			day := h.CreatedAt.Format("2006-01-02")
-			k := day + strconv.FormatInt(h.SystemID, 10) + strconv.FormatInt(h.PathID, 10)
+			k := day + strconv.Itoa(int(h.SystemID)) + strconv.Itoa(int(h.PathID))
 			v := grouped[k]
 			if v.count == 0 {
 				v.day = day

@@ -82,7 +82,7 @@ func TestListTopRefs(t *testing.T) {
 
 	{
 		var have HitStats
-		err := have.ListTopRefs(ctx, rng, []int64{2}, 10, 0)
+		err := have.ListTopRefs(ctx, rng, []PathID{2}, 10, 0)
 		if err != nil {
 			t.Fatal(err)
 		}

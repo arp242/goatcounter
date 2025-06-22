@@ -3,7 +3,6 @@ package goatcounter
 import (
 	"context"
 	"sort"
-	"strconv"
 	"time"
 
 	"zgo.at/errors"
@@ -11,6 +10,7 @@ import (
 	"zgo.at/zdb"
 	"zgo.at/zstd/zbool"
 	"zgo.at/zstd/zjson"
+	"zgo.at/zstd/zstrconv"
 	"zgo.at/zstd/ztime"
 )
 
@@ -19,7 +19,7 @@ type HitList struct {
 	Count int `db:"count" json:"count"`
 
 	// Path ID
-	PathID int64 `db:"path_id" json:"path_id"`
+	PathID PathID `db:"path_id" json:"path_id"`
 
 	// Path name (e.g. /hello.html).
 	Path string `db:"path" json:"path"`
@@ -97,7 +97,7 @@ var allDays = []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
 
 // List the top paths for this site in the given time period.
 func (h *HitLists) List(
-	ctx context.Context, rng ztime.Range, pathFilter, exclude []int64, limit int, daily bool,
+	ctx context.Context, rng ztime.Range, pathFilter, exclude []PathID, limit int, daily bool,
 ) (int, bool, error) {
 	site := MustGetSite(ctx)
 	user := MustGetUser(ctx)
@@ -133,12 +133,12 @@ func (h *HitLists) List(
 	// Get stats for every page.
 	hh := *h
 	var st []struct {
-		PathID int64     `db:"path_id"`
+		PathID PathID    `db:"path_id"`
 		Day    time.Time `db:"day"`
 		Stats  []byte    `db:"stats"`
 	}
 	{
-		paths := make([]int64, len(hh))
+		paths := make([]PathID, len(hh))
 		for i := range hh {
 			paths[i] = hh[i].PathID
 		}
@@ -186,7 +186,7 @@ func (h *HitLists) List(
 const PathTotals = "TOTAL "
 
 // Totals gets the data for the "Totals" chart/widget.
-func (h *HitList) Totals(ctx context.Context, rng ztime.Range, pathFilter []int64, daily, noEvents bool) (int, error) {
+func (h *HitList) Totals(ctx context.Context, rng ztime.Range, pathFilter []PathID, daily, noEvents bool) (int, error) {
 	site := MustGetSite(ctx)
 	user := MustGetUser(ctx)
 
@@ -212,7 +212,7 @@ func (h *HitList) Totals(ctx context.Context, rng ztime.Range, pathFilter []int6
 	stats := make(map[string]HitListStat)
 	for _, t := range tc {
 		d := t.Hour.Format("2006-01-02")
-		hour, _ := strconv.ParseInt(t.Hour.Format("15"), 10, 32)
+		hour, _ := zstrconv.ParseInt[int32](t.Hour.Format("15"), 10)
 		s, ok := stats[d]
 		if !ok {
 			s = HitListStat{
@@ -422,7 +422,7 @@ type TotalCount struct {
 // UTC. This is needed since the _stats tables are per day, rather than
 // per-hour, so we need to use the correct totals to make sure the percentage
 // calculations are accurate.
-func GetTotalCount(ctx context.Context, rng ztime.Range, pathFilter []int64, noEvents bool) (TotalCount, error) {
+func GetTotalCount(ctx context.Context, rng ztime.Range, pathFilter []PathID, noEvents bool) (TotalCount, error) {
 	site := MustGetSite(ctx)
 	user := MustGetUser(ctx)
 
@@ -454,7 +454,7 @@ func (h HitLists) Diff(ctx context.Context, rng, prev ztime.Range) ([]float64, e
 	d := -rng.End.Sub(rng.Start)
 	prev = ztime.NewRange(rng.Start.Add(d)).To(rng.End.Add(d))
 
-	paths := make([]int64, 0, len(h))
+	paths := make([]PathID, 0, len(h))
 	for _, hh := range h {
 		paths = append(paths, hh.PathID)
 	}

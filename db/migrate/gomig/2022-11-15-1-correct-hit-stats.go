@@ -75,7 +75,7 @@ func updateHitStats(ctx context.Context, hits []Hit) error {
 
 			day := h.CreatedAt.Format("2006-01-02")
 			dayHour := h.CreatedAt.Format("2006-01-02 15:00:00")
-			k := day + strconv.FormatInt(h.PathID, 10)
+			k := day + strconv.Itoa(int(h.PathID))
 			v := grouped[k]
 			if len(v.count) == 0 {
 				v.day = day

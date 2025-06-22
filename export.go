@@ -23,15 +23,17 @@ import (
 
 const ExportVersion = "2"
 
+type ExportID int32
+
 type Export struct {
-	ID     int64 `db:"export_id" json:"id,readonly"`
-	SiteID int64 `db:"site_id" json:"site_id,readonly"`
+	ID     ExportID `db:"export_id" json:"id,readonly"`
+	SiteID SiteID   `db:"site_id" json:"site_id,readonly"`
 
 	// The hit ID this export was started from.
-	StartFromHitID int64 `db:"start_from_hit_id" json:"start_from_hit_id"`
+	StartFromHitID HitID `db:"start_from_hit_id" json:"start_from_hit_id"`
 
 	// Last hit ID that was exported; can be used as start_from_hit_id.
-	LastHitID *int64 `db:"last_hit_id" json:"last_hit_id,readonly"`
+	LastHitID *HitID `db:"last_hit_id" json:"last_hit_id,readonly"`
 
 	Path      string    `db:"path" json:"path,readonly"` // {omitdoc}
 	CreatedAt time.Time `db:"created_at" json:"created_at,readonly"`
@@ -49,7 +51,7 @@ type Export struct {
 	Error *string `db:"error" json:"error,readonly"`
 }
 
-func (e *Export) ByID(ctx context.Context, id int64) error {
+func (e *Export) ByID(ctx context.Context, id ExportID) error {
 	return errors.Wrapf(zdb.Get(ctx, e,
 		`/* Export.ByID */ select * from exports where export_id=$1 and site_id=$2`,
 		id, MustGetSite(ctx).ID), "Export.ByID %d", id)
@@ -59,7 +61,7 @@ func (e *Export) ByID(ctx context.Context, id int64) error {
 //
 // Inserts a row in exports table and returns open file pointer to the
 // destination file.
-func (e *Export) Create(ctx context.Context, startFrom int64) (*os.File, error) {
+func (e *Export) Create(ctx context.Context, startFrom HitID) (*os.File, error) {
 	site := MustGetSite(ctx)
 
 	e.SiteID = site.ID
@@ -70,7 +72,7 @@ func (e *Export) Create(ctx context.Context, startFrom int64) (*os.File, error) 
 		e.CreatedAt.Format("20060102T150405Z"), startFrom)
 
 	var err error
-	e.ID, err = zdb.InsertID(ctx, "export_id",
+	e.ID, err = zdb.InsertID[ExportID](ctx, "export_id",
 		`insert into exports (site_id, path, created_at, start_from_hit_id) values (?, ?, ?, ?)`,
 		e.SiteID, e.Path, e.CreatedAt, e.StartFromHitID)
 	if err != nil {
@@ -102,7 +104,7 @@ func (e *Export) Run(ctx context.Context, fp *os.File, mailUser bool) {
 	for {
 		var (
 			hits ExportRows
-			last int64
+			last HitID
 		)
 		last, exportErr = hits.Export(ctx, 5000, *e.LastHitID)
 		e.LastHitID = &last
@@ -339,8 +341,8 @@ func Import(
 // https://github.com/jszwec/csvutil
 
 type ExportRow struct { // Fields in order!
-	ID     int64 `db:"hit_id"`
-	SiteID int64 `db:"site_id"`
+	ID     HitID  `db:"hit_id"`
+	SiteID SiteID `db:"site_id"`
 
 	Path  string `db:"path"`
 	Title string `db:"title"`
@@ -388,7 +390,7 @@ func (row *ExportRow) Read(line []string) error {
 	return nil
 }
 
-func (row ExportRow) Hit(ctx context.Context, siteID int64) (Hit, error) {
+func (row ExportRow) Hit(ctx context.Context, siteID SiteID) (Hit, error) {
 	hit := Hit{
 		Site:            siteID,
 		Path:            row.Path,
@@ -424,7 +426,7 @@ func (row ExportRow) Hit(ctx context.Context, siteID int64) (Hit, error) {
 type ExportRows []ExportRow
 
 // Export all hits for a site, including bot requests.
-func (h *ExportRows) Export(ctx context.Context, limit, paginate int64) (int64, error) {
+func (h *ExportRows) Export(ctx context.Context, limit, paginate HitID) (HitID, error) {
 	if limit == 0 || limit > 5000 {
 		limit = 5000
 	}

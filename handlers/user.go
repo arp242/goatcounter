@@ -188,7 +188,7 @@ func (h user) requestLogin(w http.ResponseWriter, r *http.Request) error {
 
 	if user.TOTPEnabled {
 		return h.totpForm(w, r, *user.LoginToken,
-			xsrftoken.Generate(*user.LoginToken, strconv.FormatInt(user.ID, 10), actionTOTP))
+			xsrftoken.Generate(*user.LoginToken, strconv.Itoa(int(user.ID)), actionTOTP))
 	}
 
 	auth.SetCookie(w, r, *user.LoginToken, cookieDomain(Site(r.Context()), r))
@@ -212,7 +212,7 @@ func (h user) totpLogin(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	valid := xsrftoken.Valid(args.LoginMAC, *u.LoginToken, strconv.FormatInt(u.ID, 10), actionTOTP)
+	valid := xsrftoken.Valid(args.LoginMAC, *u.LoginToken, strconv.Itoa(int(u.ID)), actionTOTP)
 	if testTOTP {
 		valid = true
 	}
@@ -452,7 +452,7 @@ func (h user) newAPIToken(w http.ResponseWriter, r *http.Request) error {
 
 func (h user) deleteAPIToken(w http.ResponseWriter, r *http.Request) error {
 	v := goatcounter.NewValidate(r.Context())
-	id := v.Integer("id", chi.URLParam(r, "id"))
+	id := goatcounter.APITokenID(v.Integer32("id", chi.URLParam(r, "id")))
 	if v.HasErrors() {
 		return v
 	}

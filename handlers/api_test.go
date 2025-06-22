@@ -501,22 +501,22 @@ func TestAPISitesCreate(t *testing.T) {
 	}{
 		{false, `{"code":"apitest"}`, 200, func(s *goatcounter.Site) {
 			s.Code = "apitest"
-			s.Parent = ztype.Ptr(int64(1))
+			s.Parent = ztype.Ptr(goatcounter.SiteID(1))
 		}},
 		{true, `{"cname":"apitest.localhost"}`, 200, func(s *goatcounter.Site) {
 			s.Cname = ztype.Ptr("apitest.localhost")
-			s.Parent = ztype.Ptr(int64(1))
+			s.Parent = ztype.Ptr(goatcounter.SiteID(1))
 			s.CnameSetupAt = &now
 		}},
 
 		// Ignore plan.
 		{false, `{"code":"apitest"}`, 200, func(s *goatcounter.Site) {
 			s.Code = "apitest"
-			s.Parent = ztype.Ptr(int64(1))
+			s.Parent = ztype.Ptr(goatcounter.SiteID(1))
 		}},
 		{true, `{"cname":"apitest.localhost"}`, 200, func(s *goatcounter.Site) {
 			s.Cname = ztype.Ptr("apitest.localhost")
-			s.Parent = ztype.Ptr(int64(1))
+			s.Parent = ztype.Ptr(goatcounter.SiteID(1))
 			s.CnameSetupAt = &now
 		}},
 	}

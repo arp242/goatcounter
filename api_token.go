@@ -26,10 +26,12 @@ const (
 	APIPermStats                     // 64
 )
 
+type APITokenID int32
+
 type APIToken struct {
-	ID     int64 `db:"api_token_id" json:"-"`
-	SiteID int64 `db:"site_id" json:"-"`
-	UserID int64 `db:"user_id" json:"-"`
+	ID     APITokenID `db:"api_token_id" json:"-"`
+	SiteID SiteID     `db:"site_id" json:"-"`
+	UserID UserID     `db:"user_id" json:"-"`
 
 	Name        string         `db:"name" json:"name"`
 	Token       string         `db:"token" json:"-"`
@@ -150,7 +152,7 @@ func (t *APIToken) Insert(ctx context.Context) error {
 		return err
 	}
 
-	t.ID, err = zdb.InsertID(ctx, "api_token_id",
+	t.ID, err = zdb.InsertID[APITokenID](ctx, "api_token_id",
 		`insert into api_tokens (site_id, user_id, name, token, permissions, created_at) values (?)`,
 		[]any{t.SiteID, GetUser(ctx).ID, t.Name, t.Token, t.Permissions, t.CreatedAt})
 	return errors.Wrap(err, "APIToken.Insert")
@@ -191,7 +193,7 @@ func (t *APIToken) UpdateLastUsed(ctx context.Context) error {
 	return errors.Wrap(err, "APIToken.UpdateLastUsed")
 }
 
-func (t *APIToken) ByID(ctx context.Context, id int64) error {
+func (t *APIToken) ByID(ctx context.Context, id APITokenID) error {
 	return errors.Wrapf(zdb.Get(ctx, t, `/* APIToken.ByID */
 		select * from api_tokens where api_token_id=$1 and site_id=$2`,
 		id, MustGetSite(ctx).ID), "APIToken.ByID %d", id)
@@ -230,10 +232,10 @@ func (t *APITokens) Find(ctx context.Context, ident []string) error {
 }
 
 // IDs gets a list of all IDs for these API tokens.
-func (t *APITokens) IDs() []int64 {
-	ids := make([]int64, 0, len(*t))
+func (t *APITokens) IDs() []int32 {
+	ids := make([]int32, 0, len(*t))
 	for _, tt := range *t {
-		ids = append(ids, tt.ID)
+		ids = append(ids, int32(tt.ID))
 	}
 	return ids
 }

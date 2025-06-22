@@ -159,7 +159,7 @@ func MustGetUser(ctx context.Context) *User {
 func CopyContextValues(ctx context.Context) context.Context {
 	n := zdb.WithDB(context.Background(), zdb.MustGetDB(ctx))
 	if c := ctx.Value(keyCacheSites); c != nil {
-		n = context.WithValue(n, keyCacheSites, c.(*zcache.Cache[int64, *Site]))
+		n = context.WithValue(n, keyCacheSites, c.(*zcache.Cache[SiteID, *Site]))
 	}
 	if c := ctx.Value(keyCacheUA); c != nil {
 		n = context.WithValue(n, keyCacheUA, c.(*zcache.Cache[string, UserAgent]))
@@ -189,7 +189,7 @@ func CopyContextValues(ctx context.Context) context.Context {
 		n = context.WithValue(n, keyChangedTitles, c.(*zcache.Cache[string, []string]))
 	}
 	if c := ctx.Value(keyCacheSitesProxy); c != nil {
-		n = context.WithValue(n, keyCacheSitesProxy, c.(*zcache.Proxy[string, int64, *Site]))
+		n = context.WithValue(n, keyCacheSitesProxy, c.(*zcache.Proxy[string, SiteID, *Site]))
 	}
 	if c := Config(ctx); c != nil {
 		n = context.WithValue(n, keyConfig, c)
@@ -219,9 +219,9 @@ func NewContext(ctx context.Context, db zdb.DB) context.Context {
 }
 
 func NewCache(ctx context.Context) context.Context {
-	s := zcache.New[int64, *Site](24*time.Hour, 1*time.Hour)
+	s := zcache.New[SiteID, *Site](24*time.Hour, 1*time.Hour)
 	ctx = context.WithValue(ctx, keyCacheSites, s)
-	ctx = context.WithValue(ctx, keyCacheSitesProxy, zcache.NewProxy[string, int64, *Site](s))
+	ctx = context.WithValue(ctx, keyCacheSitesProxy, zcache.NewProxy[string, SiteID, *Site](s))
 
 	ctx = context.WithValue(ctx, keyCacheUA, zcache.New[string, UserAgent](1*time.Hour, 5*time.Minute))
 	ctx = context.WithValue(ctx, keyCacheBrowsers, zcache.New[string, Browser](1*time.Hour, 5*time.Minute))
@@ -246,11 +246,11 @@ func Config(ctx context.Context) *GlobalConfig {
 	return &GlobalConfig{}
 }
 
-func cacheSites(ctx context.Context) *zcache.Cache[int64, *Site] {
+func cacheSites(ctx context.Context) *zcache.Cache[SiteID, *Site] {
 	if c := ctx.Value(keyCacheSites); c != nil {
-		return c.(*zcache.Cache[int64, *Site])
+		return c.(*zcache.Cache[SiteID, *Site])
 	}
-	return zcache.New[int64, *Site](0, 0)
+	return zcache.New[SiteID, *Site](0, 0)
 }
 func cacheUA(ctx context.Context) *zcache.Cache[string, UserAgent] {
 	if c := ctx.Value(keyCacheUA); c != nil {
@@ -306,9 +306,9 @@ func cacheChangedTitles(ctx context.Context) *zcache.Cache[string, []string] {
 	}
 	return zcache.New[string, []string](0, 0)
 }
-func cacheSitesHost(ctx context.Context) *zcache.Proxy[string, int64, *Site] {
+func cacheSitesHost(ctx context.Context) *zcache.Proxy[string, SiteID, *Site] {
 	if c := ctx.Value(keyCacheSitesProxy); c != nil {
-		return c.(*zcache.Proxy[string, int64, *Site])
+		return c.(*zcache.Proxy[string, SiteID, *Site])
 	}
-	return zcache.NewProxy[string, int64, *Site](zcache.New[int64, *Site](0, 0))
+	return zcache.NewProxy[string, SiteID, *Site](zcache.New[SiteID, *Site](0, 0))
 }

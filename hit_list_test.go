@@ -24,7 +24,7 @@ func TestHitListsList(t *testing.T) {
 	tests := []struct {
 		in         []Hit
 		inFilter   string
-		inExclude  []int64
+		inExclude  []PathID
 		wantReturn string
 		wantStats  HitLists
 	}{
@@ -118,7 +118,7 @@ func TestHitListsList(t *testing.T) {
 				{FirstVisit: true, CreatedAt: hit, Path: "/aaaa"},
 			},
 			inFilter:   "a",
-			inExclude:  []int64{4, 3},
+			inExclude:  []PathID{4, 3},
 			wantReturn: "2 false <nil>",
 			wantStats: HitLists{
 				HitList{Count: 1, Path: "/aa", RefScheme: nil, Stats: []HitListStat{
@@ -288,7 +288,7 @@ func TestHitListTotals(t *testing.T) {
 					"daily":   0
 				}]}`},
 		}
-		for i, filter := range [][]int64{nil, []int64{1}, []int64{2}, []int64{1, 2}} {
+		for i, filter := range [][]PathID{nil, []PathID{1}, []PathID{2}, []PathID{1, 2}} {
 			t.Run("", func(t *testing.T) {
 				var hs HitList
 				count, err := hs.Totals(ctx, rng, filter, false, false)
@@ -363,7 +363,7 @@ func TestHitListTotals(t *testing.T) {
 				}]}`},
 		}
 
-		for i, filter := range [][]int64{nil, []int64{1}, []int64{2}, []int64{1, 2}} {
+		for i, filter := range [][]PathID{nil, []PathID{1}, []PathID{2}, []PathID{1, 2}} {
 			t.Run("", func(t *testing.T) {
 				var hs HitList
 				count, err := hs.Totals(ctx, rng, filter, true, false)

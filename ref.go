@@ -81,8 +81,10 @@ var hostAlias = map[string]string{
 	"fr.reddit.com":      "www.reddit.com",
 }
 
+type RefID int32
+
 type Ref struct {
-	ID        int64   `db:"ref_id"`
+	ID        RefID   `db:"ref_id"`
 	Ref       string  `db:"ref"`
 	RefScheme *string `db:"ref_scheme"`
 }
@@ -135,7 +137,7 @@ func (r *Ref) GetOrInsert(ctx context.Context) error {
 		return errors.Wrap(err, "Ref.GetOrInsert get")
 	}
 
-	r.ID, err = zdb.InsertID(ctx, "ref_id",
+	r.ID, err = zdb.InsertID[RefID](ctx, "ref_id",
 		`insert into refs (ref, ref_scheme) values (?, ?)`,
 		r.Ref, r.RefScheme)
 	if err != nil {
@@ -252,7 +254,7 @@ func cleanRefURL(ref string, refURL *url.URL) (string, bool) {
 }
 
 // ListRefsByPath lists all references for a pathID.
-func (h *HitStats) ListRefsByPathID(ctx context.Context, pathID int64, rng ztime.Range, limit, offset int) error {
+func (h *HitStats) ListRefsByPathID(ctx context.Context, pathID PathID, rng ztime.Range, limit, offset int) error {
 	err := zdb.Select(ctx, &h.Stats, "load:ref.ListRefsByPathID.sql", map[string]any{
 		"site":   MustGetSite(ctx).ID,
 		"start":  rng.Start,

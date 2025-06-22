@@ -14,8 +14,8 @@ func updateBrowserStats(ctx context.Context, hits []goatcounter.Hit) error {
 		type gt struct {
 			count     int
 			day       string
-			browserID int64
-			pathID    int64
+			browserID goatcounter.BrowserID
+			pathID    goatcounter.PathID
 		}
 		grouped := map[string]gt{}
 		for _, h := range hits {
@@ -27,7 +27,7 @@ func updateBrowserStats(ctx context.Context, hits []goatcounter.Hit) error {
 			}
 
 			day := h.CreatedAt.Format("2006-01-02")
-			k := day + strconv.FormatInt(h.BrowserID, 10) + strconv.FormatInt(h.PathID, 10)
+			k := day + strconv.Itoa(int(h.BrowserID)) + strconv.Itoa(int(h.PathID))
 			v := grouped[k]
 			if v.count == 0 {
 				v.day = day

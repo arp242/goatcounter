@@ -15,7 +15,7 @@ func updateSizeStats(ctx context.Context, hits []goatcounter.Hit) error {
 			count  int
 			day    string
 			width  int
-			pathID int64
+			pathID goatcounter.PathID
 		}
 		grouped := map[string]gt{}
 		for _, h := range hits {
@@ -29,7 +29,7 @@ func updateSizeStats(ctx context.Context, hits []goatcounter.Hit) error {
 			}
 
 			day := h.CreatedAt.Format("2006-01-02")
-			k := day + strconv.Itoa(width) + strconv.FormatInt(h.PathID, 10)
+			k := day + strconv.Itoa(width) + strconv.Itoa(int(h.PathID))
 			v := grouped[k]
 			if v.count == 0 {
 				v.day = day

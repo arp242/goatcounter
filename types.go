@@ -23,7 +23,7 @@ func (l *Ints) Scan(v any) error {
 	}
 
 	var err error
-	*l, err = zint.Split(fmt.Sprintf("%s", v), ",")
+	*l, err = zint.Split[int64](fmt.Sprintf("%s", v), ",")
 	return err
 }
 

@@ -15,7 +15,7 @@ func updateHitCounts(ctx context.Context, hits []goatcounter.Hit) error {
 		type gt struct {
 			total  int
 			hour   string
-			pathID int64
+			pathID goatcounter.PathID
 		}
 		grouped := map[string]gt{}
 		for _, h := range hits {
@@ -24,7 +24,7 @@ func updateHitCounts(ctx context.Context, hits []goatcounter.Hit) error {
 			}
 
 			hour := h.CreatedAt.Format("2006-01-02 15:00:00")
-			k := hour + strconv.FormatInt(h.PathID, 10)
+			k := hour + strconv.Itoa(int(h.PathID))
 			v := grouped[k]
 			if v.total == 0 {
 				v.hour = hour
