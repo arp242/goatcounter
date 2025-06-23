@@ -4,6 +4,76 @@ This list is not comprehensive, and only lists new features and major changes,
 but not every minor bugfix. The goatcounter.com service generally runs the
 latest master.
 
+unreleased
+----------
+
+### Features
+
+- Include support for fetching GeoDB updates from MaxMind.
+
+  The `-geodb` flag now accepts `maxmind:account_id:license` to automatically
+  download updates. See `goatcounter help serve` for the full documentation.
+
+- Add buttons to navigate by year on the dashboard
+
+- Automatically detect cookie `secure` and `sameSite` attributes. Previously
+  this relied on the correct usage of the `-tls` flag, which people often got
+  wrong. Now it's detected from the client connection.
+
+  This does depend on any proxied setup to set the `X-Forwarded-Proto: https`
+  header, which most should already do by default.
+
+- Store bot pageviews in new "bots" table for 30 days.
+
+  This table is never used, but it can be useful for debugging purposes.
+
+- Add more detailed totals to /api/v0/stats/totals. Previously it would only
+  return the grand totals; now it also returns the totals broken down by hour
+  and day.
+
+- Allow finding paths by path name in the API.
+
+  Everything that accepts include_paths=.. and exclude_paths=.. now also accepts
+  path_by_name=true to finds paths by the path rather than ID.
+
+- Use PostgreSQL 17 in compose.yaml; also update the PostgreSQL settings to be
+  less conservative.
+
+### Fixes
+
+- Fix merging of multiple paths when more than once path has entries for the
+  same hour.
+
+- Store Campaign in hits table.
+
+- Make sure the visitor counter works for events.
+
+- Set CORS headers for API.
+
+- Pass `hideui=1` when redirecting with access-token.
+
+- Fix pagination of refs.
+
+- Fix page count for text table after pagination.
+
+- Don't store rows with total=0 in {hit,ref}_counts.
+
+- Make sure CLI flags with a `.` such as `-user.email` can be set from
+  environment.
+
+- Don't add `translate-to=..` to query parameters. Previously it would set this
+  from Google Translate parameters so you could see which languages people were
+  using with that, but I don't think anyone ever used that and it just added
+  paths for no real reason.
+
+- Remove sizes table; was only used for `hits.size_id`, which is now replaced
+  with `hits.width`. This indirection didn't really add much.
+
+- Correctly display error on widgets; previously it would just display
+  `errors.errorString Value`.
+
+- Disable daily view if less than 7 days are selected.
+
 2025-06-08 v2.6.0
 -----------------
 This release changes a number of default values. In most cases this shouldn't
