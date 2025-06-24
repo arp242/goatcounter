@@ -147,6 +147,7 @@ func (m *ms) StoreSessions(db zdb.DB) {
 	}
 
 	memlog.Debug(context.Background(), "stored sessions in DB on shutdown",
+		"bytesize", len(d),
 		"sessions", len(m.sessions),
 		"sessionHashes", len(m.sessionHashes),
 		"sessionPaths", len(m.sessionPaths),
@@ -214,14 +215,16 @@ func (m *ms) Persist(ctx context.Context) ([]Hit, error) {
 			"width", "location", "language", "created_at", "session", "first_visit", "campaign"})
 	)
 	for _, h := range hits {
+		if h.Bot > 0 {
+			bot.Values(h.Site, h.Path, h.Bot, h.UserAgentHeader, h.CreatedAt)
+			continue
+		}
 		if m.processHit(ctx, &h) {
 			// Don't return hits that failed validation; otherwise cron will try to
 			// insert them.
 			newHits = append(newHits, h)
 
-			if h.Bot > 0 {
-				bot.Values(h.Site, h.Path, h.Bot, h.UserAgentHeader, h.CreatedAt)
-			} else if !h.NoStore {
+			if !h.NoStore {
 				var w *float64
 				if len(h.Size) > 0 {
 					w = &h.Size[0]
@@ -267,10 +270,7 @@ func (m *ms) processHit(ctx context.Context, h *Hit) bool {
 	}
 
 	if !site.Settings.Collect.Has(CollectReferrer) {
-		h.Query = ""
-		h.Ref = ""
-		h.RefScheme = nil
-		h.RefURL = nil
+		h.Query, h.Ref, h.RefScheme, h.RefURL = "", "", nil, nil
 	}
 
 	err = h.Defaults(ctx, false)
@@ -288,17 +288,13 @@ func (m *ms) processHit(ctx context.Context, h *Hit) bool {
 	}
 
 	if !site.Settings.Collect.Has(CollectSession) {
-		h.Session = zint.Uint128{}
-		h.FirstVisit = true
+		h.Session, h.FirstVisit = zint.Uint128{}, true
 	}
-
 	if !site.Settings.Collect.Has(CollectScreenSize) {
 		h.Size = nil
 	}
 	if !site.Settings.Collect.Has(CollectUserAgent) {
-		h.UserAgentHeader = ""
-		h.BrowserID = 0
-		h.SystemID = 0
+		h.UserAgentHeader, h.BrowserID, h.SystemID = "", 0, 0
 	}
 	if !site.Settings.Collect.Has(CollectLanguage) {
 		h.Language = nil
