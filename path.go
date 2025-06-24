@@ -200,7 +200,7 @@ func (p Path) Merge(ctx context.Context, paths Paths) error {
 		}
 
 		// Update hit_stats; for PostgreSQL we can update inline, for SQLite we
-		// need to select + delete all and re-insert.
+		// need to also select and delete the merge target and re-insert it.
 		loadPathIDs := append([]PathID{}, pathIDs...)
 		if zdb.SQLDialect(ctx) == zdb.DialectSQLite {
 			loadPathIDs = append(loadPathIDs, p.ID)
@@ -217,21 +217,22 @@ func (p Path) Merge(ctx context.Context, paths Paths) error {
 		if err != nil {
 			return err
 		}
-		if zdb.SQLDialect(ctx) == zdb.DialectSQLite {
-			err := zdb.Exec(ctx, `/* Path.Merge */
-				delete from hit_stats where site_id=:site_id and path_id :in (:paths)`,
-				map[string]any{
-					"site_id": siteID,
-					"paths":   pgArray(ctx, pathIDs),
-					"in":      pgIn(ctx),
-				})
-			if err != nil {
-				return err
-			}
+		err = zdb.Exec(ctx, `/* Path.Merge */
+			delete from hit_stats where site_id=:site_id and path_id :in (:paths)`,
+			map[string]any{
+				"site_id": siteID,
+				"paths":   pgArray(ctx, pathIDs),
+				"in":      pgIn(ctx),
+			})
+		if err != nil {
+			return err
 		}
 
 		ins := Tables.HitStats.Bulk(ctx)
 		if zdb.SQLDialect(ctx) == zdb.DialectSQLite {
+			// Reset the "on conflict", which SQLite doesn't support for
+			// hit_stats. We deleted and fetched the target (for SQLite) before,
+			// so that's okay.
 			ins = zdb.NewBulkInsert(ctx, "hit_stats", []string{"site_id", "path_id", "day", "stats"})
 		}
 		for _, d := range hitStats {

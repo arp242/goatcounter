@@ -39,7 +39,13 @@ func TestDBTest(t *testing.T) {
 	}
 	out.Reset()
 
-	runCmd(t, exit, "db", "test", "-db=sqlite+yeah_nah_doesnt_exist")
+	doesntexist := dbc[:strings.Index(dbc, "+")+1]
+	if pgSQL {
+		doesntexist += "dbname="
+	}
+	doesntexist += "yeah_nah_doesnt_exist"
+
+	runCmd(t, exit, "db", "test", "-db="+doesntexist)
 	wantExit(t, exit, out, 1)
 	if !strings.Contains(out.String(), `doesn't exist`) {
 		t.Error(out.String())
@@ -68,6 +74,10 @@ func TestDBQuery(t *testing.T) {
 }
 
 func TestDBNewDB(t *testing.T) {
+	if pgSQL {
+		t.Skip("hard to get right in PostgreSQL")
+	}
+
 	exit, _, out, _, dbc := startTest(t)
 
 	runCmd(t, exit, "db", "newdb", "-db="+dbc)

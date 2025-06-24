@@ -25,6 +25,18 @@ var pgSQL = false
 
 func init() {
 	sqlite3.DefaultHook(goatcounter.SQLiteHook)
+
+	set := func(k, v string) {
+		if _, ok := os.LookupEnv(k); !ok {
+			os.Setenv(k, v)
+		}
+	}
+	set("PGHOST", "localhost")
+	set("PGPORT", "5432")
+	set("PGDATABASE", "goatcounter")
+	set("PGUSER", "goatcounter")
+	set("PGPASSWORD", "goatcounter")
+	set("PGSSLMODE", "disable")
 }
 
 // Context creates a new test context.

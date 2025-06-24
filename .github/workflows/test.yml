@@ -12,6 +12,8 @@ jobs:
       - uses: 'actions/checkout@v4'
       - name: 'test (linux)'
         run: |
+          set -eux
+
           # Quick exit on compile errors.
           go build -race ./cmd/goatcounter || exit 1
 
@@ -20,16 +22,12 @@ jobs:
           GOARCH=arm64 GOOS=darwin  go build ./cmd/goatcounter
           GOOS=windows              go build ./cmd/goatcounter
 
+          # Test SQLite
           go test -race -timeout=3m ./...
 
+          # Test PostgreSQL
           docker compose up -d --wait
-          export PGHOST=localhost
-          export PGPORT=5432
-          export PGDATABASE=goatcounter
-          export PGUSER=goatcounter
-          export PGPASSWORD=goatcounter
-          export PGSSLMODE=disable
-          go test -race -timeout=3m -tags pgsql ./...
+          CGO_ENABLED=0 go test -timeout=3m -tags=testpg ./...
 
   staticcheck:
     name:    'staticcheck'

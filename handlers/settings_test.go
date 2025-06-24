@@ -326,7 +326,8 @@ func TestSettingsMerge(t *testing.T) {
 			`select * from hit_counts    order by path_id`,
 			`select * from hit_stats     order by path_id`,
 			`select * from browser_stats order by path_id`,
-			`select * from system_stats  join systems using(system_id) order by path_id`,
+			`select site_id, path_id, system_id, day, count, name, version from system_stats
+				join systems using(system_id) order by path_id`,
 		} {
 			zdb.Dump(ctx, have, q)
 		}
