@@ -2,8 +2,8 @@ with x as (
 	select sum(total) as total, path_id from hit_counts
 	where
 		hit_counts.site_id = :site and
-		{{:exclude path_id not in (:exclude) and}}
-		{{:filter path_id in (:filter) and}}
+		{{:exclude not path_id :in (:exclude) and}}
+		{{:filter path_id :in (:filter) and}}
 		hour>=:start and hour<=:end
 	group by path_id
 	order by total desc, path_id desc

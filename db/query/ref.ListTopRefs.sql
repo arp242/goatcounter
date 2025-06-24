@@ -5,7 +5,7 @@ with x as (
 	from ref_counts
 	where
 		site_id = :site and hour >= :start and hour <= :end
-		{{:filter and path_id in (:filter)}}
+		{{:filter and path_id :in (:filter)}}
 	group by ref_id
 	order by count desc, ref_id
 	-- Over-select quite a bit here since we may filter on the refs.ref below;

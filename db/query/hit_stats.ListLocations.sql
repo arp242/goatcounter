@@ -5,7 +5,7 @@ with x as (
 	from location_stats
 	where
 		site_id = :site and day >= :start and day <= :end
-		{{:filter and path_id in (:filter)}}
+		{{:filter and path_id :in (:filter)}}
 	group by loc
 	order by count desc, loc
 	limit :limit offset :offset

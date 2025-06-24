@@ -6,6 +6,6 @@ from hit_counts
 where
 	hit_counts.site_id = :site and hour >= :start and hour <= :end
 	{{:no_events and paths.event = 0}}
-	{{:filter and path_id in (:filter)}}
+	{{:filter and path_id :in (:filter)}}
 group by hour
 order by hour asc

@@ -180,13 +180,20 @@ func (p Path) Merge(ctx context.Context, paths Paths) error {
 				"Group":      strings.Join(group, ", "),
 				"path_id":    p.ID,
 				"site_id":    siteID,
-				"paths":      pathIDs,
+				"paths":      pgArray(ctx, pathIDs),
+				"in":         pgIn(ctx),
 			})
 			if err != nil {
 				return err
 			}
-			err = zdb.Exec(ctx, `delete from `+t.Table+` where site_id=? and path_id in (?)`,
-				siteID, pathIDs)
+			err = zdb.Exec(ctx, `/* Path.Merge */
+				delete from :tbl where site_id=:site_id and path_id :in (:paths)`,
+				map[string]any{
+					"tbl":     zdb.SQL(t.Table),
+					"site_id": siteID,
+					"paths":   pgArray(ctx, pathIDs),
+					"in":      pgIn(ctx),
+				})
 			if err != nil {
 				return err
 			}
@@ -204,14 +211,20 @@ func (p Path) Merge(ctx context.Context, paths Paths) error {
 		}
 		err := zdb.Select(ctx, &hitStats, `load:paths.Merge-hit_stats`, map[string]any{
 			"site_id": siteID,
-			"paths":   loadPathIDs,
+			"paths":   pgArray(ctx, loadPathIDs),
+			"in":      pgIn(ctx),
 		})
 		if err != nil {
 			return err
 		}
 		if zdb.SQLDialect(ctx) == zdb.DialectSQLite {
-			err := zdb.Exec(ctx, `delete from hit_stats where site_id=? and path_id in (?)`,
-				siteID, pathIDs)
+			err := zdb.Exec(ctx, `/* Path.Merge */
+				delete from hit_stats where site_id=:site_id and path_id :in (:paths)`,
+				map[string]any{
+					"site_id": siteID,
+					"paths":   pgArray(ctx, pathIDs),
+					"in":      pgIn(ctx),
+				})
 			if err != nil {
 				return err
 			}
@@ -236,12 +249,24 @@ func (p Path) Merge(ctx context.Context, paths Paths) error {
 		}
 
 		// Update hits and delete old paths.
-		err = zdb.Exec(ctx, `update hits set path_id = ? where site_id = ? and path_id in (?)`,
-			p.ID, siteID, pathIDs)
+		err = zdb.Exec(ctx, `/* Path.Merge */
+			update hits set path_id=:path_id where site_id=:site_id and path_id :in (:paths)`,
+			map[string]any{
+				"site_id": siteID,
+				"path_id": p.ID,
+				"paths":   pgArray(ctx, pathIDs),
+				"in":      pgIn(ctx),
+			})
 		if err != nil {
 			return err
 		}
-		return zdb.Exec(ctx, `delete from paths where site_id = ? and path_id in (?)`, siteID, pathIDs)
+		return zdb.Exec(ctx, `/* Path.Merge */
+			delete from paths where site_id=:site_id and path_id :in (:paths)`,
+			map[string]any{
+				"site_id": siteID,
+				"paths":   pgArray(ctx, pathIDs),
+				"in":      pgIn(ctx),
+			})
 	})
 	return errors.Wrap(err, "Path.Merge")
 }
@@ -293,8 +318,12 @@ func PathFilter(ctx context.Context, filter string, matchTitle bool) ([]PathID, 
 // FindPathsIDs finds path IDs by exact matches on the name.
 func FindPathIDs(ctx context.Context, list []string) ([]PathID, error) {
 	var paths []PathID
-	err := zdb.Select(ctx, &paths,
-		`select path_id from paths where site_id=? and lower(path) in (?)`,
-		MustGetSite(ctx).ID, list)
+	err := zdb.Select(ctx, &paths, `/* FindPathIDs */
+		select path_id from paths where site_id=:site_id and lower(path) :in (:paths)`,
+		map[string]any{
+			"site_id": MustGetSite(ctx).ID,
+			"paths":   pgArrayString(ctx, list),
+			"in":      pgIn(ctx),
+		})
 	return paths, errors.Wrap(err, "FindPathIDs")
 }

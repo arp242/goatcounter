@@ -65,7 +65,7 @@ func (h *HitList) PathCount(ctx context.Context, path string, rng ztime.Range) e
 
 // SiteTotal gets the total counts for all paths. This always uses UTC.
 func (h *HitList) SiteTotalUTC(ctx context.Context, rng ztime.Range) error {
-	err := zdb.Get(ctx, h, `/* *HitList.SiteTotalUTC */
+	err := zdb.Get(ctx, h, `/* HitList.SiteTotalUTC */
 			select
 				coalesce(sum(total), 0) as count
 			from hit_counts
@@ -109,9 +109,10 @@ func (h *HitLists) List(
 			"site":    site.ID,
 			"start":   rng.Start,
 			"end":     rng.End,
-			"filter":  pathFilter,
+			"filter":  pgArray(ctx, pathFilter),
+			"in":      pgIn(ctx),
+			"exclude": pgArray(ctx, exclude),
 			"limit":   limit + 1,
-			"exclude": exclude,
 		})
 		if err != nil {
 			return 0, false, errors.Wrap(err, "HitLists.List hit_counts")
@@ -147,7 +148,8 @@ func (h *HitLists) List(
 			"site":  site.ID,
 			"start": rng.Start.Format("2006-01-02"),
 			"end":   rng.End.Format("2006-01-02"),
-			"paths": paths,
+			"paths": pgArray(ctx, paths),
+			"in":    pgIn(ctx),
 		})
 		if err != nil {
 			return 0, false, errors.Wrap(err, "HitLists.List hit_stats")
@@ -198,7 +200,8 @@ func (h *HitList) Totals(ctx context.Context, rng ztime.Range, pathFilter []Path
 		"site":      site.ID,
 		"start":     rng.Start,
 		"end":       rng.End,
-		"filter":    pathFilter,
+		"filter":    pgArray(ctx, pathFilter),
+		"in":        pgIn(ctx),
 		"no_events": noEvents,
 	})
 	if err != nil {
@@ -433,7 +436,8 @@ func GetTotalCount(ctx context.Context, rng ztime.Range, pathFilter []PathID, no
 		"end":       rng.End,
 		"start_utc": rng.Start.In(user.Settings.Timezone.Location),
 		"end_utc":   rng.End.In(user.Settings.Timezone.Location),
-		"filter":    pathFilter,
+		"filter":    pgArray(ctx, pathFilter),
+		"in":        pgIn(ctx),
 		"no_events": noEvents,
 		"tz":        user.Settings.Timezone.Offset(),
 	})
@@ -466,7 +470,8 @@ func (h HitLists) Diff(ctx context.Context, rng, prev ztime.Range) ([]float64, e
 		"end":       rng.End,
 		"prevstart": prev.Start,
 		"prevend":   prev.End,
-		"paths":     paths,
+		"paths":     pgArray(ctx, paths),
+		"in":        pgIn(ctx),
 	})
 	return diffs, errors.Wrap(err, "HitList.DiffTotal")
 }

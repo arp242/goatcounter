@@ -600,16 +600,19 @@ func (s Site) DeleteOlderThan(ctx context.Context, days int) error {
 			}
 		}
 
-		err = zdb.Exec(ctx, `delete from hit_counts where site_id=$1 and hour < `+ival, s.ID)
+		err = zdb.Exec(ctx, `/* Site.DeleteOlderThan */
+			delete from hit_counts where site_id=$1 and hour < `+ival, s.ID)
 		if err != nil {
 			return errors.Wrap(err, "Site.DeleteOlderThan: delete hit_counts")
 		}
-		err = zdb.Exec(ctx, `delete from ref_counts where site_id=$1 and hour < `+ival, s.ID)
+		err = zdb.Exec(ctx, `/* Site.DeleteOlderThan */
+			delete from ref_counts where site_id=$1 and hour < `+ival, s.ID)
 		if err != nil {
 			return errors.Wrap(err, "Site.DeleteOlderThan: delete ref_counts")
 		}
 
-		err = zdb.Exec(ctx, `delete from hits where site_id=$1 and created_at < `+ival, s.ID)
+		err = zdb.Exec(ctx, `/* Site.DeleteOlderThan */
+			delete from hits where site_id=$1 and created_at < `+ival, s.ID)
 		if err != nil {
 			return errors.Wrap(err, "Site.DeleteOlderThan: delete hits")
 		}
@@ -617,15 +620,25 @@ func (s Site) DeleteOlderThan(ctx context.Context, days int) error {
 		if len(pathIDs) > 0 {
 			var remainPath []SiteID
 			err := zdb.Select(ctx, &remainPath, `/* Site.DeleteOlderThan */
-				select path_id from hit_counts where site_id=? and path_id in (?)`,
-				s.ID, pathIDs)
+				select path_id from hit_counts where site_id=:site_id and path_id :in (:paths)`,
+				map[string]any{
+					"site_id": s.ID,
+					"paths":   pgArray(ctx, pathIDs),
+					"in":      pgIn(ctx),
+				})
 			if err != nil {
 				return errors.Wrap(err, "Site.DeleteOlderThan")
 			}
 
 			diff := zslice.Difference(pathIDs, remainPath)
 			if len(diff) > 0 {
-				err = zdb.Exec(ctx, `delete from paths where site_id=? and path_id in (?)`, s.ID, diff)
+				err = zdb.Exec(ctx, `/* Site.DeleteOlderThan */
+					delete from paths where site_id=:site_id and path_id :in (:paths)`,
+					map[string]any{
+						"site_id": s.ID,
+						"paths":   pgArray(ctx, diff),
+						"in":      pgIn(ctx),
+					})
 				if err != nil {
 					return errors.Wrap(err, "Site.DeleteOlderThan")
 				}
@@ -742,16 +755,4 @@ func (s *Sites) Delete(ctx context.Context, deleteChildren bool) error {
 		return nil
 	})
 	return errors.Wrap(err, "Sites.Delete")
-}
-
-// ListIDs lists all sites with the given IDs.
-func (s *Sites) ListIDs(ctx context.Context, ids ...SiteID) error {
-	if len(ids) == 0 {
-		return nil
-	}
-
-	err := zdb.Select(ctx, s,
-		`select * from sites where state=? and site_id in (?) order by created_at desc`,
-		StateActive, ids)
-	return errors.Wrap(err, "Sites.ListIDs")
 }

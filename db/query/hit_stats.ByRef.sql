@@ -11,7 +11,7 @@ y as (
 	join x using (ref_id)
 	where
 		site_id = :site and hour >= :start and hour <= :end
-		{{:filter and path_id in (:filter)}}
+		{{:filter and path_id :in (:filter)}}
 	group by path_id
 	order by count desc
 )

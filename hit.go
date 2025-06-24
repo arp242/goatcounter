@@ -2,7 +2,6 @@ package goatcounter
 
 import (
 	"context"
-	"fmt"
 	"net/url"
 	"strings"
 	"time"
@@ -375,14 +374,18 @@ func (h *Hits) TestList(ctx context.Context, siteOnly bool) error {
 
 // Purge the given paths.
 func (h *Hits) Purge(ctx context.Context, pathIDs []PathID) error {
-	query := `/* Hits.Purge */
-		delete from %s where site_id=? and path_id in (?)`
 
 	return zdb.TX(ctx, func(ctx context.Context) error {
-		site := MustGetSite(ctx).ID
-
+		siteID := MustGetSite(ctx).ID
 		for _, t := range append(statTables, "hit_counts", "ref_counts", "hits", "paths") {
-			err := zdb.Exec(ctx, fmt.Sprintf(query, t), site, pathIDs)
+			err := zdb.Exec(ctx, `/* Hits.Purge */
+				delete from :tbl where site_id=:site_id and path_id :in (:paths)`,
+				map[string]any{
+					"tbl":     zdb.SQL(t),
+					"site_id": siteID,
+					"paths":   pgArray(ctx, pathIDs),
+					"in":      pgIn(ctx),
+				})
 			if err != nil {
 				return errors.Wrapf(err, "Hits.Purge %s", t)
 			}
