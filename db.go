@@ -27,15 +27,15 @@ func pgArray[T ~int8 | ~int16 | ~int32 | ~int64](ctx context.Context, p []T) any
 
 	var b strings.Builder
 	b.Grow(len(p) * 3)
-	b.WriteString("'{")
+	b.WriteByte('{')
 	for i, pp := range p {
 		if i > 0 {
 			b.WriteByte(',')
 		}
 		b.WriteString(strconv.FormatInt(int64(pp), 10))
 	}
-	b.WriteString("}'")
-	return zdb.SQL(b.String())
+	b.WriteByte('}')
+	return b.String()
 }
 
 var sqlArrayEscaper = strings.NewReplacer(`'`, `''`, `"`, `\"`)
