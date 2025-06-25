@@ -45,14 +45,17 @@
 			msg.indexOf('Exception invoking lineTo') !== -1 // Only from bot, never any details.
 		)
 			return
+
+		let stack = (err||{}).stack
+
 		// Don't log errors from extensions.
-		if (url.startsWith('chrome-extension://'))
+		if (url.startsWith('chrome-extension://') || stack.indexOf('@moz-extension://') !== -1)
 			return
 
 		jQuery.ajax({
 			url:    BASE_PATH + '/jserr',
 			method: 'POST',
-			data:    {msg: msg, url: url, line: line, column: column, stack: (err||{}).stack, ua: navigator.userAgent, loc: window.location+''},
+			data:    {msg: msg, url: url, line: line, column: column, stack: stack, ua: navigator.userAgent, loc: window.location+''},
 		})
 	}
 
