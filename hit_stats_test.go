@@ -135,14 +135,9 @@ func TestHitStats(t *testing.T) {
 						"count": 0
 					},
 					{
-						"id": "largephone",
-						"name": "",
-						"count": 1
-					},
-					{
 						"id": "tablet",
 						"name": "",
-						"count": 0
+						"count": 1
 					},
 					{
 						"id": "desktop",
@@ -237,12 +232,11 @@ func TestListSizes(t *testing.T) {
 
 	// Copy from hit_stats
 	const (
-		sizePhones      = "phone"
-		sizeLargePhones = "largephone"
-		sizeTablets     = "tablet"
-		sizeDesktop     = "desktop"
-		sizeDesktopHD   = "desktophd"
-		sizeUnknown     = "unknown"
+		sizePhones    = "phone"
+		sizeTablets   = "tablet"
+		sizeDesktop   = "desktop"
+		sizeDesktopHD = "desktophd"
+		sizeUnknown   = "unknown"
 	)
 
 	now := ztime.Now()
@@ -251,9 +245,8 @@ func TestListSizes(t *testing.T) {
 		id string
 	}{
 		{0, sizeUnknown},
-		{300, sizePhones},
-		{1000, sizeLargePhones},
-		{1100, sizeTablets},
+		{600, sizePhones},
+		{1000, sizeTablets},
 		{1920, sizeDesktop},
 		{3000, sizeDesktopHD},
 	}
@@ -284,11 +277,6 @@ func TestListSizes(t *testing.T) {
 			"stats": [
 				{
 					"id": "phone",
-					"name": "",
-					"count": 1
-				},
-				{
-					"id": "largephone",
 					"name": "",
 					"count": 1
 				},
@@ -343,7 +331,7 @@ func TestListSizes(t *testing.T) {
 			"more": false,
 			"stats": [
 				{
-					"name": "↔\ufe0e 300px",
+					"name": "↔\ufe0e 600px",
 					"count": 1
 				}
 			]
@@ -352,14 +340,6 @@ func TestListSizes(t *testing.T) {
 			"stats": [
 				{
 					"name": "↔\ufe0e 1000px",
-					"count": 1
-				}
-			]
-		}{
-			"more": false,
-			"stats": [
-				{
-					"name": "↔\ufe0e 1100px",
 					"count": 1
 				}
 			]

@@ -706,7 +706,7 @@ of een andere reden. Dit is compleet optioneel.
   default = "Schermformaten"
 
 ["label/size-tablets"]
-  default = "Tablets en kleine laptops"
+  default = "Tablets en grote telefoons"
 
 ["label/system-stats"]
   default = "Systeem stats"

@@ -24,5 +24,5 @@
 
 # count.min.js no longer exists, so redirect to count.js
 [[redirects]]
-  from = "/count.min.js"
-  to   = "/count.js"
+	from = "/count.min.js"
+	to   = "/count.js"

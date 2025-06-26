@@ -417,10 +417,8 @@ func HorizontalChart(ctx context.Context, stats HitStats, total int, link, pagin
 			switch s.ID {
 			case sizePhones:
 				name = z18n.T(ctx, "label/size-phones|Phones")
-			case sizeLargePhones:
-				name = z18n.T(ctx, "label/size-largephones|Large phones, small tablets")
 			case sizeTablets:
-				name = z18n.T(ctx, "label/size-tablets|Tablets and small laptops")
+				name = z18n.T(ctx, "label/size-tablets|Tablets and large phones")
 			case sizeDesktop:
 				name = z18n.T(ctx, "label/size-desktop|Computer monitors")
 			case sizeDesktopHD:

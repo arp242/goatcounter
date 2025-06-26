@@ -1012,7 +1012,7 @@ for wanting to delete your account. This is entirely optional.
 
 ["label/size-tablets"]
   loc     = ["tpl.go:382"]
-  default = "Tablets and small laptops"
+  default = "Tablets and large phones"
 
 ["label/system-stats"]
   loc     = ["widgets/systems.go:29"]

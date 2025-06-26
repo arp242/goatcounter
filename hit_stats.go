@@ -262,12 +262,11 @@ func (h *HitStats) ListSystem(ctx context.Context, system string, rng ztime.Rang
 }
 
 const (
-	sizePhones      = "phone"
-	sizeLargePhones = "largephone"
-	sizeTablets     = "tablet"
-	sizeDesktop     = "desktop"
-	sizeDesktopHD   = "desktophd"
-	sizeUnknown     = "unknown"
+	sizePhones    = "phone"
+	sizeTablets   = "tablet"
+	sizeDesktop   = "desktop"
+	sizeDesktopHD = "desktophd"
+	sizeUnknown   = "unknown"
 )
 
 // ListSizes lists all device sizes.
@@ -287,7 +286,6 @@ func (h *HitStats) ListSizes(ctx context.Context, rng ztime.Range, pathFilter []
 	// Group a bit more user-friendly.
 	ns := []HitStat{
 		{ID: sizePhones, Count: 0},
-		{ID: sizeLargePhones, Count: 0},
 		{ID: sizeTablets, Count: 0},
 		{ID: sizeDesktop, Count: 0},
 		{ID: sizeDesktopHD, Count: 0},
@@ -297,17 +295,15 @@ func (h *HitStats) ListSizes(ctx context.Context, rng ztime.Range, pathFilter []
 		x, _ := zstrconv.ParseInt[int16](h.Stats[i].Name, 10)
 		switch {
 		case x == 0:
-			ns[5].Count += h.Stats[i].Count
-		case x <= 384:
-			ns[0].Count += h.Stats[i].Count
-		case x <= 1024:
-			ns[1].Count += h.Stats[i].Count
-		case x <= 1440:
-			ns[2].Count += h.Stats[i].Count
-		case x <= 1920:
-			ns[3].Count += h.Stats[i].Count
-		default:
 			ns[4].Count += h.Stats[i].Count
+		case x <= 600:
+			ns[0].Count += h.Stats[i].Count
+		case x <= 1000:
+			ns[1].Count += h.Stats[i].Count
+		case x <= 1920:
+			ns[2].Count += h.Stats[i].Count
+		default:
+			ns[3].Count += h.Stats[i].Count
 		}
 	}
 	h.Stats = ns
@@ -323,13 +319,11 @@ func (h *HitStats) ListSize(ctx context.Context, id string, rng ztime.Range, pat
 	)
 	switch id {
 	case sizePhones:
-		maxSize = 384
-	case sizeLargePhones:
-		minSize, maxSize = 384, 1024
+		maxSize = 600
 	case sizeTablets:
-		minSize, maxSize = 1024, 1440
+		minSize, maxSize = 600, 1000
 	case sizeDesktop:
-		minSize, maxSize = 1440, 1920
+		minSize, maxSize = 1000, 1920
 	case sizeDesktopHD:
 		minSize, maxSize = 1920, 99999
 	case sizeUnknown:
