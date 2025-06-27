@@ -3,35 +3,11 @@ package goatcounter
 import (
 	"context"
 	"fmt"
-	"time"
 
-	"zgo.at/errors"
 	"zgo.at/zcache/v2"
-	"zgo.at/zdb"
 	"zgo.at/zstd/zjson"
 	"zgo.at/zstd/zruntime"
 )
-
-type BosmangStat struct {
-	ID        int64     `db:"site_id"`
-	Codes     string    `db:"codes"`
-	Email     string    `db:"email"`
-	CreatedAt time.Time `db:"created_at"`
-	LastMonth int       `db:"last_month"`
-	Total     int       `db:"total"`
-	Avg       int       `db:"avg"`
-}
-
-type BosmangStats []BosmangStat
-
-// List stats for all sites, for all time.
-func (a *BosmangStats) List(ctx context.Context) error {
-	err := zdb.Select(ctx, a, "load:bosmang.List")
-	if err != nil {
-		return errors.Wrap(err, "BosmangStats.List")
-	}
-	return nil
-}
 
 func ListCache(ctx context.Context) map[string]struct {
 	Size  int64

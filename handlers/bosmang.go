@@ -3,7 +3,6 @@ package handlers
 import (
 	"fmt"
 	"net/http"
-	"time"
 
 	"github.com/go-chi/chi/v5"
 	"zgo.at/goatcounter/v2"
@@ -14,11 +13,9 @@ import (
 	"zgo.at/guru"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
-	"zgo.at/zhttp/auth"
 	"zgo.at/zhttp/mware"
 	"zgo.at/zprof"
 	"zgo.at/zstd/zcontext"
-	"zgo.at/zstd/znet"
 	"zgo.at/zstd/ztime"
 	"zgo.at/zvalidate"
 )
@@ -38,9 +35,6 @@ func (h bosmang) mount(r chi.Router, db zdb.DB) {
 	a.Post("/bosmang/bgrun/{task}", zhttp.Wrap(h.runTask))
 	a.Get("/bosmang/metrics", zhttp.Wrap(h.metrics))
 	a.Handle("/bosmang/profile*", zprof.NewHandler(zprof.Prefix("/bosmang/profile")))
-
-	a.Get("/bosmang/sites", zhttp.Wrap(h.sites))
-	a.Post("/bosmang/sites/login/{id}", zhttp.Wrap(h.login))
 }
 
 func (h bosmang) cache(w http.ResponseWriter, r *http.Request) error {
@@ -109,59 +103,6 @@ func (h bosmang) metrics(w http.ResponseWriter, r *http.Request) error {
 		Metrics metrics.Metrics
 		By      string
 	}{newGlobals(w, r), metrics.List().Sort(by), by})
-}
-
-func (h bosmang) sites(w http.ResponseWriter, r *http.Request) error {
-	var a goatcounter.BosmangStats
-	err := a.List(r.Context())
-	if err != nil {
-		return err
-	}
-
-	return zhttp.Template(w, "bosmang_sites.gohtml", struct {
-		Globals
-		Stats goatcounter.BosmangStats
-	}{newGlobals(w, r), a})
-}
-
-func (h bosmang) login(w http.ResponseWriter, r *http.Request) error {
-	v := zvalidate.New()
-	id := goatcounter.SiteID(v.Integer32("id", chi.URLParam(r, "id")))
-	if v.HasErrors() {
-		return v
-	}
-
-	var site goatcounter.Site
-	err := site.ByID(r.Context(), id)
-	if err != nil {
-		return err
-	}
-
-	var users goatcounter.Users
-	err = users.List(r.Context(), site.ID)
-	if err != nil {
-		return err
-	}
-	user := users[0]
-
-	if !site.Settings.AllowBosmang {
-		return guru.New(403, "AllowBosmang not enabled")
-	}
-
-	domain := cookieDomain(&site, r)
-	auth.SetCookie(w, r, *user.LoginToken, domain)
-	http.SetCookie(w, &http.Cookie{
-		Domain:   znet.RemovePort(domain),
-		Name:     "is_bosmang",
-		Value:    "1",
-		Path:     "/",
-		Expires:  time.Now().Add(8 * time.Hour),
-		HttpOnly: true,
-		Secure:   zhttp.IsSecure(r),
-		SameSite: zhttp.CookieSameSiteHelper(r),
-	})
-
-	return zhttp.SeeOther(w, site.URL(r.Context()))
 }
 
 func (h bosmang) error(w http.ResponseWriter, r *http.Request) error {
