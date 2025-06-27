@@ -123,7 +123,7 @@
 	}
 
 	// Reload all widgets on the dashboard.
-	var reload_dashboard = function(done) {
+	let reload_dashboard = function(done) {
 		jQuery.ajax({
 			url:     BASE_PATH + '/',
 			data:    append_period({
@@ -433,13 +433,10 @@
 
 	// Bind the Y-axis scale actions.
 	var bind_scale = function() {
-		$('.count-list').on('click', '.rescale', function(e) {
-			e.preventDefault()
-
-			var scale = $(this).closest('.chart').attr('data-max')
-			$('.pages-list .scale').html(format_int(scale))
-			$('.pages-list .count-list-pages').attr('data-scale', scale)
-
+		$('#rescale').on('input', (e) => {
+			let s = e.target.valueAsNumber
+			$('.pages-list .count-list-pages').attr('data-scale', s)
+			$('.pages-list .scale, #dash-scale .scale').html(format_int(s))
 			charts.forEach((c) => {
 				c.ctx().canvas.dataset.done = ''
 				c.stop()
@@ -462,6 +459,10 @@
 	var init_charts = function() {
 		$(window).on('resize', redraw_all_charts)
 		window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', redraw_all_charts)
+
+		let s = $('.count-list-pages').attr('data-max')
+		$('#dash-scale .scale').html(format_int(s))
+		$('#rescale').attr({max: s, disabled: parseInt(s) <= 10}).val(s)
 
 		// force-dark manually added or removed.
 		new MutationObserver(function(muts, observer) {

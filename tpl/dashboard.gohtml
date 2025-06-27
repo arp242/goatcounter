@@ -76,7 +76,7 @@
 	{{end}}
 
 	<div id="dash-main">
-		<div>
+		<div class="left">
 			<span>
 				<input type="text" class="date-input" autocomplete="off" id="period-start" name="period-start"
 					min="{{.Site.FirstHitAt.Format "2006-01-02"}}" max="{{time "now" "2006-01-02"}}"
@@ -99,7 +99,7 @@
 					<button class="link" name="period" value="half-year">{{.T "nav-dash/half-year|half year"}}</button> ·
 					<button class="link" name="period" value="year">{{.T "nav-dash/year|year"}}</button>
 				</span>
-
+				<br>
 				<span>
 					{{.T "nav-dash/current|Current"}} {{/* z18n: as in: "Current [week] [month] ...*/}}
 					<button class="link" name="period" value="week-cur">{{.T "nav-dash/week|week"}}</button> ·
@@ -109,7 +109,7 @@
 			</span>
 		</div>
 
-		<div style="text-align: right">
+		<div class="right">
 			<div class="filter-wrap">
 				<input
 					type="text" autocomplete="off" name="filter" value="{{.View.Filter}}" id="filter-paths"
@@ -117,7 +117,17 @@
 					title="{{.T "nav-dash/filter-tooltip|Filter the list of paths; matched case-insensitive on path and title"}}"
 					{{if .View.Filter}}class="value"{{end}}>
 			</div>
-			{{/* .T "nav-dash/by-day|View by day" */}}
+
+			<span id="dash-scale" title="{{.T `nav-dash/scale-title|Scale Y-Axis of the pages chart`}}">
+				{{$p := .Widgets.GetOne "pages"}}
+				{{if $p}}
+					<label for="scale">{{.T "nav-dash/scale|Scale:"}}</label>
+					<input id="rescale" name="scale" type="range" min="10" max="{{$p.Max}}" step="1" value="{{$p.Max}}" {{if le $p.Max 10}}disabled{{end}}>
+					{{if not $.User.Settings.FewerNumbers}}
+						<span class="scale">{{$p.Max}}</span>
+					{{end}}
+				{{end}}
+			</span>
 
 			<span id="dash-select-group" class="group-{{.View.Group}}">
 				{{.T `nav-dash/view-by|View by:`}}
@@ -136,7 +146,7 @@
 					{{if and .ForcedGroup (lt .View.Group 1)}}disabled
 						title="disabled"
 					{{end}}
-				  >{{.T "nav-dash/day|day"}}</button>
+				  >{{.T "nav-dash/week|week"}}</button>
 				*/}}
 			</span>
 		</div>
