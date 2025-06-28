@@ -23,10 +23,6 @@ func (h backend) count(w http.ResponseWriter, r *http.Request) error {
 	m := metrics.Start("/count")
 	defer m.Done()
 
-	if r.Method == "GET" {
-		metrics.Start("/count GET").Done()
-	}
-
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "image/gif")
 	w.Header().Set("Cross-Origin-Resource-Policy", "cross-origin")

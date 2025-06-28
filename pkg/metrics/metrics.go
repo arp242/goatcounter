@@ -27,7 +27,6 @@ func (m metrics) add(tag string, d time.Duration) {
 	t, ok := m.stats[tag]
 	if !ok {
 		t = ztime.NewDurations(32768)
-		t.Grow(32768)
 	}
 	t.Append(d)
 	m.stats[tag] = t
