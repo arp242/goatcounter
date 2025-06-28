@@ -535,12 +535,9 @@ func flagErrors(errors string, v *zvalidate.Validator) {
 	case errors == "":
 		// Do nothing.
 	case strings.HasPrefix(errors, "mailto:"):
-		errors = errors[7:]
-		s := strings.Split(errors, ",")
-		from := s[0]
-		to := s[0]
-		if len(s) > 1 {
-			to = s[1]
+		to, from, _ := strings.Cut(errors[7:], ",")
+		if from == "" {
+			from = to
 		}
 
 		v.Email("-errors", from)
