@@ -21,7 +21,7 @@ import (
 var el = log.Module("email-report")
 
 // EmailReports sends email reports for sites that have this configured.
-func emailReports(ctx context.Context) error {
+func EmailReports(ctx context.Context) error {
 	users, err := reportUsers(ctx)
 	if err != nil {
 		return errors.Errorf("cron.emailReports: %w", err)
@@ -57,7 +57,7 @@ func emailReports(ctx context.Context) error {
 			continue
 		}
 
-		err = blackmail.Send(subject,
+		err = blackmail.Get(ctx).Send(subject,
 			blackmail.From("GoatCounter reports", goatcounter.Config(ctx).EmailFrom),
 			blackmail.To(user.Email),
 			blackmail.HeadersAutoreply(),

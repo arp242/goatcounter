@@ -30,7 +30,7 @@ var Tasks = []Task{
 	{"vacuum soft-deleted sites", vacuumDeleted, 12 * time.Hour},
 	{"rm old exports", oldExports, 1 * time.Hour},
 	{"cycle sessions", sessions, 1 * time.Minute},
-	{"send email reports", emailReports, 1 * time.Hour},
+	{"send email reports", EmailReports, 1 * time.Hour},
 	{"persist hits", persistAndStat, time.Duration(persistInterval.Load())},
 }
 

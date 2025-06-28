@@ -69,7 +69,7 @@ func (e Email) Handle(ctx context.Context, r slog.Record) error {
 	subject = strings.TrimLeft(subject, " \t:")
 
 	go func() {
-		err := blackmail.Send(subject,
+		err := blackmail.Get(ctx).Send(subject,
 			blackmail.From("", e.from),
 			blackmail.To(e.to),
 			blackmail.BodyText([]byte(msg)))

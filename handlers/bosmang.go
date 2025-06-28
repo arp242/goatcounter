@@ -1,10 +1,13 @@
 package handlers
 
 import (
+	"bytes"
 	"fmt"
+	"io"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
+	"zgo.at/blackmail"
 	"zgo.at/goatcounter/v2"
 	"zgo.at/goatcounter/v2/cron"
 	"zgo.at/goatcounter/v2/pkg/bgrun"
@@ -33,6 +36,8 @@ func (h bosmang) mount(r chi.Router, db zdb.DB) {
 	a.Get("/bosmang/cache", zhttp.Wrap(h.cache))
 	a.Get("/bosmang/error", zhttp.Wrap(h.error))
 	a.Get("/bosmang/bgrun", zhttp.Wrap(h.bgrun))
+	a.Get("/bosmang/email", zhttp.Wrap(h.email))
+	a.Post("/bosmang/email", zhttp.Wrap(h.sendEmail))
 	a.Post("/bosmang/bgrun/{task}", zhttp.Wrap(h.runTask))
 	a.Get("/bosmang/metrics", zhttp.Wrap(h.metrics))
 	a.Handle("/bosmang/profile*", zprof.NewHandler(zprof.Prefix("/bosmang/profile")))
@@ -108,4 +113,55 @@ func (h bosmang) metrics(w http.ResponseWriter, r *http.Request) error {
 
 func (h bosmang) error(w http.ResponseWriter, r *http.Request) error {
 	return guru.New(500, "test error")
+}
+
+func (h bosmang) emailTpl(w http.ResponseWriter, r *http.Request, email string, err error, out string) error {
+	return zhttp.Template(w, "bosmang_email.gohtml", struct {
+		Globals
+		Info       map[string]any
+		From       string
+		Email      string
+		TestErr    error
+		TestResult string
+	}{newGlobals(w, r), blackmail.Get(r.Context()).Info(),
+		goatcounter.Config(r.Context()).EmailFrom,
+		email, err, out,
+	})
+}
+
+func (h bosmang) email(w http.ResponseWriter, r *http.Request) error {
+	return h.emailTpl(w, r, goatcounter.Config(r.Context()).EmailFrom, nil, "")
+}
+
+func (h bosmang) sendEmail(w http.ResponseWriter, r *http.Request) error {
+	var (
+		email = r.Form.Get("email")
+		m     = blackmail.Get(r.Context())
+		info  = m.Info()
+		dbg   = new(bytes.Buffer)
+	)
+	switch info["sender"] {
+	case "mailerRelay":
+		o := info["opts"].(blackmail.RelayOptions)
+		if o.Debug != nil {
+			o.Debug = io.MultiWriter(o.Debug, dbg)
+		} else {
+			o.Debug = dbg
+		}
+		var err error
+		m, err = blackmail.NewRelay(info["url"].(string), &o)
+		if err != nil {
+			return err
+		}
+	case "mailerWriter":
+		fmt.Fprintf(dbg, "mailerWriter: wrote email to fd %s (%s)", info["fd"], info["name"])
+	}
+
+	err := m.Send(
+		"GoatCounter test email",
+		blackmail.From("GoatCounter", goatcounter.Config(r.Context()).EmailFrom),
+		blackmail.To(email),
+		blackmail.HeadersAutoreply(),
+		blackmail.BodyText([]byte("Test email from GoatCounter")))
+	return h.emailTpl(w, r, email, err, dbg.String())
 }

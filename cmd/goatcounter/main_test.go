@@ -7,7 +7,6 @@ import (
 	"strings"
 	"testing"
 
-	"zgo.at/blackmail"
 	"zgo.at/goatcounter/v2"
 	"zgo.at/goatcounter/v2/cron"
 	"zgo.at/goatcounter/v2/gctest"
@@ -31,8 +30,6 @@ func startTest(t *testing.T) (
 	ctx context.Context, dbc string,
 ) {
 	t.Helper()
-
-	blackmail.DefaultMailer = blackmail.NewMailer(blackmail.ConnectWriter)
 
 	goatcounter.Memstore.Reset()
 

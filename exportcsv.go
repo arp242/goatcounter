@@ -163,7 +163,7 @@ func (e *Export) RunCSV(ctx context.Context, fp *os.File, mailUser bool) {
 	if mailUser {
 		site := MustGetSite(ctx)
 		user := GetUser(ctx)
-		err = blackmail.Send("GoatCounter export ready",
+		err = blackmail.Get(ctx).Send("GoatCounter export ready",
 			blackmail.From("GoatCounter export", Config(ctx).EmailFrom),
 			blackmail.To(user.Email),
 			blackmail.HeadersAutoreply(),
@@ -261,7 +261,7 @@ func ImportCSV(
 		// Send email after 10s delay to make sure the cron task has finished
 		// updating all the rows.
 		time.Sleep(10 * time.Second)
-		err = blackmail.Send("GoatCounter import ready",
+		err = blackmail.Get(ctx).Send("GoatCounter import ready",
 			blackmail.From("GoatCounter import", Config(ctx).EmailFrom),
 			blackmail.To(GetUser(ctx).Email),
 			blackmail.BodyMustText(TplEmailImportDone{ctx, *site, n, errs}.Render))

@@ -7,7 +7,6 @@ import (
 	"testing"
 	"time"
 
-	"zgo.at/blackmail"
 	"zgo.at/goatcounter/v2"
 	"zgo.at/goatcounter/v2/gctest"
 	"zgo.at/zdb"
@@ -16,7 +15,6 @@ import (
 )
 
 func TestCSVExport(t *testing.T) {
-	blackmail.DefaultMailer = blackmail.NewMailer(blackmail.ConnectWriter)
 	ctx := gctest.DB(t)
 
 	var site goatcounter.Site
