@@ -39,17 +39,19 @@ const (
 	CollectHits                          // 256
 )
 
+type EmailReport uint8
+
 // UserSettings.EmailReport values.
 const (
-	EmailReportNever = iota // Email once after 2 weeks; for new sites.
+	EmailReportNever = EmailReport(iota) // Email once after 2 weeks; for new sites.
 	EmailReportDaily
 	EmailReportWeekly
 	EmailReportBiWeekly
 	EmailReportMonthly
 )
 
-var EmailReports = []int{EmailReportNever, EmailReportDaily, EmailReportWeekly,
-	EmailReportBiWeekly, EmailReportMonthly}
+var EmailReports = []EmailReport{EmailReportNever, EmailReportDaily,
+	EmailReportWeekly, EmailReportBiWeekly, EmailReportMonthly}
 
 type (
 	// SiteSettings contains all the user-configurable settings for a site, with
@@ -71,26 +73,25 @@ type (
 
 	// UserSettings are all user preferences.
 	UserSettings struct {
-		TwentyFourHours       bool      `json:"twenty_four_hours"`
-		SundayStartsWeek      bool      `json:"sunday_starts_week"`
-		Language              string    `json:"language"`
-		DateFormat            string    `json:"date_format"`
-		NumberFormat          rune      `json:"number_format"`
-		Timezone              *tz.Zone  `json:"timezone"`
-		Widgets               Widgets   `json:"widgets"`
-		Views                 Views     `json:"views"`
-		EmailReports          zint.Int  `json:"email_reports"`
-		FewerNumbers          bool      `json:"fewer_numbers"`
-		FewerNumbersLockUntil time.Time `json:"fewer_numbers_lock_until"`
-		Theme                 string    `json:"theme"`
+		TwentyFourHours       bool        `json:"twenty_four_hours"`
+		SundayStartsWeek      bool        `json:"sunday_starts_week"`
+		Language              string      `json:"language"`
+		DateFormat            string      `json:"date_format"`
+		NumberFormat          rune        `json:"number_format"`
+		Timezone              *tz.Zone    `json:"timezone"`
+		Widgets               Widgets     `json:"widgets"`
+		Views                 Views       `json:"views"`
+		EmailReports          EmailReport `json:"email_reports"`
+		FewerNumbers          bool        `json:"fewer_numbers"`
+		FewerNumbersLockUntil time.Time   `json:"fewer_numbers_lock_until"`
+		Theme                 string      `json:"theme"`
 	}
 
 	// Widgets is a list of widgets to be printed, in order.
-	Widgets []Widget
 	Widget  map[string]any
+	Widgets []Widget
 
-	WidgetSettings map[string]WidgetSetting
-	WidgetSetting  struct {
+	WidgetSetting struct {
 		Type        string
 		Hidden      bool
 		Label       string
@@ -100,16 +101,17 @@ type (
 		Validate    func(*zvalidate.Validator, any)
 		Value       any
 	}
+	WidgetSettings map[string]WidgetSetting
 
 	// Views for the dashboard; these settings apply to all widget and are
 	// configurable in the yellow box at the top.
-	Views []View
-	View  struct {
+	View struct {
 		Name   string `json:"name"`
 		Filter string `json:"filter"`
 		Daily  bool   `json:"daily"`
 		Period string `json:"period"` // "week", "week-cur", or n days: "8"
 	}
+	Views []View
 )
 
 // Default widgets for new sites.
@@ -632,7 +634,7 @@ func (ss *UserSettings) Validate(ctx context.Context) error {
 		v.Append("views", z18n.T(ctx, "view not set"))
 	}
 
-	if !slices.Contains(EmailReports, ss.EmailReports.Int()) {
+	if !slices.Contains(EmailReports, ss.EmailReports) {
 		v.Append("email_reports", "invalid value")
 	}
 

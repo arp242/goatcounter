@@ -503,7 +503,7 @@ func (u User) EmailReportRange(ctx context.Context) ztime.Range {
 		lastReport = ztime.Time{u.LastReportAt.In(u.Settings.Timezone.Loc())}
 		week       = ztime.Week(u.Settings.SundayStartsWeek)
 	)
-	switch u.Settings.EmailReports.Int() {
+	switch u.Settings.EmailReports {
 	case EmailReportNever:
 		return ztime.Range{}
 
@@ -519,7 +519,7 @@ func (u User) EmailReportRange(ctx context.Context) ztime.Range {
 	case EmailReportWeekly:
 		start, end = lastReport.StartOf(week), lastReport.EndOf(week)
 	default:
-		log.Errorf(ctx, "invalid EmailReports value for user %d: %d", u.ID, u.Settings.EmailReports.Int())
+		log.Errorf(ctx, "invalid EmailReports value for user %d: %d", u.ID, u.Settings.EmailReports)
 		return ztime.Range{}
 	}
 

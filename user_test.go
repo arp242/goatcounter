@@ -7,7 +7,6 @@ import (
 
 	"zgo.at/goatcounter/v2"
 	"zgo.at/tz"
-	"zgo.at/zstd/zint"
 	"zgo.at/zstd/ztime"
 )
 
@@ -24,7 +23,7 @@ func TestUserEmailReportRange(t *testing.T) {
 		{goatcounter.User{
 			LastReportAt: now,
 			Settings: goatcounter.UserSettings{
-				EmailReports: zint.Int(goatcounter.EmailReportDaily),
+				EmailReports: goatcounter.EmailReportDaily,
 				Timezone:     tz.UTC,
 			},
 		}, ztime.FromString("2019-06-18 00:00:00"), ztime.FromString("2019-06-18 23:59:59")},
@@ -32,7 +31,7 @@ func TestUserEmailReportRange(t *testing.T) {
 			LastReportAt: now,
 			Settings: goatcounter.UserSettings{
 				SundayStartsWeek: false,
-				EmailReports:     zint.Int(goatcounter.EmailReportWeekly),
+				EmailReports:     goatcounter.EmailReportWeekly,
 				Timezone:         tz.UTC,
 			},
 		}, ztime.FromString("2019-06-17 00:00:00"), ztime.FromString("2019-06-23 23:59:59")},
@@ -40,7 +39,7 @@ func TestUserEmailReportRange(t *testing.T) {
 			LastReportAt: now,
 			Settings: goatcounter.UserSettings{
 				SundayStartsWeek: true,
-				EmailReports:     zint.Int(goatcounter.EmailReportWeekly),
+				EmailReports:     goatcounter.EmailReportWeekly,
 				Timezone:         tz.UTC,
 			},
 		}, ztime.FromString("2019-06-16 00:00:00"), ztime.FromString("2019-06-22 23:59:59")},
@@ -48,7 +47,7 @@ func TestUserEmailReportRange(t *testing.T) {
 			LastReportAt: now,
 			Settings: goatcounter.UserSettings{
 				SundayStartsWeek: false,
-				EmailReports:     zint.Int(goatcounter.EmailReportBiWeekly),
+				EmailReports:     goatcounter.EmailReportBiWeekly,
 				Timezone:         tz.UTC,
 			},
 		}, ztime.FromString("2019-06-17 00:00:00"), ztime.FromString("2019-06-30 23:59:59")},
@@ -56,7 +55,7 @@ func TestUserEmailReportRange(t *testing.T) {
 			LastReportAt: now,
 			Settings: goatcounter.UserSettings{
 				SundayStartsWeek: true,
-				EmailReports:     zint.Int(goatcounter.EmailReportBiWeekly),
+				EmailReports:     goatcounter.EmailReportBiWeekly,
 				Timezone:         tz.UTC,
 			},
 		}, ztime.FromString("2019-06-16 00:00:00"), ztime.FromString("2019-06-29 23:59:59")},
@@ -64,7 +63,7 @@ func TestUserEmailReportRange(t *testing.T) {
 		{goatcounter.User{
 			LastReportAt: now,
 			Settings: goatcounter.UserSettings{
-				EmailReports: zint.Int(goatcounter.EmailReportDaily),
+				EmailReports: goatcounter.EmailReportDaily,
 				Timezone:     wita,
 			},
 		}, ztime.FromString("2019-06-17 16:00:00"), ztime.FromString("2019-06-18 15:59:59")},

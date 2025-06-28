@@ -125,11 +125,11 @@
 
 			<label for="email_reports">{{.T "label/email-reports|Send email reports"}}</label>
 			<select name="user.settings.email_reports" id="email_reports">
-				<option {{option_value .User.Settings.EmailReports.String "0"}}>{{.T "email-report/never|Never"}}</option>
-				<option {{option_value .User.Settings.EmailReports.String "1"}}>{{.T "email-report/daily|Daily"}}</option>
-				<option {{option_value .User.Settings.EmailReports.String "2"}}>{{.T "email-report/weekly|Weekly"}}</option>
-				<option {{option_value .User.Settings.EmailReports.String "3"}}>{{.T "email-report/two-weeks|Every two weeks"}}</option>
-				<option {{option_value .User.Settings.EmailReports.String "4"}}>{{.T "email-report/monthly|Monthly"}}</option>
+				<option {{option_value (str .User.Settings.EmailReports) "0"}}>{{.T "email-report/never|Never"}}</option>
+				<option {{option_value (str .User.Settings.EmailReports) "1"}}>{{.T "email-report/daily|Daily"}}</option>
+				<option {{option_value (str .User.Settings.EmailReports) "2"}}>{{.T "email-report/weekly|Weekly"}}</option>
+				<option {{option_value (str .User.Settings.EmailReports) "3"}}>{{.T "email-report/two-weeks|Every two weeks"}}</option>
+				<option {{option_value (str .User.Settings.EmailReports) "4"}}>{{.T "email-report/monthly|Monthly"}}</option>
 			</select>
 			<span>{{.T "help/email-reports|Reports are sent on the first day of the new period (e.g. first day of the month)."}}</span>
 		</fieldset>

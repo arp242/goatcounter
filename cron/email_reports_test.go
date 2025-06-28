@@ -16,7 +16,6 @@ import (
 	"zgo.at/goatcounter/v2/gctest"
 	"zgo.at/tz"
 	"zgo.at/zstd/zgo"
-	"zgo.at/zstd/zint"
 	"zgo.at/zstd/ztest"
 	"zgo.at/zstd/ztime"
 	"zgo.at/ztpl"
@@ -46,7 +45,7 @@ func TestEmailReports(t *testing.T) {
 				return gctest.Site(ctx, t, nil, &goatcounter.User{
 					LastReportAt: now.Add(-day),
 					Settings: goatcounter.UserSettings{
-						EmailReports: zint.Int(goatcounter.EmailReportDaily),
+						EmailReports: goatcounter.EmailReportDaily,
 						Timezone:     tz.UTC,
 					},
 				})
@@ -59,7 +58,7 @@ func TestEmailReports(t *testing.T) {
 				ctx = gctest.Site(ctx, t, nil, &goatcounter.User{
 					LastReportAt: now.Add(-day),
 					Settings: goatcounter.UserSettings{
-						EmailReports: zint.Int(goatcounter.EmailReportDaily),
+						EmailReports: goatcounter.EmailReportDaily,
 						Timezone:     tz.UTC,
 					},
 				})
@@ -98,7 +97,7 @@ func TestEmailReports(t *testing.T) {
 				ctx = gctest.Site(ctx, t, nil, &goatcounter.User{
 					LastReportAt: now.Add(-23 * time.Hour),
 					Settings: goatcounter.UserSettings{
-						EmailReports: zint.Int(goatcounter.EmailReportWeekly),
+						EmailReports: goatcounter.EmailReportWeekly,
 						Timezone:     tz.UTC,
 					},
 				})
