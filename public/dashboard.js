@@ -85,7 +85,7 @@
 	var reload_widget = function(wid, data, done) {
 		data = data || {}
 		data['widget'] = wid
-		data['group']  = $('#js-settings').attr('data-group')
+		data['group']  = $('#hl-group').val()
 		data['max']    = get_original_scale()
 		data['total']  = $('.js-total-utc').text()
 
@@ -110,7 +110,7 @@
 		jQuery.ajax({
 			url:     BASE_PATH + '/',
 			data:    append_period({
-				group:     $('#js-settings').attr('data-group'),
+				group:     $('#hl-group').val(),
 				max:       get_original_scale(),
 				reload:    't',
 				connectID: $('#js-connect-id').text(),
@@ -333,7 +333,7 @@
 						csrf:      CSRF,
 						name:      'default',
 						filter:    $('#filter-paths').val(),
-						group:     $('#js-settings').attr('data-group'),
+						group:     $('#hl-group').val(),
 						period:    p,
 					},
 					success: () => {
@@ -681,7 +681,7 @@
 					url:  BASE_PATH + '/load-widget',
 					data: append_period({
 						widget:    pages.attr('data-widget'),
-						group:     $('#js-settings').attr('data-group'),
+						group:     $('#hl-group').val(),
 						exclude:   pages.find('.count-list-pages >tbody >tr').toArray().map((e) => e.dataset.id).join(','),
 						max:       get_original_scale(),
 					}),
