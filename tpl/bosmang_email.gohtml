@@ -1,0 +1,33 @@
+{{template "_backend_top.gohtml" .}}
+
+<h1>Email</h1>
+
+<h2>Configuration</h2>
+<p>
+	<span style="display:inline-block; min-width:8rem;">-email-from </span>{{.From}}<br>
+	<span style="display:inline-block; min-width:8rem;">-smtp:</span><br>
+	<span style="display:inline-block; min-width:8rem; margin-left:2rem;">sender </span><code>{{index .Info "sender"}}</code><br>
+	{{range $k, $v := .Info}}
+		{{if ne $k "sender"}}
+			<span style="display:inline-block; min-width:8rem; margin-left:2rem;">{{$k}} </span><code>{{$v}}</code><br>
+		{{end}}
+	{{end}}
+</p>
+
+<h2>Send test email</h2>
+<form method="POST" action="{{$.Base}}/bosmang/email">
+	<input type="hidden" name="csrf" value="{{$.User.CSRFToken}}">
+
+	<label for="email">Recipient</label>
+	<input type="email" name="email" id="email" value="{{.Email}}">
+
+	<button>Send test email</button>
+</form>
+
+{{if .TestResult}}
+	<h3>Test output</h3>
+	{{if .TestErr}}<div class="flash flash-e" style="text-align:left; margin:1em">{{.TestErr}}</div>{{end}}
+	<pre>{{.TestResult}}</pre>
+{{end}}
+
+{{template "_backend_bottom.gohtml" .}}

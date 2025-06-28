@@ -45,6 +45,10 @@ unreleased
 - Use PostgreSQL 17 in compose.yaml; also update the PostgreSQL settings to be
   less conservative.
 
+- The `-smtp` flag now also supports smtps:// URLs. You can also add `?debug=1`
+  to print SMTP traffic to stderr, or use the new *Server Management → Email
+  page* for testing the SMTP connection.
+
 ### Fixes
 
 - Adjust screen size categories for more modern devices.

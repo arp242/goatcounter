@@ -15,7 +15,6 @@ import (
 	"testing"
 
 	"github.com/go-chi/chi/v5"
-	"zgo.at/blackmail"
 	"zgo.at/goatcounter/v2"
 	"zgo.at/goatcounter/v2/gctest"
 	"zgo.at/goatcounter/v2/pkg/log"
@@ -47,9 +46,6 @@ type handlerTest struct {
 func init() {
 	supportWebsocket.Store(false)
 
-	blackmail.DefaultMailer = blackmail.NewMailer(blackmail.ConnectWriter,
-		blackmail.MailerOut(new(bytes.Buffer)))
-
 	files, _ := fs.Sub(os.DirFS(zgo.ModuleRoot()), "tpl")
 	err := ztpl.Init(files)
 	if err != nil {
@@ -69,7 +65,7 @@ func TestMain(m *testing.M) {
 		// Don't need tests.
 		"", "bosmang.gohtml", "bosmang_site.gohtml", "bosmang_cache.gohtml",
 		"bosmang_bgrun.gohtml", "bosmang_metrics.gohtml", "bosmang_sites.gohtml",
-		"i18n_list.gohtml", "i18n_show.gohtml", "i18n_manage.gohtml",
+		"bosmang_email.gohtml", "i18n_list.gohtml", "i18n_show.gohtml", "i18n_manage.gohtml",
 
 		// Tested in tpl_test.go
 		"email_export_done.gotxt", "email_forgot_site.gotxt",

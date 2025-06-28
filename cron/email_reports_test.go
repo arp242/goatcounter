@@ -194,17 +194,14 @@ func TestEmailReports(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			ctx := tt.setup(ztime.WithNow(gctest.DB(t), time.Date(2019, 6, 17, 0, 1, 0, 0, time.UTC)))
-
 			buf := new(bytes.Buffer)
+			ctx = blackmail.With(ctx, blackmail.NewWriter(buf))
 			goatcounter.Config(ctx).EmailFrom = "test@goatcounter.localhost.com"
-			blackmail.DefaultMailer = blackmail.NewMailer(blackmail.ConnectWriter, blackmail.MailerOut(buf))
 
-			err := cron.TaskEmailReports()
+			err := cron.EmailReports(ctx)
 			if err != nil {
 				t.Fatal(err)
 			}
-			cron.WaitEmailReports()
-			//fmt.Println(buf.String())
 
 			if tt.want == "" {
 				if buf.String() != "" {

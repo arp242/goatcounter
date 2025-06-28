@@ -4,11 +4,13 @@ package gctest
 import (
 	"context"
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	"testing"
 
 	"golang.org/x/text/language"
+	"zgo.at/blackmail"
 	"zgo.at/goatcounter/v2"
 	"zgo.at/goatcounter/v2/cron"
 	"zgo.at/goatcounter/v2/db/migrate/gomig"
@@ -45,6 +47,7 @@ func Context(db zdb.DB) context.Context {
 	ctx = z18n.With(ctx, z18n.NewBundle(language.BritishEnglish).Locale("en-GB"))
 	geodb, _ := geo.Open("")
 	ctx = geo.With(ctx, geodb)
+	ctx = blackmail.With(ctx, blackmail.NewWriter(io.Discard))
 
 	goatcounter.Config(ctx).BcryptMinCost = true
 	goatcounter.Config(ctx).GoatcounterCom = true

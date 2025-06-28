@@ -186,7 +186,7 @@ func (h website) contact(w http.ResponseWriter, r *http.Request) error {
 		return render(v)
 	}
 
-	err = blackmail.Send("GoatCounter message",
+	err = blackmail.Get(r.Context()).Send("GoatCounter message",
 		email,
 		blackmail.To("support@goatcounter.com"),
 		blackmail.BodyText(append([]byte(args.Message), "\n"...)))
@@ -379,7 +379,7 @@ func (h website) doSignup(w http.ResponseWriter, r *http.Request) error {
 
 	ctx := goatcounter.CopyContextValues(r.Context())
 	bgrun.RunFunction("welcome email", func() {
-		err := blackmail.Send("Welcome to GoatCounter!",
+		err := blackmail.Get(ctx).Send("Welcome to GoatCounter!",
 			blackmail.From("GoatCounter", goatcounter.Config(r.Context()).EmailFrom),
 			blackmail.To(user.Email),
 			blackmail.BodyMustText(goatcounter.TplEmailWelcome{ctx, site, user, goatcounter.Config(ctx).DomainCount}.Render),
@@ -455,7 +455,7 @@ func (h website) doForgot(w http.ResponseWriter, r *http.Request) error {
 	ctx := goatcounter.CopyContextValues(r.Context())
 	bgrun.RunFunction("email:sites", func() {
 		defer log.Recover(ctx)
-		err := blackmail.Send("Your GoatCounter sites",
+		err := blackmail.Get(ctx).Send("Your GoatCounter sites",
 			mail.Address{Name: "GoatCounter", Address: goatcounter.Config(ctx).EmailFrom},
 			blackmail.To(args.Email),
 			blackmail.BodyMustText(goatcounter.TplEmailForgotSite{ctx, sites, args.Email}.Render))

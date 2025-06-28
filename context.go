@@ -3,9 +3,11 @@ package goatcounter
 import (
 	"context"
 	"fmt"
+	"os"
 	"runtime/debug"
 	"time"
 
+	"zgo.at/blackmail"
 	"zgo.at/goatcounter/v2/pkg/geo"
 	"zgo.at/z18n"
 	"zgo.at/zcache/v2"
@@ -205,6 +207,9 @@ func CopyContextValues(ctx context.Context) context.Context {
 	if g := geo.Get(ctx); g != nil {
 		n = geo.With(n, g)
 	}
+	if m := blackmail.Get(ctx); m != nil {
+		n = blackmail.With(ctx, m)
+	}
 	return n
 }
 
@@ -214,6 +219,11 @@ func NewContext(ctx context.Context, db zdb.DB) context.Context {
 	n = geo.With(n, geo.Get(ctx))
 	n = NewCache(n)
 	n = NewConfig(n)
+	m := blackmail.Get(ctx)
+	if m != nil {
+		m = blackmail.NewWriter(os.Stderr)
+	}
+	n = blackmail.With(n, m)
 	return n
 }
 

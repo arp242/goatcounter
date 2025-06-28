@@ -6,6 +6,7 @@ import (
 	"log/slog"
 	"net"
 	"net/http"
+	"net/url"
 	"os"
 	"os/exec"
 	"os/signal"
@@ -109,18 +110,15 @@ Flags:
 
   -automigrate Automatically run all pending migrations on startup.
 
-  -smtp        SMTP relay server, as URL (e.g. "smtp://user:pass@server").
+  -smtp        SMTP relay server, as URL (e.g. "smtp://user:pass@server:port").
+               TLS connections are supported via smtps:// or STARTTLS.
 
-               A special value of "stdout" will print emails to stdout without
-               actually sending them.  This is the default.
+               When the debug query parameter is present ("smtp://...?debug=1")
+               all client/server traffic will be written to stderr.
 
-               If this is an empty string (-smtp='') emails will be sent
-               without using a relay. This implementation is very simple and
-               deliverability will usually be bad (i.e. it will end up in the
-               spam box, or just be outright rejected). This usually requires
-               rDNS properly set up, and GoatCounter will *not* retry on
-               errors. Using a local smtp relay is almost always better unless
-               you really know what you're doing.
+               A special value of "stdout" or "stderr" will print emails to
+               stdout or stderr without actually sending them The default is
+               "stdout".
 
   -email-from  From: address in emails. Default: <user>@<hostname>
 
@@ -202,7 +200,7 @@ func cmdServe(f zli.Flags, ready chan<- struct{}, stop chan struct{}, saas bool)
 		dev          = f.Bool(false, "dev")
 		automigrate  = f.Bool(false, "automigrate")
 		listen       = f.String(":8080", "listen")
-		smtp         = f.String(blackmail.ConnectWriter, "smtp")
+		smtp         = f.String("stdout", "smtp")
 		flagTLS      = f.String("http", "tls")
 		errorsFlag   = f.String("", "errors")
 		from         = f.String("", "email-from")
@@ -235,10 +233,10 @@ func cmdServe(f zli.Flags, ready chan<- struct{}, stop chan struct{}, saas bool)
 	}
 
 	flagErrors(&v, errorsFlag.String())
-	flagEmail(&v, smtp.String())
+	mailer := flagEmail(&v, smtp.String())
 	geodb := setupGeo(&v, geodbFlag.String())
 	ratelimits := setupRatelimits(&v, ratelimit.String())
-	*from.Pointer() = flagFrom(&v, from.String(), domain.String())
+	*from.Pointer() = flagFrom(&v, saas, from.String(), domain.String())
 	domainCount, urlStatic := setupDomains(&v, saas, dev.Bool(), domain.Pointer(),
 		domainStatic.Pointer(), basePath.Pointer())
 
@@ -259,6 +257,7 @@ func cmdServe(f zli.Flags, ready chan<- struct{}, stop chan struct{}, saas bool)
 
 	ctx = z18n.With(ctx, z18n.NewBundle(language.English).Locale("en"))
 	ctx = geo.With(ctx, geodb)
+	ctx = blackmail.With(ctx, mailer)
 
 	if err := setupTpl(ctx, dev.Bool()); err != nil {
 		return err
@@ -474,11 +473,31 @@ func flagErrors(v *zvalidate.Validator, errors string) {
 	}
 }
 
-func flagEmail(v *zvalidate.Validator, smtp string) {
-	if smtp != blackmail.ConnectDirect && smtp != blackmail.ConnectWriter {
+func flagEmail(v *zvalidate.Validator, smtp string) blackmail.Mailer {
+	var (
+		m   blackmail.Mailer
+		err error
+	)
+	switch {
+	case strings.ToLower(smtp) == "stdout":
+		m = blackmail.NewWriter(os.Stdout)
+	case strings.ToLower(smtp) == "stderr":
+		m = blackmail.NewWriter(os.Stderr)
+	default:
 		v.URLLocal("-smtp", smtp)
+
+		var opt blackmail.RelayOptions
+		u, _ := url.Parse(smtp)
+		if u.Query().Has("debug") {
+			opt.Debug = os.Stderr
+		}
+		m, err = blackmail.NewRelay(smtp, &opt)
 	}
-	blackmail.DefaultMailer = blackmail.NewMailer(smtp)
+	if err != nil {
+		v.Append("-smtp", fmt.Sprintf("setting up mailer: %s", err))
+	}
+
+	return m
 }
 
 func setupGeo(v *zvalidate.Validator, geodbFlag string) *geoip2.Reader {
@@ -522,9 +541,9 @@ func setupRatelimits(v *zvalidate.Validator, ratelimit string) handlers.Ratelimi
 	return h
 }
 
-func flagFrom(v *zvalidate.Validator, from, domain string) string {
+func flagFrom(v *zvalidate.Validator, saas bool, from, domain string) string {
 	if from == "" {
-		if domain != "" { // saas only.
+		if saas && domain != "" { // saas only.
 			from = "support@" + znet.RemovePort(domain)
 		} else {
 			u, err := user.Current()

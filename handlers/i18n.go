@@ -282,7 +282,7 @@ func (h i18n) submit(w http.ResponseWriter, r *http.Request) error {
 
 	ctx := zcontext.WithoutTimeout(r.Context())
 	go func() {
-		err := blackmail.Send("GoatCounter translation updates",
+		err := blackmail.Get(ctx).Send("GoatCounter translation updates",
 			blackmail.From("", User(ctx).Email),
 			blackmail.To("support@goatcounter.com"),
 			blackmail.BodyText([]byte(msg)))

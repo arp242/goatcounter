@@ -641,7 +641,7 @@ func (h settings) exportImport(w http.ResponseWriter, r *http.Request) error {
 				err = e.Unwrap()
 			}
 
-			sendErr := blackmail.Send("GoatCounter import error",
+			sendErr := blackmail.Get(ctx).Send("GoatCounter import error",
 				blackmail.From("GoatCounter import", goatcounter.Config(r.Context()).EmailFrom),
 				blackmail.To(user.Email),
 				blackmail.HeadersAutoreply(),
@@ -949,7 +949,8 @@ func (h settings) usersAdd(w http.ResponseWriter, r *http.Request) error {
 
 	ctx := goatcounter.CopyContextValues(r.Context())
 	bgrun.RunFunction(fmt.Sprintf("adduser:%d", newUser.ID), func() {
-		err := blackmail.Send(fmt.Sprintf("A GoatCounter account was created for you at %s", account.Display(ctx)),
+		err := blackmail.Get(ctx).Send(
+			fmt.Sprintf("A GoatCounter account was created for you at %s", account.Display(ctx)),
 			blackmail.From("GoatCounter", goatcounter.Config(r.Context()).EmailFrom),
 			blackmail.To(newUser.Email),
 			blackmail.BodyMustText(goatcounter.TplEmailAddUser{ctx, *account, newUser, goatcounter.GetUser(ctx).Email}.Render),
