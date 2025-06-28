@@ -164,7 +164,7 @@ func TestHitListsList(t *testing.T) {
 			}
 
 			var stats HitLists
-			uniqueDisplay, more, err := stats.List(ctx, rng, pathsFilter, tt.inExclude, 2, false)
+			uniqueDisplay, more, err := stats.List(ctx, rng, pathsFilter, tt.inExclude, 2, GroupHourly)
 
 			have := fmt.Sprintf("%d %t %v", uniqueDisplay, more, err)
 			if have != tt.wantReturn {
@@ -291,7 +291,7 @@ func TestHitListTotals(t *testing.T) {
 		for i, filter := range [][]PathID{nil, []PathID{1}, []PathID{2}, []PathID{1, 2}} {
 			t.Run("", func(t *testing.T) {
 				var hs HitList
-				count, err := hs.Totals(ctx, rng, filter, false, false)
+				count, err := hs.Totals(ctx, rng, filter, GroupHourly, false)
 				if err != nil {
 					t.Fatal(err)
 				}
@@ -366,7 +366,7 @@ func TestHitListTotals(t *testing.T) {
 		for i, filter := range [][]PathID{nil, []PathID{1}, []PathID{2}, []PathID{1, 2}} {
 			t.Run("", func(t *testing.T) {
 				var hs HitList
-				count, err := hs.Totals(ctx, rng, filter, true, false)
+				count, err := hs.Totals(ctx, rng, filter, GroupDaily, false)
 				if err != nil {
 					t.Fatal(err)
 				}

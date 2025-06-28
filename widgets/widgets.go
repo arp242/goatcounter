@@ -32,8 +32,8 @@ type (
 		Rng         ztime.Range
 		Offset      int
 		PathFilter  []goatcounter.PathID
-		Daily       bool
-		ForcedDaily bool
+		Group       goatcounter.Group
+		ForcedGroup bool
 		ShowRefs    goatcounter.PathID
 	}
 

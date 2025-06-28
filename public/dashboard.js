@@ -85,7 +85,7 @@
 	var reload_widget = function(wid, data, done) {
 		data = data || {}
 		data['widget'] = wid
-		data['daily']  = $('#daily').is(':checked')
+		data['group']  = $('#js-settings').attr('data-group')
 		data['max']    = get_original_scale()
 		data['total']  = $('.js-total-utc').text()
 
@@ -110,7 +110,7 @@
 		jQuery.ajax({
 			url:     BASE_PATH + '/',
 			data:    append_period({
-				daily:     $('#daily').is(':checked'),
+				group:     $('#js-settings').attr('data-group'),
 				max:       get_original_scale(),
 				reload:    't',
 				connectID: $('#js-connect-id').text(),
@@ -162,10 +162,8 @@
 
 	// Fill in start/end periods from buttons.
 	var hdr_select_period = function() {
-		// Reload dashboard when clicking a checkbox.
-		$('#dash-main input[type="checkbox"]').on('click', function(e) {
+		$('#dash-select-group').on('click', 'button', function(e) {
 			$('#hl-period').attr('disabled', false)
-			$('#dash-form').trigger('submit')
 		})
 
 		$('#dash-select-period').on('click', 'button', function(e) {
@@ -197,6 +195,7 @@
 			}
 
 			$('#hl-period').val(this.value).attr('disabled', false)
+			$('#hl-group').attr('disabled', false)
 			set_period(start, end)
 		})
 
@@ -334,7 +333,7 @@
 						csrf:      CSRF,
 						name:      'default',
 						filter:    $('#filter-paths').val(),
-						daily:     $('#daily').is(':checked'),
+						group:     $('#js-settings').attr('data-group'),
 						period:    p,
 					},
 					success: () => {
@@ -484,7 +483,7 @@
 		let ctx     = canvas.getContext('2d', {alpha: false}),
 			max     = Math.max(10, parseInt(c.dataset.max, 10)),
 			scale   = get_current_scale(),
-			daily   = c.dataset.daily === 'true',
+			daily   = c.dataset.group === 'day',
 			isBar   = $(c).is('.chart-bar'),
 			isEvent = $(c).closest('tr').hasClass('event'),
 			isPages = $(c).closest('.count-list-pages').length > 0,
@@ -682,7 +681,7 @@
 					url:  BASE_PATH + '/load-widget',
 					data: append_period({
 						widget:    pages.attr('data-widget'),
-						daily:     $('#daily').is(':checked'),
+						group:     $('#js-settings').attr('data-group'),
 						exclude:   pages.find('.count-list-pages >tbody >tr').toArray().map((e) => e.dataset.id).join(','),
 						max:       get_original_scale(),
 					}),

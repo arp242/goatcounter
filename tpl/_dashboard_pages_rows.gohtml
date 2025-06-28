@@ -39,7 +39,7 @@
 			</div>
 			<div class="chart chart-{{$.Style}}"
 				data-max="{{$h.Max}}" data-stats="{{.Stats | json}}"
-				data-daily="{{$.Daily}}"
+				data-group="{{$.Group}}"
 			>
 				{{if not $.User.Settings.FewerNumbers}}
 					<span class="chart-left"><a href="#" class="rescale" title="{{t $.Context "scale-y|Scale the Y-axis of all charts the to highest value in this chart (%(n))" $h.Max}}">↕&#xfe0e;</a></span>

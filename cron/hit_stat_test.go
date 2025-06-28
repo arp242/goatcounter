@@ -32,7 +32,7 @@ func TestHitStats(t *testing.T) {
 		var stats goatcounter.HitLists
 		display, more, err := stats.List(ctx,
 			ztime.NewRange(now.Add(-1*time.Hour)).To(now.Add(1*time.Hour)),
-			nil, nil, 10, false)
+			nil, nil, 10, goatcounter.GroupHourly)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -107,7 +107,7 @@ func TestHitStatsNoCollect(t *testing.T) {
 		var stats goatcounter.HitLists
 		display, more, err := stats.List(ctx,
 			ztime.NewRange(now.Add(-1*time.Hour)).To(now.Add(1*time.Hour)),
-			nil, nil, 10, false)
+			nil, nil, 10, goatcounter.GroupHourly)
 		if err != nil {
 			t.Fatal(err)
 		}

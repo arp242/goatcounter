@@ -1,5 +1,5 @@
 {{/* TODO: make option to split counts between events and regular pageviews */}}
-<div class="pages-list {{if .Daily}}pages-list-daily{{end}}" data-widget="{{.ID}}">
+<div class="pages-list {{if .Group.Daily}}pages-list-daily{{end}}" data-widget="{{.ID}}">
 	<div class="widget-header">
 		<h2 class="full-width">{{t .Context "dashboard/pages/header|Pages"}}
 		{{if not $.User.Settings.FewerNumbers}}

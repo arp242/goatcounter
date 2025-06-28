@@ -78,7 +78,7 @@ func (w *Pages) GetData(ctx context.Context, a Args) (bool, error) {
 	}
 
 	var err error
-	w.Display, w.More, err = w.Pages.List(ctx, a.Rng, a.PathFilter, w.Exclude, w.Limit, a.Daily)
+	w.Display, w.More, err = w.Pages.List(ctx, a.Rng, a.PathFilter, w.Exclude, w.Limit, a.Group)
 	errs.Append(err)
 
 	if !goatcounter.MustGetUser(ctx).Settings.FewerNumbers {
@@ -162,8 +162,8 @@ func (w Pages) RenderHTML(ctx context.Context, shared SharedData) (string, any) 
 		Err         error
 		Pages       goatcounter.HitLists
 		Period      ztime.Range
-		Daily       bool
-		ForcedDaily bool
+		Group       goatcounter.Group
+		ForcedGroup bool
 		Offset      int
 		Max         int
 
@@ -178,8 +178,8 @@ func (w Pages) RenderHTML(ctx context.Context, shared SharedData) (string, any) 
 		Diff     []float64
 	}{
 		ctx, shared.Site, shared.User,
-		w.id, w.loaded, w.err, w.Pages, shared.Args.Rng, shared.Args.Daily,
-		shared.Args.ForcedDaily, len(w.Exclude) + 1, w.Max,
+		w.id, w.loaded, w.err, w.Pages, shared.Args.Rng, shared.Args.Group,
+		shared.Args.ForcedGroup, len(w.Exclude) + 1, w.Max,
 		w.Display, shared.Total, shared.TotalEvents, w.More,
 		w.Style, w.Refs, shared.Args.ShowRefs,
 		w.Diff,

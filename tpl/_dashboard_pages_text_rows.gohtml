@@ -31,7 +31,7 @@
 		</td>
 		<td class="col-t page-title">{{if $h.Title}}{{$h.Title}}{{else}}<em>({{t $.Context "no-title|no title"}})</em>{{end}}
 			{{if $h.Event}}<sup class="label-event">{{t $.Context "event|event"}}</sup>{{end}}</td>
-		<td class="col-d"><span>{{text_chart $.Context .Stats $.Max $.Daily}}</span></td>
+		<td class="col-d"><span>{{text_chart $.Context .Stats $.Max}}</span></td>
 	</tr>
 {{else}}
 	<tr><td colspan="6"><em>{{t $.Context "dashboard/nothing-to-display|Nothing to display"}}</em></td></tr>

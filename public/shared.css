@@ -15,10 +15,11 @@ html, body { margin: 0; }
 }
 
 a, a code, .link     { color: var(--link); text-decoration: none; transition: color .2s; }
-a:hover, .link:hover { text-decoration: underline; color: var(--link-hover); }
-a:hover code         { color: var(--link-hover); }
 .link                { background: transparent; border: none; outline: none; margin: 0; padding: 0; cursor: pointer;
                        font: inherit; line-height: 1rem; display: inline; -moz-user-select: inherit; -webkit-appearance: none; }
+.link:not(.disabled):not([disabled]):hover,
+a:hover              { text-decoration:underline; color:var(--link-hover); }
+a:hover code         { color:var(--link-hover); }
 
 h1     { text-align: center; padding: .5em 0; font-size: 1.7em; }
 h2     { border-bottom: 1px solid var(--header-border); padding-bottom: .2em; font-size: 1.5em; }

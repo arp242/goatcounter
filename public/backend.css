@@ -55,8 +55,9 @@ h3, h4     { margin-bottom: 0; }
 h3+p, h4+p { margin-top: 0; }
 h3.border  { border-bottom: 1px solid #666; margin-bottom: .2em; }
 
-form .err      { color: var(--form-error-text); display: block; }
-form .disabled { color:var(--pageviews-text); cursor:not-allowed;}
+form .err        { color:var(--form-error-text); display:block; }
+form .disabled,
+form *[disabled] { color:var(--pageviews-text); cursor:not-allowed;}
 
 span.red  { color: var(--form-error-text); }
 input.red { border: 1px solid var(--input-error-border) !important; }
@@ -278,7 +279,10 @@ tr.target .chart-left { display: block; }
 .period-year [value=year],
 .period-week-cur [value=week-cur],
 .period-month-cur [value=month-cur],
-.period-year-cur [value=year-cur] {
+.period-year-cur [value=year-cur],
+.group-hour [value=hour],
+.group-day [value=day],
+.group-week [value=week] {
     font-weight: bold;
     text-decoration: underline;
 }

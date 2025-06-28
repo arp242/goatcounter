@@ -373,7 +373,7 @@ var textSymbols = []rune{
 	'█',      // U+2588 FULL BLOCK
 }
 
-func textChart(ctx context.Context, stats []HitListStat, max int, daily bool) template.HTML {
+func textChart(ctx context.Context, stats []HitListStat, max int) template.HTML {
 	_, chunked := ChunkStat(stats)
 	symb := make([]rune, 0, 12)
 	for _, chunk := range chunked {

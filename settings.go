@@ -108,7 +108,7 @@ type (
 	View struct {
 		Name   string `json:"name"`
 		Filter string `json:"filter"`
-		Daily  bool   `json:"daily"`
+		Group  Group  `json:"group"`
 		Period string `json:"period"` // "week", "week-cur", or n days: "8"
 	}
 	Views []View

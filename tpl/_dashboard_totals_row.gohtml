@@ -1,7 +1,7 @@
 <tbody><tr id="TOTAL ">
 	{{if .Align}}<td class="col-count"></td><td class="col-path hide-mobile"></td>{{end}}
 	<td>
-		<div class="chart chart-{{$.Style}}" data-max="{{.Max}}" data-stats="{{.Page.Stats | json}}" data-daily="{{.Daily}}">
+		<div class="chart chart-{{$.Style}}" data-max="{{.Max}}" data-stats="{{.Page.Stats | json}}" data-group="{{.Group}}">
 			{{if .Loaded}}
 				{{if not $.User.Settings.FewerNumbers}}
 					<span class="chart-right"><small class="scale" title="Y-axis scale">{{nformat .Max $.User}}</small></span>

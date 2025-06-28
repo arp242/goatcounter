@@ -9,6 +9,7 @@ import (
 	"os"
 	"path/filepath"
 	"slices"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -931,9 +932,19 @@ func (h api) hits(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
+	group := goatcounter.GroupHourly
+	if args.Daily {
+		// TODO: ideally would like to refactor this to Group, or maybe just
+		// remove. Lets see if anyone is using it.
+		m := metrics.Start("api-hits-daily")
+		m.AddTag(strconv.FormatInt(int64(Site(r.Context()).ID), 10))
+		m.Done()
+		group = goatcounter.GroupDaily
+	}
+
 	var pages goatcounter.HitLists
 	tdu, more, err := pages.List(r.Context(), ztime.NewRange(args.Start).To(args.End),
-		includeIDs, excludeIDs, args.Limit, args.Daily)
+		includeIDs, excludeIDs, args.Limit, group)
 	if err != nil {
 		return err
 	}
@@ -1094,7 +1105,7 @@ func (h api) countTotal(w http.ResponseWriter, r *http.Request) error {
 	func() {
 		defer wg.Done()
 		defer log.Recover(r.Context())
-		_, oErr = total.Totals(r.Context(), rng, includeIDs, true, false)
+		_, oErr = total.Totals(r.Context(), rng, includeIDs, goatcounter.GroupDaily, false)
 	}()
 	wg.Wait()
 	if tcErr != nil {

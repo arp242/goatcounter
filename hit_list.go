@@ -14,6 +14,25 @@ import (
 	"zgo.at/zstd/ztime"
 )
 
+type Group uint8
+
+func (g Group) Hourly() bool { return g == GroupHourly }
+func (g Group) Daily() bool  { return g == GroupDaily }
+func (g Group) String() string {
+	switch g {
+	case GroupDaily:
+		return "day"
+	}
+	return "hour"
+}
+
+const (
+	GroupHourly = Group(iota)
+	GroupDaily
+)
+
+var Groups = []Group{GroupHourly, GroupDaily}
+
 type HitList struct {
 	// Number of visitors for the selected date range.
 	Count int `db:"count" json:"count"`
@@ -97,8 +116,9 @@ var allDays = []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
 
 // List the top paths for this site in the given time period.
 func (h *HitLists) List(
-	ctx context.Context, rng ztime.Range, pathFilter, exclude []PathID, limit int, daily bool,
+	ctx context.Context, rng ztime.Range, pathFilter, exclude []PathID, limit int, group Group,
 ) (int, bool, error) {
+
 	site := MustGetSite(ctx)
 	user := MustGetUser(ctx)
 
@@ -177,7 +197,7 @@ func (h *HitLists) List(
 
 	// Add total and max.
 	var totalDisplay int
-	addTotals(hh, daily, &totalDisplay)
+	addTotals(hh, group, &totalDisplay)
 
 	return totalDisplay, more, nil
 }
@@ -188,7 +208,7 @@ func (h *HitLists) List(
 const PathTotals = "TOTAL "
 
 // Totals gets the data for the "Totals" chart/widget.
-func (h *HitList) Totals(ctx context.Context, rng ztime.Range, pathFilter []PathID, daily, noEvents bool) (int, error) {
+func (h *HitList) Totals(ctx context.Context, rng ztime.Range, pathFilter []PathID, group Group, noEvents bool) (int, error) {
 	site := MustGetSite(ctx)
 	user := MustGetUser(ctx)
 
@@ -233,7 +253,7 @@ func (h *HitList) Totals(ctx context.Context, rng ztime.Range, pathFilter []Path
 	max := 0
 	for _, v := range stats {
 		totalst.Stats = append(totalst.Stats, v)
-		if !daily {
+		if group.Hourly() {
 			for _, x := range v.Hourly {
 				if x > max {
 					max = x
@@ -250,12 +270,12 @@ func (h *HitList) Totals(ctx context.Context, rng ztime.Range, pathFilter []Path
 	fillBlankDays(hh, rng)
 	applyOffset(hh, user.Settings.Timezone)
 
-	if daily {
+	if group.Daily() {
 		for i := range hh[0].Stats {
 			for _, n := range hh[0].Stats[i].Hourly {
 				hh[0].Stats[i].Daily += n
 			}
-			if daily && hh[0].Stats[i].Daily > max {
+			if hh[0].Stats[i].Daily > max {
 				max = hh[0].Stats[i].Daily
 			}
 		}
@@ -376,18 +396,18 @@ func fillBlankDays(hh HitLists, rng ztime.Range) {
 	}
 }
 
-func addTotals(hh HitLists, daily bool, totalDisplay *int) {
+func addTotals(hh HitLists, group Group, totalDisplay *int) {
 	for i := range hh {
 		for j := range hh[i].Stats {
 			for k := range hh[i].Stats[j].Hourly {
 				hh[i].Stats[j].Daily += hh[i].Stats[j].Hourly[k]
-				if !daily && hh[i].Stats[j].Hourly[k] > hh[i].Max {
+				if !group.Daily() && hh[i].Stats[j].Hourly[k] > hh[i].Max {
 					hh[i].Max = hh[i].Stats[j].Hourly[k]
 				}
 			}
 
 			hh[i].Count += hh[i].Stats[j].Daily
-			if daily && hh[i].Stats[j].Daily > hh[i].Max {
+			if group.Daily() && hh[i].Stats[j].Daily > hh[i].Max {
 				hh[i].Max = hh[i].Stats[j].Daily
 			}
 		}

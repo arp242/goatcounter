@@ -128,7 +128,7 @@ func reportText(ctx context.Context, site goatcounter.Site, user goatcounter.Use
 	subject = fmt.Sprintf("Your GoatCounter report for %s", args.DisplayDate)
 
 	{ // Get overview of paths.
-		_, _, err := args.Pages.List(ctx, rng, nil, nil, 10, true)
+		_, _, err := args.Pages.List(ctx, rng, nil, nil, 10, goatcounter.GroupDaily)
 		if err != nil {
 			return nil, nil, "", err
 		}
@@ -137,7 +137,7 @@ func reportText(ctx context.Context, site goatcounter.Site, user goatcounter.Use
 			return nil, nil, "", nil
 		}
 
-		_, err = args.Total.Totals(ctx, rng, nil, true, true)
+		_, err = args.Total.Totals(ctx, rng, nil, goatcounter.GroupDaily, true)
 		if err != nil {
 			return nil, nil, "", err
 		}

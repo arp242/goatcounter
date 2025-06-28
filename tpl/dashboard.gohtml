@@ -57,6 +57,7 @@
 	<button type="submit" tabindex="-1" class="hide-btn" aria-label="{{.T "button/submit|Submit"}}"></button>
 	{{if .ShowRefs}}<input type="hidden" name="showrefs" value="{{.ShowRefs}}">{{end}}
 	<input type="hidden" id="hl-period" name="hl-period" value="{{.View.Period}}" disabled>
+	<input type="hidden" id="hl-group" name="group" value="{{.View.Group}}" disabled>
 
 	{{if .User.ID}}
 		<div id="dash-saved-views">
@@ -116,17 +117,28 @@
 					title="{{.T "nav-dash/filter-tooltip|Filter the list of paths; matched case-insensitive on path and title"}}"
 					{{if .View.Filter}}class="value"{{end}}>
 			</div>
-			<label{{if .ForcedDaily}} class="disabled"{{end}}
-				{{if .ForcedDaily}}title="{{if .View.Daily -}}
-					{{.T "nav-dash/forced-daily|Cannot use the hourly view for a time range of more than 90 days"}}
-				{{- else -}}
-					{{.T "nav-dash/forced-hourly|Cannot use the daily view for a time range of less than 7 days"}}
-				{{- end}}"{{end}}
-			>
-				<input type="checkbox" name="daily" id="daily"{{if .View.Daily}} checked{{end}}{{if .ForcedDaily}} disabled{{end}}>
-				{{.T "nav-dash/by-day|View by day"}}
-			</label>
-			<input type="hidden" name="daily" value="off">
+			{{/* .T "nav-dash/by-day|View by day" */}}
+
+			<span id="dash-select-group" class="group-{{.View.Group}}">
+				{{.T `nav-dash/view-by|View by:`}}
+				  <button class="link" name="group" value="hour"
+					{{if and .ForcedGroup (gt .View.Group 0)}}disabled
+						title="{{.T "nav-dash/forced-daily|Cannot use the hourly view for a time range of more than 90 days"}}"
+					{{end}}
+				  >{{.T "nav-dash/hour|hour"}}</button>
+				· <button class="link" name="group" value="day"
+					{{if and .ForcedGroup (lt .View.Group 1)}}disabled
+						title="{{.T "nav-dash/forced-hourly|Cannot use the daily view for a time range of less than 7 days"}}"
+					{{end}}
+				  >{{.T "nav-dash/day|day"}}</button>
+				{{/*
+				· <button class="link" name="group" value="week"
+					{{if and .ForcedGroup (lt .View.Group 1)}}disabled
+						title="disabled"
+					{{end}}
+				  >{{.T "nav-dash/day|day"}}</button>
+				*/}}
+			</span>
 		</div>
 	</div>
 	<div id="dash-move">
