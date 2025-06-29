@@ -3,6 +3,7 @@ package handlers
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"os"
 	"runtime"
@@ -16,6 +17,7 @@ import (
 	"zgo.at/goatcounter/v2/pkg/log"
 	"zgo.at/guru"
 	"zgo.at/json"
+	"zgo.at/slog_align"
 	"zgo.at/termtext"
 	"zgo.at/z18n"
 	"zgo.at/zdb"
@@ -184,11 +186,16 @@ func addctx(db zdb.DB, loadSite bool, dashTimeout int) func(http.Handler) http.H
 
 						if r.URL.Path == "/" {
 							txt := fmt.Sprintf(""+
-								"accessing the site on domain %q, but the configured domain is %q; "+
-								"this will work fine as long as you only have one site, but you *need* to use the "+
+								"Accessing the site on domain %q, but the configured domain is %q.\n\n"+
+								"This will work fine as long as you only have one site, but you *need* to use the "+
 								"configured domain if you add a second site so GoatCounter will know which site to use.",
 								znet.RemovePort(r.Host), *s.Cname)
-							log.Info(r.Context(), termtext.WordWrap(txt, 55, strings.Repeat(" ", 25)))
+							if _, ok := slog.Default().Handler().(slog_align.AlignedHandler); ok {
+								txt = termtext.WordWrap(txt, 70, "")
+							} else {
+								txt = strings.ReplaceAll(txt, "\n\n", " ")
+							}
+							log.Warn(r.Context(), txt)
 						}
 					}
 					if err2 == nil && len(sites) == 0 {
