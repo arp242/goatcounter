@@ -113,7 +113,7 @@ func newGlobals(w http.ResponseWriter, r *http.Request) Globals {
 		GoatcounterCom: goatcounter.Config(ctx).GoatcounterCom,
 		Dev:            goatcounter.Config(ctx).Dev,
 		Port:           goatcounter.Config(ctx).Port,
-		Websocket:      goatcounter.Config(ctx).Websocket,
+		Websocket:      useWebsocket(r),
 		HideUI:         r.URL.Query().Get("hideui") != "",
 		JSTranslations: map[string]string{
 			"error/date-future":           T(ctx, "error/date-future|That would be in the future"),

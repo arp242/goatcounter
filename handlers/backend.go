@@ -15,7 +15,7 @@ import (
 	"zgo.at/zstd/zfs"
 )
 
-func NewBackend(db zdb.DB, acmeh http.HandlerFunc, dev, goatcounterCom, websocket bool,
+func NewBackend(db zdb.DB, acmeh http.HandlerFunc, dev, goatcounterCom bool,
 	domainStatic string, basePath string, dashTimeout, apiMax int, ratelimits Ratelimits,
 ) chi.Router {
 
@@ -26,7 +26,7 @@ func NewBackend(db zdb.DB, acmeh http.HandlerFunc, dev, goatcounterCom, websocke
 		root.Mount(basePath, r)
 	}
 
-	backend{dashTimeout, websocket}.Mount(r, db, dev, domainStatic, dashTimeout, apiMax, ratelimits)
+	backend{dashTimeout}.Mount(r, db, dev, domainStatic, dashTimeout, apiMax, ratelimits)
 
 	if acmeh != nil {
 		r.Get("/.well-known/acme-challenge/{key}", acmeh)
@@ -41,7 +41,6 @@ func NewBackend(db zdb.DB, acmeh http.HandlerFunc, dev, goatcounterCom, websocke
 
 type backend struct {
 	dashTimeout int
-	websocket   bool
 }
 
 func (h backend) Mount(r chi.Router, db zdb.DB, dev bool, domainStatic string, dashTimeout, apiMax int, ratelimits Ratelimits) {
@@ -125,9 +124,7 @@ func (h backend) Mount(r chi.Router, db zdb.DB, dev bool, domainStatic string, d
 		{
 			ap := a.With(loggedInOrPublic, addz18n())
 			ap.Get("/", zhttp.Wrap(h.dashboard))
-			if h.websocket {
-				ap.Get("/loader", zhttp.Wrap(h.loader))
-			}
+			ap.Get("/loader", zhttp.Wrap(h.loader))
 			ap.Get("/load-widget", zhttp.Wrap(h.loadWidget))
 		}
 		{

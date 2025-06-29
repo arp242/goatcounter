@@ -77,7 +77,6 @@ type GlobalConfig struct {
 	Dev            bool
 	GoatcounterCom bool
 	Port           string
-	Websocket      bool
 	EmailFrom      string
 	BcryptMinCost  bool
 }

@@ -39,7 +39,12 @@ unreleased
 - Use PostgreSQL 17 in compose.yaml; also update the PostgreSQL settings to be
   less conservative.
 
+- WebSocket support is now detected automatically, without the need to set the
+  `-websocket` flag (which is now a no-op).
+
 ### Fixes
+
+- Adjust screen size categories for more modern devices.
 
 - Fix merging of multiple paths when more than once path has entries for the
   same hour.

@@ -66,7 +66,7 @@ Environment:
 
     GOATCOUNTER_LISTEN=:80
     GOATCOUNTER_STORE_EVERY=60
-    GOATCOUNTER_WEBSOCKET=
+    GOATCOUNTER_AUTOMIGRATE=
 
   Additional environment variables:
 
@@ -179,13 +179,6 @@ Flags:
                the defaults (200 for paths, 100 for everything else), or <0 for
                no limit.
 
-  -websocket   Use a websocket to send data. The advantage of this is that the
-               perceived performance is quite a bit better, especially with a
-               lot of data, since things can be loaded "lazily". The downside is
-               that it doesn't work out-of-the-box with a proxy setup (e.g.
-               nginx, Apache, Varnish, etc.) and requires special configuration,
-               which is why it's disabled by default.
-
   -store-every How often to persist pageviews to the database, in seconds.
                Higher values will give better performance, but it will take a
                bit longer for pageviews to show. The default is 10 seconds.
@@ -207,7 +200,7 @@ func cmdServe(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 		basePath     = f.String("/", "base-path").Pointer()
 		domainStatic = f.String("", "static").Pointer()
 	)
-	dbConnect, dbConn, dev, automigrate, listen, flagTLS, from, websocket, apiMax, ratelimits, geodb, err := flagsServe(f, &v)
+	dbConnect, dbConn, dev, automigrate, listen, flagTLS, from, apiMax, ratelimits, geodb, err := flagsServe(f, &v)
 	if err != nil {
 		return err
 	}
@@ -253,11 +246,10 @@ func cmdServe(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 		c.URLStatic = urlStatic
 		c.BasePath = basePath
 		c.DomainCount = domainCount
-		c.Websocket = websocket
 
 		// Set up HTTP handler and servers.
 		hosts := map[string]http.Handler{
-			"*": handlers.NewBackend(db, acmeh, dev, c.GoatcounterCom, websocket, c.DomainStatic, c.BasePath, 60, apiMax, ratelimits),
+			"*": handlers.NewBackend(db, acmeh, dev, c.GoatcounterCom, c.DomainStatic, c.BasePath, 60, apiMax, ratelimits),
 		}
 		if domainStatic != "" {
 			// May not be needed, but just in case the DomainStatic isn't an
@@ -365,7 +357,7 @@ func defaultDB() string {
 	return "sqlite+./goatcounter-data/db.sqlite3"
 }
 
-func flagsServe(f zli.Flags, v *zvalidate.Validator) (string, string, bool, bool, string, string, string, bool, int, handlers.Ratelimits, *geoip2.Reader, error) {
+func flagsServe(f zli.Flags, v *zvalidate.Validator) (string, string, bool, bool, string, string, string, int, handlers.Ratelimits, *geoip2.Reader, error) {
 	var (
 		dbConnect   = f.String(defaultDB(), "db").Pointer()
 		dbConn      = f.String("16,4", "dbconn").Pointer()
@@ -381,11 +373,11 @@ func flagsServe(f zli.Flags, v *zvalidate.Validator) (string, string, bool, bool
 		ratelimit   = f.String("", "ratelimit").Pointer()
 		apiMax      = f.Int(0, "api-max").Pointer()
 		storeEvery  = f.Int(10, "store-every").Pointer()
-		websocket   = f.Bool(false, "websocket").Pointer()
 		json        = f.Bool(false, "json").Pointer()
+		_           = f.Bool(false, "websocket") // TODO: no-op for compat with<2.7
 	)
 	if err := f.Parse(zli.FromEnv("GOATCOUNTER")); err != nil {
-		return "", "", false, false, "", "", "", false, 0, handlers.Ratelimits{}, nil, err
+		return "", "", false, false, "", "", "", 0, handlers.Ratelimits{}, nil, err
 	}
 
 	setupLog(*dev, *json, debug.StringsSplit(","))
@@ -414,7 +406,7 @@ func flagsServe(f zli.Flags, v *zvalidate.Validator) (string, string, bool, bool
 	}
 	geodb, err := geo.Open(*geodbFlag)
 	if err != nil {
-		return "", "", false, false, "", "", "", false, 0, handlers.Ratelimits{}, nil,
+		return "", "", false, false, "", "", "", 0, handlers.Ratelimits{}, nil,
 			fmt.Errorf("loading GeoIP database: %w", err)
 	}
 	if *geodbFlag == "" {
@@ -436,14 +428,14 @@ func flagsServe(f zli.Flags, v *zvalidate.Validator) (string, string, bool, bool
 			r := v.Integer("requests", reqs)
 			s := v.Integer("seconds", secs)
 			if v.HasErrors() {
-				return *dbConnect, *dbConn, *dev, *automigrate, *listen, *flagTLS, *from, *websocket, *apiMax, handlers.Ratelimits{}, nil,
+				return *dbConnect, *dbConn, *dev, *automigrate, *listen, *flagTLS, *from, *apiMax, handlers.Ratelimits{}, nil,
 					fmt.Errorf("invalid -ratelimit flag: %q: %w", *ratelimit, v)
 			}
 			ratelimits.Set(name, int(r), s)
 		}
 	}
 
-	return *dbConnect, *dbConn, *dev, *automigrate, *listen, *flagTLS, *from, *websocket, *apiMax, ratelimits, geodb, nil
+	return *dbConnect, *dbConn, *dev, *automigrate, *listen, *flagTLS, *from, *apiMax, ratelimits, geodb, nil
 }
 
 func setupServe(dbConnect, dbConn string, dev bool, flagTLS string, automigrate bool, geodb *geoip2.Reader) (zdb.DB, context.Context, *tls.Config, http.HandlerFunc, uint8, error) {

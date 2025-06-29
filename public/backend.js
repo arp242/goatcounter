@@ -8,6 +8,7 @@
 		window.CSRF              = $('#js-settings').attr('data-csrf')
 		window.TZ_OFFSET         = parseInt($('#js-settings').attr('data-offset'), 10) || 0
 		window.SITE_FIRST_HIT_AT = $('#js-settings').attr('data-first-hit-at') * 1000
+		window.GOATCOUNTER_COM   = $('#js-settings').attr('data-goatcounter-com') === 'true'
 		window.USE_WEBSOCKET     = $('#js-settings').attr('data-websocket') === 'true'
 		window.WEBSOCKET         = undefined
 		if (!USER_SETTINGS.language)

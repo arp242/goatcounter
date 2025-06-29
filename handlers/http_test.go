@@ -45,6 +45,8 @@ type handlerTest struct {
 }
 
 func init() {
+	supportWebsocket.Store(false)
+
 	blackmail.DefaultMailer = blackmail.NewMailer(blackmail.ConnectWriter,
 		blackmail.MailerOut(new(bytes.Buffer)))
 

@@ -21,8 +21,25 @@
 		if (window.WEBSOCKET && window.WEBSOCKET.readyState <= 1)
 			return
 
-		let cid  = $('#js-connect-id').text()
-		window.WEBSOCKET = new WebSocket((location.protocol === 'https:' ? 'wss://' : 'ws://') + document.location.host + BASE_PATH + '/loader?id=' + cid)
+		window.WEBSOCKET = new WebSocket(
+			(location.protocol === 'https:' ? 'wss://' : 'ws://') +
+			`${document.location.host}${BASE_PATH}/loader?id=${$('#js-connect-id').text()}`)
+
+		// Reload without websockets if that didn't work. We can't just use
+		// onerror, because both Firefox and Chrome may take up to a minute to
+		// call this error.
+		//
+		// The backend will outright disable Websockets if this happened three
+		// times in a row.
+		if (!window.GOATCOUNTER_COM) {
+			window.WEBSOCKET.onerror = () => {console.log("R"); push_query({'no-websocket': 1}); window.location.reload() }
+			window.WEBSOCKET.onopen  = () => { window.WEBSOCKET.onerror = null }
+			setTimeout(() => {
+				if (window.WEBSOCKET.readyState === 0)
+					window.WEBSOCKET.onerror()
+			}, 1000)
+		}
+
 		window.WEBSOCKET.onmessage = function(e) {
 			let msg = JSON.parse(e.data),
 				wid = $(`#dash-widgets div[data-widget=${msg.id}]`)

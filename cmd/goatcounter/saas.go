@@ -36,7 +36,7 @@ func cmdSaas(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 	var (
 		domain = f.String("goatcounter.localhost:8081,static.goatcounter.localhost:8081", "domain").Pointer()
 	)
-	dbConnect, dbConn, dev, automigrate, listen, flagTLS, from, websocket, apiMax, ratelimits, geodb, err := flagsServe(f, &v)
+	dbConnect, dbConn, dev, automigrate, listen, flagTLS, from, apiMax, ratelimits, geodb, err := flagsServe(f, &v)
 	if err != nil {
 		return err
 	}
@@ -69,14 +69,13 @@ func cmdSaas(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 		c.DomainCount = domainCount
 		c.URLStatic = urlStatic
 		c.EmailFrom = from
-		c.Websocket = websocket
 
 		// Set up HTTP handler and servers.
 		d := znet.RemovePort(domain)
 		hosts := map[string]http.Handler{
 			d:          zhttp.RedirectHost("https://www." + domain),
 			"www." + d: handlers.NewWebsite(db, dev),
-			"*":        handlers.NewBackend(db, acmeh, dev, c.GoatcounterCom, websocket, c.DomainStatic, c.BasePath, 15, apiMax, ratelimits),
+			"*":        handlers.NewBackend(db, acmeh, dev, c.GoatcounterCom, c.DomainStatic, c.BasePath, 15, apiMax, ratelimits),
 		}
 		if dev {
 			hosts[znet.RemovePort(domainStatic)] = handlers.NewStatic(chi.NewRouter(), dev, true, c.BasePath)

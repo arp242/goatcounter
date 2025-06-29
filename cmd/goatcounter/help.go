@@ -186,6 +186,9 @@ Proxy Setup:
     "X-Forwarded-For: [..]" or "X-Real-Ip: [..]" with the client's IP. Most do
     this by default.
 
+    GoatCounter uses WebSockets to optimize loading speed. It can work without
+    WebSockets, but it's recommended to make sure proxying WebSockets work.
+
     You can still use GoatCounter's ACME if you want:
 
         goatcounter serve -listen localhost:8081 -tls acme

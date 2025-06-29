@@ -124,7 +124,7 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 
 	initial := wid
 	var lazy widgets.List
-	if h.websocket {
+	if useWebsocket(r) {
 		initial, lazy = wid.InitialAndLazy()
 	}
 

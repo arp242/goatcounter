@@ -245,5 +245,5 @@ func BenchmarkCount(b *testing.B) {
 }
 
 func newBackend(db zdb.DB) chi.Router {
-	return NewBackend(db, nil, true, true, false, "example.com", "", 10, 0, NewRatelimits())
+	return NewBackend(db, nil, true, true, "example.com", "", 10, 0, NewRatelimits())
 }
