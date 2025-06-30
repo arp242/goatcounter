@@ -65,7 +65,7 @@ func (e *Export) Create(ctx context.Context, startFrom HitID) (*os.File, error) 
 	site := MustGetSite(ctx)
 
 	e.SiteID = site.ID
-	e.CreatedAt = ztime.Now()
+	e.CreatedAt = ztime.Now(ctx)
 	e.StartFromHitID = startFrom
 	e.Path = fmt.Sprintf("%s%sgoatcounter-export-%s-%s-%d.csv.gz",
 		os.TempDir(), string(os.PathSeparator), site.Code,
@@ -185,7 +185,7 @@ func (e *Export) Run(ctx context.Context, fp *os.File, mailUser bool) {
 		return
 	}
 
-	now := ztime.Now()
+	now := ztime.Now(ctx)
 	err = zdb.Exec(ctx, `update exports set
 		finished_at=$1, num_rows=$2, size=$3, hash=$4, last_hit_id=$5
 		where export_id=$6`,

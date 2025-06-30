@@ -208,7 +208,7 @@ func (h api) auth(r *http.Request, w http.ResponseWriter, require zint.Bitflag64
 	}
 
 	// Update once a day at the most.
-	if token.LastUsedAt == nil || token.LastUsedAt.Before(ztime.Now().Add(-24*time.Hour)) {
+	if token.LastUsedAt == nil || token.LastUsedAt.Before(ztime.Now(r.Context()).Add(-24*time.Hour)) {
 		err := token.UpdateLastUsed(r.Context())
 		if err != nil {
 			log.Error(r.Context(), err)
@@ -416,7 +416,7 @@ func (h api) exportDownload(w http.ResponseWriter, r *http.Request) error {
 
 	fp, err := os.Open(export.Path)
 	if err != nil {
-		if os.IsNotExist(err) && export.FinishedAt.Add(24*time.Hour).After(ztime.Now()) {
+		if os.IsNotExist(err) && export.FinishedAt.Add(24*time.Hour).After(ztime.Now(r.Context())) {
 			w.WriteHeader(400)
 			return zhttp.JSON(w, apiError{Error: "exports are kept for 24 hours; this export file has been deleted"})
 		}
@@ -921,10 +921,10 @@ func (h api) hits(w http.ResponseWriter, r *http.Request) error {
 		args.Limit = 1
 	}
 	if args.Start.IsZero() {
-		args.Start = ztime.AddPeriod(ztime.Now(), -7, ztime.Day)
+		args.Start = ztime.AddPeriod(ztime.Now(r.Context()), -7, ztime.Day)
 	}
 	if args.End.IsZero() {
-		args.End = ztime.Now()
+		args.End = ztime.Now(r.Context())
 	}
 
 	includeIDs, excludeIDs, err := findPaths(r.Context(), args.PathByName, args.IncludePaths, args.ExcludePaths)
@@ -1004,10 +1004,10 @@ func (h api) refs(w http.ResponseWriter, r *http.Request) error {
 		args.Limit = 1
 	}
 	if args.Start.IsZero() {
-		args.Start = ztime.AddPeriod(ztime.Now(), -7, ztime.Day)
+		args.Start = ztime.AddPeriod(ztime.Now(r.Context()), -7, ztime.Day)
 	}
 	if args.End.IsZero() {
-		args.End = ztime.Now()
+		args.End = ztime.Now(r.Context())
 	}
 
 	var refs goatcounter.HitStats
@@ -1078,10 +1078,10 @@ func (h api) countTotal(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 	if args.Start.IsZero() {
-		args.Start = ztime.AddPeriod(ztime.Now(), -7, ztime.Day)
+		args.Start = ztime.AddPeriod(ztime.Now(r.Context()), -7, ztime.Day)
 	}
 	if args.End.IsZero() {
-		args.End = ztime.Now()
+		args.End = ztime.Now(r.Context())
 	}
 
 	includeIDs, _, err := findPaths(r.Context(), args.PathByName, args.IncludePaths, nil)
@@ -1181,10 +1181,10 @@ func (h api) stats(w http.ResponseWriter, r *http.Request) error {
 		args.Limit = 1
 	}
 	if args.Start.IsZero() {
-		args.Start = ztime.AddPeriod(ztime.Now(), -7, ztime.Day)
+		args.Start = ztime.AddPeriod(ztime.Now(r.Context()), -7, ztime.Day)
 	}
 	if args.End.IsZero() {
-		args.End = ztime.Now()
+		args.End = ztime.Now(r.Context())
 	}
 
 	var (
@@ -1263,10 +1263,10 @@ func (h api) statsDetail(w http.ResponseWriter, r *http.Request) error {
 		args.Limit = 1
 	}
 	if args.Start.IsZero() {
-		args.Start = ztime.AddPeriod(ztime.Now(), -7, ztime.Day)
+		args.Start = ztime.AddPeriod(ztime.Now(r.Context()), -7, ztime.Day)
 	}
 	if args.End.IsZero() {
-		args.End = ztime.Now()
+		args.End = ztime.Now(r.Context())
 	}
 
 	var (

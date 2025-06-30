@@ -58,14 +58,14 @@ func (u *User) Defaults(ctx context.Context) {
 	}
 
 	if u.CreatedAt.IsZero() {
-		u.CreatedAt = ztime.Now()
+		u.CreatedAt = ztime.Now(ctx)
 	} else {
-		t := ztime.Now()
+		t := ztime.Now(ctx)
 		u.UpdatedAt = &t
 	}
 
 	if u.LastReportAt.IsZero() {
-		u.LastReportAt = ztime.Now()
+		u.LastReportAt = ztime.Now(ctx)
 	}
 
 	if !u.EmailVerified {
@@ -417,12 +417,12 @@ func (u *User) Login(ctx context.Context) error {
 
 	u.Token = ztype.Ptr(zcrypto.Secret256())
 	if u.LoginToken == nil || *u.LoginToken == "" {
-		s := ztime.Now().Format("20060102") + "-" + zcrypto.Secret256()
+		s := ztime.Now(ctx).Format("20060102") + "-" + zcrypto.Secret256()
 		u.LoginToken = &s
 	}
 
-	u.LoginAt = ztype.Ptr(ztime.Now())
-	u.OpenAt = ztype.Ptr(ztime.Now())
+	u.LoginAt = ztype.Ptr(ztime.Now(ctx))
+	u.OpenAt = ztype.Ptr(ztime.Now(ctx))
 	err := zdb.Exec(ctx, `update users set
 			login_request=null, login_token=?, csrf_token=?, login_at=?, open_at=?
 			where user_id = ? and site_id = ?`,
@@ -437,11 +437,11 @@ func (u *User) UpdateOpenAt(ctx context.Context) error {
 	}
 
 	// Update once a day at the most.
-	if u.OpenAt != nil && u.OpenAt.After(ztime.Now().Add(-24*time.Hour)) {
+	if u.OpenAt != nil && u.OpenAt.After(ztime.Now(ctx).Add(-24*time.Hour)) {
 		return nil
 	}
 
-	u.OpenAt = ztype.Ptr(ztime.Now())
+	u.OpenAt = ztype.Ptr(ztime.Now(ctx))
 	err := zdb.Exec(ctx, `update users set open_at = ? where user_id = ? and site_id = ?`,
 		u.OpenAt, u.ID, MustGetSite(ctx).IDOrParent())
 	return errors.Wrap(err, "User.UpdateOpenAt")

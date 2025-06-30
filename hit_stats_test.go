@@ -29,7 +29,7 @@ func TestHitStats(t *testing.T) {
 		Hit{Path: "/y", Location: "ID-BA", Size: []float64{800, 600, 2}, UserAgentHeader: "Mozilla/5.0 (X11; Linux x86_64; Ubuntu; rv:79.0) Gecko/20100101 Firefox/79.0", FirstVisit: true},
 	)
 
-	rng := ztime.NewRange(ztime.Now()).To(ztime.Now())
+	rng := ztime.NewRange(ztime.Now(ctx)).To(ztime.Now(ctx))
 
 	cmp := func(t *testing.T, want string, stats ...HitStats) {
 		t.Helper()
@@ -239,7 +239,7 @@ func TestListSizes(t *testing.T) {
 		sizeUnknown   = "unknown"
 	)
 
-	now := ztime.Now()
+	now := ztime.Now(ctx)
 	widths := []struct {
 		w  float64
 		id string
@@ -383,7 +383,7 @@ func TestStatsByRef(t *testing.T) {
 		Hit{Path: "/a", Ref: "https://example.org", FirstVisit: true})
 
 	var have HitStats
-	err := have.ListTopRef(ctx, "example.com", ztime.NewRange(ztime.Now().Add(-1*time.Hour)).To(ztime.Now().Add(1*time.Hour)),
+	err := have.ListTopRef(ctx, "example.com", ztime.NewRange(ztime.Now(ctx).Add(-1*time.Hour)).To(ztime.Now(ctx).Add(1*time.Hour)),
 		[]PathID{1}, 10, 0)
 	if err != nil {
 		t.Fatal(err)

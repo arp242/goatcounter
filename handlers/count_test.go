@@ -23,8 +23,6 @@ import (
 )
 
 func TestBackendCount(t *testing.T) {
-	ztime.SetNow(t, "2019-06-18 14:42:00")
-
 	tests := []struct {
 		name     string
 		query    url.Values
@@ -131,6 +129,7 @@ func TestBackendCount(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			ctx := gctest.DB(t)
+			ctx = ztime.WithNow(ctx, ztime.FromString("2019-06-18 14:42:00"))
 
 			var site goatcounter.Site
 			site.Defaults(ctx)
@@ -200,7 +199,7 @@ func TestBackendCount(t *testing.T) {
 
 			tt.hit.ID = h.ID
 			tt.hit.Site = h.Site
-			tt.hit.CreatedAt = ztime.Now()
+			tt.hit.CreatedAt = ztime.Now(ctx)
 			tt.hit.Session = goatcounter.TestSeqSession // Should all be the same session.
 			h.CreatedAt = h.CreatedAt.In(time.UTC)
 			if d := ztest.Diff(string(zjson.MustMarshal(h)), string(zjson.MustMarshal(tt.hit)), ztest.DiffJSON); d != "" {
@@ -211,11 +210,8 @@ func TestBackendCount(t *testing.T) {
 }
 
 func TestBackendCountSessions(t *testing.T) {
-	now := time.Date(2019, 6, 18, 14, 42, 0, 0, time.UTC)
-	ztime.Now = func() time.Time { return now }
-	defer func() { ztime.Now = func() time.Time { return time.Now().UTC() } }()
-
 	ctx := gctest.DB(t)
+	ctx = ztime.WithNow(ctx, time.Date(2019, 6, 18, 14, 42, 0, 0, time.UTC))
 
 	var set goatcounter.SiteSettings
 	set.Defaults(ctx)
@@ -328,7 +324,7 @@ func TestBackendCountSessions(t *testing.T) {
 
 	// Should still use the same sessions.
 	goatcounter.SessionTime = 1 * time.Second
-	goatcounter.Memstore.EvictSessions()
+	goatcounter.Memstore.EvictSessions(ctx)
 	send(ctx1, ua1)
 	send(ctx2, ua1)
 	hits1 = checkHits(ctx1, 6)
@@ -337,8 +333,10 @@ func TestBackendCountSessions(t *testing.T) {
 	checkSess(append(hits1, hits2...), want)
 
 	// Should use new sessions from now on.
-	now = time.Date(2019, 6, 18, 14, 42, 2, 0, time.UTC)
-	goatcounter.Memstore.EvictSessions()
+	now := time.Date(2019, 6, 18, 14, 42, 2, 0, time.UTC)
+	ctx1 = ztime.WithNow(ctx1, now)
+	ctx2 = ztime.WithNow(ctx2, now)
+	goatcounter.Memstore.EvictSessions(ctx1)
 	send(ctx1, ua1)
 	send(ctx2, ua1)
 	hits1 = checkHits(ctx1, 7)

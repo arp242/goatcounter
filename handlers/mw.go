@@ -109,7 +109,7 @@ var (
 type statusWriter interface{ Status() int }
 
 func addctx(db zdb.DB, loadSite bool, dashTimeout int) func(http.Handler) http.Handler {
-	Started = ztime.Now()
+	Started = time.Now()
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
@@ -118,7 +118,7 @@ func addctx(db zdb.DB, loadSite bool, dashTimeout int) func(http.Handler) http.H
 			if r.URL.Path == "/status" {
 				info, _ := zdb.Info(ctx)
 				j, err := json.Marshal(map[string]any{
-					"uptime":   ztime.Now().Sub(Started).Round(time.Second).String(),
+					"uptime":   ztime.Now(r.Context()).Sub(Started).Round(time.Second).String(),
 					"version":  goatcounter.Version,
 					"database": zdb.SQLDialect(ctx).String() + " " + string(info.Version),
 					"go":       runtime.Version(),

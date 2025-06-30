@@ -12,8 +12,6 @@ import (
 
 func TestUserEmailReportRange(t *testing.T) {
 	now := time.Date(2019, 6, 18, 14, 42, 0, 0, time.UTC)
-	ztime.Now = func() time.Time { return now }
-	t.Cleanup(func() { ztime.Now = func() time.Time { return time.Now().UTC() } })
 	wita := tz.MustNew("", "Asia/Makassar")
 
 	tests := []struct {
@@ -71,7 +69,8 @@ func TestUserEmailReportRange(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run("", func(t *testing.T) {
-			rng := tt.user.EmailReportRange(context.Background())
+			ctx := ztime.WithNow(context.Background(), now)
+			rng := tt.user.EmailReportRange(ctx)
 			if !rng.Start.Equal(tt.wantStart) {
 				t.Errorf("start wrong\nwant: %s\nhave: %s\n", tt.wantStart, rng.Start)
 			}

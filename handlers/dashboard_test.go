@@ -58,10 +58,9 @@ func TestTimeRange(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.rng+"-"+tt.now, func(t *testing.T) {
-			ztime.SetNow(t, tt.now)
-
 			t.Run("UTC", func(t *testing.T) {
-				rng := timeRange(context.Background(), tt.rng, time.UTC, false)
+				ctx := ztime.WithNow(context.Background(), ztime.FromString(tt.now))
+				rng := timeRange(ctx, tt.rng, time.UTC, false)
 				gotStart := rng.Start.Format("2006-01-02 15:04:05")
 				gotEnd := rng.End.Format("2006-01-02 15:04:05")
 

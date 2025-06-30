@@ -84,7 +84,7 @@ func (s *Site) Defaults(ctx context.Context) {
 		s.State = StateActive
 	}
 
-	n := ztime.Now()
+	n := ztime.Now(ctx)
 
 	if !Config(ctx).GoatcounterCom {
 		s.Code = "serve-" + zcrypto.Secret64()
@@ -308,7 +308,7 @@ func (s *Site) UpdateCnameSetupAt(ctx context.Context) error {
 		return errors.New("ID == 0")
 	}
 
-	n := ztime.Now()
+	n := ztime.Now(ctx)
 	s.CnameSetupAt = &n
 
 	err := zdb.Exec(ctx,
@@ -362,7 +362,7 @@ func (s *Site) Delete(ctx context.Context, deleteChildren bool) error {
 		if zdb.SQLDialect(ctx) == zdb.DialectPostgreSQL {
 			q = `update sites set state=$1, updated_at=$2, code=gen_random_uuid(), cname=null where site_id=$3 or parent=$3`
 		}
-		t := ztime.Now()
+		t := ztime.Now(ctx)
 		err := zdb.Exec(ctx, q, StateDeleted, t, s.ID)
 		if err != nil {
 			return errors.Wrap(err, "Site.Delete")

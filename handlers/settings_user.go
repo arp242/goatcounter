@@ -26,7 +26,7 @@ func (h settings) userPref(verr *zvalidate.Validator) zhttp.HandlerFunc {
 			Timezones          []*tz.Zone
 			FewerNumbersLocked bool
 		}{newGlobals(w, r), verr, tz.Zones,
-			goatcounter.MustGetUser(r.Context()).Settings.FewerNumbersLockUntil.After(ztime.Now())})
+			goatcounter.MustGetUser(r.Context()).Settings.FewerNumbersLockUntil.After(ztime.Now(r.Context()))})
 	}
 }
 
@@ -49,13 +49,13 @@ func (h settings) userPrefSave(w http.ResponseWriter, r *http.Request) error {
 
 	args.User.Settings.Theme = args.Theme
 
-	if oldFewerNums && !args.User.Settings.FewerNumbers && args.User.Settings.FewerNumbersLockUntil.After(ztime.Now()) {
+	if oldFewerNums && !args.User.Settings.FewerNumbers && args.User.Settings.FewerNumbersLockUntil.After(ztime.Now(r.Context())) {
 		zhttp.FlashError(w, r, "Nice try")
 		return zhttp.SeeOther(w, "/user/pref")
 	}
 
 	if args.FewerNumbersLock != "" {
-		args.User.Settings.FewerNumbersLockUntil = ztime.Time{ztime.Now()}.
+		args.User.Settings.FewerNumbersLockUntil = ztime.Time{ztime.Now(r.Context())}.
 			In(args.User.Settings.Timezone.Location).
 			AddPeriod(1, map[string]ztime.Period{"week": ztime.WeekMonday, "month": ztime.Month}[args.FewerNumbersLock]).
 			StartOf(ztime.Day).
@@ -67,7 +67,7 @@ func (h settings) userPrefSave(w http.ResponseWriter, r *http.Request) error {
 		reportingChanged = goatcounter.Config(r.Context()).GoatcounterCom && oldReports != args.User.Settings.EmailReports
 	)
 	if reportingChanged {
-		args.User.LastReportAt = ztime.Now()
+		args.User.LastReportAt = ztime.Now(r.Context())
 	}
 
 	err = zdb.TX(r.Context(), func(ctx context.Context) error {

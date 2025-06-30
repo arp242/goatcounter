@@ -95,8 +95,8 @@ zgo.at/zli v0.0.0-20250614004402-078b5fce471c h1:homxuSxtb/Sjfm8grLdpnDYl5xKlif4
 zgo.at/zli v0.0.0-20250614004402-078b5fce471c/go.mod h1:0jjx+AGEkWOOQ0NtzbMnpko+H2G+aTg8mfCKqoc/BuA=
 zgo.at/zprof v0.0.0-20211217104121-c3c12596d8f0 h1:nUshmGDnI3+N1OeU265xaqR6weTN2xgrqls8nrkGzbA=
 zgo.at/zprof v0.0.0-20211217104121-c3c12596d8f0/go.mod h1:JqClLxeT9Uui3apqyN3U6KryFanocqM7E3X4Gle2FAU=
-zgo.at/zstd v0.0.0-20250622182727-a806a6a99733 h1:jToOM09A8y92RZ4VNnJexIyKGDuBzVWykUiBlmpt4N0=
-zgo.at/zstd v0.0.0-20250622182727-a806a6a99733/go.mod h1:iM1Z8Uk7YwHuvDGG3AmeFT+5F9taplO/dnLiVUP1F/s=
+zgo.at/zstd v0.0.0-20250630175647-854f2097fae2 h1:uKNvPUIb74XRbU0RhLNKjZkl7p5g3bOsQ4PLGJhvj/I=
+zgo.at/zstd v0.0.0-20250630175647-854f2097fae2/go.mod h1:iM1Z8Uk7YwHuvDGG3AmeFT+5F9taplO/dnLiVUP1F/s=
 zgo.at/ztpl v0.0.0-20250628022642-3b2c314e8e05 h1:g+A+rxlz0GrA3nXtLkwjR6i+eUJoczurAQCfKjSeG6k=
 zgo.at/ztpl v0.0.0-20250628022642-3b2c314e8e05/go.mod h1:p1QiGvNPY5YJ3DAXzZtgAga+SG+19Ycr+TLzvGo2xZo=
 zgo.at/zvalidate v0.0.0-20250622183046-6812c1c79e1a h1:FZp1uH/MXWApT9dQ09x8d2dAnITcyJ9bgbxYVzEjgyU=

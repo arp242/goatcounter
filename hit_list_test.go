@@ -184,10 +184,9 @@ func TestHitListsList(t *testing.T) {
 }
 
 func TestGetTotalCount(t *testing.T) {
-	ztime.SetNow(t, "2020-06-18 12:00:00")
 	ctx := gctest.DB(t)
-
-	rng := ztime.NewRange(ztime.Now()).To(ztime.Now())
+	ctx = ztime.WithNow(ctx, ztime.FromString("2020-06-18 12:00:00"))
+	rng := ztime.NewRange(ztime.Now(ctx)).To(ztime.Now(ctx))
 
 	gctest.StoreHits(ctx, t, false,
 		Hit{Path: "/a", FirstVisit: true},
@@ -214,8 +213,8 @@ func TestGetTotalCount(t *testing.T) {
 }
 
 func TestHitListTotals(t *testing.T) {
-	ztime.SetNow(t, "2020-06-18 12:00:00")
 	ctx := gctest.DB(t)
+	ctx = ztime.WithNow(ctx, ztime.FromString("2020-06-18 12:00:00"))
 
 	gctest.StoreHits(ctx, t, false,
 		Hit{Path: "/a", FirstVisit: true},
@@ -233,7 +232,7 @@ func TestHitListTotals(t *testing.T) {
 	)
 
 	t.Run("hourly", func(t *testing.T) {
-		rng := ztime.NewRange(ztime.Now()).To(ztime.Now())
+		rng := ztime.NewRange(ztime.Now(ctx)).To(ztime.Now(ctx))
 
 		want := [][]string{
 			{`10`, `{
@@ -307,7 +306,7 @@ func TestHitListTotals(t *testing.T) {
 	})
 
 	t.Run("daily", func(t *testing.T) {
-		rng := ztime.NewRange(ztime.Now()).To(ztime.Now())
+		rng := ztime.NewRange(ztime.Now(ctx)).To(ztime.Now(ctx))
 
 		want := [][]string{
 			{`10`, `{
@@ -383,19 +382,19 @@ func TestHitListTotals(t *testing.T) {
 }
 
 func TestHitListsPathCount(t *testing.T) {
-	ztime.SetNow(t, "2020-06-18")
 	ctx := gctest.DB(t)
+	ctx = ztime.WithNow(ctx, ztime.FromString("2020-06-18"))
 
 	gctest.StoreHits(ctx, t, false,
 		Hit{FirstVisit: true, Path: "/"},
-		Hit{FirstVisit: true, Path: "/", CreatedAt: ztime.Now().Add(-2 * 24 * time.Hour)},
-		Hit{FirstVisit: true, Path: "/", CreatedAt: ztime.Now().Add(-2 * 24 * time.Hour)},
-		Hit{FirstVisit: true, Path: "/", CreatedAt: ztime.Now().Add(-9 * 24 * time.Hour)},
-		Hit{FirstVisit: true, Path: "/", CreatedAt: ztime.Now().Add(-9 * 24 * time.Hour)},
+		Hit{FirstVisit: true, Path: "/", CreatedAt: ztime.Now(ctx).Add(-2 * 24 * time.Hour)},
+		Hit{FirstVisit: true, Path: "/", CreatedAt: ztime.Now(ctx).Add(-2 * 24 * time.Hour)},
+		Hit{FirstVisit: true, Path: "/", CreatedAt: ztime.Now(ctx).Add(-9 * 24 * time.Hour)},
+		Hit{FirstVisit: true, Path: "/", CreatedAt: ztime.Now(ctx).Add(-9 * 24 * time.Hour)},
 		Hit{FirstVisit: false, Path: "/"},
 
 		Hit{FirstVisit: true, Path: "/a"},
-		Hit{FirstVisit: true, Path: "/a", CreatedAt: ztime.Now().Add(-2 * 24 * time.Hour)},
+		Hit{FirstVisit: true, Path: "/a", CreatedAt: ztime.Now(ctx).Add(-2 * 24 * time.Hour)},
 	)
 
 	{
@@ -422,8 +421,8 @@ func TestHitListsPathCount(t *testing.T) {
 	{
 		var have HitList
 		err := have.PathCount(ctx, "/", ztime.NewRange(
-			ztime.Now().Add(-8*24*time.Hour)).
-			To(ztime.Now().Add(-1*24*time.Hour)))
+			ztime.Now(ctx).Add(-8*24*time.Hour)).
+			To(ztime.Now(ctx).Add(-1*24*time.Hour)))
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -444,19 +443,19 @@ func TestHitListsPathCount(t *testing.T) {
 }
 
 func TestHitListSiteTotalUnique(t *testing.T) {
-	ztime.SetNow(t, "2020-06-18")
 	ctx := gctest.DB(t)
+	ctx = ztime.WithNow(ctx, ztime.FromString("2020-06-18"))
 
 	gctest.StoreHits(ctx, t, false,
 		Hit{FirstVisit: true, Path: "/"},
-		Hit{FirstVisit: true, Path: "/", CreatedAt: ztime.Now().Add(-2 * 24 * time.Hour)},
-		Hit{FirstVisit: true, Path: "/", CreatedAt: ztime.Now().Add(-2 * 24 * time.Hour)},
-		Hit{FirstVisit: true, Path: "/", CreatedAt: ztime.Now().Add(-9 * 24 * time.Hour)},
-		Hit{FirstVisit: true, Path: "/", CreatedAt: ztime.Now().Add(-9 * 24 * time.Hour)},
+		Hit{FirstVisit: true, Path: "/", CreatedAt: ztime.Now(ctx).Add(-2 * 24 * time.Hour)},
+		Hit{FirstVisit: true, Path: "/", CreatedAt: ztime.Now(ctx).Add(-2 * 24 * time.Hour)},
+		Hit{FirstVisit: true, Path: "/", CreatedAt: ztime.Now(ctx).Add(-9 * 24 * time.Hour)},
+		Hit{FirstVisit: true, Path: "/", CreatedAt: ztime.Now(ctx).Add(-9 * 24 * time.Hour)},
 
 		Hit{FirstVisit: false, Path: "/"},
 		Hit{FirstVisit: true, Path: "/a"},
-		Hit{FirstVisit: true, Path: "/a", CreatedAt: ztime.Now().Add(-2 * 24 * time.Hour)},
+		Hit{FirstVisit: true, Path: "/a", CreatedAt: ztime.Now(ctx).Add(-2 * 24 * time.Hour)},
 	)
 
 	{
@@ -483,8 +482,8 @@ func TestHitListSiteTotalUnique(t *testing.T) {
 	{
 		var have HitList
 		err := have.SiteTotalUTC(ctx, ztime.NewRange(
-			ztime.Now().Add(-8*24*time.Hour)).
-			To(ztime.Now().Add(-1*24*time.Hour)))
+			ztime.Now(ctx).Add(-8*24*time.Hour)).
+			To(ztime.Now(ctx).Add(-1*24*time.Hour)))
 		if err != nil {
 			t.Fatal(err)
 		}

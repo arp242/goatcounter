@@ -54,7 +54,7 @@ func TestDBTest(t *testing.T) {
 
 func TestDBQuery(t *testing.T) {
 	exit, _, out, ctx, dbc := startTest(t)
-	ztime.SetNow(t, "2020-06-18")
+	ctx = ztime.WithNow(ctx, ztime.FromString("2020-06-18"))
 
 	runCmd(t, exit, "db", "query", "-db="+dbc, "select site_id, code from sites order by site_id")
 	wantExit(t, exit, out, 0)

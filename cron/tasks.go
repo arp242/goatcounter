@@ -41,7 +41,7 @@ func oldExports(ctx context.Context) error {
 			continue
 		}
 
-		if st.ModTime().Before(ztime.Now().Add(-24 * time.Hour)) {
+		if st.ModTime().Before(ztime.Now(ctx).Add(-24 * time.Hour)) {
 			err := os.Remove(f)
 			if err != nil {
 				log.Errorf(ctx, "cron.oldExports: %s", err)
@@ -86,7 +86,7 @@ func persistAndStat(ctx context.Context) error {
 	l := log.Module("cron")
 	l.Debug(ctx, "persistAndStat started")
 
-	start := ztime.Now()
+	start := ztime.Now(ctx)
 	hits, err := goatcounter.Memstore.Persist(ctx)
 	if err != nil {
 		return err
@@ -94,7 +94,7 @@ func persistAndStat(ctx context.Context) error {
 	tookMemstore := time.Since(start).Round(time.Millisecond)
 
 	var (
-		startStats = ztime.Now()
+		startStats = ztime.Now(ctx)
 		grouped    = make(map[goatcounter.SiteID][]goatcounter.Hit)
 	)
 	for _, h := range hits {
@@ -226,6 +226,6 @@ func vacuumDeleted(ctx context.Context) error {
 }
 
 func sessions(ctx context.Context) error {
-	goatcounter.Memstore.EvictSessions()
+	goatcounter.Memstore.EvictSessions(ctx)
 	return nil
 }

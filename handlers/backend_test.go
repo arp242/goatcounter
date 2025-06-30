@@ -75,7 +75,7 @@ func TestBackendTpl(t *testing.T) {
 func TestBackendPagesMore(t *testing.T) {
 	ctx := gctest.DB(t)
 	site := Site(ctx)
-	now := ztime.Now()
+	now := ztime.Now(ctx)
 
 	gctest.StoreHits(ctx, t, false,
 		goatcounter.Hit{FirstVisit: true, Path: "/1"},

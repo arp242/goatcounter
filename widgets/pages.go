@@ -140,7 +140,7 @@ func (w Pages) RenderHTML(ctx context.Context, shared SharedData) (string, any) 
 		// Only remove them if the last day is today: for everything else we
 		// want to display the future as "greyed out".
 		var (
-			now   = ztime.Now().In(goatcounter.MustGetUser(ctx).Settings.Timezone.Loc())
+			now   = ztime.Now(ctx).In(goatcounter.MustGetUser(ctx).Settings.Timezone.Loc())
 			today = now.Format("2006-01-02")
 			hour  = now.Hour()
 		)

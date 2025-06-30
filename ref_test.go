@@ -20,7 +20,7 @@ func TestListRefsByPathID(t *testing.T) {
 		Hit{Path: "/x", Ref: "http://example.org", FirstVisit: true},
 		Hit{Path: "/y", Ref: "http://example.org", FirstVisit: true})
 
-	rng := ztime.NewRange(ztime.Now().Add(-1 * time.Hour)).To(ztime.Now().Add(1 * time.Hour))
+	rng := ztime.NewRange(ztime.Now(ctx).Add(-1 * time.Hour)).To(ztime.Now(ctx).Add(1 * time.Hour))
 
 	var have HitStats
 	err := have.ListRefsByPathID(ctx, 1, rng, 10, 0)
@@ -54,7 +54,7 @@ func TestListTopRefs(t *testing.T) {
 		Hit{Path: "/y", Ref: "http://example.org", FirstVisit: true},
 		Hit{Path: "/x", Ref: "http://example.org"})
 
-	rng := ztime.NewRange(ztime.Now().Add(-1 * time.Hour)).To(ztime.Now().Add(1 * time.Hour))
+	rng := ztime.NewRange(ztime.Now(ctx).Add(-1 * time.Hour)).To(ztime.Now(ctx).Add(1 * time.Hour))
 
 	{
 		var have HitStats

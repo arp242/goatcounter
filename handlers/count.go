@@ -52,7 +52,7 @@ func (h backend) count(w http.ResponseWriter, r *http.Request) error {
 	hit := goatcounter.Hit{
 		Site:            site.ID,
 		UserAgentHeader: r.UserAgent(),
-		CreatedAt:       ztime.Now(),
+		CreatedAt:       ztime.Now(r.Context()),
 		RemoteAddr:      r.RemoteAddr,
 	}
 	if site.Settings.Collect.Has(goatcounter.CollectLocation) {

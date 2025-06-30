@@ -98,7 +98,6 @@ func TestFloats(t *testing.T) {
 	})
 
 	t.Run("scan", func(t *testing.T) {
-
 		cases := []struct {
 			in      string
 			want    Floats

@@ -335,11 +335,11 @@ var SessionTime = 8 * time.Hour
 // For 10k sessions this takes about 5ms on my laptop; that's a small enough
 // delay to not overly worry about (there are rarely more than a few hundred
 // sessions at a time).
-func (m *ms) EvictSessions() {
+func (m *ms) EvictSessions(ctx context.Context) {
 	m.sessionMu.Lock()
 	defer m.sessionMu.Unlock()
 
-	ev := ztime.Now().Add(-SessionTime).Unix()
+	ev := ztime.Now(ctx).Add(-SessionTime).Unix()
 	for id, seen := range m.sessionSeen {
 		if seen > ev {
 			continue
@@ -379,7 +379,7 @@ func (m *ms) session(ctx context.Context, siteID SiteID, pathID PathID, userSess
 
 	id, ok := m.sessions[sk]
 	if ok { // Existing session
-		m.sessionSeen[id] = ztime.Now().Unix()
+		m.sessionSeen[id] = ztime.Now(ctx).Unix()
 		_, seenPath := m.sessionPaths[id][pathID]
 		if !seenPath {
 			m.sessionPaths[id][pathID] = struct{}{}
@@ -397,7 +397,7 @@ func (m *ms) session(ctx context.Context, siteID SiteID, pathID PathID, userSess
 	id = m.SessionID()
 	m.sessions[sk] = id
 	m.sessionPaths[id] = map[PathID]struct{}{pathID: struct{}{}}
-	m.sessionSeen[id] = ztime.Now().Unix()
+	m.sessionSeen[id] = ztime.Now(ctx).Unix()
 	m.sessionHashes[id] = sk
 
 	sesslog.Debug(ctx, "MISS: created new",

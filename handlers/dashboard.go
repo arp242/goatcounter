@@ -77,7 +77,7 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 
 		var (
 			f     []goatcounter.PathID
-			start = ztime.Now()
+			start = ztime.Now(r.Context())
 			err   error
 		)
 		if view.Filter != "" {
@@ -165,7 +165,7 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 			go func(w widgets.Widget) {
 				defer wg.Done()
 				defer log.Recover(r.Context(), func(err error) { log.Error(r.Context(), err, "data widget", w, log.AttrHTTP(r)) })
-				getData(w, ztime.Now())
+				getData(w, ztime.Now(r.Context()))
 			}(w)
 		}
 		zsync.Wait(r.Context(), &wg)
@@ -209,7 +209,7 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 		for _, w := range lazy {
 			func(w widgets.Widget) {
 				run.Run(func() {
-					getData(w, ztime.Now())
+					getData(w, ztime.Now(r.Context()))
 					getHTML(w)
 					loader.sendJSON(r, connectID, map[string]any{
 						"id":   w.ID(),
@@ -364,7 +364,7 @@ func (h backend) loadWidget(w http.ResponseWriter, r *http.Request) error {
 //	Any digit
 //	   Last n days.
 func timeRange(ctx context.Context, r string, tz *time.Location, sundayStartsWeek bool) ztime.Range {
-	rng := ztime.NewRange(ztime.Now().In(tz)).Current(ztime.Day)
+	rng := ztime.NewRange(ztime.Now(ctx).In(tz)).Current(ztime.Day)
 	switch r {
 	case "0", "day":
 	case "week-cur":

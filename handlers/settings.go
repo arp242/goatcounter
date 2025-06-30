@@ -1061,7 +1061,7 @@ func (h settings) bosmang(w http.ResponseWriter, r *http.Request) error {
 		Race     bool
 		Cgo      bool
 	}{newGlobals(w, r),
-		ztime.Now().Sub(Started).Round(time.Second).String(),
+		ztime.Now(r.Context()).Sub(Started).Round(time.Second).String(),
 		goatcounter.Version,
 		zdb.SQLDialect(r.Context()).String() + " " + string(info.Version),
 		runtime.Version(),

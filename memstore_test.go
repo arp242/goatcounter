@@ -124,7 +124,7 @@ func TestMemstoreCollect(t *testing.T) {
 	for _, tt := range tests {
 		t.Run("", func(t *testing.T) {
 			ctx := gctest.DB(t)
-			ztime.SetNow(t, "2020-06-18")
+			ctx = ztime.WithNow(ctx, ztime.FromString("2020-06-18"))
 
 			site := Site{Settings: SiteSettings{
 				Collect:        tt.collect,

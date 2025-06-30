@@ -125,7 +125,7 @@ func (t APIToken) FormatPermissions() string {
 func (t *APIToken) Defaults(ctx context.Context) {
 	t.SiteID = MustGetSite(ctx).ID
 	t.Token = zcrypto.Secret256()
-	t.CreatedAt = ztime.Now()
+	t.CreatedAt = ztime.Now(ctx)
 }
 
 func (t *APIToken) Validate(ctx context.Context) error {
@@ -187,7 +187,7 @@ func (t *APIToken) UpdateLastUsed(ctx context.Context) error {
 		return err
 	}
 
-	t.LastUsedAt = ztype.Ptr(ztime.Now())
+	t.LastUsedAt = ztype.Ptr(ztime.Now(ctx))
 	err = zdb.Exec(ctx, `update api_tokens set last_used_at=? where api_token_id=?`,
 		t.LastUsedAt, t.ID)
 	return errors.Wrap(err, "APIToken.UpdateLastUsed")

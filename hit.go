@@ -172,7 +172,7 @@ func (h *Hit) Defaults(ctx context.Context, initial bool) error {
 	h.Site = site.ID
 
 	if h.CreatedAt.IsZero() {
-		h.CreatedAt = ztime.Now()
+		h.CreatedAt = ztime.Now(ctx)
 	}
 
 	if h.Event {
@@ -297,7 +297,7 @@ func (h *Hit) Validate(ctx context.Context, initial bool) error {
 	v.Len("ref", h.Ref, 0, 2048)
 
 	// Small margin as client's clocks may not be 100% accurate.
-	if h.CreatedAt.After(ztime.Now().Add(5 * time.Second)) {
+	if h.CreatedAt.After(ztime.Now(ctx).Add(5 * time.Second)) {
 		v.Append("created_at", "in the future")
 	}
 

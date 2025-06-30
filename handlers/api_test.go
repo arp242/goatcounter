@@ -428,12 +428,13 @@ func TestAPICount(t *testing.T) {
 		},
 	}
 
-	ztime.SetNow(t, "2020-06-18 14:42:00")
 	perm := goatcounter.APIPermCount
 
 	for _, tt := range tests {
 		t.Run("", func(t *testing.T) {
 			ctx := gctest.DB(t)
+			ctx = ztime.WithNow(ctx, ztime.FromString("2020-06-18 14:42:00"))
+
 			site := Site(ctx)
 			site.Settings.Collect.Set(goatcounter.CollectHits)
 			site.Settings.IgnoreIPs = []string{"1.1.1.1"}
@@ -490,34 +491,31 @@ func TestAPICount(t *testing.T) {
 }
 
 func TestAPISitesCreate(t *testing.T) {
-	ztime.SetNow(t, "2020-06-18 12:13:14")
-	now := ztime.Now()
-
 	tests := []struct {
 		serve    bool
 		body     string
 		wantCode int
-		want     func(*goatcounter.Site)
+		want     func(context.Context, *goatcounter.Site)
 	}{
-		{false, `{"code":"apitest"}`, 200, func(s *goatcounter.Site) {
+		{false, `{"code":"apitest"}`, 200, func(ctx context.Context, s *goatcounter.Site) {
 			s.Code = "apitest"
 			s.Parent = ztype.Ptr(goatcounter.SiteID(1))
 		}},
-		{true, `{"cname":"apitest.localhost"}`, 200, func(s *goatcounter.Site) {
+		{true, `{"cname":"apitest.localhost"}`, 200, func(ctx context.Context, s *goatcounter.Site) {
 			s.Cname = ztype.Ptr("apitest.localhost")
 			s.Parent = ztype.Ptr(goatcounter.SiteID(1))
-			s.CnameSetupAt = &now
+			s.CnameSetupAt = ztype.Ptr(ztime.Now(ctx))
 		}},
 
 		// Ignore plan.
-		{false, `{"code":"apitest"}`, 200, func(s *goatcounter.Site) {
+		{false, `{"code":"apitest"}`, 200, func(ctx context.Context, s *goatcounter.Site) {
 			s.Code = "apitest"
 			s.Parent = ztype.Ptr(goatcounter.SiteID(1))
 		}},
-		{true, `{"cname":"apitest.localhost"}`, 200, func(s *goatcounter.Site) {
+		{true, `{"cname":"apitest.localhost"}`, 200, func(ctx context.Context, s *goatcounter.Site) {
 			s.Cname = ztype.Ptr("apitest.localhost")
 			s.Parent = ztype.Ptr(goatcounter.SiteID(1))
-			s.CnameSetupAt = &now
+			s.CnameSetupAt = ztype.Ptr(ztime.Now(ctx))
 		}},
 	}
 
@@ -525,6 +523,8 @@ func TestAPISitesCreate(t *testing.T) {
 	for _, tt := range tests {
 		t.Run("", func(t *testing.T) {
 			ctx := gctest.DB(t)
+			ctx = ztime.WithNow(ctx, ztime.FromString("2020-06-18 12:13:14"))
+
 			goatcounter.Config(ctx).GoatcounterCom = !tt.serve
 
 			r, rr := newAPITest(ctx, t, "PUT", "/api/v0/sites",
@@ -543,7 +543,7 @@ func TestAPISitesCreate(t *testing.T) {
 
 			var w goatcounter.Site
 			w.Defaults(ctx)
-			tt.want(&w)
+			tt.want(ctx, &w)
 
 			w.ID = retSite.ID
 			if tt.serve {
@@ -563,8 +563,6 @@ func TestAPISitesCreate(t *testing.T) {
 }
 
 func TestAPISitesUpdate(t *testing.T) {
-	ztime.SetNow(t, "2020-06-18 12:13:14")
-
 	tests := []struct {
 		serve        bool
 		method, body string
@@ -585,6 +583,7 @@ func TestAPISitesUpdate(t *testing.T) {
 	for _, tt := range tests {
 		t.Run("", func(t *testing.T) {
 			ctx := gctest.DB(t)
+			ctx = ztime.WithNow(ctx, ztime.FromString("2020-06-18 12:13:14"))
 			goatcounter.Config(ctx).GoatcounterCom = !tt.serve
 
 			site := Site(ctx)
@@ -622,8 +621,6 @@ func TestAPISitesUpdate(t *testing.T) {
 }
 
 func TestAPIPaths(t *testing.T) {
-	ztime.SetNow(t, "2020-06-18 12:13:14")
-
 	many := func(ctx context.Context, t *testing.T) {
 		p := make(goatcounter.Paths, 50)
 		for i := range p {
@@ -735,6 +732,7 @@ func TestAPIPaths(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			ctx := gctest.DB(t)
+			ctx = ztime.WithNow(ctx, ztime.FromString("2020-06-18 12:13:14"))
 			if tt.setup != nil {
 				tt.setup(ctx, t)
 			}
@@ -751,8 +749,6 @@ func TestAPIPaths(t *testing.T) {
 }
 
 func TestAPIHits(t *testing.T) {
-	ztime.SetNow(t, "2020-06-18 12:13:14")
-
 	many := func(ctx context.Context, t *testing.T) {
 		h := make(goatcounter.Hits, 50)
 		for i := range h {
@@ -988,6 +984,7 @@ func TestAPIHits(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			ctx := gctest.DB(t)
+			ctx = ztime.WithNow(ctx, ztime.FromString("2020-06-18 12:13:14"))
 			if tt.setup != nil {
 				tt.setup(ctx, t)
 			}
@@ -1004,8 +1001,6 @@ func TestAPIHits(t *testing.T) {
 }
 
 func TestAPIStats(t *testing.T) {
-	ztime.SetNow(t, "2020-06-18 12:13:14")
-
 	many := func(ctx context.Context, t *testing.T) {
 		h := make(goatcounter.Hits, 50)
 		for i := range h {
@@ -1051,6 +1046,7 @@ func TestAPIStats(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			ctx := gctest.DB(t)
+			ctx = ztime.WithNow(ctx, ztime.FromString("2020-06-18 12:13:14"))
 			if tt.setup != nil {
 				tt.setup(ctx, t)
 			}
@@ -1067,8 +1063,6 @@ func TestAPIStats(t *testing.T) {
 }
 
 func TestAPIStatsDetail(t *testing.T) {
-	ztime.SetNow(t, "2020-06-18 12:13:14")
-
 	many := func(ctx context.Context, t *testing.T) {
 		h := make(goatcounter.Hits, 50)
 		for i := range h {
@@ -1115,6 +1109,7 @@ func TestAPIStatsDetail(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			ctx := gctest.DB(t)
+			ctx = ztime.WithNow(ctx, ztime.FromString("2020-06-18 12:13:14"))
 			if tt.setup != nil {
 				tt.setup(ctx, t)
 			}

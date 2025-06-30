@@ -27,7 +27,7 @@ func emailReports(ctx context.Context) error {
 		return errors.Errorf("cron.emailReports: %w", err)
 	}
 
-	now := ztime.Now().UTC()
+	now := ztime.Now(ctx).UTC()
 	for _, user := range users {
 		var site goatcounter.Site
 		err := site.ByID(ctx, user.Site)
@@ -68,7 +68,7 @@ func emailReports(ctx context.Context) error {
 			continue
 		}
 
-		err = zdb.Exec(ctx, `update users set last_report_at=$1 where user_id=$2`, ztime.Now(), user.ID)
+		err = zdb.Exec(ctx, `update users set last_report_at=$1 where user_id=$2`, ztime.Now(ctx), user.ID)
 		if err != nil {
 			el.Error(ctx, err)
 		}
