@@ -134,6 +134,11 @@ func fetchDB(accountID, key, path string) error {
 		return err
 	}
 
+	err = os.MkdirAll(filepath.Dir(path), 0o777)
+	if err != nil {
+		return err
+	}
+
 	tmp, err := os.CreateTemp(filepath.Dir(path), "update-geodb-*")
 	if err != nil {
 		return err
