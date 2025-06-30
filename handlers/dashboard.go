@@ -57,6 +57,10 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 	} else {
 		view.Period = q.Get("hl-period")
 	}
+	// Record how often people use the "Current [..]" buttons
+	if strings.HasSuffix(view.Period, "-cur") {
+		metrics.Start(view.Period).Done()
+	}
 
 	showRefs, _ := zstrconv.ParseInt[goatcounter.PathID](q.Get("showrefs"), 10)
 	if _, ok := q["filter"]; ok {
