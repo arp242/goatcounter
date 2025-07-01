@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bytes"
 	"context"
 	"crypto/tls"
 	"fmt"
@@ -30,10 +29,10 @@ import (
 	"zgo.at/goatcounter/v2/cron"
 	"zgo.at/goatcounter/v2/handlers"
 	"zgo.at/goatcounter/v2/pkg/bgrun"
+	"zgo.at/goatcounter/v2/pkg/email_log"
 	"zgo.at/goatcounter/v2/pkg/geo"
 	"zgo.at/goatcounter/v2/pkg/geo/geoip2"
 	"zgo.at/goatcounter/v2/pkg/log"
-	"zgo.at/slog_align"
 	"zgo.at/z18n"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
@@ -42,7 +41,6 @@ import (
 	"zgo.at/zstd/zio"
 	"zgo.at/zstd/znet"
 	"zgo.at/zstd/zruntime"
-	"zgo.at/zstd/zstring"
 	"zgo.at/ztpl"
 	"zgo.at/zvalidate"
 )
@@ -534,55 +532,10 @@ func flagErrors(errors string, v *zvalidate.Validator) {
 
 		v.Email("-errors", from)
 		v.Email("-errors", to)
-		log.OnError = func(module string, r slog.Record) {
-			bgrun.RunFunction("email:error", func() {
-				buf := new(bytes.Buffer)
-				h := slog_align.NewAlignedHandler(buf, &slog.HandlerOptions{
-					ReplaceAttr: func(groups []string, a slog.Attr) slog.Attr {
-						if a.Key == "module" || a.Key == "_err" {
-							return slog.Attr{}
-						}
-						return a
-					},
-				})
-				h.SetTimeFormat("Jan _2 15:04:05 ")
-				h.SetColor(false)
-				h.SetInlineLocation(false)
-				h.Handle(context.Background(), r)
-
-				msg := buf.String()
-
-				// Silence spurious errors from some bot.
-				if strings.Contains(msg, `ReferenceError: "Pikaday" is not defined.`) &&
-					strings.Contains(msg, `Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.61 Safari/537.36`) {
-					return
-				}
-				// Don't need to send notifications for these
-				if strings.Contains(msg, `pq: canceling statement due to user request`) ||
-					strings.Contains(msg, `write: broken pipe`) ||
-					strings.Contains(msg, `write: connection reset by peer`) ||
-					strings.Contains(msg, ": context canceled") {
-					return
-				}
-
-				subject := zstring.GetLine(msg, 1)
-				if len(subject) > 15 { // Remove date: "Jun  8 00:51:41"
-					subject = strings.TrimSpace(subject[15:])
-				}
-				subject = strings.TrimPrefix(subject, "ERROR")
-				subject = strings.TrimLeft(subject, " \t:")
-
-				err := blackmail.Send(subject,
-					blackmail.From("", from),
-					blackmail.To(to),
-					blackmail.BodyText([]byte(msg)))
-				if err != nil {
-					// Just output to stderr I guess, can't really do much more if
-					// sending email fails.
-					fmt.Fprintf(zli.Stderr, "emailerrors: %s\n", err)
-				}
-			})
-		}
+		slog.SetDefault(slog.New(log.NewChain(
+			slog.Default().Handler(),
+			email_log.New(slog.LevelError, from, to),
+		)))
 	}
 }
 

@@ -13,6 +13,7 @@ package log
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log/slog"
 	"net/http"
@@ -20,11 +21,10 @@ import (
 	"runtime"
 	"runtime/debug"
 	"slices"
+	"strings"
 	"sync"
 	"time"
 
-	"zgo.at/errors"
-	"zgo.at/gadget"
 	"zgo.at/zstd/zdebug"
 )
 
@@ -61,9 +61,6 @@ func Get(ctx context.Context) []any {
 	return a
 }
 
-// OnError is a hook called for every eror log.
-var OnError func(module string, r slog.Record)
-
 func strOrErr(msg any) (string, []any) {
 	switch m := msg.(type) {
 	default:
@@ -73,7 +70,10 @@ func strOrErr(msg any) (string, []any) {
 	case error:
 		var (
 			attr = []any{"_err", m}
-			sErr = new(errors.StackErr)
+			sErr interface {
+				StackTrace() string
+				Unwrap() error
+			}
 		)
 		if !errors.As(m, &sErr) {
 			return m.Error(), attr
@@ -117,96 +117,58 @@ type Logger struct {
 
 func (l *Logger) With(args ...any) *Logger { l.attr = append(l.attr, args...); return l }
 
-func (l *Logger) Error(ctx context.Context, msg any, attr ...any) {
-	logger := slog.Default()
-	if !logger.Enabled(context.Background(), slog.LevelError) {
+func (l *Logger) shouldLog(level slog.Level) bool {
+	if HasDebug(l.module) {
+		return true
+	}
+	return level > slog.LevelDebug && slog.Default().Enabled(context.Background(), level)
+}
+
+func (l *Logger) do(ctx context.Context, level slog.Level, msg string, attr ...any) {
+	if !l.shouldLog(level) {
 		return
 	}
-	logmsg, more := strOrErr(msg)
-	attr = append(attr, more...)
-	r := l.newRecord(ctx, slog.LevelError, logmsg, attr...)
-	if OnError != nil {
-		OnError(l.module, r)
-	}
-	err := logger.Handler().Handle(context.Background(), r)
+	err := slog.Default().Handler().Handle(context.Background(), l.newRecord(ctx, level, msg, attr...))
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "logger.Handle error: %s\n", err)
 	}
 }
-func (l *Logger) Warn(ctx context.Context, msg string, attr ...any) {
-	logger := slog.Default()
-	if !logger.Enabled(context.Background(), slog.LevelWarn) {
+func (l *Logger) dof(ctx context.Context, level slog.Level, format string, args ...any) {
+	if !l.shouldLog(level) {
 		return
 	}
-	err := logger.Handler().Handle(context.Background(), l.newRecord(ctx, slog.LevelWarn, msg, attr...))
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "logger.Handle error: %s\n", err)
-	}
-}
-func (l *Logger) Info(ctx context.Context, msg string, attr ...any) {
-	logger := slog.Default()
-	if !logger.Enabled(context.Background(), slog.LevelInfo) {
-		return
-	}
-	err := logger.Handler().Handle(context.Background(), l.newRecord(ctx, slog.LevelInfo, msg, attr...))
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "logger.Handle error: %s\n", err)
-	}
-}
-func (l *Logger) Debug(ctx context.Context, msg string, attr ...any) {
-	logger := slog.Default()
-	if !HasDebug(l.module) {
-		return
-	}
-	err := logger.Handler().Handle(context.Background(), l.newRecord(ctx, slog.LevelDebug, msg, attr...))
+	err := slog.Default().Handler().Handle(context.Background(), l.newRecord(ctx, level, fmt.Sprintf(format, args...)))
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "logger.Handle error: %s\n", err)
 	}
 }
 
+func (l *Logger) Error(ctx context.Context, msg any, attr ...any) {
+	logmsg, more := strOrErr(msg)
+	attr = append(attr, more...)
+	l.do(ctx, slog.LevelError, logmsg, attr...)
+}
+func (l *Logger) Warn(ctx context.Context, msg string, attr ...any) {
+	l.do(ctx, slog.LevelWarn, msg, attr...)
+}
+func (l *Logger) Info(ctx context.Context, msg string, attr ...any) {
+	l.do(ctx, slog.LevelInfo, msg, attr...)
+}
+func (l *Logger) Debug(ctx context.Context, msg string, attr ...any) {
+	l.do(ctx, slog.LevelDebug, msg, attr...)
+}
+
 func (l *Logger) Errorf(ctx context.Context, format string, args ...any) {
-	logger := slog.Default()
-	if !logger.Enabled(context.Background(), slog.LevelError) {
-		return
-	}
-	r := l.newRecord(ctx, slog.LevelError, fmt.Sprintf(format, args...))
-	if OnError != nil {
-		OnError(l.module, r)
-	}
-	err := logger.Handler().Handle(context.Background(), r)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "logger.Handle error: %s\n", err)
-	}
+	l.dof(ctx, slog.LevelError, format, args...)
 }
 func (l *Logger) Warnf(ctx context.Context, format string, args ...any) {
-	logger := slog.Default()
-	if !logger.Enabled(context.Background(), slog.LevelWarn) {
-		return
-	}
-	err := logger.Handler().Handle(context.Background(), l.newRecord(ctx, slog.LevelWarn, fmt.Sprintf(format, args...)))
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "logger.Handle error: %s\n", err)
-	}
+	l.dof(ctx, slog.LevelWarn, format, args...)
 }
 func (l *Logger) Infof(ctx context.Context, format string, args ...any) {
-	logger := slog.Default()
-	if !logger.Enabled(context.Background(), slog.LevelInfo) {
-		return
-	}
-	err := logger.Handler().Handle(context.Background(), l.newRecord(ctx, slog.LevelInfo, fmt.Sprintf(format, args...)))
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "logger.Handle error: %s\n", err)
-	}
+	l.dof(ctx, slog.LevelInfo, format, args...)
 }
 func (l *Logger) Debugf(ctx context.Context, format string, args ...any) {
-	logger := slog.Default()
-	if !HasDebug(l.module) {
-		return
-	}
-	err := logger.Handler().Handle(context.Background(), l.newRecord(ctx, slog.LevelDebug, fmt.Sprintf(format, args...)))
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "logger.Handle error: %s\n", err)
-	}
+	l.dof(ctx, slog.LevelDebug, format, args...)
 }
 
 var now = func() time.Time { return time.Now().UTC() }
@@ -217,7 +179,7 @@ func (l *Logger) newRecord(ctx context.Context, level slog.Level, msg string, at
 	}
 
 	var pcs [1]uintptr
-	runtime.Callers(3, pcs[:]) // skip [Callers, {Error,Info,...}, newRecord]
+	runtime.Callers(4, pcs[:]) // skip [Callers, {Error,Info,...}, newRecord]
 	r := slog.NewRecord(now(), level, msg, pcs[0])
 	if level == slog.LevelError {
 		r.Add("stacktrace", "\n"+string(zdebug.Stack(
@@ -241,6 +203,7 @@ func (l *Logger) newRecord(ctx context.Context, level slog.Level, msg string, at
 			"zgo.at/goatcounter/v2/handlers.init.Add",
 			"zgo.at/goatcounter/v2/handlers.init.Filter",
 			"zgo.at/goatcounter/v2/pkg/log.(*Logger).newRecord",
+			"zgo.at/goatcounter/v2/pkg/log.(*Logger).do",
 			"zgo.at/goatcounter/v2/pkg/log.Error",
 			"zgo.at/goatcounter/v2/pkg/log.Test",
 			"zgo.at/zhttp.HostRoute",
@@ -264,7 +227,7 @@ func AttrHTTP(r *http.Request) slog.Attr {
 		"verb", r.Method,
 		"url", r.URL.String(),
 		"host", r.Host,
-		"ua", gadget.ShortenUA(r.UserAgent()),
+		"ua", uaShortener.Replace(r.UserAgent()),
 	}
 	if r.Form != nil {
 		form := make([]any, 0, len(r.Form)*2)
@@ -318,3 +281,24 @@ func Recover(ctx context.Context, cb ...func(error)) {
 		Module("panic").Error(ctx, err)
 	}
 }
+
+// From https://github.com/arp242/gadget/blob/51e0fe3/ua.go#L174
+var uaShortener = strings.NewReplacer(
+	"~", "~~", // Preserve ~ and decode lossly.
+	"Android", "~A",
+	"Chrome/", "~c",
+	"compatible", "~C",
+	"Edge/", "~e",
+	"Firefox/", "~f",
+	"Gecko/", "~g",
+	"(KHTML, like Gecko)", "~G",
+	"iPhone", "~i",
+	"Macintosh", "~I",
+	"AppleWebKit/", "~a",
+	"Linux", "~L",
+	"Mobile/", "~m",
+	"Mobile", "~M",
+	"Safari/", "~s",
+	"Version/", "~v",
+	"Windows", "~W",
+	"Mozilla/5.0 ", "~Z ")
