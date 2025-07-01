@@ -28,7 +28,6 @@ label.inline          { display:inline; }
 
 #js-settings, #js-csrf, #js-i18n { display: none; }
 
-
 .page, .center {
     /* .note has a width of 76mm plus 5mm margin on either side, so 86mm total
      * width. .page has a 1em padding on either side.
@@ -317,11 +316,14 @@ tr.target .chart-left { display: block; }
 
 /*** Settings page
  *******************/
-#page-settings-main #secret { display:none; margin-left:1em; padding-left:1em; border-left:1px solid #aaa; }
-.purge-err                  { margin-left:1em; margin-top:1em; }
-.user-api-key               { width:100%; }
-.user-api-key td            { vertical-align:top; }
-.user-api-key ul            { margin:0; padding-left:1em; }
+.expand          { display:none; margin-left:1em; padding-left:1em; border-left:1px solid #aaa; }
+.purge-err       { margin-left:1em; margin-top:1em; }
+.user-api-key    { width:100%; }
+.user-api-key td { vertical-align:top; }
+.user-api-key ul { margin:0; padding-left:1em; }
+
+#email-reports-sites      { /*display:none;*/ border:1px solid #aaa; }
+#email-reports-sites >div { margin:.5em; }
 
 /*** Widget settings
  *******************/

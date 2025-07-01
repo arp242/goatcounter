@@ -20,6 +20,15 @@ import (
 
 var el = log.Module("email-report")
 
+// Email reports
+//
+// [siteA]   [daily/weekly/..]
+//
+// alter table sites alter column last_report_at jsonb;
+//
+// Store as siteID → last_report
+//     {2: "2024-10-24", 4: "2025-07-20"}
+
 // EmailReports sends email reports for sites that have this configured.
 func emailReports(ctx context.Context) error {
 	users, err := reportUsers(ctx)
@@ -121,9 +130,12 @@ func reportText(ctx context.Context, site goatcounter.Site, user goatcounter.Use
 	// TODO: ztime.Range.String() prints "relative" dates such as "yesterday"
 	// and "last week"; this is nice in some cases, but not so nice in others
 	// (such as here). Should have two functions for this.
-	if user.Settings.EmailReports != goatcounter.EmailReportDaily {
-		args.DisplayDate += " – " + rng.End.Format(user.Settings.DateFormat)
-	}
+
+	// XXX
+	//if user.Settings.EmailReports != goatcounter.EmailReportDaily {
+	//	args.DisplayDate += " – " + rng.End.Format(user.Settings.DateFormat)
+	//}
+
 	// TODO: no locale on context here.
 	subject = fmt.Sprintf("Your GoatCounter report for %s", args.DisplayDate)
 

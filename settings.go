@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql/driver"
 	"fmt"
-	"slices"
 	"sort"
 	"strconv"
 	"strings"
@@ -39,7 +38,7 @@ const (
 	CollectHits                          // 256
 )
 
-type EmailReport uint8
+type EmailReport int8
 
 // UserSettings.EmailReport values.
 const (
@@ -50,8 +49,8 @@ const (
 	EmailReportMonthly
 )
 
-var EmailReports = []EmailReport{EmailReportNever, EmailReportDaily,
-	EmailReportWeekly, EmailReportBiWeekly, EmailReportMonthly}
+// var EmailReports = []EmailReport{EmailReportNever, EmailReportDaily,
+// 	EmailReportWeekly, EmailReportBiWeekly, EmailReportMonthly}
 
 type (
 	// SiteSettings contains all the user-configurable settings for a site, with
@@ -73,19 +72,21 @@ type (
 
 	// UserSettings are all user preferences.
 	UserSettings struct {
-		TwentyFourHours       bool        `json:"twenty_four_hours"`
-		SundayStartsWeek      bool        `json:"sunday_starts_week"`
-		Language              string      `json:"language"`
-		DateFormat            string      `json:"date_format"`
-		NumberFormat          rune        `json:"number_format"`
-		Timezone              *tz.Zone    `json:"timezone"`
-		Widgets               Widgets     `json:"widgets"`
-		Views                 Views       `json:"views"`
-		EmailReports          EmailReport `json:"email_reports"`
-		FewerNumbers          bool        `json:"fewer_numbers"`
-		FewerNumbersLockUntil time.Time   `json:"fewer_numbers_lock_until"`
-		Theme                 string      `json:"theme"`
+		TwentyFourHours       bool         `json:"twenty_four_hours"`
+		SundayStartsWeek      bool         `json:"sunday_starts_week"`
+		Language              string       `json:"language"`
+		DateFormat            string       `json:"date_format"`
+		NumberFormat          rune         `json:"number_format"`
+		Timezone              *tz.Zone     `json:"timezone"`
+		Widgets               Widgets      `json:"widgets"`
+		Views                 Views        `json:"views"`
+		EmailReports          EmailReports `json:"email_reports"`
+		FewerNumbers          bool         `json:"fewer_numbers"`
+		FewerNumbersLockUntil time.Time    `json:"fewer_numbers_lock_until"`
+		Theme                 string       `json:"theme"`
 	}
+
+	EmailReports map[SiteID]EmailReport
 
 	// Widgets is a list of widgets to be printed, in order.
 	Widget  map[string]any
@@ -297,6 +298,20 @@ func defaultWidgetSettings(ctx context.Context) map[string]WidgetSettings {
 			},
 			"key": WidgetSetting{Hidden: true},
 		},
+	}
+}
+
+func (e EmailReports) String() string               { return string(zjson.MustMarshal(e)) }
+func (e EmailReports) Value() (driver.Value, error) { return json.Marshal(e) }
+func (e *EmailReports) Scan(v any) error {
+	fmt.Printf("XXXX %q\n", v)
+	switch vv := v.(type) {
+	case []byte:
+		return json.Unmarshal(vv, e)
+	case string:
+		return json.Unmarshal([]byte(vv), e)
+	default:
+		return fmt.Errorf("SiteSettings.Scan: unsupported type: %T", v)
 	}
 }
 
@@ -634,9 +649,10 @@ func (ss *UserSettings) Validate(ctx context.Context) error {
 		v.Append("views", z18n.T(ctx, "view not set"))
 	}
 
-	if !slices.Contains(EmailReports, ss.EmailReports) {
-		v.Append("email_reports", "invalid value")
-	}
+	// XXX
+	// if !slices.Contains(EmailReports, ss.EmailReports) {
+	// 	v.Append("email_reports", "invalid value")
+	// }
 
 	v.Include("theme", ss.Theme, []string{"", "light", "dark"})
 

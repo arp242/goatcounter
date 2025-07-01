@@ -166,7 +166,7 @@
 		}).trigger('change')
 	}
 
-	var page_user_pref = function() {
+	let page_user_pref = function() {
 		// Set the timezone based on the browser's timezone.
 		$('#set-local-tz').on('click', function(e) {
 			e.preventDefault()
@@ -176,7 +176,7 @@
 				return
 			}
 
-			var zone = Intl.DateTimeFormat().resolvedOptions().timeZone
+			let zone = Intl.DateTimeFormat().resolvedOptions().timeZone
 			$(`#timezone [value$="${zone}"]`).prop('selected', true)
 		})
 
@@ -184,6 +184,16 @@
 		$('[id="user.settings.fewer_numbers"]').on('change', function(e) {
 			$('#lock-settings').css('display', $(this).is(':checked') ? 'block' : 'none')
 		}).trigger('change')
+
+		// Email reports
+		$('#toggle-sites').on('click', (e) => {
+			e.preventDefault()
+			let elem = $('#email-reports-sites')
+			if (elem.css('display') === 'none')
+				elem.css('display', 'block')
+			else
+				elem.css('display', 'none').find('input[value=-1]').prop('checked', true)
+		})
 	}
 
 	let page_user_api = function() {

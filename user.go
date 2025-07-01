@@ -10,7 +10,6 @@ import (
 
 	"golang.org/x/crypto/bcrypt"
 	"zgo.at/errors"
-	"zgo.at/goatcounter/v2/pkg/log"
 	"zgo.at/guru"
 	"zgo.at/json"
 	"zgo.at/otp"
@@ -498,32 +497,34 @@ func (u User) AccessSettings() bool  { return u.AccessAdmin() || u.Access["all"]
 //
 // The cronjob will send the report if the current date is after the end date.
 func (u User) EmailReportRange(ctx context.Context) ztime.Range {
-	var (
-		start, end ztime.Time
-		lastReport = ztime.Time{u.LastReportAt.In(u.Settings.Timezone.Loc())}
-		week       = ztime.Week(u.Settings.SundayStartsWeek)
-	)
-	switch u.Settings.EmailReports {
-	case EmailReportNever:
-		return ztime.Range{}
+	return ztime.Range{} // XXX
 
-	case EmailReportDaily:
-		start, end = lastReport.StartOf(ztime.Day), lastReport.EndOf(ztime.Day)
+	//var (
+	//	start, end ztime.Time
+	//	lastReport = ztime.Time{u.LastReportAt.In(u.Settings.Timezone.Loc())}
+	//	week       = ztime.Week(u.Settings.SundayStartsWeek)
+	//)
+	//switch u.Settings.EmailReports {
+	//case EmailReportNever:
+	//	return ztime.Range{}
 
-	case EmailReportBiWeekly:
-		start, end = lastReport.StartOf(week), lastReport.EndOf(week).AddPeriod(1, week)
+	//case EmailReportDaily:
+	//	start, end = lastReport.StartOf(ztime.Day), lastReport.EndOf(ztime.Day)
 
-	case EmailReportMonthly:
-		start, end = lastReport.StartOf(ztime.Month), lastReport.EndOf(ztime.Month)
+	//case EmailReportBiWeekly:
+	//	start, end = lastReport.StartOf(week), lastReport.EndOf(week).AddPeriod(1, week)
 
-	case EmailReportWeekly:
-		start, end = lastReport.StartOf(week), lastReport.EndOf(week)
-	default:
-		log.Errorf(ctx, "invalid EmailReports value for user %d: %d", u.ID, u.Settings.EmailReports)
-		return ztime.Range{}
-	}
+	//case EmailReportMonthly:
+	//	start, end = lastReport.StartOf(ztime.Month), lastReport.EndOf(ztime.Month)
 
-	return ztime.NewRange(start.Time.Truncate(time.Second)).To(end.Time.Truncate(time.Second))
+	//case EmailReportWeekly:
+	//	start, end = lastReport.StartOf(week), lastReport.EndOf(week)
+	//default:
+	//	log.Errorf(ctx, "invalid EmailReports value for user %d: %d", u.ID, u.Settings.EmailReports)
+	//	return ztime.Range{}
+	//}
+
+	//return ztime.NewRange(start.Time.Truncate(time.Second)).To(end.Time.Truncate(time.Second))
 }
 
 func (u User) EmailShort() string {

@@ -78,8 +78,15 @@
 			<span><a href="#_" id="set-local-tz">{{.T "link/set-from-browser|Set from browser"}}</a></span>
 		</fieldset>
 
-		<fieldset id="section-fewer-numbers">
-			<legend>{{.T "header/fewer-number|Show fewer numbers"}}</legend>
+		<fieldset id="section-preferences">
+			<legend>{{.T "header/preferences|Preferences"}}</legend>
+
+			<label for="theme">{{.T "label/theme|Theme"}}</label>
+			<select id="theme" name="theme">
+				<option {{option_value .User.Settings.Theme ""}}>{{.T "theme/system|Use system setting"}}</option>
+				<option {{option_value .User.Settings.Theme "light"}}>{{.T "theme/light|Light"}}</option>
+				<option {{option_value .User.Settings.Theme "dark"}}>{{.T "theme/dark|Dark"}}</option>
+			</select>
 
 			<label>
 				<input type="checkbox" name="user.settings.fewer_numbers" id="user.settings.fewer_numbers"
@@ -96,9 +103,8 @@
 					of visitors and stats.
 				`}}</span>
 
-			<div id="lock-settings">
+			<div id="lock-settings" class="expand">
 				{{if .FewerNumbersLocked}}
-					<br>
 					{{.T "help/locked-until|Locked until %(date)"
 						(.User.Settings.FewerNumbersLockUntil.Format .User.Settings.DateFormat)}}
 				{{else}}
@@ -114,15 +120,40 @@
 		</fieldset>
 
 		<fieldset id="section-email-reports">
-			<legend>{{.T "header/preferences|Preferences"}}</legend>
+			<legend>{{.T "header/email-reports|Email reports"}}</legend>
 
-			<label for="theme">{{.T "label/theme|Theme"}}</label>
-			<select id="theme" name="theme">
-				<option {{option_value .User.Settings.Theme ""}}>{{.T "theme/system|Use system setting"}}</option>
-				<option {{option_value .User.Settings.Theme "light"}}>{{.T "theme/light|Light"}}</option>
-				<option {{option_value .User.Settings.Theme "dark"}}>{{.T "theme/dark|Dark"}}</option>
-			</select>
+			{{/*
+			<pre>
+				{{.User.Settings.EmailReports}}
+				{{index .User.Settings.EmailReports -1}}
+				{{index .User.Settings.EmailReports 123}}
+			</pre>
+			*/}}
 
+			Send email reports<br>
+			<label class="inline"><input type="radio" name="user.settings.email_reports[-1]" value="0" {{if eq 0 (index .User.Settings.EmailReports -1)}}checked{{end}}> Never</label>
+			<label class="inline"><input type="radio" name="user.settings.email_reports[-1]" value="1" {{if eq 1 (index .User.Settings.EmailReports -1)}}checked{{end}}> Daily</label>
+			<label class="inline"><input type="radio" name="user.settings.email_reports[-1]" value="2" {{if eq 2 (index .User.Settings.EmailReports -1)}}checked{{end}}> Weekly</label>
+			<label class="inline"><input type="radio" name="user.settings.email_reports[-1]" value="3" {{if eq 3 (index .User.Settings.EmailReports -1)}}checked{{end}}> Every two weeks</label>
+			<label class="inline"><input type="radio" name="user.settings.email_reports[-1]" value="4" {{if eq 4 (index .User.Settings.EmailReports -1)}}checked{{end}}> Monthly</label>
+			<br><br>
+
+			<a href="#" id="toggle-sites">Configure individual sites</a>
+			<div id="email-reports-sites">
+				{{range $s := .Sites}}
+					<div>
+						<strong>{{$s.Display $.Context}}</strong><br>
+						<label class="inline"><input type="radio" value="-1" {{if eq -1 (index $.User.Settings.EmailReports $s.ID)}}checked{{end}} name="user.settings.email_reports[{{$s.ID}}]"> Use default</label>
+						<label class="inline"><input type="radio" value="0"  {{if eq 0  (index $.User.Settings.EmailReports $s.ID)}}checked{{end}} name="user.settings.email_reports[{{$s.ID}}]"> Never</label>
+						<label class="inline"><input type="radio" value="1"  {{if eq 1  (index $.User.Settings.EmailReports $s.ID)}}checked{{end}} name="user.settings.email_reports[{{$s.ID}}]"> Daily</label>
+						<label class="inline"><input type="radio" value="2"  {{if eq 2  (index $.User.Settings.EmailReports $s.ID)}}checked{{end}} name="user.settings.email_reports[{{$s.ID}}]"> Weekly</label>
+						<label class="inline"><input type="radio" value="3"  {{if eq 3  (index $.User.Settings.EmailReports $s.ID)}}checked{{end}} name="user.settings.email_reports[{{$s.ID}}]"> Every two weeks</label>
+						<label class="inline"><input type="radio" value="4"  {{if eq 4  (index $.User.Settings.EmailReports $s.ID)}}checked{{end}} name="user.settings.email_reports[{{$s.ID}}]"> Monthly</label>
+					</div>
+				{{end}}
+			</div>
+
+			{{/*
 			<label for="email_reports">{{.T "label/email-reports|Send email reports"}}</label>
 			<select name="user.settings.email_reports" id="email_reports">
 				<option {{option_value (str .User.Settings.EmailReports) "0"}}>{{.T "email-report/never|Never"}}</option>
@@ -132,6 +163,7 @@
 				<option {{option_value (str .User.Settings.EmailReports) "4"}}>{{.T "email-report/monthly|Monthly"}}</option>
 			</select>
 			<span>{{.T "help/email-reports|Reports are sent on the first day of the new period (e.g. first day of the month)."}}</span>
+			*/}}
 		</fieldset>
 
 		<div class="flex-break"></div>
