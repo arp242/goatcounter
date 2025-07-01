@@ -1,0 +1,11 @@
+-- XXX: sqlite
+
+update users set settings =
+	{{psql   `jsonb_set(settings, '{email_reports}', jsonb_build_object('-1', settings->'email_reports'))`}}
+	-- {{sqlite `json_replace(settings, '$.email_reports', json_extract(settings, '$.email_reports'))`}}
+where settings->'email_reports' is not null;
+
+update sites set user_defaults =
+	{{psql   `jsonb_set(user_defaults, '{email_reports}', jsonb_build_object('-1', user_defaults->'email_reports'))`}}
+	-- {{sqlite `json_replace(user_defaults, '$.email_reports', json_extract(user_defaults, '$.email_reports'))`}}
+where user_defaults->'email_reports' is not null;

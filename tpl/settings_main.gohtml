@@ -35,7 +35,7 @@
 				<option {{option_value .Site.Settings.Public "public"}}>{{.T  "label/public-anyone|Anyone"}}</option>
 			</select>
 			<span>{{.T "help/public|Control who can view the dashboard."}}</span>
-			<div id="secret">
+			<div id="secret" class="expand">
 				<label for="settings-secret">{{.T "label/secret-token|Secret token"}}</label>
 				<input type="text" name="settings.secret" id="settings-secret" value="{{.Site.Settings.Secret}}">
 				<a href="#" id="rnd-secret">{{.T "link/generate-random|Generate random secret."}}</a><br>

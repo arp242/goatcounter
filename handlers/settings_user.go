@@ -3,6 +3,7 @@ package handlers
 import (
 	"context"
 	"fmt"
+	"maps"
 	"net/http"
 	"sort"
 
@@ -20,12 +21,18 @@ import (
 
 func (h settings) userPref(verr *zvalidate.Validator) zhttp.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) error {
+		var sites goatcounter.Sites
+		err := sites.ForThisAccount(r.Context(), false)
+		if err != nil {
+			return err
+		}
 		return zhttp.Template(w, "user_pref.gohtml", struct {
 			Globals
 			Validate           *zvalidate.Validator
+			Sites              goatcounter.Sites
 			Timezones          []*tz.Zone
 			FewerNumbersLocked bool
-		}{newGlobals(w, r), verr, tz.Zones,
+		}{newGlobals(w, r), verr, sites, tz.Zones,
 			goatcounter.MustGetUser(r.Context()).Settings.FewerNumbersLockUntil.After(ztime.Now(r.Context()))})
 	}
 }
@@ -39,11 +46,10 @@ func (h settings) userPrefSave(w http.ResponseWriter, r *http.Request) error {
 	}{*User(r.Context()), false, "", ""}
 	var (
 		oldEmail     = args.User.Email
-		oldReports   = args.User.Settings.EmailReports
+		oldReports   = maps.Clone(args.User.Settings.EmailReports)
 		oldFewerNums = args.User.Settings.FewerNumbers
 	)
-	_, err := zhttp.Decode(r, &args)
-	if err != nil {
+	if _, err := zhttp.Decode(r, &args); err != nil {
 		return err
 	}
 
@@ -62,16 +68,17 @@ func (h settings) userPrefSave(w http.ResponseWriter, r *http.Request) error {
 			Time
 	}
 
-	var (
-		emailChanged     = goatcounter.Config(r.Context()).GoatcounterCom && oldEmail != args.User.Email
-		reportingChanged = goatcounter.Config(r.Context()).GoatcounterCom && oldReports != args.User.Settings.EmailReports
-	)
-	if reportingChanged {
-		args.User.LastReportAt = ztime.Now(r.Context())
-	}
+	emailChanged := goatcounter.Config(r.Context()).GoatcounterCom && oldEmail != args.User.Email
 
-	err = zdb.TX(r.Context(), func(ctx context.Context) error {
-		err = args.User.Update(ctx, emailChanged)
+	// XXX
+	_ = oldReports
+	//reportingChanged = oldReports != args.User.Settings.EmailReports
+	//if reportingChanged {
+	//	args.User.LastReportAt = ztime.Now(r.Context())
+	//}
+
+	err := zdb.TX(r.Context(), func(ctx context.Context) error {
+		err := args.User.Update(ctx, emailChanged)
 		if err != nil {
 			return err
 		}
