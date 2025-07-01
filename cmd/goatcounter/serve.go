@@ -534,7 +534,7 @@ func flagErrors(errors string, v *zvalidate.Validator) {
 		v.Email("-errors", to)
 		slog.SetDefault(slog.New(log.NewChain(
 			slog.Default().Handler(),
-			email_log.New(slog.LevelError, from, to),
+			email_log.New(slog.LevelWarn, from, to),
 		)))
 	}
 }

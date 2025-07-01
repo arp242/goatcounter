@@ -186,8 +186,8 @@ func cmdMain(f zli.Flags, ready chan<- struct{}, stop chan struct{}) {
 func connectDB(connect, dbConn string, migrate []string, create, dev bool) (zdb.DB, context.Context, error) {
 	if strings.Contains(connect, "://") && !strings.Contains(connect, "+") {
 		connect = strings.Replace(connect, "://", "+", 1)
-		log.Errorf(context.Background(),
-			`WARNING: the connection string for -db changed from "engine://connectString" to "engine+connectString"; the ://-variant will work for now, but will be removed in a future release`)
+		log.Warnf(context.Background(), `the connection string for -db changed from "engine://connectString"`+
+			` to "engine+connectString"; the ://-variant will work for now, but will be removed in a future release`)
 	}
 
 	var open, idle int
@@ -226,7 +226,7 @@ func connectDB(connect, dbConn string, migrate []string, create, dev bool) (zdb.
 	})
 	var pErr *zdb.PendingMigrationsError
 	if errors.As(err, &pErr) {
-		log.Errorf(context.Background(), "%s; continuing but things may be broken", err)
+		log.Warnf(context.Background(), "%s; continuing but things may be broken", err)
 		err = nil
 	}
 
