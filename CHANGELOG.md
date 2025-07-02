@@ -44,6 +44,10 @@ unreleased
 
 - API Tokens are now shared between all sites.
 
+- Read `GOATCOUNTER_TMPDIR` environment variable as an alternative way to set
+  `TMPDIR`. Mainly intended for cases where `TMPDIR` can't be used (e.g. when
+  the capability bit is set on Linux).
+
 ### Fixes
 
 - Adjust screen size categories for more modern devices.

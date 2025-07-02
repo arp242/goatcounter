@@ -36,6 +36,14 @@ func init() {
 type command func(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error
 
 func main() {
+	// Linux doesn't allow some environment variables to be set if any
+	// capability bits (such as cap_net_bind_service) are set, so also read from
+	// GOATCOUNTER_TMPDIR
+	if v, ok := os.LookupEnv("GOATCOUNTER_TMPDIR"); ok {
+		os.Setenv("TMPDIR", v)
+		os.Unsetenv("GOATCOUNTER_TMPDIR")
+	}
+
 	var (
 		f     = zli.NewFlags(os.Args)
 		ready = make(chan struct{}, 1)

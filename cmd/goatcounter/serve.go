@@ -66,9 +66,13 @@ Environment:
 
   Additional environment variables:
 
-    TMPDIR       Directory for temporary files; only used to store CSV exports
-                 at the moment. On Windows it will use the first non-empty value
-                 of %TMP%, %TEMP%, and %USERPROFILE%.
+
+    TMPDIR              Directory for temporary files; only used to store CSV
+                        exports at the moment. On Windows it will use the first
+                        non-empty value of %TMP%, %TEMP%, and %USERPROFILE%.
+    GOATCOUNTER_TMPDIR  Alternative way to set TMPDIR; takes precedence over TMPDIR.
+                        Mainly intended for cases where TMPDIR can't be used
+                        (e.g. when the capability bit is set on Linux).
 
 Flags:
 
