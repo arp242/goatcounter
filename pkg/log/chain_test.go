@@ -20,7 +20,7 @@ func TestChain(t *testing.T) {
 	l.WithGroup("g").With("a", "b").Warn("warning")
 	l.Error("warning")
 
-	re := regexp.MustCompile(`\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d\.\d{3,9}[+-]\d\d:\d\d`)
+	re := regexp.MustCompile(`\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d\.\d{3,9}(Z|[+-]\d\d:\d\d)`)
 	have := re.ReplaceAllString(buf.String(), `2006-01-02T15:04:05.999-07:00`)
 
 	want := `
