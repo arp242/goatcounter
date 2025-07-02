@@ -108,9 +108,13 @@ func cmdMain(f zli.Flags, ready chan<- struct{}, stop chan struct{}) {
 	case "db", "database":
 		run = cmdDB
 	case "serve":
-		run = cmdServe
+		run = func(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
+			return cmdServe(f, ready, stop, false)
+		}
 	case "saas":
-		run = cmdSaas
+		run = func(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
+			return cmdServe(f, ready, stop, true)
+		}
 	case "monitor":
 		run = cmdMonitor
 	case "import":

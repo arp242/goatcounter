@@ -241,3 +241,19 @@ commas.
     session        Internal "session" generation to track visitors
     vacuum         Deletion of deleted sites and old pageviews
 `
+
+const usageSaas = `
+This runs goatcounter.com
+
+Running your own SaaS is currently undocumented, non-trivial, and has certain
+assumptions that will not be true in your case. You do not want to run this; for
+now it can only run run goatcounter.com
+
+If you do want to run a SaaS, you're almost certainly better off writing your
+own front-end to interface with GoatCounter (this is probably how
+goatcounter.com should work as well, but it's quite some effort with low ROI to
+change that now).
+
+This command is undocumented on purpose. Get in touch if you think you need this
+(but you probably don't) and we'll see what can be done to fix you up.
+`
