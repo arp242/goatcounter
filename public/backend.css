@@ -47,14 +47,13 @@ nav .sites-list-select { display: none; padding: 0; background-color: var(--bg);
     nav { padding-left: .5em; }
 }
 
-h2            { margin-bottom: .4em; }
-h2 small      { font-size: .9rem; font-weight: normal; margin-right: .1em; line-height: 1rem; }
-h2.full-width { margin-left: .4em; margin-right: .4em; padding-right: .2em;
-                display: flex; justify-content: space-between; align-items: flex-end; }
-
-h3, h4     { margin-bottom: 0; }
-h3+p, h4+p { margin-top: 0; }
-h3.border  { border-bottom: 1px solid #666; margin-bottom: .2em; }
+h2               { margin-bottom:.4em; }
+h2 small         { font-size:.9rem; font-weight:normal; margin-right:.1em; line-height:1rem; }
+#dash-widgets h2 { margin-left:.0; margin-right:.4em; padding-right:.2em;
+                   display:flex; justify-content:space-between; align-items:flex-end; }
+h3, h4           { margin-bottom:0; }
+h3+p, h4+p       { margin-top:0; }
+h3.border        { border-bottom:1px solid #666; margin-bottom:.2em; }
 
 form .err        { color:var(--form-error-text); display:block; }
 form .disabled,
@@ -291,9 +290,8 @@ tr.target .chart-left { display: block; }
 /* Widget settings button for every widget. */
 .widget-header          { position: relative; margin-left: -1em; padding-left: 1em; }
 .widget-header:hover .configure-widget { display: block; }
-.configure-widget       { position: absolute; font-size: 14px; left: .1rem; top: 0; display: none; color: inherit; }
+.configure-widget       { position: absolute; font-size: 14px; left: 0; top: 0; display: none; color: inherit; }
 .configure-widget:hover { color: inherit; opacity: .7; text-decoration: none; }
-.pages-list .configure-widget, .totals .configure-widget { left: .4rem; }
 #page-dashboard .widget-settings { position: absolute; z-index: 2; padding: .5em;
     background-color: var(--tooltip-bg); color: var(--tooltip-text);
     border: 1px solid var(--tooltip-border); box-shadow: 0 0 2px var(--tooltip-shadow); }

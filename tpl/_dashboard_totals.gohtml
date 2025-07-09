@@ -1,6 +1,6 @@
 <div class="totals" data-widget="{{.ID}}">
 	<div class="widget-header">
-		<h2 class="full-width">{{t .Context "dashboard/totals/header|Totals"}}
+		<h2>{{t .Context "dashboard/totals/header|Totals"}}
 			{{if not $.User.Settings.FewerNumbers}}
 				{{if .NoEvents}}
 					<small>{{t .Context `dashboard/totals/num-visits|%(num-visits) visits; excluding events`

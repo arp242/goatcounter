@@ -1,7 +1,7 @@
 {{/* TODO: make option to split counts between events and regular pageviews */}}
 <div class="pages-list {{if .Group.Daily}}pages-list-daily{{end}}" data-widget="{{.ID}}">
 	<div class="widget-header">
-		<h2 class="full-width">{{t .Context "dashboard/pages/header|Pages"}}
+		<h2>{{t .Context "dashboard/pages/header|Pages"}}
 		{{if not $.User.Settings.FewerNumbers}}
 			<small>{{t .Context `dashboard/pages/num-visits|%(num-visits) out of %(total-visits) visits shown`
 				(map
