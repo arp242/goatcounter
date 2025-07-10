@@ -1,10 +1,10 @@
 module zgo.at/goatcounter/v2
 
-go 1.24.4
+go 1.24.5
 
 require (
 	github.com/bmatcuk/doublestar/v4 v4.8.1
-	github.com/go-chi/chi/v5 v5.2.1
+	github.com/go-chi/chi/v5 v5.2.2
 	github.com/google/uuid v1.6.0
 	github.com/gorilla/websocket v1.5.3
 	github.com/lib/pq v1.10.9 // indirect
@@ -26,7 +26,7 @@ require (
 	zgo.at/gadget v1.0.0
 	zgo.at/guru v1.2.0
 	zgo.at/isbot v1.0.0
-	zgo.at/jfmt v0.0.0-20240726113937-e6436421fade
+	zgo.at/jfmt v0.0.0-20250703165133-d1b6c356823b
 	zgo.at/json v0.0.0-20221020004326-fe4f75bb278e
 	zgo.at/otp v0.0.0-20250619162254-96c2c40ec359
 	zgo.at/runewidth v0.1.0 // indirect
@@ -35,11 +35,11 @@ require (
 	zgo.at/tz v0.0.0-20240819050900-3c7bf6122612
 	zgo.at/z18n v0.0.0-20240522230155-4d5af439f8c4
 	zgo.at/zcache/v2 v2.2.0
-	zgo.at/zdb v0.0.0-20250622182831-846e25de1363
+	zgo.at/zdb v0.0.0-20250625112050-3a7c5fa44317
 	zgo.at/zhttp v0.0.0-20250710171434-88e30454652c
-	zgo.at/zli v0.0.0-20250614004402-078b5fce471c
+	zgo.at/zli v0.0.0-20250704045222-08cb210424f2
 	zgo.at/zprof v0.0.0-20211217104121-c3c12596d8f0
-	zgo.at/zstd v0.0.0-20250708092507-699da3f15c8e
+	zgo.at/zstd v0.0.0-20250710181612-da3b12d1a381
 	zgo.at/ztpl v0.0.0-20250628022642-3b2c314e8e05
 	zgo.at/zvalidate v0.0.0-20250622183046-6812c1c79e1a
 )
@@ -47,11 +47,11 @@ require (
 // golang.org/x
 require (
 	golang.org/x/crypto v0.39.0
-	golang.org/x/image v0.28.0
-	golang.org/x/mod v0.25.0 // indirect
+	golang.org/x/image v0.29.0
+	golang.org/x/mod v0.26.0 // indirect
 	golang.org/x/net v0.41.0
-	golang.org/x/sync v0.15.0
-	golang.org/x/sys v0.33.0
-	golang.org/x/text v0.26.0
+	golang.org/x/sync v0.16.0
+	golang.org/x/sys v0.34.0
+	golang.org/x/text v0.27.0
 	golang.org/x/tools v0.34.0 // indirect
 )
