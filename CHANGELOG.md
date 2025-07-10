@@ -20,8 +20,8 @@ unreleased
   this relied on the correct usage of the `-tls` flag, which people often got
   wrong. Now it's detected from the client connection.
 
-  This does depend on any proxied setup to set the `X-Forwarded-Proto: https`
-  header, which most should already do by default.
+  This does depend on the proxy to set `Scheme: https` or `X-Forwarded-Proto:
+  https` header, which most should already do by default.
 
 - Store bot pageviews in new "bots" table for 30 days.
 

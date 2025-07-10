@@ -182,9 +182,9 @@ Proxy Setup:
     localhost:8081. This assumes that the proxy will take care of the TLS
     certificate story.
 
-    It's assumed a proxy sets "X-Forwarded-Proto: https" when using TLS, and
-    "X-Forwarded-For: [..]" or "X-Real-Ip: [..]" with the client's IP. Most do
-    this by default.
+    It's assumed a proxy sets "Scheme: https" or "X-Forwarded-Proto: https" when
+    using TLS, and "X-Forwarded-For: [..]" or "X-Real-Ip: [..]" with the
+    client's IP. Most do this by default.
 
     GoatCounter uses WebSockets to optimize loading speed. It can work without
     WebSockets, but it's recommended to make sure proxying WebSockets work.
