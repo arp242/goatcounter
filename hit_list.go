@@ -16,6 +16,24 @@ import (
 
 type Group uint8
 
+func (g *Group) UnmarshalJSON(v []byte) error {
+	var err error
+	*g, err = zstrconv.ParseInt[Group](string(v), 10)
+	return err
+}
+
+func (g *Group) UnmarshalText(v []byte) error {
+	switch string(v) {
+	default:
+		return g.UnmarshalJSON(v)
+	case "hour":
+		*g = GroupHourly
+	case "day":
+		*g = GroupDaily
+	}
+	return nil
+}
+
 func (g Group) Hourly() bool { return g == GroupHourly }
 func (g Group) Daily() bool  { return g == GroupDaily }
 func (g Group) String() string {
