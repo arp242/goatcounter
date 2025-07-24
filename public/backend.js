@@ -50,7 +50,9 @@
 		let stack = (err||{}).stack
 
 		// Don't log errors from extensions.
-		if (url.startsWith('chrome-extension://') || stack.indexOf('@moz-extension://') !== -1)
+		if (url.startsWith('chrome-extension://') || stack.indexOf('@moz-extension://') !== -1 ||
+			stack.indexOf('global code@') !== -1 // Outside function; probs injected script
+		)
 			return
 
 		jQuery.ajax({
