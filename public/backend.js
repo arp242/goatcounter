@@ -47,7 +47,7 @@
 		)
 			return
 
-		let stack = (err||{}).stack
+		let stack = typeof(err?.stack) === 'string' ? err.stack : ''
 
 		// Don't log errors from extensions.
 		if (url.startsWith('chrome-extension://') || stack.indexOf('@moz-extension://') !== -1 ||

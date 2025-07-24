@@ -639,20 +639,12 @@
 				type: (w.n === 'locations' ? 'region' : 'language'),
 			})
 			let set = function(chart) {
-				chart.find('div[data-key]').each((_, e) => {
+				chart.find('>rows >div[data-key]').each((_, e) => {
 					if (e.dataset.key.substr(0, 1) === '(') // Skip "(unknown)"
 						return
-					try {
-						let n = names.of(e.dataset.key)
-						if (n)
-							$(e).find('.col-name .bar-c .cutoff').text(n)
-					} catch (exc) {
-						// This errors out with a RangeError sometimes, but
-						// without details and can't reproduce. Add some more
-						// info to see what's going on.
-						exc.message = `${exc.message} for type=${w.n}; key=${e.dataset.key}; content=${$(e).find('.col-name .bar-c .cutoff').text()}`
-						throw exc
-					}
+					let n = names.of(e.dataset.key)
+					if (n)
+						$(e).find('.col-name .bar-c .cutoff').text(n)
 				})
 			}
 
@@ -700,7 +692,7 @@
 				pages = $(this).closest('.pages-list')
 			let done = paginate_button(btn, () => {
 				jQuery.ajax({
-					url:  BASE_PATH + '/load-widget',
+					url:  `${BASE_PATH}/load-widget`,
 					data: append_period({
 						widget:    pages.attr('data-widget'),
 						group:     $('#hl-group').val(),
@@ -829,12 +821,12 @@
 				rows.data('pagesize', rows.children().length)
 			let done = paginate_button($(this), () => {
 				jQuery.ajax({
-					url:  BASE_PATH + '/load-widget',
+					url:  `${BASE_PATH}/load-widget`,
 					data: append_period({
 						widget: chart.attr('data-widget'),
 						total:  get_total(),
 						key:    key,
-						offset: rows.find('div:not(.hchart)').length,
+						offset: rows.find('>div:not(.hchart)').length,
 					}),
 					success: function(data) {
 						less.css('display', 'inline')
