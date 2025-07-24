@@ -269,7 +269,7 @@ func (p Path) Merge(ctx context.Context, paths Paths) error {
 				"in":      pgIn(ctx),
 			})
 	})
-	return errors.Wrap(err, "Path.Merge")
+	return errors.Wrapf(err, "Path.Merge(%d, %v)", p.ID, pathIDs)
 }
 
 type Paths []Path
