@@ -21,9 +21,14 @@
 		if (window.WEBSOCKET && window.WEBSOCKET.readyState <= 1)
 			return
 
-		window.WEBSOCKET = new WebSocket(
-			(location.protocol === 'https:' ? 'wss://' : 'ws://') +
-			`${document.location.host}${BASE_PATH}/loader?id=${$('#js-connect-id').text()}`)
+		try {
+			window.WEBSOCKET = new WebSocket(
+				(location.protocol === 'https:' ? 'wss://' : 'ws://') +
+				`${document.location.host}${BASE_PATH}/loader?id=${$('#js-connect-id').text()}`)
+		} catch(err) {
+			push_query({'no-websocket': 1})
+			window.location.reload()
+		}
 
 		// Reload without websockets if that didn't work. We can't just use
 		// onerror, because both Firefox and Chrome may take up to a minute to
@@ -32,7 +37,7 @@
 		// The backend will outright disable Websockets if this happened three
 		// times in a row.
 		if (!window.GOATCOUNTER_COM) {
-			window.WEBSOCKET.onerror = () => {console.log("R"); push_query({'no-websocket': 1}); window.location.reload() }
+			window.WEBSOCKET.onerror = () => { push_query({'no-websocket': 1}); window.location.reload() }
 			window.WEBSOCKET.onopen  = () => { window.WEBSOCKET.onerror = null }
 			setTimeout(() => {
 				if (window.WEBSOCKET.readyState === 0)
