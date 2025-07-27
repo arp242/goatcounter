@@ -708,23 +708,48 @@ func (h settings) exportImportGA(w http.ResponseWriter, r *http.Request) error {
 func (h settings) exportStart(w http.ResponseWriter, r *http.Request) error {
 	r.ParseForm()
 
-	v := goatcounter.NewValidate(r.Context())
-	startFrom := goatcounter.HitID(v.Integer("startFrom", r.Form.Get("startFrom")))
-	if v.HasErrors() {
-		return v
+	if !r.Form.Has("format") {
+		return guru.New(400, `"format" missing`)
+	}
+	switch r.Form.Get("format") {
+	default:
+		return guru.Errorf(400, "unknown format: %q", r.Form.Get("format"))
+
+	case "json":
+		v := goatcounter.NewValidate(r.Context())
+		periodStart := v.Date("period-start", r.Form.Get("period-start"), "2006-01-02")
+		if v.HasErrors() {
+			return v
+		}
+
+		var export goatcounter.Export
+		fp, err := export.CreateJSON(r.Context(), periodStart)
+		if err != nil {
+			return err
+		}
+		ctx := context.WithoutCancel(r.Context())
+		bgrun.RunFunction(fmt.Sprintf("export web:%d", Site(ctx).ID),
+			func() { export.RunJSON(ctx, fp, true) })
+
+	case "csv":
+		v := goatcounter.NewValidate(r.Context())
+		startFrom := goatcounter.HitID(v.Integer("start-from", r.Form.Get("start-from")))
+		if v.HasErrors() {
+			return v
+		}
+
+		var export goatcounter.Export
+		fp, err := export.CreateCSV(r.Context(), startFrom)
+		if err != nil {
+			return err
+		}
+		ctx := context.WithoutCancel(r.Context())
+		bgrun.RunFunction(fmt.Sprintf("export web:%d", Site(ctx).ID),
+			func() { export.RunCSV(ctx, fp, true) })
 	}
 
-	var export goatcounter.Export
-	fp, err := export.CreateCSV(r.Context(), startFrom)
-	if err != nil {
-		return err
-	}
-
-	ctx := context.WithoutCancel(r.Context())
-	bgrun.RunFunction(fmt.Sprintf("export web:%d", Site(ctx).ID),
-		func() { export.RunCSV(ctx, fp, true) })
-
-	zhttp.Flash(w, r, T(r.Context(), "notify/export-started-in-background|Export started in the background; you’ll get an email with a download link when it’s done."))
+	zhttp.Flash(w, r, T(r.Context(), `notify/export-started-in-background|
+		Export started in the background; you’ll get an email with a download link when it’s done.`))
 	return zhttp.SeeOther(w, "/settings/export")
 }
 
