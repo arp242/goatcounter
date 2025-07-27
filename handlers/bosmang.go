@@ -17,6 +17,7 @@ import (
 	"zgo.at/zprof"
 	"zgo.at/zstd/zcontext"
 	"zgo.at/zstd/ztime"
+	"zgo.at/zstd/ztype"
 	"zgo.at/zvalidate"
 )
 
@@ -51,11 +52,11 @@ func (h bosmang) cache(w http.ResponseWriter, r *http.Request) error {
 func (h bosmang) bgrun(w http.ResponseWriter, r *http.Request) error {
 	hist := bgrun.History(0)
 
-	metrics := make(map[string]ztime.Durations)
+	metrics := make(map[string]*ztime.Durations)
 	for _, h := range hist {
 		x, ok := metrics[h.Task]
 		if !ok {
-			x = ztime.NewDurations(0)
+			x = ztype.Ptr(ztime.NewDurations(0))
 			x.Grow(32)
 		}
 		x.Append(h.Took)
@@ -67,7 +68,7 @@ func (h bosmang) bgrun(w http.ResponseWriter, r *http.Request) error {
 		Tasks   []cron.Task
 		Jobs    []bgrun.Job
 		History []bgrun.Job
-		Metrics map[string]ztime.Durations
+		Metrics map[string]*ztime.Durations
 	}{newGlobals(w, r), cron.Tasks, bgrun.Running(), hist, metrics})
 }
 

@@ -94,59 +94,94 @@ func reportUsers(ctx context.Context) (goatcounter.Users, error) {
 	return users, errors.Wrap(err, "get users")
 }
 
-type templateArgs struct {
-	Context context.Context
-	Site    goatcounter.Site
-	User    goatcounter.User
-	Pages   goatcounter.HitLists
-	Total   goatcounter.HitList
-	Refs    goatcounter.HitStats
-
-	DisplayDate                  string
-	TextPagesTable, TextRefTable template.HTML
-
-	Diffs []string
-}
-
-func reportText(ctx context.Context, site goatcounter.Site, user goatcounter.User) (text, html []byte, subject string, err error) {
-	ctx = goatcounter.WithSite(ctx, &site)
-	rng := user.EmailReportRange(ctx).UTC()
-
-	args := templateArgs{
-		Context:     ctx,
-		Site:        site,
-		User:        user,
-		DisplayDate: fmt.Sprintf("%s ", rng.Start.Format(user.Settings.DateFormat)),
+type (
+	reportArgs struct {
+		Context     context.Context
+		Account     goatcounter.Site
+		User        goatcounter.User
+		DisplayDate string
+		Sites       []reportArgsSite
 	}
-	// TODO: ztime.Range.String() prints "relative" dates such as "yesterday"
-	// and "last week"; this is nice in some cases, but not so nice in others
-	// (such as here). Should have two functions for this.
+	reportArgsSite struct {
+		URL                          string
+		Pages                        goatcounter.HitLists
+		Total                        goatcounter.HitList
+		Refs                         goatcounter.HitStats
+		TextPagesTable, TextRefTable template.HTML
+		Diffs                        []string
+	}
+)
+
+func reportText(ctx context.Context, account goatcounter.Site, user goatcounter.User) (text, html []byte, subject string, err error) {
+	var sites goatcounter.Sites
+	err = sites.ForAccount(ctx, account.ID)
+	if err != nil {
+		return nil, nil, "", err
+	}
+
+	rng := user.EmailReportRange(ctx).UTC()
+	args := reportArgs{
+		Context:     ctx,
+		Account:     account,
+		User:        user,
+		DisplayDate: rng.Start.Format(user.Settings.DateFormat),
+	}
 	if user.Settings.EmailReports != goatcounter.EmailReportDaily {
 		args.DisplayDate += " – " + rng.End.Format(user.Settings.DateFormat)
 	}
-	// TODO: no locale on context here.
 	subject = fmt.Sprintf("Your GoatCounter report for %s", args.DisplayDate)
+
+	for _, s := range sites {
+		sa, err := reportTextSite(ctx, s, user)
+		if err != nil {
+			return nil, nil, "", err
+		}
+		if len(sa.Pages) > 0 {
+			args.Sites = append(args.Sites, sa)
+		}
+	}
+	if len(args.Sites) == 0 {
+		return nil, nil, "", nil
+	}
+
+	text, err = ztpl.ExecuteBytes("email_report.gotxt", args)
+	if err != nil {
+		return nil, nil, "", errors.Errorf("cron.report text: %w", err)
+	}
+	html, err = ztpl.ExecuteBytes("email_report.gohtml", args)
+	if err != nil {
+		return nil, nil, "", errors.Errorf("cron.report html: %w", err)
+	}
+	return text, html, subject, nil
+}
+
+func reportTextSite(ctx context.Context, site goatcounter.Site, user goatcounter.User) (reportArgsSite, error) {
+	ctx = goatcounter.WithSite(ctx, &site)
+	var (
+		args = reportArgsSite{URL: site.URL(ctx)}
+		rng  = user.EmailReportRange(ctx).UTC()
+	)
 
 	{ // Get overview of paths.
 		_, _, err := args.Pages.List(ctx, rng, nil, nil, 10, goatcounter.GroupDaily)
 		if err != nil {
-			return nil, nil, "", err
+			return args, err
 		}
 
 		if len(args.Pages) == 0 { /// No pages: don't bother sending out anything.
-			return nil, nil, "", nil
+			return args, nil
 		}
 
 		_, err = args.Total.Totals(ctx, rng, nil, goatcounter.GroupDaily, true)
 		if err != nil {
-			return nil, nil, "", err
+			return args, err
 		}
 
 		d := -rng.End.Sub(rng.Start)
 		prev := ztime.NewRange(rng.Start.Add(d)).To(rng.End.Add(d))
 		diffs, err := args.Pages.Diff(ctx, rng, prev)
 		if err != nil {
-			return nil, nil, "", err
+			return args, err
 		}
 
 		diffStr := make([]string, len(args.Pages))
@@ -165,7 +200,6 @@ func reportText(ctx context.Context, site goatcounter.Site, user goatcounter.Use
 		b := new(strings.Builder)
 		fmt.Fprintf(b, "    %-36s  %9s  %7s\n", "Path", "Visitors", "Growth")
 		b.WriteString("    " + strings.Repeat("-", 56) + "\n")
-		b.WriteByte('\n')
 		for i, p := range args.Pages {
 			path := p.Path
 			if p.Event {
@@ -183,7 +217,7 @@ func reportText(ctx context.Context, site goatcounter.Site, user goatcounter.Use
 	{ // Get overview of refs.
 		err := args.Refs.ListTopRefs(ctx, rng, nil, 10, 0)
 		if err != nil {
-			return nil, nil, "", err
+			return args, err
 		}
 
 		b := new(strings.Builder)
@@ -202,14 +236,5 @@ func reportText(ctx context.Context, site goatcounter.Site, user goatcounter.Use
 		args.TextRefTable = template.HTML(b.String())
 	}
 
-	text, err = ztpl.ExecuteBytes("email_report.gotxt", args)
-	if err != nil {
-		return nil, nil, "", errors.Errorf("cron.report text: %w", err)
-	}
-	html, err = ztpl.ExecuteBytes("email_report.gohtml", args)
-	if err != nil {
-		return nil, nil, "", errors.Errorf("cron.report html: %w", err)
-	}
-
-	return text, html, subject, nil
+	return args, nil
 }

@@ -35,7 +35,6 @@ func TestEmailReports(t *testing.T) {
 		setup func(ctx context.Context) context.Context
 		want  string
 	}{
-		// No pages → don't send out anything.
 		{
 			"no pages",
 			func(ctx context.Context) context.Context {
@@ -92,7 +91,7 @@ func TestEmailReports(t *testing.T) {
 			"week",
 			func(ctx context.Context) context.Context {
 				ctx = gctest.Site(ctx, t, nil, &goatcounter.User{
-					LastReportAt: ztime.Now(ctx).Add(-23 * time.Hour),
+					LastReportAt: ztime.Now(ctx).Add(-167 * time.Hour),
 					Settings: goatcounter.UserSettings{
 						EmailReports: goatcounter.EmailReportWeekly,
 						Timezone:     tz.UTC,
@@ -127,24 +126,85 @@ func TestEmailReports(t *testing.T) {
 				xx                                                     2
 		 	`,
 		},
+
+		{
+			"multiple sites",
+			func(ctx context.Context) context.Context {
+				ctx = gctest.Site(ctx, t, &goatcounter.Site{Code: "bb"}, &goatcounter.User{
+					LastReportAt: ztime.Now(ctx).Add(-167 * time.Hour),
+					Settings: goatcounter.UserSettings{
+						EmailReports: goatcounter.EmailReportWeekly,
+						Timezone:     tz.UTC,
+					},
+				})
+				sID := goatcounter.MustGetSite(ctx).ID
+
+				gctest.StoreHits(ctx, t, false,
+					goatcounter.Hit{Site: sID, FirstVisit: true, Path: "/a", CreatedAt: ztime.Now(ctx).Add(-1 * time.Hour)},
+					goatcounter.Hit{Site: sID, FirstVisit: true, Path: "/a", CreatedAt: ztime.Now(ctx).Add(-48 * time.Hour)},
+
+					goatcounter.Hit{Site: sID, FirstVisit: true, Path: "/b", CreatedAt: ztime.Now(ctx).Add(-1 * time.Hour)},
+					goatcounter.Hit{Site: sID, FirstVisit: true, Path: "/b", CreatedAt: ztime.Now(ctx).Add(-1 * time.Hour)},
+					goatcounter.Hit{Site: sID, FirstVisit: true, Path: "/b", CreatedAt: ztime.Now(ctx).Add(-25 * time.Hour)},
+
+					goatcounter.Hit{Site: sID, FirstVisit: true, Path: "/c", CreatedAt: ztime.Now(ctx).Add(-1 * time.Hour)},
+					goatcounter.Hit{Site: sID, FirstVisit: true, Path: "/c", CreatedAt: ztime.Now(ctx).Add(-22 * time.Hour)},
+
+					goatcounter.Hit{Site: sID, FirstVisit: true, Path: "/d", CreatedAt: ztime.Now(ctx).Add(-1 * time.Hour), Ref: "xx"},
+					goatcounter.Hit{Site: sID, FirstVisit: false, Path: "/d", CreatedAt: ztime.Now(ctx).Add(-1 * time.Hour), Ref: "xx"},
+					goatcounter.Hit{Site: sID, FirstVisit: true, Path: "/d", CreatedAt: ztime.Now(ctx).Add(-25 * time.Hour), Ref: "xx"},
+					goatcounter.Hit{Site: sID, FirstVisit: false, Path: "/d", CreatedAt: ztime.Now(ctx).Add(-25 * time.Hour), Ref: "xx"},
+				)
+
+				site2 := gctest.Site(ctx, t, &goatcounter.Site{Code: "aa", Parent: &sID}, goatcounter.MustGetUser(ctx))
+				sID = goatcounter.MustGetSite(site2).ID
+				gctest.StoreHits(site2, t, false,
+					goatcounter.Hit{Site: sID, FirstVisit: true, Path: "/2nd", CreatedAt: ztime.Now(site2).Add(-1 * time.Hour)},
+					goatcounter.Hit{Site: sID, FirstVisit: true, Path: "/xxx", CreatedAt: ztime.Now(site2).Add(-48 * time.Hour), Ref: "yy"},
+				)
+
+				// No views for this, so don't include
+				site3 := gctest.Site(ctx, t, &goatcounter.Site{Code: "cc", Parent: &sID}, goatcounter.MustGetUser(ctx))
+				sID = goatcounter.MustGetSite(site3).ID
+				gctest.StoreHits(site3, t, false,
+					goatcounter.Hit{Site: sID, FirstVisit: true, Path: "/2nd", CreatedAt: ztime.Now(site3).Add(-1000 * time.Hour)},
+					goatcounter.Hit{Site: sID, FirstVisit: true, Path: "/xxx", CreatedAt: ztime.Now(site3).Add(-4800 * time.Hour), Ref: "yy"},
+				)
+				return ctx
+			}, `
+				Path                                   Visitors   Growth
+				/xxx                                          1    (new)
+				/2nd                                          1    (new)
+				Referrer                                        Visitors
+				(no data)                                              1
+				yy                                                     1
+				https://bb.test
+				Path                                   Visitors   Growth
+				/b                                            3    (new)
+				/d                                            2    (new)
+				/c                                            2    (new)
+				/a                                            2    (new)
+				Referrer                                        Visitors
+				(no data)                                              7
+				xx                                                     2
+		 	`,
+		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			ctx := tt.setup(gctest.DB(t))
-			ctx = ztime.WithNow(ctx, time.Date(2019, 6, 17, 0, 1, 0, 0, time.UTC))
-			goatcounter.Config(ctx).EmailFrom = "test@goatcounter.localhost.com"
+			ctx := tt.setup(ztime.WithNow(gctest.DB(t), time.Date(2019, 6, 17, 0, 1, 0, 0, time.UTC)))
 
 			buf := new(bytes.Buffer)
+			goatcounter.Config(ctx).EmailFrom = "test@goatcounter.localhost.com"
 			blackmail.DefaultMailer = blackmail.NewMailer(blackmail.ConnectWriter, blackmail.MailerOut(buf))
 
-			// XXX: need to pass ctx
-			return
 			err := cron.TaskEmailReports()
 			if err != nil {
 				t.Fatal(err)
 			}
 			cron.WaitEmailReports()
+			//fmt.Println(buf.String())
 
 			if tt.want == "" {
 				if buf.String() != "" {
@@ -160,7 +220,8 @@ func TestEmailReports(t *testing.T) {
 			have = strings.TrimSpace(have)
 			have = strings.ReplaceAll(have, `Top 10 pages`, ``)
 			have = strings.ReplaceAll(have, `Top 10 referrers`, ``)
-			have = strings.ReplaceAll(have, `--------------------------------------------------------`, ``)
+			have = strings.ReplaceAll(have, strings.Repeat("-", 56), ``)
+			have = regexp.MustCompile(`(=3D|=)+`).ReplaceAllString(have, "")
 			have = regexp.MustCompile(`(?m)^\s+`).ReplaceAllString(have, "")
 
 			tt.want = ztest.NormalizeIndent(tt.want)

@@ -226,19 +226,21 @@ func Site(ctx context.Context, t *testing.T, site *goatcounter.Site, user *goatc
 	}
 	ctx = goatcounter.WithSite(ctx, site)
 
-	user.Site = site.ID
-	if user.Email == "" {
-		user.Email = "test@example.com"
-	}
-	if len(user.Password) == 0 {
-		user.Password = []byte("coconuts")
-	}
-	if user.Access == nil {
-		user.Access = goatcounter.UserAccesses{"all": goatcounter.AccessAdmin}
-	}
-	err = user.Insert(ctx, false)
-	if err != nil {
-		t.Fatalf("get/create user: %s", err)
+	if user.ID == 0 {
+		user.Site = site.ID
+		if user.Email == "" {
+			user.Email = "test@example.com"
+		}
+		if len(user.Password) == 0 {
+			user.Password = []byte("coconuts")
+		}
+		if user.Access == nil {
+			user.Access = goatcounter.UserAccesses{"all": goatcounter.AccessAdmin}
+		}
+		err = user.Insert(ctx, false)
+		if err != nil {
+			t.Fatalf("get/create user: %s", err)
+		}
 	}
 	ctx = goatcounter.WithUser(ctx, user)
 

@@ -2,7 +2,7 @@ ChangeLog for GoatCounter
 =========================
 This list is not comprehensive, and only lists new features and major changes,
 but not every minor bugfix. The goatcounter.com service generally runs the
-latest master.
+latest main.
 
 unreleased
 ----------
@@ -14,43 +14,45 @@ unreleased
   The `-geodb` flag now accepts `maxmind:account_id:license` to automatically
   download updates. See `goatcounter help serve` for the full documentation.
 
-- Add buttons to navigate by year on the dashboard
+- Add buttons to navigate by year on the dashboard.
 
 - Automatically detect cookie `secure` and `sameSite` attributes. Previously
   this relied on the correct usage of the `-tls` flag, which people often got
   wrong. Now it's detected from the client connection.
 
-  This does depend on the proxy to set `Scheme: https` or `X-Forwarded-Proto:
-  https` header, which most should already do by default.
+  This depends on the proxy to set `Scheme: https` or `X-Forwarded-Proto: https`
+  header, which most should already do by default.
 
-- Store bot pageviews in new "bots" table for 30 days.
+- WebSocket support is now detected automatically, without the need to set the
+  `-websocket` flag (which is now a no-op).
 
-  This table is never used, but it can be useful for debugging purposes.
+- Store bot pageviews in new "bots" table for 30 days. This table is never used,
+  but it can be useful for debugging purposes.
 
 - Add more detailed totals to /api/v0/stats/totals. Previously it would only
   return the grand totals; now it also returns the totals broken down by hour
   and day.
 
-- Allow finding paths by path name in the API.
+- Allow finding paths by name in the API.
 
   Everything that accepts include_paths=.. and exclude_paths=.. now also accepts
   path_by_name=true to finds paths by the path rather than ID.
-
-- Use PostgreSQL 17 in compose.yaml; also update the PostgreSQL settings to be
-  less conservative.
-
-- WebSocket support is now detected automatically, without the need to set the
-  `-websocket` flag (which is now a no-op).
-
-- API Tokens are now shared between all sites.
 
 - Read `GOATCOUNTER_TMPDIR` environment variable as an alternative way to set
   `TMPDIR`. Mainly intended for cases where `TMPDIR` can't be used (e.g. when
   the capability bit is set on Linux).
 
+- Use PostgreSQL 17 in compose.yaml; also update the PostgreSQL settings to be
+  less conservative.
+
 ### Fixes
 
 - Adjust screen size categories for more modern devices.
+
+- API Tokens are now shared between all sites.
+
+- Include all sites in email reports, instead of just the first site that was
+  created.
 
 - Fix merging of multiple paths when more than once path has entries for the
   same hour.

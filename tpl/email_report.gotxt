@@ -1,20 +1,25 @@
 Hi there!
 
-This is your GoatCounter report for {{.DisplayDate}} for the site {{.Site.URL .Context}}.
+This is your GoatCounter report for {{.DisplayDate}}.
+
+{{range $s := .Sites}}
+    ========================================================
+{{trim_right (center (cat "    " $s.URL) 60) " "}}
+    ========================================================
 
                           Top 10 pages
     --------------------------------------------------------
-{{.TextPagesTable}}
+{{$s.TextPagesTable}}
 
                         Top 10 referrers
     --------------------------------------------------------
-{{.TextRefTable}}
-
+{{$s.TextRefTable}}
+{{end}}
 This is the text version and best viewed with a monospace font.
 View the HTML version if the alignment is off.
 
 This email is sent because it’s enabled in your settings.
 Disable it in your settings if you want to stop receiving it:
-{{.Site.URL .Context}}/user/pref#section-email-reports
+{{.Account.URL .Context}}/user/pref#section-email-reports
 
 {{template "_email_bottom.gotxt" .}}

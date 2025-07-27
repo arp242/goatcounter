@@ -44,6 +44,10 @@ func init() {
 	tplfunc.Add("ago", func(t time.Time) time.Duration {
 		return time.Since(t).Round(time.Second)
 	})
+	tplfunc.Add("repeat", strings.Repeat)
+	tplfunc.Add("center", zstring.AlignCenter)
+	tplfunc.Add("trim_left", strings.TrimLeft)
+	tplfunc.Add("trim_right", strings.TrimRight)
 
 	tplfunc.Add("round_duration", func(d time.Duration) time.Duration {
 		if d < time.Millisecond {
