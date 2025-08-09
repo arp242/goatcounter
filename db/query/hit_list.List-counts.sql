@@ -9,6 +9,6 @@ with x as (
 	order by total desc, path_id desc
 	limit :limit
 )
-select path_id, paths.path, paths.title, paths.event from x
+select path_id, paths.path, paths.title, paths.host, paths.event from x
 join paths using (path_id)
 order by total desc, path_id desc

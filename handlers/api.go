@@ -488,7 +488,7 @@ type APICountRequestHit struct {
 	Session string `json:"session"`
 
 	// {omitdoc}
-	Host string `json:"-"`
+	Host string `json:"host" query:"h"`
 
 	// {omitdoc} Line when importing, for displaying errors.
 	Line string `json:"-"`
@@ -574,6 +574,7 @@ func (h api) count(w http.ResponseWriter, r *http.Request) error {
 			UserAgentHeader: a.UserAgent,
 			Location:        a.Location,
 			RemoteAddr:      a.IP,
+			Host:            a.Host,
 		}
 
 		if a.UserAgent != "" {

@@ -21,6 +21,8 @@ type HitList struct {
 	// Path ID
 	PathID int64 `db:"path_id" json:"path_id"`
 
+	Host string `db:"host" json:"host"`
+
 	// Path name (e.g. /hello.html).
 	Path string `db:"path" json:"path"`
 

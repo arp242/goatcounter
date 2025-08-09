@@ -26,6 +26,7 @@ type Hit struct {
 	Session    zint.Uint128 `db:"session" json:"-"`
 
 	Path  string     `db:"-" json:"p,omitempty"`
+	Host  string     `db:"-" json:"h,omitempty"`
 	Title string     `db:"-" json:"t,omitempty"`
 	Ref   string     `db:"-" json:"r,omitempty"`
 	Event zbool.Bool `db:"-" json:"e,omitempty"`
@@ -252,7 +253,7 @@ func (h *Hit) Defaults(ctx context.Context, initial bool) error {
 	}
 
 	// Get or insert path.
-	path := Path{Path: h.Path, Title: h.Title, Event: h.Event}
+	path := Path{Path: h.Path, Host: h.Host, Title: h.Title, Event: h.Event}
 	err := path.GetOrInsert(ctx)
 	if err != nil {
 		return errors.Wrap(err, "Hit.Defaults")
