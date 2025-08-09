@@ -20,7 +20,8 @@ type PathID int32
 type Path struct {
 	ID    PathID     `db:"path_id" json:"id"` // Path ID
 	Site  SiteID     `db:"site_id" json:"-"`
-	Path  string     `db:"path" json:"path"`   // Path name
+	Path  string     `db:"path" json:"path"` // Path name
+	Host  string     `db:"host" json:"host"`
 	Title string     `db:"title" json:"title"` // Page title
 	Event zbool.Bool `db:"event" json:"event"` // Is this an event?
 }
@@ -90,8 +91,8 @@ func (p *Path) GetOrInsert(ctx context.Context) error {
 
 	// Insert new row.
 	p.ID, err = zdb.InsertID[PathID](ctx, "path_id",
-		`insert into paths (site_id, path, title, event) values (?, ?, ?, ?)`,
-		site.ID, p.Path, p.Title, p.Event)
+		`insert into paths (site_id, path, title, event, host) values (?, ?, ?, ?, ?)`,
+		site.ID, p.Path, p.Title, p.Event, p.Host)
 	if err != nil {
 		return errors.Wrap(err, "Path.GetOrInsert insert")
 	}

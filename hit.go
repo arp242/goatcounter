@@ -27,6 +27,7 @@ type Hit struct {
 	Width      *int16       `db:"width" json:"width"`
 
 	Path  string     `db:"-" json:"p,omitempty"`
+	Host  string     `db:"-" json:"h,omitempty"`
 	Title string     `db:"-" json:"t,omitempty"`
 	Ref   string     `db:"-" json:"r,omitempty"`
 	Event zbool.Bool `db:"-" json:"e,omitempty"`
@@ -256,7 +257,8 @@ func (h *Hit) Defaults(ctx context.Context, initial bool) error {
 	// vulnerability scanners and whatnot
 	if h.Bot == 0 {
 		// Get or insert path.
-		path := Path{Path: h.Path, Title: h.Title, Event: h.Event}
+
+		path := Path{Path: h.Path, Host: h.Host, Title: h.Title, Event: h.Event}
 		err := path.GetOrInsert(ctx)
 		if err != nil {
 			return errors.Wrap(err, "Hit.Defaults")
@@ -333,6 +335,7 @@ func (h *Hits) TestList(ctx context.Context, siteOnly bool) error {
 		B BrowserID  `db:"browser_id"`
 		S SystemID   `db:"system_id"`
 		P string     `db:"path"`
+		H string     `db:"host"`
 		T string     `db:"title"`
 		E zbool.Bool `db:"event"`
 		R string     `db:"ref"`
@@ -344,6 +347,7 @@ func (h *Hits) TestList(ctx context.Context, siteOnly bool) error {
 			browser_id,
 			system_id,
 			paths.path,
+			paths.host,
 			paths.title,
 			paths.event,
 			refs.ref
@@ -364,6 +368,7 @@ func (h *Hits) TestList(ctx context.Context, siteOnly bool) error {
 		x.Hit.BrowserID = x.B
 		x.Hit.SystemID = x.S
 		x.Hit.Path = x.P
+		x.Hit.Host = x.H
 		x.Hit.Title = x.T
 		x.Hit.Event = x.E
 		x.Hit.Ref = x.R

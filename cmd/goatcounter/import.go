@@ -163,6 +163,7 @@ List of format specifiers:
     status         Status code sent to the client.
     http           HTTP request protocol (i.e. HTTP/1.1).
     path           Path (e.g. "/mypage.html"). May contain the query string.
+    host           Server name of the server serving the request.
     url            Full URL (e.g. "https://example.com/mypage.html"). Takes
                    precedence over $host and $path.
     query          Query string; only needed if not included in $path or $url.
@@ -171,7 +172,6 @@ List of format specifiers:
 
 Some format specifiers that are not (yet) used anywhere:
 
-    host           Server name of the server serving the request.
     content_type   Content-Type header of the response.
     timing_sec     Time to serve the request in seconds, with possible decimal.
     timing_milli   Time to serve the request in milliseconds.
@@ -388,6 +388,7 @@ func importLog(
 			Ref:       line.Referrer(),
 			Query:     line.Query(),
 			UserAgent: line.UserAgent(),
+			Host:      line.Host(),
 		}
 
 		hit.CreatedAt, err = scan.Datetime(line)
