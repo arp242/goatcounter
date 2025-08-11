@@ -1,14 +1,14 @@
 module zgo.at/goatcounter/v2
 
-go 1.24.5
+go 1.24.6
 
 require (
-	github.com/bmatcuk/doublestar/v4 v4.8.1
+	github.com/bmatcuk/doublestar/v4 v4.9.1
 	github.com/go-chi/chi/v5 v5.2.2
 	github.com/google/uuid v1.6.0
 	github.com/gorilla/websocket v1.5.3
 	github.com/lib/pq v1.10.9 // indirect
-	github.com/mattn/go-sqlite3 v1.14.28
+	github.com/mattn/go-sqlite3 v1.14.30
 	github.com/monoculum/formam/v3 v3.6.1-0.20221106124510-6a93f49ac1f8
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0
@@ -34,8 +34,8 @@ require (
 	zgo.at/termtext v1.5.0
 	zgo.at/tz v0.0.0-20240819050900-3c7bf6122612
 	zgo.at/z18n v0.0.0-20240522230155-4d5af439f8c4
-	zgo.at/zcache/v2 v2.2.0
-	zgo.at/zdb v0.0.0-20250625112050-3a7c5fa44317
+	zgo.at/zcache/v2 v2.3.0
+	zgo.at/zdb v0.0.0-20250807082558-0e18572653a3
 	zgo.at/zhttp v0.0.0-20250710171434-88e30454652c
 	zgo.at/zli v0.0.0-20250704045222-08cb210424f2
 	zgo.at/zprof v0.0.0-20211217104121-c3c12596d8f0
@@ -46,12 +46,12 @@ require (
 
 // golang.org/x
 require (
-	golang.org/x/crypto v0.39.0
-	golang.org/x/image v0.29.0
+	golang.org/x/crypto v0.41.0
+	golang.org/x/image v0.30.0
 	golang.org/x/mod v0.26.0 // indirect
-	golang.org/x/net v0.41.0
+	golang.org/x/net v0.43.0
 	golang.org/x/sync v0.16.0
-	golang.org/x/sys v0.34.0
-	golang.org/x/text v0.27.0
-	golang.org/x/tools v0.34.0 // indirect
+	golang.org/x/sys v0.35.0
+	golang.org/x/text v0.28.0
+	golang.org/x/tools v0.35.0 // indirect
 )
