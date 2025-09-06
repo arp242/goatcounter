@@ -1,14 +1,14 @@
 module zgo.at/goatcounter/v2
 
-go 1.24.6
+go 1.25.1
 
 require (
 	github.com/bmatcuk/doublestar/v4 v4.9.1
-	github.com/go-chi/chi/v5 v5.2.2
+	github.com/go-chi/chi/v5 v5.2.3
 	github.com/google/uuid v1.6.0
 	github.com/gorilla/websocket v1.5.3
 	github.com/lib/pq v1.10.9 // indirect
-	github.com/mattn/go-sqlite3 v1.14.30
+	github.com/mattn/go-sqlite3 v1.14.32
 	github.com/monoculum/formam/v3 v3.6.1-0.20221106124510-6a93f49ac1f8
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0
@@ -34,8 +34,8 @@ require (
 	zgo.at/termtext v1.5.0
 	zgo.at/tz v0.0.0-20240819050900-3c7bf6122612
 	zgo.at/z18n v0.0.0-20240522230155-4d5af439f8c4
-	zgo.at/zcache/v2 v2.3.0
-	zgo.at/zdb v0.0.0-20250807082558-0e18572653a3
+	zgo.at/zcache/v2 v2.4.1
+	zgo.at/zdb v0.0.0-20250906203858-587e0745f6a8
 	zgo.at/zhttp v0.0.0-20250710171434-88e30454652c
 	zgo.at/zli v0.0.0-20250704045222-08cb210424f2
 	zgo.at/zprof v0.0.0-20211217104121-c3c12596d8f0
