@@ -3,6 +3,7 @@ package handlers
 import (
 	"fmt"
 	"net/http"
+	"net/url"
 
 	"github.com/monoculum/formam/v3"
 	"golang.org/x/text/language"
@@ -55,6 +56,12 @@ func (h backend) count(w http.ResponseWriter, r *http.Request) error {
 		CreatedAt:       ztime.Now(r.Context()),
 		RemoteAddr:      r.RemoteAddr,
 	}
+
+	referer := r.Referer()
+	if u, err := url.Parse(referer); err != nil {
+		hit.Host = u.Host
+	}
+
 	if site.Settings.Collect.Has(goatcounter.CollectLocation) {
 		var l goatcounter.Location
 		hit.Location = l.LookupIP(r.Context(), r.RemoteAddr)
