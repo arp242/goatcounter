@@ -36,6 +36,15 @@ type (
 	SiteIDs []SiteID
 )
 
+func (s *SiteIDs) UnmarshalJSON(data []byte) error {
+	var tmp []SiteID
+	if err := json.Unmarshal(data, &tmp); err != nil {
+		return err
+	}
+	*s = tmp
+	return nil
+}
+
 // func (s SiteIDs) MarshalText() ([]byte, error) { return json.Marshal(s) }
 func (s *SiteIDs) UnmarshalText(v []byte) error {
 	n, err := zstrconv.ParseInt[SiteID](string(v), 10)

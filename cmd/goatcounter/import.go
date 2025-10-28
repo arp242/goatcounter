@@ -237,6 +237,9 @@ func cmdImport(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 		if len(files) > 1 {
 			return fmt.Errorf("can only specify one filename")
 		}
+		if site == "" {
+			return fmt.Errorf("-site needs to be set")
+		}
 
 		var fp io.ReadCloser
 		if files[0] == "-" {
