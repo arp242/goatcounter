@@ -239,15 +239,11 @@ func cmdServe(f zli.Flags, ready chan<- struct{}, stop chan struct{}, saas bool)
 	geodb := setupGeo(&v, geodbFlag.String())
 	ratelimits := setupRatelimits(&v, ratelimit.String())
 	*from.Pointer() = flagFrom(&v, from.String(), domain.String())
-	domainCount, urlStatic := setupDomains(&v, saas, dev.Bool(), domain.Pointer(), domainStatic.Pointer())
+	domainCount, urlStatic := setupDomains(&v, saas, dev.Bool(), domain.Pointer(),
+		domainStatic.Pointer(), basePath.Pointer())
 
 	v.Range("-store-every", int64(storeEvery.Int()), 1, 0)
 	cron.SetPersistInterval(time.Duration(storeEvery.Int()) * time.Second)
-
-	zhttp.BasePath = strings.Trim(basePath.String(), "/")
-	if zhttp.BasePath != "" {
-		zhttp.BasePath = "/" + zhttp.BasePath
-	}
 
 	if v.HasErrors() {
 		return v
@@ -286,7 +282,7 @@ func cmdServe(f zli.Flags, ready chan<- struct{}, stop chan struct{}, saas bool)
 	c.DomainCount = domainCount
 	c.URLStatic = urlStatic
 	c.Dev = dev.Bool()
-	c.BasePath = zhttp.BasePath
+	c.BasePath = basePath.String()
 	c.EmailFrom = from.String()
 
 	if port.Int() > 0 {
@@ -570,7 +566,13 @@ func lsSites(ctx context.Context) ([]string, error) {
 	return cnames, nil
 }
 
-func setupDomains(v *zvalidate.Validator, saas, dev bool, domain, domainStatic *string) (string, string) {
+func setupDomains(v *zvalidate.Validator, saas, dev bool, domain, domainStatic, basePath *string) (string, string) {
+	*basePath = strings.Trim(*basePath, "/")
+	if *basePath != "" {
+		*basePath = "/" + *basePath
+	}
+	zhttp.BasePath = *basePath
+
 	var domainCount, urlStatic string
 	if saas {
 		*domain, *domainStatic, domainCount, urlStatic = flagDomain(v, *domain)
@@ -587,7 +589,7 @@ func setupDomains(v *zvalidate.Validator, saas, dev bool, domain, domainStatic *
 			urlStatic = "//" + *domainStatic
 			domainCount = *domainStatic
 		} else {
-			urlStatic = zhttp.BasePath
+			urlStatic = *basePath
 		}
 	}
 	return domainCount, urlStatic
