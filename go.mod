@@ -1,6 +1,6 @@
 module zgo.at/goatcounter/v2
 
-go 1.25.1
+go 1.25.4
 
 require (
 	github.com/bmatcuk/doublestar/v4 v4.9.1
@@ -12,7 +12,7 @@ require (
 	github.com/monoculum/formam/v3 v3.6.1-0.20221106124510-6a93f49ac1f8
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0
-	github.com/sethvargo/go-limiter v1.0.0
+	github.com/sethvargo/go-limiter v1.1.0
 )
 
 // Things I maintain
@@ -39,19 +39,19 @@ require (
 	zgo.at/zhttp v0.0.0-20250710171434-88e30454652c
 	zgo.at/zli v0.0.0-20250704045222-08cb210424f2
 	zgo.at/zprof v0.0.0-20211217104121-c3c12596d8f0
-	zgo.at/zstd v0.0.0-20250710181612-da3b12d1a381
+	zgo.at/zstd v0.0.0-20251128053228-ec259dea6715
 	zgo.at/ztpl v0.0.0-20250628022642-3b2c314e8e05
 	zgo.at/zvalidate v0.0.0-20250622183046-6812c1c79e1a
 )
 
 // golang.org/x
 require (
-	golang.org/x/crypto v0.41.0
-	golang.org/x/image v0.30.0
-	golang.org/x/mod v0.26.0 // indirect
-	golang.org/x/net v0.43.0
-	golang.org/x/sync v0.16.0
-	golang.org/x/sys v0.35.0
-	golang.org/x/text v0.28.0
-	golang.org/x/tools v0.35.0 // indirect
+	golang.org/x/crypto v0.45.0
+	golang.org/x/image v0.33.0
+	golang.org/x/mod v0.29.0 // indirect
+	golang.org/x/net v0.47.0
+	golang.org/x/sync v0.18.0
+	golang.org/x/sys v0.38.0
+	golang.org/x/text v0.31.0
+	golang.org/x/tools v0.38.0 // indirect
 )
