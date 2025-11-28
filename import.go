@@ -23,6 +23,12 @@ func ImportGA(ctx context.Context, fp io.Reader) error {
 	for {
 		i++
 		row, err := r.Read()
+		if err != nil && errors.Is(err, io.EOF) {
+			break
+		}
+		if len(row) < 3 {
+			return guru.Errorf(400, "line %d: not enough fields (%d); expect at least 3", i, len(row))
+		}
 		line0, col0 := r.FieldPos(0)
 		line2, col2 := r.FieldPos(2)
 		if i == 1 { // Header.
@@ -37,13 +43,7 @@ func ImportGA(ctx context.Context, fp io.Reader) error {
 			continue
 		}
 		if err != nil {
-			if errors.Is(err, io.EOF) {
-				break
-			}
 			return guru.Errorf(400, "line %d: %w", line0, err)
-		}
-		if len(row) < 3 {
-			return guru.Errorf(400, "line %d: not enough columns (need at least 3)", line0)
 		}
 
 		page, views := strings.TrimSpace(row[0]), strings.TrimSpace(row[2])
