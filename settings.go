@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql/driver"
 	"fmt"
+	"html/template"
 	"slices"
 	"sort"
 	"strconv"
@@ -100,6 +101,7 @@ type (
 		OptionsFunc func(context.Context) [][2]string
 		Validate    func(*zvalidate.Validator, any)
 		Value       any
+		Attr        template.HTMLAttr
 	}
 	WidgetSettings map[string]WidgetSetting
 
@@ -138,6 +140,7 @@ func defaultWidgetSettings(ctx context.Context) map[string]WidgetSettings {
 				Label: z18n.T(ctx, "widget-setting/label/page-size|Page size"),
 				Help:  z18n.T(ctx, "widget-setting/help/page-size|Number of pages to load"),
 				Value: float64(10),
+				Attr:  `min="1" max="100"`,
 				Validate: func(v *zvalidate.Validator, val any) {
 					v.Range("limit_pages", int64(val.(float64)), 1, 100)
 				},
@@ -147,6 +150,7 @@ func defaultWidgetSettings(ctx context.Context) map[string]WidgetSettings {
 				Label: z18n.T(ctx, "widget-setting/label/ref-page-size|Referrers page size"),
 				Help:  z18n.T(ctx, "widget-setting/help/ref-page-size|Number of referrers to load when clicking on a path"),
 				Value: float64(10),
+				Attr:  `min="1" max="100"`,
 				Validate: func(v *zvalidate.Validator, val any) {
 					v.Range("limit_pages", int64(val.(float64)), 1, 100)
 				},
@@ -211,6 +215,7 @@ func defaultWidgetSettings(ctx context.Context) map[string]WidgetSettings {
 				Label: z18n.T(ctx, "widget-setting/label/page-size|Page size"),
 				Help:  z18n.T(ctx, "widget-setting/help/page-size|Number of pages to load"),
 				Value: float64(6),
+				Attr:  `min="1" max="20"`,
 				Validate: func(v *zvalidate.Validator, val any) {
 					v.Range("limit", int64(val.(float64)), 1, 20)
 				},
@@ -223,6 +228,7 @@ func defaultWidgetSettings(ctx context.Context) map[string]WidgetSettings {
 				Label: z18n.T(ctx, "widget-setting/label/page-size|Page size"),
 				Help:  z18n.T(ctx, "widget-setting/help/page-size|Number of pages to load"),
 				Value: float64(6),
+				Attr:  `min="1" max="20"`,
 				Validate: func(v *zvalidate.Validator, val any) {
 					v.Range("limit", int64(val.(float64)), 1, 20)
 				},
@@ -250,6 +256,7 @@ func defaultWidgetSettings(ctx context.Context) map[string]WidgetSettings {
 				Label: z18n.T(ctx, "widget-setting/label/page-size|Page size"),
 				Help:  z18n.T(ctx, "widget-setting/help/page-size|Number of pages to load"),
 				Value: float64(6),
+				Attr:  `min="1" max="20"`,
 				Validate: func(v *zvalidate.Validator, val any) {
 					v.Range("limit", int64(val.(float64)), 1, 20)
 				},
@@ -280,6 +287,7 @@ func defaultWidgetSettings(ctx context.Context) map[string]WidgetSettings {
 				Label: z18n.T(ctx, "widget-setting/label/page-size|Page size"),
 				Help:  z18n.T(ctx, "widget-setting/help/page-size|Number of pages to load"),
 				Value: float64(6),
+				Attr:  `min="1" max="20"`,
 				Validate: func(v *zvalidate.Validator, val any) {
 					v.Range("limit", int64(val.(float64)), 1, 20)
 				},
@@ -291,6 +299,7 @@ func defaultWidgetSettings(ctx context.Context) map[string]WidgetSettings {
 				Label: z18n.T(ctx, "widget-setting/label/page-size|Page size"),
 				Help:  z18n.T(ctx, "widget-setting/help/page-size|Number of pages to load"),
 				Value: float64(6),
+				Attr:  `min="1" max="20"`,
 				Validate: func(v *zvalidate.Validator, val any) {
 					v.Range("limit", int64(val.(float64)), 1, 20)
 				},

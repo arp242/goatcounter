@@ -20,7 +20,7 @@
 			</select>
 		{{else}}
 			<label for="{{$id}}">{{$v.Label}}</label>
-			<input type="{{$v.Type}}" name="{{$n}}" id="{{$id}}" value="{{$v.Value}}">
+			<input type="{{$v.Type}}" name="{{$n}}" id="{{$id}}" value="{{$v.Value}}" {{$v.Attr}}>
 		{{end}}
 		<small class="help help-{{$v.Type}}">{{$v.Help}}</small>
 		{{if $.Validate}}{{validate (print "settings.widgets[" $.I "]." $k) $.Validate}}{{end}}
