@@ -67,7 +67,7 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 		view.Filter = q.Get("filter")
 	}
 	var forcedGroup bool
-	view.Group, forcedGroup = getGroup(r, rng)
+	view.Group, forcedGroup = getGroup(r, view.Group, rng)
 
 	// Get path IDs to filter first, as they're used by the widgets.
 	var (
@@ -316,7 +316,7 @@ func (h backend) loadWidget(w http.ResponseWriter, r *http.Request) error {
 		p := wid.(*widgets.Pages)
 
 		args.RowsOnly = true
-		args.Args.Group, args.Args.ForcedGroup = getGroup(r, rng)
+		args.Args.Group, args.Args.ForcedGroup = getGroup(r, args.Args.Group, rng)
 
 		if key != "" {
 			p.RefsForPath, _ = zstrconv.ParseInt[goatcounter.PathID](key, 10)
@@ -429,7 +429,7 @@ func getPeriod(w http.ResponseWriter, r *http.Request, site *goatcounter.Site, u
 	return rng.From(rng.Start).To(rng.End).UTC(), nil
 }
 
-func getGroup(r *http.Request, rng ztime.Range) (g goatcounter.Group, forced bool) {
+func getGroup(r *http.Request, g goatcounter.Group, rng ztime.Range) (goatcounter.Group, bool) {
 	// Force daily view for large timespans and force hourly for very short
 	// ones, as it looks horrible otherwise.
 	if d := rng.End.Sub(rng.Start).Hours() / 24; d >= 90 {
@@ -438,10 +438,12 @@ func getGroup(r *http.Request, rng ztime.Range) (g goatcounter.Group, forced boo
 		return goatcounter.GroupHourly, true
 	}
 	switch strings.ToLower(r.URL.Query().Get("group")) {
+	case "hour":
+		return goatcounter.GroupHourly, false
 	case "day":
 		return goatcounter.GroupDaily, false
 	}
-	return goatcounter.GroupHourly, false
+	return g, false
 }
 
 func getPathFilter(v *zvalidate.Validator, r *http.Request) []goatcounter.PathID {

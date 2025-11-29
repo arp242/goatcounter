@@ -349,10 +349,8 @@ func (u *User) ByToken(ctx context.Context, token string) error {
 	if token == "" {
 		return sql.ErrNoRows
 	}
-
-	return errors.Wrap(zdb.Get(ctx, u,
-		`select * from users where login_token=$1`, token),
-		"User.ByToken")
+	err := zdb.Get(ctx, u, `select * from users where login_token=$1`, token)
+	return errors.Wrap(err, "User.ByToken")
 }
 
 // ByTokenAndSite gets a user by login token.
@@ -361,9 +359,9 @@ func (u *User) ByTokenAndSite(ctx context.Context, token string) error {
 		return sql.ErrNoRows
 	}
 
-	return errors.Wrap(zdb.Get(ctx, u,
-		`select * from users where login_token=$1 and site_id=$2`,
-		token, MustGetSite(ctx).IDOrParent()), "User.ByTokenAndSite")
+	err := zdb.Get(ctx, u, `select * from users where login_token=$1 and site_id=$2`,
+		token, MustGetSite(ctx).IDOrParent())
+	return errors.Wrap(err, "User.ByTokenAndSite")
 }
 
 // RequestReset generates a new password reset key.
