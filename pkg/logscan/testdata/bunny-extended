@@ -2,3 +2,4 @@ HIT|200|971211336000|2326|390|127.0.0.1|http://www.example.com/start.html|http:/
 HIT|200|971211336000|2326|390|127.0.0.1|-|http://example.com/test.html|WA|-|322b688bd63fb63f2babe9de30a5d262|DE|12345|bytes=0-12345|Bearer: MyToken
 HIT|200|971211336000|-|390|127.0.0.1|-|http://example.com/dash-size|WA|-|322b688bd63fb63f2babe9de30a5d262|DE|12345|bytes=0-12345|Bearer: MyToken
 HIT|200|1684108854000|133|390|1.1.1.1|-|http://example.com/proxy.pac|WA|-|322b688bd63fb63f2babe9de30a5d262|DE|12345|bytes=0-12345|Bearer: MyToken
+HIT|200|971211336000|-|390|127.0.0.1|-|http://example.com:80/vhost-port|WA|-|322b688bd63fb63f2babe9de30a5d262|DE|12345|bytes=0-12345|Bearer: MyToken

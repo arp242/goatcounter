@@ -38,7 +38,7 @@ func TestNew(t *testing.T) {
 		t.Fatal(err)
 	}
 	want := []RegexLine{
-		{
+		{ // 1
 			"datetime":    "10/Oct/2000:13:55:36 -0700",
 			"host":        "example.com",
 			"http":        "HTTP/1.1",
@@ -50,7 +50,7 @@ func TestNew(t *testing.T) {
 			"referrer":    "http://www.example.com/start.html",
 			"user_agent":  "Mozilla/5.0",
 		},
-		{
+		{ // 2
 			"datetime":    "10/Oct/2000:13:55:36 -0700",
 			"host":        "example.com",
 			"http":        "HTTP/1.1",
@@ -62,7 +62,7 @@ func TestNew(t *testing.T) {
 			"referrer":    "",
 			"user_agent":  "",
 		},
-		{
+		{ // 3
 			"datetime":    "10/Oct/2000:13:55:36 -0700",
 			"host":        "example.com",
 			"http":        "HTTP/2.0",
@@ -74,7 +74,7 @@ func TestNew(t *testing.T) {
 			"referrer":    "",
 			"user_agent":  "",
 		},
-		{
+		{ // 4
 			"datetime":    "15/May/2023:00:00:54 +0000",
 			"host":        "example.com",
 			"http":        "HTTP/1.1",
@@ -82,6 +82,18 @@ func TestNew(t *testing.T) {
 			"path":        "/proxy.pac",
 			"remote_addr": "1.1.1.1",
 			"size":        "133",
+			"status":      "200",
+			"referrer":    "",
+			"user_agent":  "",
+		},
+		{ // 5
+			"datetime":    "10/Oct/2000:13:55:36 -0700",
+			"host":        "example.com:80",
+			"http":        "HTTP/2.0",
+			"method":      "GET",
+			"path":        "/vhost-port",
+			"remote_addr": "127.0.0.1",
+			"size":        "",
 			"status":      "200",
 			"referrer":    "",
 			"user_agent":  "",
@@ -154,7 +166,7 @@ func TestNew(t *testing.T) {
 				delete(m, "time")
 
 				if !reflect.DeepEqual(data, w) {
-					t.Errorf("\nwant: %v\nhave: %v", w, data)
+					t.Errorf("line %d wrong:\nwant: %v\nhave: %v", i+1, w, data)
 				}
 
 				i++

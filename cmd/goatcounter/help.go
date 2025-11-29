@@ -30,7 +30,7 @@ func cmdHelp(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 		}
 		if a == "all" {
 			topics = []string{"help", "version", "serve", "import",
-				"dashboard", "db", "monitor", "listen", "logfile", "debug"}
+				"dashboard", "db", "monitor", "listen", "logfile", "log", "debug"}
 			break
 		}
 		topics = append(topics, strings.ToLower(a))
@@ -74,6 +74,7 @@ var usage = map[string]string{
 	"db":        helpDB,
 	"listen":    helpListen,
 	"logfile":   helpLogfile,
+	"log":       helpLogfile,
 	"debug":     helpDebug,
 
 	"version": `

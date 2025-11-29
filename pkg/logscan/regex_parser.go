@@ -96,7 +96,7 @@ func newRegexParser(format, date, tyme, datetime string, exclude []excludePatter
 			}
 
 		case fieldHost:
-			p = `(?:xn--)?[a-zA-Z0-9.-]+`
+			p = `(?:xn--)?[a-zA-Z0-9.-]+(?::\d{1,5})?`
 		case fieldRemoteAddr:
 			p = `[0-9a-fA-F:.]+`
 		case fieldXff:
@@ -110,7 +110,7 @@ func newRegexParser(format, date, tyme, datetime string, exclude []excludePatter
 		case fieldPath:
 			p = `/.*?`
 		case "url":
-			p = `https?://(?:xn--)?[a-zA-Z0-9.-]+(?:$|/.*?)`
+			p = `https?://(?:xn--)?[a-zA-Z0-9.-]+(?::\d{1,5})?(?:$|/.*?)`
 		case "timing_sec":
 			p = `[\d.]+`
 		case "timing_milli", "timing_micro":
