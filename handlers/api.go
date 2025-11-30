@@ -1096,17 +1096,14 @@ func (h api) countTotal(w http.ResponseWriter, r *http.Request) error {
 		tcErr, oErr error
 		rng         = ztime.NewRange(args.Start).To(args.End)
 	)
-	wg.Add(2)
-	func() {
-		defer wg.Done()
+	wg.Go(func() {
 		defer log.Recover(r.Context())
 		tc, tcErr = goatcounter.GetTotalCount(r.Context(), rng, includeIDs, false)
-	}()
-	func() {
-		defer wg.Done()
+	})
+	wg.Go(func() {
 		defer log.Recover(r.Context())
 		_, oErr = total.Totals(r.Context(), rng, includeIDs, goatcounter.GroupDaily, false)
-	}()
+	})
 	wg.Wait()
 	if tcErr != nil {
 		return tcErr

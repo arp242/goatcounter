@@ -69,12 +69,10 @@ func (w *Pages) GetData(ctx context.Context, a Args) (bool, error) {
 		errs = errors.NewGroup(2)
 	)
 	if a.ShowRefs > 0 {
-		wg.Add(1)
-		go func() {
+		wg.Go(func() {
 			defer log.Recover(ctx)
-			defer wg.Done()
 			errs.Append(w.Refs.ListRefsByPathID(ctx, a.ShowRefs, a.Rng, w.LimitRefs, a.Offset))
-		}()
+		})
 	}
 
 	var err error

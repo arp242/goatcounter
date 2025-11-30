@@ -165,12 +165,10 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 	func() {
 		var wg sync.WaitGroup
 		for _, w := range initial {
-			wg.Add(1)
-			go func(w widgets.Widget) {
-				defer wg.Done()
+			wg.Go(func() {
 				defer log.Recover(r.Context(), func(err error) { log.Error(r.Context(), err, "data widget", w, log.AttrHTTP(r)) })
 				getData(w, ztime.Now(r.Context()))
-			}(w)
+			})
 		}
 		zsync.Wait(r.Context(), &wg)
 	}()
@@ -183,13 +181,10 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 	func() {
 		var wg sync.WaitGroup
 		for _, w := range wid {
-			wg.Add(1)
-			go func(w widgets.Widget) {
+			wg.Go(func() {
 				defer log.Recover(r.Context(), func(err error) { log.Error(r.Context(), err, "tpl widget", w, log.AttrHTTP(r)) })
-				defer wg.Done()
-
 				getHTML(w)
-			}(w)
+			})
 		}
 		zsync.Wait(r.Context(), &wg)
 	}()
