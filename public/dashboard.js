@@ -27,7 +27,7 @@
 				`${document.location.host}${BASE_PATH}/loader?id=${$('#js-connect-id').text()}`)
 		} catch(err) {
 			push_query({'no-websocket': 1})
-			window.location.reload()
+			return window.location.reload()
 		}
 
 		// Reload without websockets if that didn't work. We can't just use
