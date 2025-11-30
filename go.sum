@@ -77,8 +77,8 @@ zgo.at/otp v0.0.0-20250619162254-96c2c40ec359 h1:BnqNFPCn13CikUm6II4kJmmQlGO9W0p
 zgo.at/otp v0.0.0-20250619162254-96c2c40ec359/go.mod h1:xiGO6Fs3qqbEwBYdtn7BRFJ1VIFgqF/uXYZKzaiEZoc=
 zgo.at/runewidth v0.1.0 h1:ED4PzJpYJlZMDEkoz+iPKjb5NrwbKnWPXDMJlNlfk9g=
 zgo.at/runewidth v0.1.0/go.mod h1:Ugl6FGPF5Ib/NRu2UAV2wVthEgYfEz51Bu/uyNbWZSw=
-zgo.at/slog_align v0.0.0-20250608122414-fe848f5abf9c h1:l2M922Y7zyXB5sq032cJw/Q1E2yINRH1+Dr7FPMHzMU=
-zgo.at/slog_align v0.0.0-20250608122414-fe848f5abf9c/go.mod h1:EUS70SYZRKBqYL2iWwlNWYWJIzDRduUrJ0n/Kh3QQH8=
+zgo.at/slog_align v0.0.0-20251129094707-bf509eca6089 h1:RQKpOPqhiheg/xI3Srn8UtTHG/z0Ly7aDC2iMsBPMko=
+zgo.at/slog_align v0.0.0-20251129094707-bf509eca6089/go.mod h1:EUS70SYZRKBqYL2iWwlNWYWJIzDRduUrJ0n/Kh3QQH8=
 zgo.at/termtext v1.5.0 h1:4p9GVUDYUR8oWvpxOZsO5ZrNSkA99bp8gXNKxKj+Kl0=
 zgo.at/termtext v1.5.0/go.mod h1:AcdAAiydkqSFadljJaEj9jv7bpyJxfQqGtPWyZCLenQ=
 zgo.at/tz v0.0.0-20240819050900-3c7bf6122612 h1:cg4VMBRZ8qFJ9n/HqfQmZmtOIRfrlb6Q43S2M34yx8c=

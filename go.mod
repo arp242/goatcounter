@@ -30,7 +30,7 @@ require (
 	zgo.at/json v0.0.0-20221020004326-fe4f75bb278e
 	zgo.at/otp v0.0.0-20250619162254-96c2c40ec359
 	zgo.at/runewidth v0.1.0 // indirect
-	zgo.at/slog_align v0.0.0-20250608122414-fe848f5abf9c
+	zgo.at/slog_align v0.0.0-20251129094707-bf509eca6089
 	zgo.at/termtext v1.5.0
 	zgo.at/tz v0.0.0-20240819050900-3c7bf6122612
 	zgo.at/z18n v0.0.0-20240522230155-4d5af439f8c4
