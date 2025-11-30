@@ -29,6 +29,7 @@ import (
 	"zgo.at/goatcounter/v2/handlers"
 	"zgo.at/goatcounter/v2/pkg/bgrun"
 	"zgo.at/goatcounter/v2/pkg/email_log"
+	"zgo.at/goatcounter/v2/pkg/fcgi"
 	"zgo.at/goatcounter/v2/pkg/geo"
 	"zgo.at/goatcounter/v2/pkg/geo/geoip2"
 	"zgo.at/goatcounter/v2/pkg/log"
@@ -320,13 +321,28 @@ func cmdServe(f zli.Flags, ready chan<- struct{}, stop chan struct{}, saas bool)
 		}
 	}
 
-	ch, err := zhttp.Serve(listenTLS, stop, &http.Server{
-		Addr: listen.String(),
-		// TODO: h2c no longer needed? https://github.com/golang/go/issues/72039
-		Handler:     h2c.NewHandler(zhttp.HostRoute(hosts), &http2.Server{}),
-		TLSConfig:   tlsc,
-		BaseContext: func(net.Listener) context.Context { return ctx },
-	})
+	cgi := true
+
+	var ch chan struct{}
+	if cgi {
+		// XXX: also support /path/to/sock, and a special stdin value.
+		l, err := net.Listen("tcp", listen.String())
+		if err != nil {
+			return err
+		}
+
+		// XXX: this blocks; need to write our own version for graceful
+		// startup/shutdown.
+		err = fcgi.Serve(l, zhttp.HostRoute(hosts), func() context.Context { return ctx })
+	} else {
+		ch, err = zhttp.Serve(listenTLS, stop, &http.Server{
+			Addr: listen.String(),
+			// TODO: h2c no longer needed? https://github.com/golang/go/issues/72039
+			Handler:     h2c.NewHandler(zhttp.HostRoute(hosts), &http2.Server{}),
+			TLSConfig:   tlsc,
+			BaseContext: func(net.Listener) context.Context { return ctx },
+		})
+	}
 	if err != nil {
 		return err
 	}
