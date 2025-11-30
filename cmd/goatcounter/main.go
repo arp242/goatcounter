@@ -274,10 +274,16 @@ func connectDB(connect, dbConn string, migrate []string, create, dev bool) (zdb.
 			log.Errorf(context.Background(), "unable to populate languages: %s", err)
 		}
 	}
-	if db.SQLDialect() == zdb.DialectPostgreSQL {
+	if db.SQLDialect() == zdb.DialectPostgreSQL && !log.HasDebug("sql") {
 		go ins()
 	} else {
 		ins()
+	}
+
+	if log.HasDebug("sql-query") {
+		db = zdb.NewLogDB(db, os.Stderr, zdb.DumpQuery|zdb.DumpLocation, "")
+	} else if log.HasDebug("sql-result") {
+		db = zdb.NewLogDB(db, os.Stderr, zdb.DumpQuery|zdb.DumpLocation|zdb.DumpResult, "")
 	}
 	return db, goatcounter.NewContext(context.Background(), db), nil
 }
