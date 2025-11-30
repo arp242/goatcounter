@@ -1,4 +1,4 @@
-<div class="pages-list pages-list-text {{if .Group.Daily}}pages-list-daily{{end}}" data-widget="{{.ID}}">
+<div class="pages-list pages-list-text {{if .Group.Daily}}pages-list-daily{{end}} widget-{{if $.Loaded}}loaded{{else}}loading{{end}}" data-widget="{{.ID}}">
 	<div class="widget-header">
 		<h2>{{t .Context "dashboard/pages/header|Pages"}}
 			{{if not $.User.Settings.FewerNumbers}}

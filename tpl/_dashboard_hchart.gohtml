@@ -3,7 +3,7 @@
 {{- if .RowsOnly -}}
 	{{- $x -}}
 {{- else -}}
-	<div class="hchart" data-widget="{{.ID}}">
+	<div class="hchart widget-{{if $.Loaded}}loaded{{else}}loading{{end}}" data-widget="{{.ID}}">
 		<div class="widget-header">
 			<h2>{{.Header}}</h2>
 			{{if .CanConfigure}}

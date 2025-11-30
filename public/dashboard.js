@@ -49,6 +49,7 @@
 			let msg = JSON.parse(e.data),
 				wid = $(`#dash-widgets div[data-widget=${msg.id}]`)
 			wid.html(msg.html)
+			wid.removeClass('widget-loading').addClass('widget-loaded')
 			draw_all_charts()
 
 			if (wid.hasClass('pages-list'))
@@ -128,9 +129,9 @@
 	}
 
 	// Reload all widgets on the dashboard.
-	var reload_dashboard = function(done) {
+	let reload_dashboard = (done) => {
 		jQuery.ajax({
-			url:     BASE_PATH + '/',
+			url:     `${BASE_PATH}/`,
 			data:    append_period({
 				group:     $('#hl-group').val(),
 				max:       get_original_scale(),
@@ -138,8 +139,11 @@
 				connectID: $('#js-connect-id').text(),
 			}),
 			success: function(data) {
-				$('#dash-widgets').html(data.widgets)
 				$('#dash-timerange').html(data.timerange)
+				$(data.widgets).find('.widget-loaded').each((_, elem) => {
+					$(`[data-widget="${elem.dataset.widget}"]`).replaceWith(elem)
+				})
+
 				dashboard_widgets()
 				redraw_all_charts()
 				highlight_filter($('#filter-paths').val())
