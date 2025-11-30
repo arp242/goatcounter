@@ -1,6 +1,9 @@
 select path_id from paths
 where
-	site_id = :site and (
+	site_id = :site
+	{{:only_event    and event=1}}
+	{{:only_pageview and event=0}}
+	and (
 		lower(path) like lower(:filter)
 		{{:match_title or lower(title) like lower(:filter)}}
 	)

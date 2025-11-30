@@ -298,11 +298,21 @@ func (p *Paths) List(ctx context.Context, siteID SiteID, after PathID, limit int
 //
 // If matchTitle is true it will match the title as well.
 func PathFilter(ctx context.Context, filter string, matchTitle bool) ([]PathID, error) {
+	var onlyEvent, onlyPageview bool
+	if i := strings.Index(filter, "is:event"); i > -1 {
+		onlyEvent, filter = true, strings.TrimSpace(filter[:i]+filter[i+8:])
+	}
+	if i := strings.Index(filter, "is:pageview"); i > -1 {
+		onlyPageview, filter = true, strings.TrimSpace(filter[:i]+filter[i+11:])
+	}
+
 	var paths []PathID
 	err := zdb.Select(ctx, &paths, "load:paths.PathFilter", map[string]any{
-		"site":        MustGetSite(ctx).ID,
-		"filter":      "%" + filter + "%",
-		"match_title": matchTitle,
+		"site":          MustGetSite(ctx).ID,
+		"filter":        "%" + filter + "%",
+		"match_title":   matchTitle,
+		"only_event":    onlyEvent,
+		"only_pageview": onlyPageview,
 	})
 	if err != nil {
 		return nil, errors.Wrap(err, "PathFilter")
