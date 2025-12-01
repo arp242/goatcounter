@@ -7,9 +7,22 @@
 		// example when zooming (either in browser or OS, e.g. for high-DPI
 		// displays), so account for that with devicePixelRatio.
 		let dpr = Math.max(1, window.devicePixelRatio || 1)
-		ctx.canvas.width  = ctx.canvas.clientWidth  * dpr
-		ctx.canvas.height = ctx.canvas.clientHeight * dpr
-		ctx.scale(dpr, dpr)
+		try {
+			ctx.canvas.width  = ctx.canvas.clientWidth  * dpr
+			ctx.canvas.height = ctx.canvas.clientHeight * dpr
+			ctx.scale(dpr, dpr)
+		} catch (err) {
+			// No idea when this happens, but it seems that it does on occasion.
+			// I can only reproduce it by setting the DPR to ridiculous values
+			// such as ~40. Just render at dpr 1, which may be wrong but is
+			// better than not rendering anything at all.
+			if (!(err instanceof DOMException) || err.message.indexOf('Canvas exceeds max size') === -1)
+				throw err
+			dpr = 1
+			ctx.canvas.width  = ctx.canvas.clientWidth  * dpr
+			ctx.canvas.height = ctx.canvas.clientHeight * dpr
+			ctx.scale(dpr, dpr)
+		}
 
 		opt.line = Object.assign({width: 2, color: '#f00', fill: '#fdd'}, opt.line)
 		opt.bar  = Object.assign({color: '#f00'}, opt.bar)
