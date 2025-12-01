@@ -71,21 +71,19 @@ func Open(path string) (*geoip2.Reader, error) {
 		if l := len(s); l != 2 && l != 3 {
 			return nil, fmt.Errorf("invalid format for MaxMind GeoIP update: %q", path)
 		}
-		accountID, key, path := s[0], s[1], "goatcounter-data/auto.mmdb"
+		accountID, key, dst := s[0], s[1], "goatcounter-data/auto.mmdb"
 		if len(s) == 3 {
-			path = s[2]
+			dst = s[2]
 		}
-		st, err := os.Stat(path)
-		if err == nil && st.ModTime().Before(time.Now().Add(24*time.Hour*7)) {
-			return Open(path)
+		st, err := os.Stat(dst)
+		if err != nil || st.ModTime().Before(time.Now().Add(-24*time.Hour*7)) {
+			log.Module("startup").Info(context.Background(), "downloading GeoDB database; might take a few seconds")
+			err = fetchDB(accountID, key, dst)
+			if err != nil {
+				return nil, err
+			}
 		}
-
-		log.Module("startup").Info(context.Background(), "downloading GeoDB database; might take a few seconds")
-		err = fetchDB(accountID, key, path)
-		if err != nil {
-			return nil, err
-		}
-		return Open(path)
+		path = dst
 	}
 
 	// From FS
