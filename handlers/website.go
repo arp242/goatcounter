@@ -228,7 +228,7 @@ func (h website) openAPI(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (h website) tpl(w http.ResponseWriter, r *http.Request) error {
-	t := path.Base(r.URL.Path[1:])
+	t := strings.Trim(r.URL.Path, "/")
 	if t == "" || t == "." {
 		t = "home"
 	}
