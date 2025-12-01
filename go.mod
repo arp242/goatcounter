@@ -32,7 +32,7 @@ require (
 	zgo.at/runewidth v0.1.0 // indirect
 	zgo.at/slog_align v0.0.0-20251129094707-bf509eca6089
 	zgo.at/termtext v1.5.0
-	zgo.at/tz v0.0.0-20240819050900-3c7bf6122612
+	zgo.at/tz v0.0.0-20251201071354-238b46ef6739
 	zgo.at/z18n v0.0.0-20240522230155-4d5af439f8c4
 	zgo.at/zcache/v2 v2.4.1
 	zgo.at/zdb v0.0.0-20250906203858-587e0745f6a8
