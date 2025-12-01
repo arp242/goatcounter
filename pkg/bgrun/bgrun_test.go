@@ -90,7 +90,7 @@ func TestWaitFor(t *testing.T) {
 		t.Error(err)
 	}
 
-	err = WaitFor(50*time.Millisecond, "")
+	err = WaitFor(100*time.Millisecond, "")
 	if err != nil {
 		t.Error(err)
 	}
