@@ -208,6 +208,7 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 		for _, w := range lazy {
 			func(w widgets.Widget) {
 				run.Run(func() {
+					defer log.Recover(r.Context(), func(err error) { log.Error(r.Context(), err, "data widget", w, log.AttrHTTP(r)) })
 					getData(w, ztime.Now(r.Context()))
 					getHTML(w)
 					loader.sendJSON(r, connectID, map[string]any{
