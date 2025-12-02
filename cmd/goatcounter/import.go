@@ -298,7 +298,7 @@ func importCSV(fp io.ReadCloser, url, key string, silent bool) error {
 	n := 0
 	ctx := goatcounter.WithSite(context.Background(), &goatcounter.Site{})
 	hits := make([]handlers.APICountRequestHit, 0, 500)
-	_, err := goatcounter.Import(ctx, fp, false, false, func(hit goatcounter.Hit, final bool) {
+	_, err := goatcounter.ImportCSV(ctx, fp, false, false, func(hit goatcounter.Hit, final bool) {
 		if !final {
 			hits = append(hits, handlers.APICountRequestHit{
 				Path:      hit.Path,

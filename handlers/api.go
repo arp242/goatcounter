@@ -342,13 +342,13 @@ func (h api) export(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	var export goatcounter.Export
-	fp, err := export.Create(r.Context(), req.StartFromHitID)
+	fp, err := export.CreateCSV(r.Context(), req.StartFromHitID)
 	if err != nil {
 		return err
 	}
 
 	ctx := goatcounter.CopyContextValues(r.Context())
-	bgrun.MustRunFunction(fmt.Sprintf("export api:%d", export.SiteID), func() { export.Run(ctx, fp, false) })
+	bgrun.MustRunFunction(fmt.Sprintf("export api:%d", export.SiteID), func() { export.RunCSV(ctx, fp, false) })
 
 	w.WriteHeader(http.StatusAccepted)
 	return zhttp.JSON(w, export)

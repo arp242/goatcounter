@@ -619,7 +619,7 @@ func (h settings) exportImport(w http.ResponseWriter, r *http.Request) error {
 	ctx := goatcounter.CopyContextValues(r.Context())
 	n := 0
 	bgrun.RunFunction(fmt.Sprintf("import:%d", Site(ctx).ID), func() {
-		firstHitAt, err := goatcounter.Import(ctx, fp, replace, true, func(hit goatcounter.Hit, final bool) {
+		firstHitAt, err := goatcounter.ImportCSV(ctx, fp, replace, true, func(hit goatcounter.Hit, final bool) {
 			if final {
 				return
 			}
@@ -699,14 +699,14 @@ func (h settings) exportStart(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	var export goatcounter.Export
-	fp, err := export.Create(r.Context(), startFrom)
+	fp, err := export.CreateCSV(r.Context(), startFrom)
 	if err != nil {
 		return err
 	}
 
 	ctx := goatcounter.CopyContextValues(r.Context())
 	bgrun.RunFunction(fmt.Sprintf("export web:%d", Site(ctx).ID),
-		func() { export.Run(ctx, fp, true) })
+		func() { export.RunCSV(ctx, fp, true) })
 
 	zhttp.Flash(w, r, T(r.Context(), "notify/export-started-in-background|Export started in the background; you’ll get an email with a download link when it’s done."))
 	return zhttp.SeeOther(w, "/settings/export")
