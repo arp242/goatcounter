@@ -30,7 +30,9 @@ Some common examples:
 
     Create a new site:
 
-        $ goatcounter db create site -vhost stats.example.com -user.email martin@example.com
+        $ goatcounter db create site \
+            -vhost      stats.example.com \
+            -user.email martin@example.com
 
         You will log in with the -email; -vhost is where your GoatCounter site
         will be accessible from.
@@ -59,8 +61,8 @@ Flags accepted by all commands:
 
 show command:
 
-    -find       Object to find; you can always use the numeric ID column (e.g. 1),
-                but also a friendlier name:
+    -find       Object to find; you can use the numeric ID column (e.g. 1), but
+                also a friendlier name:
 
                     site      vhost ("stats.example.com").
                     user      email ("user@example.com").
@@ -87,10 +89,10 @@ delete command:
 
 create and update commands:
 
-    The create and update commands accept a set of flags with column values. You
-    can't set all columns, just the useful ones for regular management. The
-    flags for create and update are identical, except that "update" also needs a
-    -find flag; this is documented above in the show command.
+    The create and update commands accept a set of flags with column values.
+    You can't set all columns, just the useful ones for regular management. The
+    flags for create and update are identical, except that "update" also needs
+    a -find flag; this is documented above in the show command.
 
     You may need to restart GoatCounter for some changes to take effect due to
     caching.
@@ -108,7 +110,7 @@ create and update commands:
 
         -link*      Link to this site; the site will use the same users, copies
                     this site's settings on creation, and will be listed in the
-                    top navigation
+                    top navigation.
                     Can be as ID ("1") or vhost ("stats.example.com").
 
         Only or "create", as a convenience to create a new user:
@@ -118,7 +120,8 @@ create and update commands:
                               that will re-use the same users as the linked
                               site).
 
-            -user.password*   Password to log in; will be asked interactively if omitted.
+            -user.password*   Password to log in; will be asked interactively
+                              if omitted.
 
     Flags for "user":
 
@@ -171,13 +174,13 @@ migrate command:
     Special values:
 
         all         Run all pending migrations.
-        pending     Show pending migrations but do not run anything. Exits with 1 if
-                    there are pending migrations, or 0 if there aren't.
+        pending     Show pending migrations but do not run anything. Exits with
+                    1 if there are pending migrations, or 0 if there aren't.
         list        List all migrations; pending migrations are prefixed with
                     "pending: ". Always exits with 0.
 
-    Note: you can also use -automigrate flag for the serve command to run migrations
-    on startup.
+    Note: you can also use -automigrate flag for the serve command to run
+    migrations on startup.
 
 newdb command:
 
@@ -208,9 +211,9 @@ test command:
 
 query command:
 
-    Run a query against the database, this is unrestricted and can modify/delete
-    anything, so use with care. Can be useful in cases where you don't have a
-    psql or sqlite3 CLI available.
+    Run a query against the database, this is unrestricted and can modify or
+    delete anything, so use with care. Can be useful in cases where you don't
+    have a psql or sqlite3 CLI available.
 
     Only runs one query, unless -format=exec is given.
 
@@ -257,7 +260,7 @@ SQLite notes:
     This is the default database engine as it has no dependencies, and for most
     small to medium usage it should be more than fast enough.
 
-    The SQLite connection string is usually just a filename, optionally prefixed
+    The SQLite connection string is usually a filename, optionally prefixed
     with "file:". Parameters can be added as a URL query string after a ?:
 
         -db 'sqlite+mydb.sqlite?param=value&other=value'
@@ -267,7 +270,7 @@ SQLite notes:
 
     A few parameters are different from the SQLite defaults:
 
-        _journal_mode=wal          Almost always faster with better concurrency,
+        _journal_mode=wal          Usually faster with better concurrency,
                                    with little drawbacks for most use cases.
         _busy_timeout=200          Wait 200ms for locks instead of immediately
                                    throwing an error.
@@ -297,10 +300,10 @@ PostgreSQL notes:
         PGDATABASE=goatcounter PGHOST=/var/run goatcounter -db 'postgresql'
 
     You may want to consider lowering the "seq_page_cost" parameter; the query
-    planner tends to prefer seq scans instead of index scans for some operations
-    with the default of 4, which is much slower. I found that 1.1 is a fairly
-    good setting, you can set it in your postgresql.conf file, or just for one
-    database with:
+    planner tends to prefer seq scans instead of index scans for some
+    operations with the default of 4, which is much slower. I found that 1.1 is
+    a fairly good setting, you can set it in your postgresql.conf file, or just
+    for one database with:
 
         alter database goatcounter set seq_page_cost=1.1
 

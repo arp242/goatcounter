@@ -46,8 +46,8 @@ import (
 const usageServe = `
 Start a HTTP server to serve one or more GoatCounter installations.
 
-Set up sites with the "create" command; you don't need to restart for changes to
-take effect.
+Set up sites with the "create" command; you don't need to restart for changes
+to take effect.
 
 Static files and templates are compiled in the binary and aren't needed to run
 GoatCounter. But they're loaded from the filesystem if GoatCounter is started
@@ -70,9 +70,9 @@ Environment:
     TMPDIR              Directory for temporary files; only used to store CSV
                         exports at the moment. On Windows it will use the first
                         non-empty value of %TMP%, %TEMP%, and %USERPROFILE%.
-    GOATCOUNTER_TMPDIR  Alternative way to set TMPDIR; takes precedence over TMPDIR.
-                        Mainly intended for cases where TMPDIR can't be used
-                        (e.g. when the capability bit is set on Linux).
+    GOATCOUNTER_TMPDIR  Alternative way to set TMPDIR; takes precedence over
+                        TMPDIR. Mainly intended for cases where TMPDIR can't be
+                        used (e.g. when the capability bit is set on Linux).
 
 Flags:
 
@@ -92,7 +92,7 @@ Flags:
   -tls         Serve over tls. This is a comma-separated list with any of:
 
                  http                   Don't serve any TLS (default)
-                 path/to/file.pem       TLS certificate and keyfile, in one file
+                 path/to/file.pem       TLS certificate and key, in one file
                  acme[:cache]           Create TLS certificates with ACME
                  rdr                    Redirect port 80 to the -listen port
 
@@ -102,8 +102,8 @@ Flags:
                not 80 or 443.
 
   -base-path   Path under which GoatCounter is available. Usually GoatCounter
-               runs on its own domain or subdomain ("stats.example.com"), but in
-               some cases it's useful to run GoatCounter under a path
+               runs on its own domain or subdomain ("stats.example.com"), but
+               in some cases it's useful to run GoatCounter under a path
                ("example.com/stats"), in which case you'll need to set this to
                "/stats".
 
@@ -114,13 +114,13 @@ Flags:
                A special value of "stdout" will print emails to stdout without
                actually sending them.  This is the default.
 
-               If this is an empty string (-smtp='') emails will be sent without
-               using a relay. This implementation is very simple and
+               If this is an empty string (-smtp='') emails will be sent
+               without using a relay. This implementation is very simple and
                deliverability will usually be bad (i.e. it will end up in the
                spam box, or just be outright rejected). This usually requires
-               rDNS properly set up, and GoatCounter will *not* retry on errors.
-               Using a local smtp relay is almost always better unless you
-               really know what you're doing.
+               rDNS properly set up, and GoatCounter will *not* retry on
+               errors. Using a local smtp relay is almost always better unless
+               you really know what you're doing.
 
   -email-from  From: address in emails. Default: <user>@<hostname>
 
@@ -143,8 +143,8 @@ Flags:
                ./goatcounter-data, if any exists. GoatCounter comes with a
                Countries version built-in, and will use that if this flag isn't
                given and there is no file in ./goatcounter-data. You only need
-               this if you want to use a newer/different version, or if you want
-               to record regions.
+               this if you want to use a newer/different version, or if you
+               want to record regions.
 
                This can also be a MaxMind account ID and license key, in which
                case GoatCounter will automatically download a Cities database
@@ -175,9 +175,9 @@ Flags:
                value; for example "-ratelimit export:3/3600,api:100/1" will use
                the default for "count", "login", etc.
 
-  -api-max     Maximum number of items /api/ endpoints will return. Set to 0 for
-               the defaults (200 for paths, 100 for everything else), or <0 for
-               no limit.
+  -api-max     Maximum number of items /api/ endpoints will return. Set to 0
+               for the defaults (200 for paths, 100 for everything else), or <0
+               for no limit.
 
   -store-every How often to persist pageviews to the database, in seconds.
                Higher values will give better performance, but it will take a

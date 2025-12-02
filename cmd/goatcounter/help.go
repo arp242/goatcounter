@@ -141,19 +141,19 @@ comma-separated list with any combination of:
                 "./goatcounter-data/acme-secrets" if it doesn't.
 
                 In order for Let's Encrypt to work GoatCounter *needs* to be
-                publicly accessible on port 80 because Let's Encrypt must verify
-                that you actually own the domain by accessing
+                publicly accessible on port 80 because Let's Encrypt must
+                verify that you actually own the domain by accessing
                 http://example.com/.well-known/acme-challenge/[secret];
                 GoatCounter handles all of this for you, but it does need to be
                 reachable by Let's Encrypt's verification server.
 
-    file.pem    TLS certificate and keyfile, in one file. This can be used as an
-                alternative to Let's Encrypt if you already have a certificate
-                from your domain from a CA. This can use used multiple times
-                (e.g. "-tls file1.pem,file2.pem").
+    file.pem    TLS certificate and keyfile, in one file. This can be used as
+                an alternative to Let's Encrypt if you already have a
+                certificate from your domain from a CA. This can use used
+                multiple times (e.g. "-tls file1.pem,file2.pem").
 
-                This can also be combined with the acme option: GoatCounter will
-                try to use a certificate file for the domain first, and if this
+                Can be combined with the acme option: GoatCounter will try to
+                use a certificate file for the domain first, and if this
                 doesn't exist it will try to create a certificate with ACME.
 
 Some common examples:
@@ -183,8 +183,8 @@ Proxy Setup:
     localhost:8081. This assumes that the proxy will take care of the TLS
     certificate story.
 
-    It's assumed a proxy sets "Scheme: https" or "X-Forwarded-Proto: https" when
-    using TLS, and "X-Forwarded-For: [..]" or "X-Real-Ip: [..]" with the
+    It's assumed a proxy sets "Scheme: https" or "X-Forwarded-Proto: https"
+    when using TLS, and "X-Forwarded-For: [..]" or "X-Real-Ip: [..]" with the
     client's IP. Most do this by default.
 
     GoatCounter uses WebSockets to optimize loading speed. It can work without
@@ -195,8 +195,8 @@ Proxy Setup:
         goatcounter serve -listen localhost:8081 -tls acme
 
     You will have to make the proxy read the *.pem files from the acme cache
-    directory. You may have to reload or restart the proxy for it to pick up new
-    files.
+    directory. You may have to reload or restart the proxy for it to pick up
+    new files.
 
     NOTE: the certificates have a short expiry of a few months and will be
     regenerated automatically. This means that the proxy will have to be
@@ -212,15 +212,15 @@ Proxy Setup:
 Using a non-standard port:
 
     If you make GoatCounter publicly accessibly on non-standard port (i.e. not
-    80 or 443) then you must add the -public-port flag to tell GoatCounter which
-    port to use in various redirects, messages, and emails:
+    80 or 443) then you must add the -public-port flag to tell GoatCounter
+    which port to use in various redirects, messages, and emails:
 
         goatcounter serve -listen :9000 -public-port 9000
 
     This may seem redundant, but it's hard for GoatCounter to tell if it's
-    accessible on :9000 or if there's a proxy in front of it redirecting :80 and
-    :443 to :9000. Since most people will use the standard ports you need to
-    explicitly tell GoatCounter to use a non-standard port.
+    accessible on :9000 or if there's a proxy in front of it redirecting :80
+    and :443 to :9000. Since most people will use the standard ports you need
+    to explicitly tell GoatCounter to use a non-standard port.
 `
 
 const helpDebug = `
@@ -246,17 +246,17 @@ commas.
 `
 
 const usageSaas = `
-This runs goatcounter.com
+This command runs goatcounter.com
 
 Running your own SaaS is currently undocumented, non-trivial, and has certain
-assumptions that will not be true in your case. You do not want to run this; for
-now it can only run run goatcounter.com
+assumptions that will not be true for your case. You do not want to run this.
+For now it can only run run goatcounter.com
 
 If you do want to run a SaaS, you're almost certainly better off writing your
 own front-end to interface with GoatCounter (this is probably how
 goatcounter.com should work as well, but it's quite some effort with low ROI to
 change that now).
 
-This command is undocumented on purpose. Get in touch if you think you need this
-(but you probably don't) and we'll see what can be done to fix you up.
+This command is undocumented on purpose. Get in touch if you think you need
+this (but you probably don't) and we'll see what can be done to fix you up.
 `

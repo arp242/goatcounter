@@ -27,9 +27,9 @@ Flags:
 
   -period      Check every n seconds. Default: 120.
 
-  -once        Check once only and exit instead of checking every -period
-               seconds. The -period flag is still used to select the time range.
-               The exit code will be 0 if there's at least one pageview, 1 if
+  -once        Check once and exit instead of checking every -period seconds.
+               The -period flag is still used to select the time range. The
+               exit code will be 0 if there's at least one pageview, 1 if
                there's 0 pageviews, and 2 if there's another error.
 
   -site        Limit the check to just one site; makes the query faster.

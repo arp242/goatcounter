@@ -96,17 +96,17 @@ Flags:
                Format of date and time for log imports; set automatically when
                using one of the predefined log formats and only needs to be set
                when using a custom log:[..]".
-               This follows Go's time format; see "goatcounter help logfile" for
-               an overview on how this works.
+               This follows Go's time format; see "goatcounter help logfile"
+               for an overview on how this works.
 
-  -exclude     Exclude pageviews that match the given patterns; this flag can be
-               given more than once. If no -exclude flag is given then "-exclude
-               static -exclude redirect" is used. Use -exclude='' to not exclude
-               anything.
+  -exclude     Exclude pageviews that match the given patterns; this flag can
+               be given more than once. If no -exclude flag is given then
+               "-exclude static -exclude redirect" is used. Use -exclude='' to
+               not exclude anything.
 
-               The syntax is [field]:[pattern]; the [field] is one of the fields
-               listed in "help logfile". The pattern can be prefixed with "glob:"
-               or "re:" to get globbing or regular expressions:
+               The syntax is [field]:[pattern]; the [field] is one of the
+               fields listed in "help logfile". The pattern can be prefixed
+               with "glob:" or "re:" to get globbing or regular expressions:
 
                    path:.gif                             Anywhere in the path
                    path:glob:/public/**.{gif,jpg,jpeg}   Any image in /public
