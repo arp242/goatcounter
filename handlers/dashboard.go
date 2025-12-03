@@ -72,24 +72,24 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 	// Get path IDs to filter first, as they're used by the widgets.
 	var (
 		pathFilter = make(chan (struct {
-			Paths []goatcounter.PathID
-			Err   error
+			Filter goatcounter.PathFilter
+			Err    error
 		}))
 	)
 	go func() {
 		defer log.Recover(r.Context(), func(err error) { log.Error(r.Context(), err, "filter", view.Filter, log.AttrHTTP(r)) })
 
 		var (
-			f     []goatcounter.PathID
+			f     goatcounter.PathFilter
 			start = ztime.Now(r.Context())
 			err   error
 		)
 		if view.Filter != "" {
-			f, err = goatcounter.PathFilter(r.Context(), view.Filter)
+			f, err = goatcounter.PathFilterFromQuery(r.Context(), view.Filter)
 		}
 		pathFilter <- struct {
-			Paths []goatcounter.PathID
-			Err   error
+			Filter goatcounter.PathFilter
+			Err    error
 		}{f, err}
 		log.Module("dashboard").Debug(r.Context(), "pathfilter",
 			"took", time.Since(start).Round(time.Millisecond))
@@ -113,7 +113,7 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	f := <-pathFilter
-	args.PathFilter, err = f.Paths, f.Err
+	args.PathFilter, err = f.Filter, f.Err
 	if err != nil {
 		return err
 	}
@@ -255,7 +255,7 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 		SubSites    []string
 		ShowRefs    goatcounter.PathID
 		Period      ztime.Range
-		PathFilter  []goatcounter.PathID
+		PathFilter  goatcounter.PathFilter
 		ForcedGroup bool
 		Widgets     widgets.List
 		View        goatcounter.View
@@ -442,13 +442,13 @@ func getGroup(r *http.Request, g goatcounter.Group, rng ztime.Range) (goatcounte
 	return g, false
 }
 
-func getPathFilter(v *zvalidate.Validator, r *http.Request) []goatcounter.PathID {
+func getPathFilter(v *zvalidate.Validator, r *http.Request) goatcounter.PathFilter {
 	f := r.URL.Query().Get("filter")
 	if f == "" {
-		return nil
+		return goatcounter.PathFilter{}
 	}
 
-	filter, err := goatcounter.PathFilter(r.Context(), f)
+	filter, err := goatcounter.PathFilterFromQuery(r.Context(), f)
 	if err != nil {
 		v.Append("filter", err.Error())
 	}

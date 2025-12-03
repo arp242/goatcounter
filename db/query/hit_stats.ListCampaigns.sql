@@ -3,9 +3,7 @@ with x as (
 		campaign_id,
 		sum(count) as count
 	from campaign_stats
-	where
-		site_id = :site and day >= :start and day <= :end
-		{{:filter and path_id :in (:filter)}}
+	where site_id = :site and day >= :start and day <= :end and :filter
 	group by campaign_id
 	order by count desc, campaign_id
 	limit :limit offset :offset

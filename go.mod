@@ -33,7 +33,7 @@ require (
 	zgo.at/slog_align v0.0.0-20251129094707-bf509eca6089
 	zgo.at/termtext v1.5.0
 	zgo.at/tz v0.0.0-20251201071354-238b46ef6739
-	zgo.at/z18n v0.0.0-20251211202746-c7089c5c596e
+	zgo.at/z18n v0.0.0-20251212122341-2d38215f80a8
 	zgo.at/zcache/v2 v2.4.1
 	zgo.at/zdb v0.0.0-20251231144927-8875464050e8
 	zgo.at/zdb-drivers/go-sqlite3 v0.0.0-20251231053748-dbefaf780698

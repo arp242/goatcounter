@@ -100,10 +100,29 @@ func (p *Path) GetOrInsert(ctx context.Context) error {
 		return nil
 	}
 
-	// Insert new row.
+	// Insert new path.
 	err = zdb.Insert(ctx, p)
 	if err != nil {
 		return errors.Wrap(err, "Path.GetOrInsert insert")
+	}
+
+	// Make sure to update any filters.
+	var f Filters
+	err = f.List(ctx)
+	if err != nil {
+		return errors.Wrap(err, "Path.GetOrInsert insert")
+	}
+	for _, ff := range f {
+		m := ff.Match(p.Path, p.Title, bool(p.Event))
+		if ff.Invert {
+			m = !m
+		}
+		if m {
+			err := ff.Append(ctx, p.ID)
+			if err != nil {
+				return errors.Wrap(err, "Path.GetOrInsert append filter")
+			}
+		}
 	}
 
 	cachePaths(ctx).Set(k, *p)
@@ -302,81 +321,6 @@ func (p *Paths) List(ctx context.Context, siteID SiteID, after PathID, limit int
 		*p = pp
 	}
 	return more, nil
-}
-
-func findFilter(filter string, find ...string) (string, []string) {
-	found := make([]string, 0, 2)
-	for _, f := range find {
-		if i := strings.Index(filter, f); i > -1 {
-			filter = strings.TrimSpace(filter[:i] + filter[i+len(f):])
-			found = append(found, f)
-		}
-	}
-	return filter, found
-}
-
-// PathFilter returns a list of IDs matching the path name.
-//
-// If matchTitle is true it will match the title as well.
-func PathFilter(ctx context.Context, filter string) ([]PathID, error) {
-	filter, kw := findFilter(strings.ReplaceAll(filter, "%", "%%"),
-		"at:start", "at:end", "is:event", "is:pageview", "in:path", "in:title", ":not")
-	var (
-		onlyEvent, onlyPageview, matchPath, matchTitle, atStart, atEnd bool
-		not, or                                                        zdb.SQL
-	)
-	for _, f := range kw {
-		switch f {
-		case "at:start":
-			atStart = true
-		case "at:end":
-			atEnd = true
-		case "is:event":
-			onlyEvent = true
-		case "is:pageview":
-			onlyPageview = true
-		case "in:path":
-			matchPath = true
-		case "in:title":
-			matchTitle = true
-		case ":not":
-			not = "not"
-		}
-	}
-	if !matchPath && !matchTitle {
-		matchPath, matchTitle = true, true
-	}
-	if matchPath && matchTitle {
-		or = "or"
-	}
-	if !atEnd {
-		filter = filter + "%"
-	}
-	if !atStart {
-		filter = "%" + filter
-	}
-
-	var paths []PathID
-	err := zdb.Select(ctx, &paths, "load:paths.PathFilter", map[string]any{
-		"site":          MustGetSite(ctx).ID,
-		"filter":        filter,
-		"match_title":   matchTitle,
-		"match_path":    matchPath,
-		"only_event":    onlyEvent,
-		"only_pageview": onlyPageview,
-		"or":            or,
-		"not":           not,
-	})
-	if err != nil {
-		return nil, errors.Wrap(err, "PathFilter")
-	}
-
-	// Nothing matches: make sure there's a slice with an invalid path_id, so
-	// the queries using the result don't select anything.
-	if len(paths) == 0 {
-		paths = []PathID{-1}
-	}
-	return paths, nil
 }
 
 // FindPathsIDs finds path IDs by exact matches on the name.

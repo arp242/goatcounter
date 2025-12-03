@@ -3,9 +3,7 @@ with x as (
         coalesce(ref_id, 1)     as ref_id,
 		coalesce(sum(total), 0) as count
 	from ref_counts
-	where
-		site_id = :site and hour >= :start and hour <= :end
-		{{:filter and path_id :in (:filter)}}
+	where site_id = :site and hour >= :start and hour <= :end and :filter
 	group by ref_id
 	order by count desc, ref_id
 	-- Over-select quite a bit here since we may filter on the refs.ref below;

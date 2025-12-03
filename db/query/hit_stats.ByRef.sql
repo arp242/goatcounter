@@ -9,9 +9,7 @@ y as (
 		coalesce(sum(total), 0) as count
 	from ref_counts
 	join x using (ref_id)
-	where
-		site_id = :site and hour >= :start and hour <= :end
-		{{:filter and path_id :in (:filter)}}
+	where site_id = :site and hour >= :start and hour <= :end and :filter
 	group by path_id
 	order by count desc
 )

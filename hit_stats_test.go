@@ -47,12 +47,12 @@ func TestHitStats(t *testing.T) {
 		// Browsers
 		{
 			var list HitStats
-			err := list.ListBrowsers(ctx, rng, filter, 5, 0)
+			err := list.ListBrowsers(ctx, rng, PathFilterFromIDs(filter), 5, 0)
 			if err != nil {
 				t.Fatal(err)
 			}
 			var get HitStats
-			err = get.ListBrowser(ctx, "Firefox", rng, filter, 10, 0)
+			err = get.ListBrowser(ctx, "Firefox", rng, PathFilterFromIDs(filter), 10, 0)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -82,12 +82,12 @@ func TestHitStats(t *testing.T) {
 		// Systems
 		{
 			var list HitStats
-			err := list.ListSystems(ctx, rng, filter, 5, 0)
+			err := list.ListSystems(ctx, rng, PathFilterFromIDs(filter), 5, 0)
 			if err != nil {
 				t.Fatal(err)
 			}
 			var get HitStats
-			err = get.ListSystem(ctx, "Linux", rng, filter, 10, 0)
+			err = get.ListSystem(ctx, "Linux", rng, PathFilterFromIDs(filter), 10, 0)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -117,12 +117,12 @@ func TestHitStats(t *testing.T) {
 		// Sizes
 		{
 			var list HitStats
-			err := list.ListSizes(ctx, rng, filter)
+			err := list.ListSizes(ctx, rng, PathFilterFromIDs(filter))
 			if err != nil {
 				t.Fatal(err)
 			}
 			var get HitStats
-			err = get.ListSize(ctx, "desktop", rng, filter, 10, 0)
+			err = get.ListSize(ctx, "desktop", rng, PathFilterFromIDs(filter), 10, 0)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -169,12 +169,12 @@ func TestHitStats(t *testing.T) {
 		// Locations
 		{
 			var list HitStats
-			err := list.ListLocations(ctx, rng, filter, 5, 0)
+			err := list.ListLocations(ctx, rng, PathFilterFromIDs(filter), 5, 0)
 			if err != nil {
 				t.Fatal(err)
 			}
 			var get HitStats
-			err = get.ListLocation(ctx, "ID", rng, filter, 10, 0)
+			err = get.ListLocation(ctx, "ID", rng, PathFilterFromIDs(filter), 10, 0)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -187,7 +187,7 @@ func TestHitStats(t *testing.T) {
 				t.Fatal(err)
 			}
 			var getRegion HitStats
-			err = getRegion.ListLocation(ctx, "ID", rng, filter, 10, 0)
+			err = getRegion.ListLocation(ctx, "ID", rng, PathFilterFromIDs(filter), 10, 0)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -266,7 +266,7 @@ func TestListSizes(t *testing.T) {
 
 	t.Run("ListSizes", func(t *testing.T) {
 		var s HitStats
-		err := s.ListSizes(ctx, ztime.NewRange(now).To(now), nil)
+		err := s.ListSizes(ctx, ztime.NewRange(now).To(now), PathFilter{})
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -311,7 +311,7 @@ func TestListSizes(t *testing.T) {
 		var got string
 		for _, w := range widths {
 			var s HitStats
-			err := s.ListSize(ctx, w.id, ztime.NewRange(now).To(now), nil, 10, 0)
+			err := s.ListSize(ctx, w.id, ztime.NewRange(now).To(now), PathFilter{}, 10, 0)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -383,8 +383,9 @@ func TestStatsByRef(t *testing.T) {
 		Hit{Path: "/a", Ref: "https://example.org", FirstVisit: true})
 
 	var have HitStats
-	err := have.ListTopRef(ctx, "example.com", ztime.NewRange(ztime.Now(ctx).Add(-1*time.Hour)).To(ztime.Now(ctx).Add(1*time.Hour)),
-		[]PathID{1}, 10, 0)
+	err := have.ListTopRef(ctx, "example.com",
+		ztime.NewRange(ztime.Now(ctx).Add(-1*time.Hour)).To(ztime.Now(ctx).Add(1*time.Hour)),
+		PathFilterFromIDs([]PathID{1}), 10, 0)
 	if err != nil {
 		t.Fatal(err)
 	}

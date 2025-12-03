@@ -3,7 +3,7 @@ with x as (
 	where
 		hit_counts.site_id = :site and
 		{{:exclude not path_id :in (:exclude) and}}
-		{{:filter path_id :in (:filter) and}}
+		:filter and
 		hour>=:start and hour<=:end
 	group by path_id
 	order by total desc, path_id desc

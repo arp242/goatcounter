@@ -13,6 +13,8 @@ unreleased
 
 ### Fixes
 
+- Improve performance of filter with a large amount (100,000s) of paths.
+
 2025-12-15 v2.7.0
 -----------------
 
