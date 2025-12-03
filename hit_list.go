@@ -135,22 +135,24 @@ var allDays = []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
 
 // List the top paths for this site in the given time period.
 func (h *HitLists) List(
-	ctx context.Context, rng ztime.Range, pathFilter, exclude []PathID, limit int, group Group,
+	ctx context.Context, rng ztime.Range, pathFilter PathFilter, exclude []PathID, limit int, group Group,
 ) (int, bool, error) {
 
-	site := MustGetSite(ctx)
-	user := MustGetUser(ctx)
-
 	// List the pages for this time period; this gets the path_id, path, title.
-	var more bool
+	var (
+		site                    = MustGetSite(ctx)
+		user                    = MustGetUser(ctx)
+		filterSQL, filterParams = pathFilter.SQL(ctx)
+		more                    bool
+	)
 	{
-		err := zdb.Select(ctx, h, "load:hit_list.List-counts", map[string]any{
+		err := zdb.Select(ctx, h, "load:hit_list.List-counts", filterParams, map[string]any{
 			"site":    site.ID,
 			"start":   rng.Start,
 			"end":     rng.End,
-			"filter":  db2.Array(ctx, pathFilter),
-			"in":      db2.In(ctx),
+			"filter":  filterSQL,
 			"exclude": db2.Array(ctx, exclude),
+			"in":      db2.In(ctx),
 			"limit":   limit + 1,
 		})
 		if err != nil {
@@ -227,20 +229,20 @@ func (h *HitLists) List(
 const PathTotals = "TOTAL "
 
 // Totals gets the data for the "Totals" chart/widget.
-func (h *HitList) Totals(ctx context.Context, rng ztime.Range, pathFilter []PathID, group Group, noEvents bool) (int, error) {
-	site := MustGetSite(ctx)
-	user := MustGetUser(ctx)
-
-	var tc []struct {
-		Hour  time.Time `db:"hour"`
-		Total int       `db:"total"`
-	}
-	err := zdb.Select(ctx, &tc, "load:hit_list.Totals", map[string]any{
-		"site":      site.ID,
+func (h *HitList) Totals(ctx context.Context, rng ztime.Range, pathFilter PathFilter, group Group, noEvents bool) (int, error) {
+	var (
+		user                    = MustGetUser(ctx)
+		filterSQL, filterParams = pathFilter.SQL(ctx)
+		tc                      []struct {
+			Hour  time.Time `db:"hour"`
+			Total int       `db:"total"`
+		}
+	)
+	err := zdb.Select(ctx, &tc, "load:hit_list.Totals", filterParams, map[string]any{
+		"site":      MustGetSite(ctx).ID,
 		"start":     rng.Start,
 		"end":       rng.End,
-		"filter":    db2.Array(ctx, pathFilter),
-		"in":        db2.In(ctx),
+		"filter":    filterSQL,
 		"no_events": noEvents,
 	})
 	if err != nil {
@@ -464,20 +466,19 @@ type TotalCount struct {
 // UTC. This is needed since the _stats tables are per day, rather than
 // per-hour, so we need to use the correct totals to make sure the percentage
 // calculations are accurate.
-func GetTotalCount(ctx context.Context, rng ztime.Range, pathFilter []PathID, noEvents bool) (TotalCount, error) {
-	site := MustGetSite(ctx)
-	user := MustGetUser(ctx)
-
-	var t TotalCount
-	err := zdb.Get(ctx, &t, "load:hit_list.GetTotalCount", map[string]any{
-		"site":      site.ID,
+func GetTotalCount(ctx context.Context, rng ztime.Range, pathFilter PathFilter) (TotalCount, error) {
+	var (
+		user                    = MustGetUser(ctx)
+		filterSQL, filterParams = pathFilter.SQL(ctx)
+		t                       TotalCount
+	)
+	err := zdb.Get(ctx, &t, "load:hit_list.GetTotalCount", filterParams, map[string]any{
+		"site":      MustGetSite(ctx).ID,
 		"start":     rng.Start,
 		"end":       rng.End,
 		"start_utc": rng.Start.In(user.Settings.Timezone.Location),
 		"end_utc":   rng.End.In(user.Settings.Timezone.Location),
-		"filter":    db2.Array(ctx, pathFilter),
-		"in":        db2.In(ctx),
-		"no_events": noEvents,
+		"filter":    filterSQL,
 		"tz":        user.Settings.Timezone.Offset(),
 	})
 	return t, errors.Wrap(err, "GetTotalCount")

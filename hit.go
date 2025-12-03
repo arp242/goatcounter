@@ -379,7 +379,6 @@ func (h *Hits) TestList(ctx context.Context, siteOnly bool) error {
 
 // Purge the given paths.
 func (h *Hits) Purge(ctx context.Context, pathIDs []PathID) error {
-
 	return zdb.TX(ctx, func(ctx context.Context) error {
 		siteID := MustGetSite(ctx).ID
 		for _, t := range append(statTables, "hit_counts", "ref_counts", "hits", "paths") {
