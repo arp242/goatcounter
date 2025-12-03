@@ -21,8 +21,8 @@ github.com/jackc/pgpassfile v1.0.0 h1:/6Hmqy13Ss2zCq62VdNG8tM1wchn8zjSGOBJ6icpsI
 github.com/jackc/pgpassfile v1.0.0/go.mod h1:CEx0iS5ambNFdcRtxPj5JhEz+xB6uRky5eyVu/W2HEg=
 github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761 h1:iCEnooe7UlwOQYpKFhBabPMi4aNAfoODPEFNiAnClxo=
 github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761/go.mod h1:5TJZWKEWniPve33vlWYSoGYefn3gLQRzjfDlhSJ9ZKM=
-github.com/jackc/pgx/v5 v5.7.5 h1:JHGfMnQY+IEtGM63d+NGMjoRpysB2JBwDr5fsngwmJs=
-github.com/jackc/pgx/v5 v5.7.5/go.mod h1:aruU7o91Tc2q2cFp5h4uP3f6ztExVpyVv88Xl/8Vl8M=
+github.com/jackc/pgx/v5 v5.7.6 h1:rWQc5FwZSPX58r1OQmkuaNicxdmExaEz5A2DO2hUuTk=
+github.com/jackc/pgx/v5 v5.7.6/go.mod h1:aruU7o91Tc2q2cFp5h4uP3f6ztExVpyVv88Xl/8Vl8M=
 github.com/jackc/puddle/v2 v2.2.2 h1:PR8nw+E/1w0GLuRFSmiioY6UooMp6KJv0/61nB7icHo=
 github.com/jackc/puddle/v2 v2.2.2/go.mod h1:vriiEXHvEE654aYKXXjOvZM39qJ0q+azkZFrfEOc3H4=
 github.com/lib/pq v1.10.9 h1:YXG7RB+JIjhP29X+OtkiDnYaXQwpS4JEWq7dtCCRUEw=
@@ -87,8 +87,8 @@ zgo.at/z18n v0.0.0-20240522230155-4d5af439f8c4 h1:H69hFT4lTSyFj6giWaeFJJslobuYQw
 zgo.at/z18n v0.0.0-20240522230155-4d5af439f8c4/go.mod h1:hyMzuQ1BFVoFEMTaWr9qj9tWMUpJM6s4f0OFbijhkeA=
 zgo.at/zcache/v2 v2.4.1 h1:Dfjoi8yI0Uq7NCc4lo2kaQJJmp9Mijo21gef+oJstbY=
 zgo.at/zcache/v2 v2.4.1/go.mod h1:gyCeoLVo01QjDZynjime8xUGHHMbsLiPyUTBpDGd4Gk=
-zgo.at/zdb v0.0.0-20250906203858-587e0745f6a8 h1:WwdD6tz3rjuO1oodD1eVCpmffe3iS+YzSPaltYluTgQ=
-zgo.at/zdb v0.0.0-20250906203858-587e0745f6a8/go.mod h1://qoL3R67WSyoQ8WhWhdjUjNVG/vxdIXVw/m+UtqVtY=
+zgo.at/zdb v0.0.0-20251202102236-9c43d02927b4 h1:Qi3zZYAjYt3tiktGw5N2VWXyEVIHVYrEEuIVE6djUXk=
+zgo.at/zdb v0.0.0-20251202102236-9c43d02927b4/go.mod h1:bKNSzdepTPM3chTey3KbatZQUzRAt5b5sNbw9TdN0fg=
 zgo.at/zhttp v0.0.0-20251201061952-9a43cabb6d05 h1:7zGZg1pIlDQOjLyrLtSgOqLruyeRtOe1r5boda5Affs=
 zgo.at/zhttp v0.0.0-20251201061952-9a43cabb6d05/go.mod h1:wUvJMJxBX/Ow+0jd1MZExEtUtOHc+xjQ/xZyjQvZq9c=
 zgo.at/zli v0.0.0-20250704045222-08cb210424f2 h1:pD5v/8xKNvr4teFDhn9rSA5xFEze8uFEe8Ib3ALD67Y=

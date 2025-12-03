@@ -103,13 +103,13 @@ func (h *HitList) PathCount(ctx context.Context, path string, rng ztime.Range) e
 // SiteTotal gets the total counts for all paths. This always uses UTC.
 func (h *HitList) SiteTotalUTC(ctx context.Context, rng ztime.Range) error {
 	err := zdb.Get(ctx, h, `/* HitList.SiteTotalUTC */
-			select
-				coalesce(sum(total), 0) as count
-			from hit_counts
-			where site_id = :site
-			{{:start and hour >= :start}}
-			{{:end   and hour <= :end}}
-		`, map[string]any{
+		select
+			coalesce(sum(total), 0) as count
+		from hit_counts
+		where site_id = :site
+		{{:start and hour >= :start}}
+		{{:end   and hour <= :end}}
+	`, map[string]any{
 		"site":  MustGetSite(ctx).ID,
 		"start": rng.Start,
 		"end":   rng.End,
