@@ -145,8 +145,8 @@ func TestHitListsList(t *testing.T) {
 		},
 	}
 
-	for i, tt := range tests {
-		t.Run(fmt.Sprintf("%d", i), func(t *testing.T) {
+	for _, tt := range tests {
+		t.Run("", func(t *testing.T) {
 			ctx := gctest.DB(t)
 
 			site := MustGetSite(ctx)
@@ -158,7 +158,7 @@ func TestHitListsList(t *testing.T) {
 
 			gctest.StoreHits(ctx, t, false, tt.in...)
 
-			pathsFilter, err := PathFilter(ctx, tt.inFilter)
+			pathsFilter, err := PathFilterFromQuery(ctx, tt.inFilter)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -181,6 +181,55 @@ func TestHitListsList(t *testing.T) {
 			}
 		})
 	}
+
+	// Make sure that filtering 70k paths works.
+	t.Run("70k", func(t *testing.T) {
+		// Directly insert because it's much faster.
+		var (
+			ctx     = gctest.DB(t)
+			bPaths  = zdb.NewBulkInsert(ctx, "paths", []string{"site_id", "path"})
+			bCounts = zdb.NewBulkInsert(ctx, "hit_counts", []string{"site_id", "path_id", "hour", "total"})
+			bStats  = zdb.NewBulkInsert(ctx, "hit_stats", []string{"site_id", "path_id", "day", "stats"})
+		)
+		x := make([]int, 24)
+		x[1] = 10
+		hs := zjson.MustMarshal(x)
+		for i := range 70_000 {
+			bPaths.Values(1, fmt.Sprintf("/x-%d", i+1))
+			bCounts.Values(1, i+1, "2019-08-11 01:00:00", 10)
+			bStats.Values(1, i+1, "2019-08-11", hs)
+		}
+		err := bPaths.Finish()
+		if err != nil {
+			t.Fatal(err)
+		}
+		err = bCounts.Finish()
+		if err != nil {
+			t.Fatal(err)
+		}
+		err = bStats.Finish()
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		paths, err := PathFilterFromQuery(ctx, "x")
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		tc, err := GetTotalCount(ctx, rng, paths)
+		if err != nil {
+			t.Fatal(err)
+		}
+		want := 700_000
+		//if zdb.SQLDialect(ctx) == zdb.DialectSQLite {
+		//	want = 100_000
+		//}
+
+		if tc.Total != want || tc.TotalUTC != want {
+			t.Fatalf("Total: %d; TotalUTC: %d; want: %d", tc.Total, tc.TotalUTC, want)
+		}
+	})
 }
 
 func TestGetTotalCount(t *testing.T) {
@@ -196,7 +245,7 @@ func TestGetTotalCount(t *testing.T) {
 		Hit{Path: "ev", FirstVisit: false, Event: true})
 
 	{
-		have, err := GetTotalCount(ctx, rng, nil, false)
+		have, err := GetTotalCount(ctx, rng, PathFilter{})
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -290,7 +339,7 @@ func TestHitListTotals(t *testing.T) {
 		for i, filter := range [][]PathID{nil, []PathID{1}, []PathID{2}, []PathID{1, 2}} {
 			t.Run("", func(t *testing.T) {
 				var hs HitList
-				count, err := hs.Totals(ctx, rng, filter, GroupHourly, false)
+				count, err := hs.Totals(ctx, rng, PathFilterFromIDs(filter), GroupHourly, false)
 				if err != nil {
 					t.Fatal(err)
 				}
@@ -365,7 +414,7 @@ func TestHitListTotals(t *testing.T) {
 		for i, filter := range [][]PathID{nil, []PathID{1}, []PathID{2}, []PathID{1, 2}} {
 			t.Run("", func(t *testing.T) {
 				var hs HitList
-				count, err := hs.Totals(ctx, rng, filter, GroupDaily, false)
+				count, err := hs.Totals(ctx, rng, PathFilterFromIDs(filter), GroupDaily, false)
 				if err != nil {
 					t.Fatal(err)
 				}

@@ -163,7 +163,7 @@ func reportTextSite(ctx context.Context, site goatcounter.Site, user goatcounter
 	)
 
 	{ // Get overview of paths.
-		_, _, err := args.Pages.List(ctx, rng, nil, nil, 10, goatcounter.GroupDaily)
+		_, _, err := args.Pages.List(ctx, rng, goatcounter.PathFilter{}, nil, 10, goatcounter.GroupDaily)
 		if err != nil {
 			return args, err
 		}
@@ -172,7 +172,7 @@ func reportTextSite(ctx context.Context, site goatcounter.Site, user goatcounter
 			return args, nil
 		}
 
-		_, err = args.Total.Totals(ctx, rng, nil, goatcounter.GroupDaily, true)
+		_, err = args.Total.Totals(ctx, rng, goatcounter.PathFilter{}, goatcounter.GroupDaily, true)
 		if err != nil {
 			return args, err
 		}
@@ -215,7 +215,7 @@ func reportTextSite(ctx context.Context, site goatcounter.Site, user goatcounter
 	}
 
 	{ // Get overview of refs.
-		err := args.Refs.ListTopRefs(ctx, rng, nil, 10, 0)
+		err := args.Refs.ListTopRefs(ctx, rng, goatcounter.PathFilter{}, 10, 0)
 		if err != nil {
 			return args, err
 		}

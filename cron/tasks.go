@@ -11,6 +11,7 @@ import (
 	"zgo.at/errors"
 	"zgo.at/goatcounter/v2"
 	"zgo.at/goatcounter/v2/acme"
+	"zgo.at/goatcounter/v2/pkg/db2"
 	"zgo.at/goatcounter/v2/pkg/log"
 	"zgo.at/zdb"
 	"zgo.at/zstd/ztime"
@@ -245,6 +246,24 @@ func vacuumRefs(ctx context.Context) error {
 			select ref_id from hits group by ref_id
 		)
 	`)
+}
+
+func oldFilters(ctx context.Context) error {
+	return zdb.TX(ctx, func(ctx context.Context) error {
+		var (
+			ival = goatcounter.Interval(ctx, 2)
+			ids  []goatcounter.FilterID
+		)
+		err := zdb.Select(ctx, &ids, `delete from filters where last_used_at < `+ival+` returning filter_id`)
+		if err != nil {
+			return err
+		}
+
+		return zdb.Exec(ctx, `delete from filter_paths where filter_id :in (:ids)`, map[string]any{
+			"in":  db2.In(ctx),
+			"ids": db2.Array(ctx, ids),
+		})
+	})
 }
 
 func sessions(ctx context.Context) error {
