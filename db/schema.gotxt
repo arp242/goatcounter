@@ -79,7 +79,7 @@ create table hits (
 	browser_id     integer        not null,
 	system_id      integer        not null,
 	campaign       integer        default null,
-	size_id        integer        null,
+	width          smallint       null,
 	location       varchar        not null default '',
 	language       varchar,
 
@@ -121,6 +121,7 @@ create table browsers (
 	name           varchar,
 	version        varchar
 );
+create unique index "browsers#name#version" on browsers(name, version);
 
 create table systems (
 	system_id      {{auto_increment}},
@@ -128,6 +129,7 @@ create table systems (
 	name           varchar,
 	version        varchar
 );
+create unique index "systems#name#version"  on systems(name, version);
 
 create table refs (
 	ref_id         {{auto_increment}},
@@ -137,20 +139,6 @@ create table refs (
 insert into refs (ref, ref_scheme) values ('', null);
 create unique index "refs#ref#ref_scheme" on refs(lower(ref), ref_scheme);
 {{psql `alter table refs cluster on "refs#ref#ref_scheme";`}}
-
-create table sizes (
-	size_id        {{auto_increment}},
-	width          integer          not null,
-	height         integer          not null,
-	scale          double precision not null,
-
-	size           varchar          generated always as (
-		{{psql   `width::text || ',' || height::text || ',' || scale::text`}}
-		{{sqlite `width || ',' || height || ',' || scale`}}
-	) stored
-);
-create index "sizes#size" on sizes(size);
-insert into sizes (width, height, scale) values (0, 0, 0);
 
 create table hit_counts (
 	site_id        integer        not null,
@@ -367,6 +355,8 @@ insert into version values
 	('2024-04-23-1-collect-hits'),
 	-- 2.7
 	('2025-06-20-1-empty-counts'),
-	('2025-06-21-1-bots');
+	('2025-06-21-1-bots'),
+	('2025-06-21-2-drop-sizes'),
+	('2025-12-03-1-unique-browsers');
 
 -- vim:ft=sql:tw=0
