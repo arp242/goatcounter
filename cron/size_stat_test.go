@@ -27,7 +27,7 @@ func TestSizeStats(t *testing.T) {
 	}...)
 
 	var have goatcounter.HitStats
-	err := have.ListSizes(ctx, ztime.NewRange(now).To(now), nil)
+	err := have.ListSizes(ctx, ztime.NewRange(now).To(now), goatcounter.PathFilter{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -58,7 +58,7 @@ func TestSizeStats(t *testing.T) {
 	}...)
 
 	have = goatcounter.HitStats{}
-	err = have.ListSizes(ctx, ztime.NewRange(now).To(now), nil)
+	err = have.ListSizes(ctx, ztime.NewRange(now).To(now), goatcounter.PathFilter{})
 	if err != nil {
 		t.Fatal(err)
 	}
