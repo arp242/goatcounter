@@ -31,7 +31,7 @@ type (
 	Args struct {
 		Rng         ztime.Range
 		Offset      int
-		PathFilter  []goatcounter.PathID
+		PathFilter  goatcounter.PathFilter
 		Group       goatcounter.Group
 		ForcedGroup bool
 		ShowRefs    goatcounter.PathID
