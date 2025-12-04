@@ -1,6 +1,6 @@
 module zgo.at/goatcounter/v2
 
-go 1.25.4
+go 1.25.5
 
 require (
 	github.com/bmatcuk/doublestar/v4 v4.9.1
@@ -35,7 +35,7 @@ require (
 	zgo.at/tz v0.0.0-20251201071354-238b46ef6739
 	zgo.at/z18n v0.0.0-20240522230155-4d5af439f8c4
 	zgo.at/zcache/v2 v2.4.1
-	zgo.at/zdb v0.0.0-20250906203858-587e0745f6a8
+	zgo.at/zdb v0.0.0-20251202102236-9c43d02927b4
 	zgo.at/zhttp v0.0.0-20251201061952-9a43cabb6d05
 	zgo.at/zli v0.0.0-20250704045222-08cb210424f2
 	zgo.at/zprof v0.0.0-20211217104121-c3c12596d8f0
