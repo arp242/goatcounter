@@ -208,7 +208,7 @@ func CopyContextValues(ctx context.Context) context.Context {
 		n = geo.With(n, g)
 	}
 	if m := blackmail.Get(ctx); m != nil {
-		n = blackmail.With(ctx, m)
+		n = blackmail.With(n, m)
 	}
 	return n
 }
