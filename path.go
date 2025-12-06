@@ -309,12 +309,11 @@ func findFilter(filter string, find ...string) (string, []string) {
 //
 // If matchTitle is true it will match the title as well.
 func PathFilter(ctx context.Context, filter string) ([]PathID, error) {
-	filter, kw := findFilter(filter, "at:start", "at:end", "is:event", "is:pageview", "in:path", "in:title")
-	filter = strings.ReplaceAll(filter, "%", "%%")
+	filter, kw := findFilter(strings.ReplaceAll(filter, "%", "%%"),
+		"at:start", "at:end", "is:event", "is:pageview", "in:path", "in:title", ":not")
 	var (
-		onlyEvent, onlyPageview bool
-		matchPath, matchTitle   bool
-		atStart, atEnd          bool
+		onlyEvent, onlyPageview, matchPath, matchTitle, atStart, atEnd bool
+		not, or                                                        zdb.SQL
 	)
 	for _, f := range kw {
 		switch f {
@@ -330,9 +329,10 @@ func PathFilter(ctx context.Context, filter string) ([]PathID, error) {
 			matchPath = true
 		case "in:title":
 			matchTitle = true
+		case ":not":
+			not = "not"
 		}
 	}
-	var or zdb.SQL
 	if !matchPath && !matchTitle {
 		matchPath, matchTitle, or = true, true, "or"
 	}
@@ -352,7 +352,8 @@ func PathFilter(ctx context.Context, filter string) ([]PathID, error) {
 		"only_event":    onlyEvent,
 		"only_pageview": onlyPageview,
 		"or":            or,
-	}, zdb.DumpQuery)
+		"not":           not,
+	})
 	if err != nil {
 		return nil, errors.Wrap(err, "PathFilter")
 	}

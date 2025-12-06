@@ -175,7 +175,7 @@
 		$('#dash-form').trigger('submit')
 	}
 
-	let filter_kw = new RegExp('(at:start|at:end|is:event|is:pageview|in:path|in:title)', 'gi')
+	let filter_kw = new RegExp('(at:start|at:end|is:event|is:pageview|in:path|in:title|:not)', 'gi')
 
 	// Highlight a filter pattern in the path and title.
 	let highlight_filter = (s) => {
