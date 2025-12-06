@@ -111,10 +111,18 @@
 
 		<div style="text-align: right">
 			<div class="filter-wrap">
+				<div id="filter-styled" aria-hidden="true"></div>
 				<input
 					type="text" autocomplete="off" name="filter" value="{{.View.Filter}}" id="filter-paths"
 					placeholder="{{.T "nav-dash/filter|Filter paths"}}"
-					title="{{.T "nav-dash/filter-tooltip|Filter the list of paths; matched case-insensitive on path and title"}}"
+					{{/* XXX: proper formatting on tooltip/help */}}}
+					title="{{.T `nav-dash/filter-tooltip|
+					    Filter the list of paths; matched case-insensitive on path and title
+
+						match only at the start or end of path or title: <em>at:start</em>, <em>at:end</em>
+						show only events or pageviews:                   <em>is:event</em>, <em>is:pageview</em>
+						match only path or title:                        <em>in:path</em>, <em>in:title</em>
+					`}}"
 					{{if .View.Filter}}class="value"{{end}}>
 			</div>
 			{{/* .T "nav-dash/by-day|View by day" */}}

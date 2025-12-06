@@ -175,10 +175,14 @@
 		$('#dash-form').trigger('submit')
 	}
 
+	let filter_kw = new RegExp('(at:start|at:end|is:event|is:pageview|in:path|in:title)', 'gi')
+
 	// Highlight a filter pattern in the path and title.
-	var highlight_filter = function(s) {
+	let highlight_filter = (s) => {
+		s = s.replace(filter_kw, '').trim()
 		if (s === '')
 			return
+
 		$('.pages-list .count-list-pages > tbody.pages').find('.rlink, .page-title:not(.no-title)').each(function(_, elem) {
 			if ($(elem).find('b').length)  // Don't apply twice after pagination
 				return
@@ -308,23 +312,28 @@
 
 	// Reload the dashboard when typing in the filter input, so the user won't
 	// have to press "enter".
-	var hdr_filter = function() {
-		highlight_filter($('#filter-paths').val())
-
-		$('#filter-paths').on('keydown', function(e) {
+	let hdr_filter = () => {
+		$('#filter-paths').on('keydown', (e) => {
 			if (e.keyCode === 13)  // Don't submit form on enter.
 				e.preventDefault()
 		})
 
-		var t
-		$('#filter-paths').on('input', function(e) {
+		let filter = $('#filter-paths').val(),
+			hl     = (v) => $('#filter-styled').html(v.replace(filter_kw, '<em>$1</em>'))
+		hl(filter)
+		highlight_filter(filter)
+
+		let t
+		$('#filter-paths').on('input', (e) => {
 			clearTimeout(t)
-			t = setTimeout(function() {
-				var filter = $(e.target).val().trim()
+			let filter = $(e.target).val()
+			hl(filter)
+
+			t = setTimeout(() => {
 				push_query({filter: filter, showrefs: null})
 				$('#filter-paths').toggleClass('value', filter !== '')
 
-				var loading = $('<span class="loading"></span>')
+				let loading = $('<span class="loading"></span>')
 				$(e.target).after(loading)
 				// TODO: back button doesn't quite work with this.
 				reload_dashboard(() => loading.remove())
