@@ -272,7 +272,7 @@ func cmdServe(f zli.Flags, ready chan<- struct{}, stop chan struct{}, saas bool)
 		return err
 	}
 
-	cron.Start(goatcounter.CopyContextValues(ctx))
+	cron.Start(context.WithoutCancel(ctx))
 
 	c := goatcounter.Config(ctx)
 	c.GoatcounterCom = saas
@@ -568,7 +568,7 @@ func flagFrom(v *zvalidate.Validator, saas bool, from, domain string) string {
 
 func lsSites(ctx context.Context) ([]string, error) {
 	var sites goatcounter.Sites
-	err := sites.UnscopedList(goatcounter.CopyContextValues(ctx))
+	err := sites.UnscopedList(context.WithoutCancel(ctx))
 	if err != nil {
 		return nil, err
 	}

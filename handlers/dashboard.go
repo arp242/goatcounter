@@ -134,7 +134,7 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 
 	getData := func(w widgets.Widget, start time.Time) {
 		// Create context for every goroutine, so we know which timed out.
-		ctx, cancel := context.WithTimeout(goatcounter.CopyContextValues(r.Context()),
+		ctx, cancel := context.WithTimeout(context.WithoutCancel(r.Context()),
 			time.Duration(h.dashTimeout)*time.Second)
 		defer cancel()
 

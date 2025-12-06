@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"html/template"
 	"io"
@@ -377,7 +378,7 @@ func (h website) doSignup(w http.ResponseWriter, r *http.Request) error {
 		auth.SetCookie(w, r, *user.LoginToken, cookieDomain(&site, r))
 	}
 
-	ctx := goatcounter.CopyContextValues(r.Context())
+	ctx := context.WithoutCancel(r.Context())
 	bgrun.RunFunction("welcome email", func() {
 		err := blackmail.Get(ctx).Send("Welcome to GoatCounter!",
 			blackmail.From("GoatCounter", goatcounter.Config(r.Context()).EmailFrom),
@@ -452,7 +453,7 @@ func (h website) doForgot(w http.ResponseWriter, r *http.Request) error {
 		sites = append(sites, s)
 	}
 
-	ctx := goatcounter.CopyContextValues(r.Context())
+	ctx := context.WithoutCancel(r.Context())
 	bgrun.RunFunction("email:sites", func() {
 		defer log.Recover(ctx)
 		err := blackmail.Get(ctx).Send("Your GoatCounter sites",

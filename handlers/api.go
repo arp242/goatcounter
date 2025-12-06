@@ -347,7 +347,7 @@ func (h api) export(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	ctx := goatcounter.CopyContextValues(r.Context())
+	ctx := context.WithoutCancel(r.Context())
 	bgrun.MustRunFunction(fmt.Sprintf("export api:%d", export.SiteID), func() { export.RunCSV(ctx, fp, false) })
 
 	w.WriteHeader(http.StatusAccepted)

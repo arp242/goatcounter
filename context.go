@@ -9,7 +9,6 @@ import (
 
 	"zgo.at/blackmail"
 	"zgo.at/goatcounter/v2/pkg/geo"
-	"zgo.at/z18n"
 	"zgo.at/zcache/v2"
 	"zgo.at/zdb"
 	"zgo.at/zhttp/ctxkey"
@@ -151,66 +150,6 @@ func MustGetUser(ctx context.Context) *User {
 		panic("MustGetUser: no user on context")
 	}
 	return u
-}
-
-// CopyContextValues creates a new context with the all the request values set.
-//
-// Useful for tests, or for "removing" the timeout on the request context so it
-// can be passed to background functions.
-func CopyContextValues(ctx context.Context) context.Context {
-	n := zdb.WithDB(context.Background(), zdb.MustGetDB(ctx))
-	if c := ctx.Value(keyCacheSites); c != nil {
-		n = context.WithValue(n, keyCacheSites, c.(*zcache.Cache[SiteID, *Site]))
-	}
-	if c := ctx.Value(keyCacheUA); c != nil {
-		n = context.WithValue(n, keyCacheUA, c.(*zcache.Cache[string, UserAgent]))
-	}
-	if c := ctx.Value(keyCacheBrowsers); c != nil {
-		n = context.WithValue(n, keyCacheBrowsers, c.(*zcache.Cache[string, Browser]))
-	}
-	if c := ctx.Value(keyCacheSystems); c != nil {
-		n = context.WithValue(n, keyCacheSystems, c.(*zcache.Cache[string, System]))
-	}
-	if c := ctx.Value(keyCachePaths); c != nil {
-		n = context.WithValue(n, keyCachePaths, c.(*zcache.Cache[string, Path]))
-	}
-	if c := ctx.Value(keyCacheRefs); c != nil {
-		n = context.WithValue(n, keyCacheRefs, c.(*zcache.Cache[string, Ref]))
-	}
-	if c := ctx.Value(keyCacheLoc); c != nil {
-		n = context.WithValue(n, keyCacheLoc, c.(*zcache.Cache[string, *Location]))
-	}
-	if c := ctx.Value(keyCacheCampaigns); c != nil {
-		n = context.WithValue(n, keyCacheCampaigns, c.(*zcache.Cache[string, *Campaign]))
-	}
-	if c := ctx.Value(keyCacheI18n); c != nil {
-		n = context.WithValue(n, keyCacheI18n, c.(*zcache.Cache[string, *OverrideTranslations]))
-	}
-	if c := ctx.Value(keyChangedTitles); c != nil {
-		n = context.WithValue(n, keyChangedTitles, c.(*zcache.Cache[string, []string]))
-	}
-	if c := ctx.Value(keyCacheSitesProxy); c != nil {
-		n = context.WithValue(n, keyCacheSitesProxy, c.(*zcache.Proxy[string, SiteID, *Site]))
-	}
-	if c := Config(ctx); c != nil {
-		n = context.WithValue(n, keyConfig, c)
-	}
-	if s := GetSite(ctx); s != nil {
-		n = context.WithValue(n, ctxkey.Site, s)
-	}
-	if u := GetUser(ctx); u != nil {
-		n = context.WithValue(n, ctxkey.User, u)
-	}
-	if l := z18n.Get(ctx); l != nil {
-		n = z18n.With(n, l)
-	}
-	if g := geo.Get(ctx); g != nil {
-		n = geo.With(n, g)
-	}
-	if m := blackmail.Get(ctx); m != nil {
-		n = blackmail.With(n, m)
-	}
-	return n
 }
 
 // NewContext creates a new context with all values set.

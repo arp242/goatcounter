@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"context"
 	"fmt"
 	"io/fs"
 	"net/http"
@@ -18,7 +19,6 @@ import (
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zhttp/mware"
-	"zgo.at/zstd/zcontext"
 	"zgo.at/zstd/zfilepath"
 	"zgo.at/zstd/zfs"
 	"zgo.at/zstd/ztest"
@@ -280,7 +280,7 @@ func (h i18n) submit(w http.ResponseWriter, r *http.Request) error {
 
 	msg := fmt.Sprintf("User: %d; language: %q\n\n%s", User(r.Context()).ID, file, t)
 
-	ctx := zcontext.WithoutTimeout(r.Context())
+	ctx := context.WithoutCancel(r.Context())
 	go func() {
 		err := blackmail.Get(ctx).Send("GoatCounter translation updates",
 			blackmail.From("", User(ctx).Email),

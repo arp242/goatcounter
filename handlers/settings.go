@@ -202,7 +202,7 @@ func (h settings) mainSave(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	if makecert {
-		ctx := goatcounter.CopyContextValues(r.Context())
+		ctx := context.WithoutCancel(r.Context())
 		bgrun.RunFunction(fmt.Sprintf("acme.Make:%s", args.Cname), func() {
 			err := acme.Make(ctx, args.Cname)
 			if err != nil {
@@ -487,7 +487,7 @@ func (h settings) purgeDo(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	ctx := goatcounter.CopyContextValues(r.Context())
+	ctx := context.WithoutCancel(r.Context())
 	bgrun.RunFunction(fmt.Sprintf("purge:%d", Site(ctx).ID), func() {
 		var list goatcounter.Hits
 		err := list.Purge(ctx, paths)
@@ -526,7 +526,7 @@ func (h settings) merge(w http.ResponseWriter, r *http.Request) error {
 		}
 	}
 
-	ctx := goatcounter.CopyContextValues(r.Context())
+	ctx := context.WithoutCancel(r.Context())
 	bgrun.RunFunction(fmt.Sprintf("merge:%d", Site(ctx).ID), func() {
 		err := p.Merge(ctx, merge)
 		if err != nil {
@@ -616,7 +616,7 @@ func (h settings) exportImport(w http.ResponseWriter, r *http.Request) error {
 	defer fp.Close()
 
 	user := User(r.Context())
-	ctx := goatcounter.CopyContextValues(r.Context())
+	ctx := context.WithoutCancel(r.Context())
 	n := 0
 	bgrun.RunFunction(fmt.Sprintf("import:%d", Site(ctx).ID), func() {
 		firstHitAt, err := goatcounter.ImportCSV(ctx, fp, replace, true, func(hit goatcounter.Hit, final bool) {
@@ -704,7 +704,7 @@ func (h settings) exportStart(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	ctx := goatcounter.CopyContextValues(r.Context())
+	ctx := context.WithoutCancel(r.Context())
 	bgrun.RunFunction(fmt.Sprintf("export web:%d", Site(ctx).ID),
 		func() { export.RunCSV(ctx, fp, true) })
 
@@ -947,7 +947,7 @@ func (h settings) usersAdd(w http.ResponseWriter, r *http.Request) error {
 		return h.usersForm(&newUser, err)(w, r)
 	}
 
-	ctx := goatcounter.CopyContextValues(r.Context())
+	ctx := context.WithoutCancel(r.Context())
 	bgrun.RunFunction(fmt.Sprintf("adduser:%d", newUser.ID), func() {
 		err := blackmail.Get(ctx).Send(
 			fmt.Sprintf("A GoatCounter account was created for you at %s", account.Display(ctx)),

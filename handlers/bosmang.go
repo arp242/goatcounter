@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"io"
 	"net/http"
@@ -18,7 +19,6 @@ import (
 	"zgo.at/zhttp"
 	"zgo.at/zhttp/mware"
 	"zgo.at/zprof"
-	"zgo.at/zstd/zcontext"
 	"zgo.at/zstd/ztime"
 	"zgo.at/zstd/ztype"
 	"zgo.at/zvalidate"
@@ -87,7 +87,7 @@ func (h bosmang) runTask(w http.ResponseWriter, r *http.Request) error {
 
 	t := cron.Tasks[taskID]
 	id := t.ID()
-	ctx := zcontext.WithoutTimeout(r.Context())
+	ctx := context.WithoutCancel(r.Context())
 	bgrun.RunFunction("manual:"+id, func() {
 		err := t.Fun(ctx)
 		if err != nil {

@@ -119,7 +119,7 @@ func (h user) requestReset(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	site := Site(r.Context())
-	ctx := goatcounter.CopyContextValues(r.Context())
+	ctx := context.WithoutCancel(r.Context())
 	bgrun.RunFunction("email:password", func() {
 		err := blackmail.Get(ctx).Send(
 			T(ctx, "email/reset-user-email-subject|Password reset for %(domain)", site.Domain(ctx)),
@@ -425,7 +425,7 @@ func (h user) resendVerify(w http.ResponseWriter, r *http.Request) error {
 }
 
 func sendEmailVerify(ctx context.Context, site *goatcounter.Site, user *goatcounter.User, emailFrom string) {
-	ctx = goatcounter.CopyContextValues(ctx)
+	ctx = context.WithoutCancel(ctx)
 	bgrun.RunFunction("email:verify", func() {
 		err := blackmail.Get(ctx).Send("Verify your email",
 			mail.Address{Name: "GoatCounter", Address: emailFrom},
