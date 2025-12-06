@@ -246,6 +246,12 @@ tr.target .chart-left { display: block; }
 .filter-wrap                 { position: relative; text-align: right; }
 .filter-wrap .loading::after { position: absolute; bottom: 0; right: .5em; }
 
+/* XXX: style better */
+.filter-wrap      { border:1px solid #000; background:white; }
+#filter-styled    { position:absolute; top:0; left:.3em; overflow:hidden; line-height:1.8em; color:#000; }
+#filter-styled em { background:#89fff9; }
+#filter-paths     { background:transparent; color:transparent; caret-color:#000; border:0; }
+
 #dash-main label { text-align: right; margin-right: .4em; }
 
 #dash-select-period           { display: block; padding-left: .3em; }
