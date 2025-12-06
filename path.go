@@ -294,25 +294,68 @@ func (p *Paths) List(ctx context.Context, siteID SiteID, after PathID, limit int
 	return more, nil
 }
 
+func findFilter(filter string, find ...string) (string, []string) {
+	found := make([]string, 0, 2)
+	for _, f := range find {
+		if i := strings.Index(filter, f); i > -1 {
+			filter = strings.TrimSpace(filter[:i] + filter[i+len(f):])
+			found = append(found, f)
+		}
+	}
+	return filter, found
+}
+
 // PathFilter returns a list of IDs matching the path name.
 //
 // If matchTitle is true it will match the title as well.
-func PathFilter(ctx context.Context, filter string, matchTitle bool) ([]PathID, error) {
-	var onlyEvent, onlyPageview bool
-	if i := strings.Index(filter, "is:event"); i > -1 {
-		onlyEvent, filter = true, strings.TrimSpace(filter[:i]+filter[i+8:])
+func PathFilter(ctx context.Context, filter string) ([]PathID, error) {
+	filter, kw := findFilter(strings.ReplaceAll(filter, "%", "%%"),
+		"at:start", "at:end", "is:event", "is:pageview", "in:path", "in:title", ":not")
+	var (
+		onlyEvent, onlyPageview, matchPath, matchTitle, atStart, atEnd bool
+		not, or                                                        zdb.SQL
+	)
+	for _, f := range kw {
+		switch f {
+		case "at:start":
+			atStart = true
+		case "at:end":
+			atEnd = true
+		case "is:event":
+			onlyEvent = true
+		case "is:pageview":
+			onlyPageview = true
+		case "in:path":
+			matchPath = true
+		case "in:title":
+			matchTitle = true
+		case ":not":
+			not = "not"
+		}
 	}
-	if i := strings.Index(filter, "is:pageview"); i > -1 {
-		onlyPageview, filter = true, strings.TrimSpace(filter[:i]+filter[i+11:])
+	if !matchPath && !matchTitle {
+		matchPath, matchTitle = true, true
+	}
+	if matchPath && matchTitle {
+		or = "or"
+	}
+	if !atEnd {
+		filter = filter + "%"
+	}
+	if !atStart {
+		filter = "%" + filter
 	}
 
 	var paths []PathID
 	err := zdb.Select(ctx, &paths, "load:paths.PathFilter", map[string]any{
 		"site":          MustGetSite(ctx).ID,
-		"filter":        "%" + filter + "%",
+		"filter":        filter,
 		"match_title":   matchTitle,
+		"match_path":    matchPath,
 		"only_event":    onlyEvent,
 		"only_pageview": onlyPageview,
+		"or":            or,
+		"not":           not,
 	})
 	if err != nil {
 		return nil, errors.Wrap(err, "PathFilter")

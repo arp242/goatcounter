@@ -824,7 +824,18 @@ Martin
   default = "筛选路径"
 
 ["nav-dash/filter-tooltip"]
-  default = "筛选路径列表；忽略大小写匹配路径和标题"
+  default = """<p>筛选路径列表；忽略大小写匹配路径和标题. %[%more More help]</p>
+
+	<div>
+		<p>Recognizes the following keywords:</p>
+		<ul>
+			<li><em>at:start</em>, <em>at:end</em>:       match only at the start or end of path or title. Use both for exact match.</li>
+			<li><em>in:path</em>, <em>in:title</em>       match only path or title.</li>
+			<li><em>is:event</em>, <em>is:pageview</em>   show only events or pageviews.</li>
+			<li><em>:not</em> negate the match (that is: only show paths that don't match the filter).</li>
+		</ul>
+	</div>
+  """
 
 ["nav-dash/forced-daily"]
   default = "无法对 90 天以上的时间范围应用小时视图"

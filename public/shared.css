@@ -63,11 +63,12 @@ form { display: inline; margin: 0; padding: 0; }
 input[type="text"], input[type="search"], input[type="tel"], input[type="url"],
 input[type="email"], input[type="password"], input[type="date"], input[type="month"],
 input[type="week"], input[type="time"], input[type="datetime-local"], input[type="range"],
-input[type="number"], textarea, select {
+input[type="number"], textarea, select, .input {
     font: 1em/100% 'Lato', sans-serif; color: var(--input-text); background-color: var(--input-bg); }
 
 textarea, button:not(.link), select,
-input:not([type="checkbox"]):not([type="file"]):not([type="image"]):not([type="radio"]):not([type="range"]) {
+input:not([type="checkbox"]):not([type="file"]):not([type="image"]):not([type="radio"]):not([type="range"]):not(.unstyled),
+.input {
   padding: .6em;
   border: 1px solid var(--input-border);
   border-radius: 3px; }
@@ -84,7 +85,8 @@ select {
    * it.
   background-color: inherit; */
 }
-input:not(.link):focus,
+input:not(.link):not(.unstyled):focus,
+.input:focus,
 button:not(.link):focus,
 textarea:focus,
 select:focus {

@@ -827,7 +827,18 @@ of een andere reden. Dit is compleet optioneel.
   default = "Filter paden"
 
 ["nav-dash/filter-tooltip"]
-  default = "Filter de lijst met paden; hoofdletter ongevoelig en filtert op de padnaam en titel"
+  default = """<p>Filter de lijst met paden; hoofdletter ongevoelig en filtert op de padnaam en titel. %[%more Meer help]</p>
+
+	<div>
+		<p>Recognizes the following keywords:</p>
+		<ul>
+			<li><em>at:start</em>, <em>at:end</em>:       match only at the start or end of path or title. Use both for exact match.</li>
+			<li><em>in:path</em>, <em>in:title</em>       match only path or title.</li>
+			<li><em>is:event</em>, <em>is:pageview</em>   show only events or pageviews.</li>
+			<li><em>:not</em> negate the match (that is: only show paths that don't match the filter).</li>
+		</ul>
+	</div>
+  """
 
 ["nav-dash/forced-daily"]
   default = "Kan niet per uur bekijken voor meer dan 90 dagen"

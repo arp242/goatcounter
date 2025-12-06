@@ -158,7 +158,7 @@ func TestHitListsList(t *testing.T) {
 
 			gctest.StoreHits(ctx, t, false, tt.in...)
 
-			pathsFilter, err := PathFilter(ctx, tt.inFilter, true)
+			pathsFilter, err := PathFilter(ctx, tt.inFilter)
 			if err != nil {
 				t.Fatal(err)
 			}

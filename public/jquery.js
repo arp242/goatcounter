@@ -1,5 +1,5 @@
 /*!
- * jQuery JavaScript Library v4.0.0-rc.1+4dbe321a -ajax/jsonp,-ajax/parseXML,-ajax/script,-css/showHide,-deprecated,-effects,-event/alias,-exports/amd,-queue,-queue/delay,-sizzle,-wrap,-effects/Tween,-effects/animatedSelector,-deprecated/ajax-event-alias,-deprecated/event
+ * jQuery JavaScript Library v4.0.0-rc.1+4dbe321a -ajax/jsonp,-ajax/parseXML,-ajax/script,-deprecated,-effects,-event/alias,-exports/amd,-queue,-queue/delay,-sizzle,-wrap,-deprecated/ajax-event-alias,-deprecated/event,-effects/Tween,-effects/animatedSelector
  * https://jquery.com/
  *
  * Copyright OpenJS Foundation and other contributors
@@ -116,7 +116,7 @@ function DOMEval( code, node, doc ) {
 	}
 }
 
-var version = "4.0.0-rc.1+4dbe321a -ajax/jsonp,-ajax/parseXML,-ajax/script,-css/showHide,-deprecated,-effects,-event/alias,-exports/amd,-queue,-queue/delay,-sizzle,-wrap,-effects/Tween,-effects/animatedSelector,-deprecated/ajax-event-alias,-deprecated/event",
+var version = "4.0.0-rc.1+4dbe321a -ajax/jsonp,-ajax/parseXML,-ajax/script,-deprecated,-effects,-event/alias,-exports/amd,-queue,-queue/delay,-sizzle,-wrap,-deprecated/ajax-event-alias,-deprecated/event,-effects/Tween,-effects/animatedSelector",
 
 	rhtmlSuffix = /HTML$/i,
 
@@ -7776,6 +7776,120 @@ jQuery.expr.pseudos.hidden = function( elem ) {
 jQuery.expr.pseudos.visible = function( elem ) {
 	return !!( elem.offsetWidth || elem.offsetHeight || elem.getClientRects().length );
 };
+
+// isHiddenWithinTree reports if an element has a non-"none" display style (inline and/or
+// through the CSS cascade), which is useful in deciding whether or not to make it visible.
+// It differs from the :hidden selector (jQuery.expr.pseudos.hidden) in two important ways:
+// * A hidden ancestor does not force an element to be classified as hidden.
+// * Being disconnected from the document does not force an element to be classified as hidden.
+// These differences improve the behavior of .toggle() et al. when applied to elements that are
+// detached or contained within hidden ancestors (gh-2404, gh-2863).
+function isHiddenWithinTree( elem, el ) {
+
+	// isHiddenWithinTree might be called from jQuery#filter function;
+	// in that case, element will be second argument
+	elem = elem;
+
+	// Inline style trumps all
+	return elem.style.display === "none" ||
+		elem.style.display === "" &&
+		jQuery.css( elem, "display" ) === "none";
+}
+
+var defaultDisplayMap = {};
+
+function getDefaultDisplay( elem ) {
+	var temp,
+		doc = elem.ownerDocument,
+		nodeName = elem.nodeName,
+		display = defaultDisplayMap[ nodeName ];
+
+	if ( display ) {
+		return display;
+	}
+
+	temp = doc.body.appendChild( doc.createElement( nodeName ) );
+	display = jQuery.css( temp, "display" );
+
+	temp.parentNode.removeChild( temp );
+
+	if ( display === "none" ) {
+		display = "block";
+	}
+	defaultDisplayMap[ nodeName ] = display;
+
+	return display;
+}
+
+function showHide( elements, show ) {
+	var display, elem,
+		values = [],
+		index = 0,
+		length = elements.length;
+
+	// Determine new display value for elements that need to change
+	for ( ; index < length; index++ ) {
+		elem = elements[ index ];
+		if ( !elem.style ) {
+			continue;
+		}
+
+		display = elem.style.display;
+		if ( show ) {
+
+			// Since we force visibility upon cascade-hidden elements, an immediate (and slow)
+			// check is required in this first loop unless we have a nonempty display value (either
+			// inline or about-to-be-restored)
+			if ( display === "none" ) {
+				values[ index ] = dataPriv.get( elem, "display" ) || null;
+				if ( !values[ index ] ) {
+					elem.style.display = "";
+				}
+			}
+			if ( elem.style.display === "" && isHiddenWithinTree( elem ) ) {
+				values[ index ] = getDefaultDisplay( elem );
+			}
+		} else {
+			if ( display !== "none" ) {
+				values[ index ] = "none";
+
+				// Remember what we're overwriting
+				dataPriv.set( elem, "display", display );
+			}
+		}
+	}
+
+	// Set the display of the elements in a second loop to avoid constant reflow
+	for ( index = 0; index < length; index++ ) {
+		if ( values[ index ] != null ) {
+			elements[ index ].style.display = values[ index ];
+		}
+	}
+
+	return elements;
+}
+
+jQuery.fn.extend( {
+	show: function() {
+		return showHide( this, true );
+	},
+	hide: function() {
+		return showHide( this );
+	},
+	toggle: function( state ) {
+		if ( typeof state === "boolean" ) {
+			return state ? this.show() : this.hide();
+		}
+
+		return this.each( function() {
+			if ( isHiddenWithinTree( this ) ) {
+				jQuery( this ).show();
+			} else {
+				jQuery( this ).hide();
+			}
+		} );
+	}
+} );
 
 jQuery.ajaxSettings.xhr = function() {
 	return new window.XMLHttpRequest();

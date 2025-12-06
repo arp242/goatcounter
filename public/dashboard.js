@@ -122,7 +122,7 @@
 				else {
 					$(`[data-widget="${wid}"]`).html(data.html)
 					dashboard_widgets()
-					highlight_filter($('#filter-paths').val())
+					highlight_filter()
 				}
 			},
 		})
@@ -146,7 +146,7 @@
 
 				dashboard_widgets()
 				redraw_all_charts()
-				highlight_filter($('#filter-paths').val())
+				highlight_filter()
 				if (done)
 					done()
 			},
@@ -175,14 +175,43 @@
 		$('#dash-form').trigger('submit')
 	}
 
+	let filter_kw = /(\b(?:at:start|at:end|is:event|is:pageview|in:path|in:title)|\B:not)\b/g
+
 	// Highlight a filter pattern in the path and title.
-	var highlight_filter = function(s) {
+	let highlight_filter = () => {
+		let s = $('#filter-paths').val().replace(filter_kw, '').trim()
 		if (s === '')
 			return
-		$('.pages-list .count-list-pages > tbody.pages').find('.rlink, .page-title:not(.no-title)').each(function(_, elem) {
+
+		let start   = '',
+			end     = '',
+			inPath  = false,
+			inTitle = false,
+			kw      = $('#filter-paths').val().match(filter_kw) || []
+		for (let k of kw) {
+			if (k === ':not')
+				return
+			else if (k === 'at:start')
+				start = '^'
+			else if (k === 'at:end')
+				end = '$'
+			else if (k === 'in:path')
+				inPath = true
+			else if (k === 'in:title')
+				inTitle = true
+		}
+		if (!inPath && !inTitle)
+			[inPath, inTitle] = [true, true]
+		let where = []
+		if (inPath)
+			where.push('.rlink')
+		if (inTitle)
+			where.push('.page-title:not(.no-title)')
+
+		$('.pages-list .count-list-pages > tbody.pages').find(where.join(',')).each(function(_, elem) {
 			if ($(elem).find('b').length)  // Don't apply twice after pagination
 				return
-			elem.innerHTML = elem.innerHTML.replace(new RegExp('' + quote_re(s) + '', 'gi'), '<b>$&</b>')
+			elem.innerHTML = elem.innerHTML.replace(new RegExp(start + quote_re(s) + end, 'gi'), '<b>$&</b>')
 		})
 	}
 
@@ -308,24 +337,72 @@
 
 	// Reload the dashboard when typing in the filter input, so the user won't
 	// have to press "enter".
-	var hdr_filter = function() {
-		highlight_filter($('#filter-paths').val())
+	let hdr_filter = () => {
+		let styled = $('#filter-styled'),
+			input  = $('#filter-paths'),
+			hl     = (v) => {
+				styled.html(input.val().replace(filter_kw, '<em>$1</em>').replace(/ /g, '&nbsp;'))
+				input.css('width', $('#filter-paths').outerWidth() + 'px')
+			}
+		hl()
+		highlight_filter()
 
-		$('#filter-paths').on('keydown', function(e) {
+		let showMore = () => {
+			let t = $('#filter-help-more'),
+				d = $('#filter-help div')
+			if (d.is(':visible'))
+				t.text(T('nav-dash/filter-more-help'))
+			else
+				t.text(T('nav-fash/filter-less-help'))
+			d.toggle()
+		}
+
+		$('#filter-help-more').on('click', (e) => {
+			e.preventDefault()
+			input.trigger('focus')
+			showMore()
+
+			let v = localStorage.getItem('filter-detailed-help') === 'true'
+			localStorage.setItem('filter-detailed-help', !v)
+		})
+
+		input.on('keydown', (e) => {
 			if (e.keyCode === 13)  // Don't submit form on enter.
 				e.preventDefault()
 		})
 
-		var t
-		$('#filter-paths').on('input', function(e) {
-			clearTimeout(t)
-			t = setTimeout(function() {
-				var filter = $(e.target).val().trim()
-				push_query({filter: filter, showrefs: null})
-				$('#filter-paths').toggleClass('value', filter !== '')
+		var hide
+		input.on('focus', (e) => {
+			clearTimeout(hide)
+			$('#filter-wrap').addClass('focus')
+			if (localStorage.getItem('filter-detailed-help') === 'true' && $('#filter-help div').css('display') !== 'block')
+				showMore()
+			$('#filter-help').show()
+		})
+		input.on('blur', (e) => {
+			// Add brief timeout on the hide so that clicking "more" won't
+			// trigger the blur, as the blur is triggered before the click.
+			// TODO: there's got to be a better way to do this?
+			clearTimeout(hide)
+			hide = setTimeout(() => {
+				$('#filter-wrap').removeClass('focus')
+				$('#filter-help').hide()
+			}, 200)
+		})
 
-				var loading = $('<span class="loading"></span>')
+		let t
+		$('#filter-paths').on('input', (e) => {
+			clearTimeout(t)
+			hl()
+
+			t = setTimeout(() => {
+				let filter = $(e.target).val()
+				push_query({filter: filter, showrefs: null})
+				$('#filter-wrap').toggleClass('value', filter !== '')
+
+				let loading = $('<span class="loading"></span>')
 				$(e.target).after(loading)
+
 				// TODO: back button doesn't quite work with this.
 				reload_dashboard(() => loading.remove())
 			}, 300)
@@ -716,7 +793,7 @@
 
 						draw_all_charts()
 
-						highlight_filter($('#filter-paths').val())
+						highlight_filter()
 						btn.css('display', data.more ? 'inline-block' : 'none')
 
 						pages.find('.total-display').each((_, t) => {

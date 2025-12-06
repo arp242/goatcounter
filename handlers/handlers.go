@@ -127,6 +127,8 @@ func newGlobals(w http.ResponseWriter, r *http.Request) Globals {
 			"datepicker/keyboard":         T(ctx, "datepicker/keyboard|Use the arrow keys to pick a date"),
 			"datepicker/month-prev":       T(ctx, "datepicker/month-prev|Previous month"),
 			"datepicker/month-next":       T(ctx, "datepicker/month-next|Next month"),
+			"nav-dash/filter-more-help":   T(ctx, "nav-dash/filter-more-help|More help"),
+			"nav-fash/filter-less-help":   T(ctx, "nav-fash/filter-less-help|Less help"),
 		},
 	}
 	if g.User == nil {

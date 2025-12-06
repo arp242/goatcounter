@@ -85,7 +85,7 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 			err   error
 		)
 		if view.Filter != "" {
-			f, err = goatcounter.PathFilter(r.Context(), view.Filter, true)
+			f, err = goatcounter.PathFilter(r.Context(), view.Filter)
 		}
 		pathFilter <- struct {
 			Paths []goatcounter.PathID
@@ -448,7 +448,7 @@ func getPathFilter(v *zvalidate.Validator, r *http.Request) []goatcounter.PathID
 		return nil
 	}
 
-	filter, err := goatcounter.PathFilter(r.Context(), f, true)
+	filter, err := goatcounter.PathFilter(r.Context(), f)
 	if err != nil {
 		v.Append("filter", err.Error())
 	}

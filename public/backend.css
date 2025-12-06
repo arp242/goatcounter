@@ -110,7 +110,6 @@ table.auto { width: auto; }
          max-width: 17.5rem; text-overflow: ellipsis; white-space: nowrap; }
 .rlink { min-width: 3em; } /* Make very short paths (like just /) easier to click/touch. */
 .page-title b, .rlink b { background-color: var(--target-bg); }
-input.value             { background-color: var(--target-bg); }
 
 /* Hide "Go to [..]" link unless we loaded the page details. */
 small.go           { display: none; }
@@ -240,12 +239,7 @@ tr.target .chart-left { display: block; }
              background-color: var(--nav-bg); border-bottom: 1px solid var(--nav-border); border-radius: 2px; }
 #dash-main input[type="text"]     { padding: .3em; }
 #dash-main input[type="checkbox"] { vertical-align: middle; }
-#filter-paths                     { width: 18.5em; display: block; margin-left: auto; }
-#dash-main .date-input            { width: 9em; text-align: center; }
-
-.filter-wrap                 { position: relative; text-align: right; }
-.filter-wrap .loading::after { position: absolute; bottom: 0; right: .5em; }
-
+#dash-main .date-input            { width:9em; text-align:center; }
 #dash-main label { text-align: right; margin-right: .4em; }
 
 #dash-select-period           { display: block; padding-left: .3em; }
@@ -255,20 +249,44 @@ tr.target .chart-left { display: block; }
                   padding: 0 .4em; padding-top: 2px; border-top: 0; margin-top: -4px;
                   border-bottom-left-radius: 2px; border-bottom-right-radius: 2px; }
 
+#filter-outer              { position:relative; }
+#filter-wrap               { position:relative; padding:0; display:flex; width:18.5em;
+                             overflow-x:auto; overflow-y:hidden; scrollbar-width:none; }
+#filter-wrap.value         { outline:3px solid var(--text); }
+#filter-wrap.focus         { outline:1px solid var(--input-focus); box-shadow:0 0 .2em var(--input-focus); }
+#filter-styled             { position:absolute; display:inline-flex; overflow:hidden; user-select:none; -webkit-user-select:none;
+                             padding:.4em; white-space:pre; word-break:break-word; color:var(--text); }
+#filter-outer em           { font-style:normal; color:var(--filter-kw-text); }
+#filter-paths              { min-width:100%; resize:none; z-index:1; flex-shrink:0; margin-left:auto;
+                             background:transparent; color:transparent; caret-color:var(--text); border:0; }
+#filter-paths:focus        { outline:none; box-shadow:none; }
+#filter-paths::placeholder { color:color-mix(in srgb, var(--text) 54%, transparent); }
+#filter-help               { display:none; position:absolute; right:0; z-index:5; padding:0 .3em;
+                             text-align:left; border:1px solid var(--nav-border); border-top:none; background:var(--bg); }
+#filter-help ul            { margin:0; padding-inline-start:20px; }
+#filter-help p             { margin:0; }
+#filter-help div           { margin-top:.75em; display:none; }
+
+/* Text is all off on iOS if we don't do this. This is the styling Safari
+ * applies to <input> and <textarea> */
+@supports (-webkit-overflow-scrolling: touch) {
+    #filter-styled { font-size:16px; line-height:1.3em; }
+}
+
 @media (max-width: 56.5rem) {
     /* Break "current [..]" to new line to make more space. */
-    #dash-select-period span+span { display: block; margin-left: 0em; }
-    #dash-main label              { display: block; }
+    #dash-select-period span+span { display:block; margin-left:0; }
+    #dash-main label              { display:block; }
 }
 
 @media (max-width: 41rem) {
-    #filter-paths  { width: 10em;  }
+    #filter-paths { width:10em;  }
 }
 
 @media (max-width: 33.5rem) {
-    #dash-main       { display: block; }
-    #filter-paths    { width: 100%; margin-top: .5em; }
-    #dash-main label { text-align: left; }
+    #dash-main       { display:block; }
+    #filter-wrap     { width:100%; margin-top:.5em; }
+    #dash-main label { text-align:left; }
 }
 
 .period-day [value=day],

@@ -4,9 +4,11 @@ where
 	{{:only_event    and event=1}}
 	{{:only_pageview and event=0}}
 	and (
-		lower(path) like lower(:filter)
-		{{:match_title or lower(title) like lower(:filter)}}
+		{{:match_path  lower(path)  :not like lower(:filter)}}
+		:or
+		{{:match_title lower(title) :not like lower(:filter)}}
 	)
+
 -- The limit is here because that's the limit in SQL parameters; the returned
 -- []int64 is passed as parameters later on.
 --

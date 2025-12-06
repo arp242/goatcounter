@@ -43,6 +43,7 @@
     --nav-bg:            #1b093c;                          /* Navigation at dashboard, settings, and footer */
     --nav-border:        #3f1887;
     --footer-shadow:     #09042e;
+    --filter-kw-text:    #ffff60;                          /* Keyword in filter input (at:start, etc.) */
 
     --info-bg:           #226883;                          /* Flash messages */
     --info-border:       #242683;

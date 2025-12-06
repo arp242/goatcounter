@@ -823,7 +823,18 @@ Martin
   default = "Filtrar rutas"
 
 ["nav-dash/filter-tooltip"]
-  default = "Filtrar la lista de rutas; coincidirá con la ruta y el título"
+  default = """<p>Filtrar la lista de rutas; coincidirá con la ruta y el título. %[%more More help]</p>
+
+	<div>
+		<p>Recognizes the following keywords:</p>
+		<ul>
+			<li><em>at:start</em>, <em>at:end</em>:       match only at the start or end of path or title. Use both for exact match.</li>
+			<li><em>in:path</em>, <em>in:title</em>       match only path or title.</li>
+			<li><em>is:event</em>, <em>is:pageview</em>   show only events or pageviews.</li>
+			<li><em>:not</em> negate the match (that is: only show paths that don't match the filter).</li>
+		</ul>
+	</div>
+  """
 
 ["nav-dash/forced-daily"]
   default = "No se puede usar la vista de cada hora para un rango de tiempo de más de 90 días"
