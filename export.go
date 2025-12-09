@@ -49,7 +49,6 @@ func (e Export) Exists() bool {
 	if e.Path == "" {
 		return false
 	}
-
 	_, err := os.Stat(e.Path)
 	return err == nil
 }
