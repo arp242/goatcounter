@@ -1,9 +1,9 @@
 update users set settings =
 	{{psql   `jsonb_set(settings, '{datepicker}', to_jsonb(true))`}}
-	{{sqlite `json_replace(settings, '$.datepicker', json('true'))`}}
+	{{sqlite `json_set(settings, '$.datepicker', json('true'))`}}
 ;
 
 update sites set user_defaults =
 	{{psql   `jsonb_set(user_defaults, '{datepicker}', to_jsonb(true))`}}
-	{{sqlite `json_replace(user_defaults, '$.datepicker', json('true'))`}}
+	{{sqlite `json_set(user_defaults, '$.datepicker', json('true'))`}}
 ;
