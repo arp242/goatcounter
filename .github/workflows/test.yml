@@ -52,7 +52,7 @@ jobs:
   freebsd:
     runs-on: 'ubuntu-latest'
     name:    'test / freebsd / sqlite'
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
       - uses: 'actions/checkout@v6'
       - name: 'test / freebsd / sqlite'
@@ -66,7 +66,7 @@ jobs:
   openbsd:
     runs-on: 'ubuntu-latest'
     name:    'test / openbsd / sqlite'
-    timeout-minutes: 10
+    timeout-minutes: 20
     steps:
       - uses: 'actions/checkout@v6'
       - name: 'test / openbsd / sqlite'
@@ -81,7 +81,7 @@ jobs:
   netbsd:
     runs-on: 'ubuntu-latest'
     name:    'test / netbsd / sqlite'
-    timeout-minutes: 10
+    timeout-minutes: 20
     steps:
       - uses: 'actions/checkout@v6'
       - name: 'test / netbsd / sqlite'
@@ -95,7 +95,7 @@ jobs:
   illumos:
     runs-on: 'ubuntu-latest'
     name:    'test / illumos / sqlite'
-    timeout-minutes: 10
+    timeout-minutes: 20
     steps:
     - uses: 'actions/checkout@v6'
     - name: 'test / illumos / sqlite'
