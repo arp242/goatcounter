@@ -232,8 +232,8 @@ func cmdServe(f zli.Flags, ready chan<- struct{}, stop chan struct{}, saas bool)
 		*flagTLS.Pointer() = map[bool]string{true: "http", false: "acme"}[dev.Bool()]
 	}
 
-	flagErrors(&v, errorsFlag.String())
 	mailer := flagEmail(&v, smtp.String())
+	flagErrors(&v, errorsFlag.String(), mailer)
 	geodb := setupGeo(&v, geodbFlag.String())
 	ratelimits := setupRatelimits(&v, ratelimit.String())
 	*from.Pointer() = flagFrom(&v, saas, from.String(), domain.String())
@@ -452,7 +452,7 @@ func setupReload() error {
 	return nil
 }
 
-func flagErrors(v *zvalidate.Validator, errors string) {
+func flagErrors(v *zvalidate.Validator, errors string, mailer blackmail.Mailer) {
 	switch {
 	default:
 		v.Append("-errors", "invalid value")
@@ -468,7 +468,7 @@ func flagErrors(v *zvalidate.Validator, errors string) {
 		v.Email("-errors", to)
 		slog.SetDefault(slog.New(log.NewChain(
 			slog.Default().Handler(),
-			email_log.New(slog.LevelWarn, from, to),
+			email_log.New(mailer, slog.LevelWarn, from, to),
 		)))
 	}
 }

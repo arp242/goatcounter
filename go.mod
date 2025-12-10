@@ -20,7 +20,7 @@ require (
 	github.com/BurntSushi/toml v1.5.0
 	github.com/fsnotify/fsnotify v1.9.0 // indirect
 	github.com/teamwork/reload v1.4.2
-	zgo.at/blackmail v0.0.0-20251205074349-835f88ad0615
+	zgo.at/blackmail v0.0.0-20251210171630-f1b7a42e3f87
 	zgo.at/errors v1.4.0
 	zgo.at/follow v0.0.0-20250412000721-fecf5127a123
 	zgo.at/gadget v1.0.0

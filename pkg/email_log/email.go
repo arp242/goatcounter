@@ -14,12 +14,13 @@ import (
 )
 
 type Email struct {
+	m        blackmail.Mailer
 	from, to string
 	lvl      slog.Level
 }
 
-func New(lvl slog.Level, from, to string) Email {
-	return Email{from: from, to: to, lvl: lvl}
+func New(mailer blackmail.Mailer, lvl slog.Level, from, to string) Email {
+	return Email{m: mailer, from: from, to: to, lvl: lvl}
 }
 
 func (e Email) Enabled(ctx context.Context, l slog.Level) bool {
@@ -69,7 +70,7 @@ func (e Email) Handle(ctx context.Context, r slog.Record) error {
 	subject = strings.TrimLeft(subject, " \t:")
 
 	go func() {
-		err := blackmail.Get(ctx).Send(subject,
+		err := e.m.Send(subject,
 			blackmail.From("", e.from),
 			blackmail.To(e.to),
 			blackmail.BodyText([]byte(msg)))
