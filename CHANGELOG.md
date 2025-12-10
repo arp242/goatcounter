@@ -2,99 +2,97 @@ ChangeLog for GoatCounter
 =========================
 This list is not comprehensive, and only lists new features and major changes,
 but not every minor bugfix. The goatcounter.com service generally runs the
-latest main.
+latest commit on the `main` branch.
 
 unreleased
 ----------
 
 ### Features
 
-- Include support for fetching GeoDB updates from MaxMind.
+- The `-geodb` flag now accepts `-geodb=maxmind:account_id:license` to
+  automatically download updates. See `goatcounter help serve` for the full
+  documentation.
 
-  The `-geodb` flag now accepts `maxmind:account_id:license` to automatically
-  download updates. See `goatcounter help serve` for the full documentation.
-
-- Add buttons to navigate by year on the dashboard.
-
-- Automatically detect cookie `secure` and `sameSite` attributes. Previously
+- Automatically detect `secure` and `sameSite` cookie attributes. Previously
   this relied on the correct usage of the `-tls` flag, which people often got
   wrong. Now it's detected from the client connection.
 
-  This depends on the proxy to set `Scheme: https` or `X-Forwarded-Proto: https`
+  This depends on the proxy to set the `Scheme: https` or `X-Forwarded-Proto: https`
   header, which most should already do by default.
 
 - WebSocket support is now detected automatically, without the need to set the
   `-websocket` flag (which is now a no-op).
 
-- Store bot pageviews in new "bots" table for 30 days. This table is never used,
-  but it can be useful for debugging purposes.
+- Store bot pageviews in a new `bots` table for 30 days. This table is never
+  accessed, but it can be useful for debugging purposes.
 
-- Add more detailed totals to /api/v0/stats/totals. Previously it would only
-  return the grand totals; now it also returns the totals broken down by hour
-  and day.
-
-- Allow finding paths by name in the API.
-
-  Everything that accepts include_paths=.. and exclude_paths=.. now also accepts
-  path_by_name=true to finds paths by the path rather than ID.
-
-- Read `GOATCOUNTER_TMPDIR` environment variable as an alternative way to set
-  `TMPDIR`. Mainly intended for cases where `TMPDIR` can't be used (e.g. when
-  the capability bit is set on Linux).
+- Read the `GOATCOUNTER_TMPDIR` environment variable as an alternative way to
+  set `TMPDIR`. Mainly intended for cases where `TMPDIR` can't be used (e.g.
+  when the capability bit is set on Linux).
 
 - Use PostgreSQL 17 in compose.yaml; also update the PostgreSQL settings to be
   less conservative.
 
-- The JS-based datepicker can be disabled in the user settings.
+- The `-smtp` flag now also supports `smtps://` URLs for TLS connections
+  (previously it only supported STARTTLS). To help with debugging you can now
+  also add `?debug=1` to print SMTP traffic to stderr, or use the new *Server
+  Management → Email page* for testing the SMTP connection.
+
+- Add more detailed totals to `/api/v0/stats/totals`. Previously it would only
+  return the grand totals; now it also returns the totals broken down by hour
+  and day.
+
+- Allow finding paths by name in the API. Everything that accepts
+  `include_paths=..` and `exclude_paths=..` now also accepts `path_by_name=true`
+  to finds paths by the path rather than ID.
 
 - Expand filter syntax with some keywords such as `at:start` and `in:path`. See
-  the tooltip on the filter box.
+  the tooltip on the filter input.
 
-- The `-smtp` flag now also supports smtps:// URLs. You can also add `?debug=1`
-  to print SMTP traffic to stderr, or use the new *Server Management → Email
-  page* for testing the SMTP connection.
+- The JS-based datepicker can be disabled in the user settings.
+
+- Add buttons to navigate by year on the dashboard.
 
 ### Fixes
 
+- Don't add `translate-to=..` to query parameters. Previously it would set this
+  from Google Translate parameters so you could see which languages people were
+  using with that, but I don't think anyone ever used that and it just split
+  paths for no good reason.
+
+- Make sure CLI flags with a `.` such as `-user.email` can be set from
+  environment (as `USER_EMAIL`).
+
 - Adjust screen size categories for more modern devices.
 
-- API Tokens are now shared between all sites.
+- API Tokens will now work for all sites the user has access to.
 
 - Include all sites in email reports, instead of just the first site that was
   created.
 
-- Fix merging of multiple paths when more than once path has entries for the
-  same hour.
+- Fix merging of multiple paths when more than one path has entries for the same
+  hour.
 
 - Store Campaign in hits table.
 
-- Make sure the visitor counter works for events.
+- Make sure the visitor counter works for events; previously it only worked for
+  paths.
 
 - Set CORS headers for API.
 
 - Pass `hideui=1` when redirecting with access-token.
 
-- Fix pagination of refs.
+- Fix pagination of Top referrers.
 
 - Fix page count for text table after pagination.
 
-- Don't store rows with total=0 in {hit,ref}_counts.
-
-- Make sure CLI flags with a `.` such as `-user.email` can be set from
-  environment.
-
-- Don't add `translate-to=..` to query parameters. Previously it would set this
-  from Google Translate parameters so you could see which languages people were
-  using with that, but I don't think anyone ever used that and it just added
-  paths for no real reason.
-
-- Remove sizes table; was only used for `hits.size_id`, which is now replaced
+- Remove `sizes` table; was only used for `hits.size_id`, which is now replaced
   with `hits.width`. This indirection didn't really add much.
 
 - Correctly display error on widgets; previously it would just display
   `errors.errorString Value`.
 
-- Disable daily view if less than 7 days are selected.
+- Disable daily view if less than 7 days are selected as it just looks weird.
 
 2025-06-08 v2.6.0
 -----------------

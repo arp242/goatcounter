@@ -63,7 +63,8 @@ create table api_tokens (
 	token          varchar        not null                 check(length(token) > 10),
 	permissions    {{jsonb}}      not null,
 	created_at     timestamp      not null                 {{check_timestamp "created_at"}},
-	last_used_at   timestamp                               {{check_timestamp "created_at"}}
+	last_used_at   timestamp                               {{check_timestamp "created_at"}},
+	sites          {{jsonb}}      not null default '[-1]'{{psql "::jsonb"}}
 );
 create unique index "api_tokens#site_id#token" on api_tokens(site_id, token);
 
@@ -357,6 +358,8 @@ insert into version values
 	('2025-06-20-1-empty-counts'),
 	('2025-06-21-1-bots'),
 	('2025-06-21-2-drop-sizes'),
-	('2025-12-03-1-unique-browsers');
+	('2025-07-01-1-share-api-tokens'),
+	('2025-12-03-1-unique-browsers'),
+	('2025-12-10-1-datepicker');
 
 -- vim:ft=sql:tw=0
