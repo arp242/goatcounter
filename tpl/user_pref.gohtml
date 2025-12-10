@@ -133,6 +133,10 @@
 				<option {{option_value (str .User.Settings.EmailReports) "4"}}>{{.T "email-report/monthly|Monthly"}}</option>
 			</select>
 			<span>{{.T "help/email-reports|Reports are sent on the first day of the new period (e.g. first day of the month)."}}</span>
+
+			<label>{{checkbox .User.Settings.Datepicker "user.settings.datepicker"}}
+				{{.T "label/datepicker|Enable custom datepicker"}}</label>
+			<span>{{.T "help/datepicker|GoatCounter uses a custom JavaScript datepicker on desktop systems as that often gives a better experience. You can disable it to use the native datepicker. On mobile systems it will always use the native datepicker."}}</span>
 		</fieldset>
 
 		<div class="flex-break"></div>

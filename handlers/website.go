@@ -330,6 +330,7 @@ func (h website) doSignup(w http.ResponseWriter, r *http.Request) error {
 	site.UserDefaults = goatcounter.UserSettings{
 		Timezone:        tz,
 		TwentyFourHours: true,
+		Datepicker:      true,
 	}
 
 	err = site.Insert(txctx)

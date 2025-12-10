@@ -309,7 +309,7 @@
 		//
 		// Also do this if Pikaday is undefined; this should never happen, but
 		// I've seen some errors for this.
-		if (is_mobile() || !window.Pikaday) {
+		if (!USER_SETTINGS.datepicker || is_mobile() || !window.Pikaday) {
 			return $('#period-start, #period-end').
 				attr('type', 'date').
 				css('width', 'auto').  // Make sure there's room for UI chrome.

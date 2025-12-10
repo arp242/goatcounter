@@ -45,6 +45,11 @@ unreleased
 - Use PostgreSQL 17 in compose.yaml; also update the PostgreSQL settings to be
   less conservative.
 
+- The JS-based datepicker can be disabled in the user settings.
+
+- Expand filter syntax with some keywords such as `at:start` and `in:path`. See
+  the tooltip on the filter box.
+
 - The `-smtp` flag now also supports smtps:// URLs. You can also add `?debug=1`
   to print SMTP traffic to stderr, or use the new *Server Management → Email
   page* for testing the SMTP connection.

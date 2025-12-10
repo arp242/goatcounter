@@ -86,6 +86,7 @@ type (
 		FewerNumbers          bool        `json:"fewer_numbers"`
 		FewerNumbersLockUntil time.Time   `json:"fewer_numbers_lock_until"`
 		Theme                 string      `json:"theme"`
+		Datepicker            bool        `json:"datepicker"`
 	}
 
 	// Widgets is a list of widgets to be printed, in order.
