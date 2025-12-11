@@ -2,7 +2,6 @@ tmp=./goatcounter-data/dist
 
 matrix="
 linux amd64
-linux arm   CC=armv7l-linux-musleabihf-gcc
 linux arm64 CC=aarch64-linux-musl-gcc
 "
 
