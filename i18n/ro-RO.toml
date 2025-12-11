@@ -1,8 +1,7 @@
 [__meta__]
-  comments = "|user|"
-  generated = 2021-11-29T19:38:18Z
   language = "ro"
   maintainers = []
+  modified = 2023-05-19
 
 ["button/add-new"]
   default = "Adauga"
@@ -28,11 +27,10 @@
 ["button/delete-account"]
   default = "Stere contul, toate website-urile, si toate datele"
 
-["button/delete-all"]
-  default = "Da, sterge-le pe toate!"
-
 ["button/delete-everything"]
   default = "Da, sterge tot"
+
+["button/delete-pageviews"]
 
 ["button/disable-mfa"]
   default = "Dezactiveaza MFA"
@@ -45,6 +43,8 @@
 
 ["button/forgot-password"]
   default = "Ai uitat parola?"
+
+["button/merge"]
 
 ["button/remove"]
   default = "Inlatura"
@@ -61,17 +61,18 @@
 ["button/reset-password"]
   default = "Reseteaza parola"
 
-["button/rm-hits"]
-  default = "Sterge vizitele paginii"
-
 ["button/save"]
   default = "Salveaza"
 
 ["button/save-default-view"]
   default = "Salveaza vedere implicita"
 
+["button/search"]
+
 ["button/send-login-url"]
   default = "Trimite URL de login"
+
+["button/show"]
 
 ["button/sign-in"]
   default = "Logheaza-te"
@@ -84,6 +85,8 @@
 
 ["button/submit"]
   default = "Trimite"
+
+["button/upload-ga-import"]
 
 ["confirm/delete-user"]
   default = "Sterge %(email)?"
@@ -99,6 +102,8 @@
 ["dashboard/future"]
   default = "viitor"
 
+["dashboard/loading"]
+
 ["dashboard/month-ago"]
   default = "Acum %(n) luni"
   zero    = "Acum 0 luni"
@@ -110,14 +115,13 @@
 ["dashboard/nothing-to-display"]
   default = "Nimic de afisat"
 
+["dashboard/pages/change"]
+
 ["dashboard/pages/header"]
   default = "Pagini"
 
 ["dashboard/pages/num-visits"]
   default = "%(num-visits) din %(total-visits) vizite afisate"
-
-["dashboard/pages/pageviews"]
-  default = "Vizualizari"
 
 ["dashboard/pages/path"]
   default = "Cale"
@@ -130,9 +134,6 @@
 
 ["dashboard/pages/title"]
   default = "Titlu"
-
-["dashboard/pages/views"]
-  default = "Vizualizari"
 
 ["dashboard/pages/visits"]
   default = "Vizite"
@@ -163,6 +164,10 @@
 ["data-collect/help/country"]
   default = "Numele tarii, de exemplu Belgia, Indonezia, etc."
 
+["data-collect/help/hits"]
+
+["data-collect/help/language"]
+
 ["data-collect/help/referrer"]
   default = "Antet referer si parametrii campaniei."
 
@@ -175,8 +180,14 @@
 ["data-collect/help/size"]
   default = "Marimea ecranului."
 
+["data-collect/help/user-agent"]
+
 ["data-collect/label/country"]
   default = "Tara"
+
+["data-collect/label/hits"]
+
+["data-collect/label/language"]
 
 ["data-collect/label/referrer"]
   default = "Referrer (locatia web de unde vine utilizatorul)"
@@ -202,6 +213,18 @@
 ["datepicker/month-prev"]
   default = "Luna trecuta"
 
+["dont-lock"]
+
+["email-report/daily"]
+
+["email-report/monthly"]
+
+["email-report/never"]
+
+["email-report/two-weeks"]
+
+["email-report/weekly"]
+
 ["email/header"]
   default = "Buna,"
 
@@ -222,9 +245,6 @@ Multumesc,
 Martin
 """
 
-["error/account-has-stripe-subscription"]
-  default = "Acest cont inca are activa o subscriptie Stripe; intai anulati acea subsciptie in pagina de facturi."
-
 ["error/address-exists"]
   default = "adresa %(addr) exista deja"
 
@@ -239,9 +259,6 @@ Martin
 
 ["error/date-past"]
   default = "Aceasta ar fi inainte de crearea site-ului; GoatCounter nu este *atat* de bun ;-)"
-
-["error/delete-main-site"]
-  default = "Nu poti sterge site-ul principal"
 
 ["error/export-expired"]
   default = "Pare ca nu exista niciun export sau acesta a expirat."
@@ -279,11 +296,10 @@ Martin
 ["error/password-does-not-match"]
   default = "Confirmarea parolei nu corespunde cu parola."
 
-["error/payment-cancelled"]
-  default = "Plata anulata."
-
 ["error/reset-user-no-account"]
   default = "Contul: %(email) nu poate accesa acest site."
+
+["error/unknown-activation-token"]
 
 ["event"]
   default = "eveniment"
@@ -293,6 +309,8 @@ Martin
 
 ["header/access"]
   default = "Acces"
+
+["header/add-api-token"]
 
 ["header/add-new-user"]
   default = "Adauga utilizator nou"
@@ -351,6 +369,8 @@ Martin
 ["header/export-or-import"]
   default = "Export/Import"
 
+["header/fewer-number"]
+
 ["header/finished"]
   default = "Terminat"
 
@@ -369,14 +389,22 @@ Martin
 ["header/l10n"]
   default = "Localizare"
 
+["header/languages"]
+
 ["header/last-10-exports"]
   default = "Ultimele 10 exporturi"
+
+["header/last-used-at"]
 
 ["header/locations"]
   default = "Locatii"
 
 ["header/locations-for"]
   default = "Locatii pentru %(country)"
+
+["header/manage-pageviews"]
+
+["header/merge-account"]
 
 ["header/mfa"]
   default = "Autentificare multi-factor (MFA)"
@@ -386,9 +414,6 @@ Martin
 
 ["header/name"]
   default = "Nume"
-
-["header/new"]
-  default = "Nou"
 
 ["header/pagination-cursor"]
   default = "Cursor paginare"
@@ -407,9 +432,6 @@ Martin
 
 ["header/reset-password"]
   default = "Reseteaza parola pentru %(email) la %(site-name)"
-
-["header/rm-hits"]
-  default = "Sterge vizualizari"
 
 ["header/settings"]
   default = "Setari"
@@ -449,9 +471,6 @@ Martin
 ["header/tracking"]
   default = "Tracking"
 
-["header/updated"]
-  default = "Noutati"
-
 ["header/user-info"]
   default = "Informatii utilizator"
 
@@ -461,17 +480,18 @@ Martin
 ["header/users"]
   default = "Utilizatori"
 
+["help/allow-embed"]
+
 ["help/allow-visitor-counts"]
   default = "Vezi %[the documentation] pentru detalii de utilizare."
-
-["help/campaign-parameters"]
-  default = "Lista cu parametrii pentru contorizare ca 'campanii'; daca este setat atunci valoarea setata va fi salvata ca referrer, si suprascrie toate antetele Referer."
 
 ["help/cfg-dashboard"]
   default = "Schimba afisarea panoului de control si ordinea."
 
 ["help/code-access"]
   default = "Vei putea accesa site-ul la: https://<em>[my-code]</em>.%(domain)."
+
+["help/configure-dashboard"]
 
 ["help/custom-domain"]
   default = """
@@ -488,20 +508,25 @@ Seteaza CNAME pentru <code>%(domain)</code> – %[%docs detailed instructions].
 Verificarile ruleaza la fiecare doua ore.
 """
 
-["help/custom-domain-plan"]
-  default = "Necesita plan Personal Plus sau Business (aveti planul %(plan); vezi %[%link billing])."
-
 ["help/custom-domain-verified"]
   default = "Domeniu verificat si setat (nota: poate dura pana la o ora pentru ca certificatul de functioneze)."
 
 ["help/data-retention"]
   default = "Vizualizarile si toate datele asociate vor fi permanent sterse dupa acest numar de zile. Setat la <code>0</code> nu se sterg niciodata."
 
+["help/datepicker"]
+
 ["help/domain-access"]
   default = "Domeniu pentru accesarea acestui site."
 
 ["help/drag-reorder"]
   default = "Trage pentru a reodona"
+
+["help/email-reports"]
+
+["help/fewer-numbers"]
+
+["help/fewer-numbers-lock"]
 
 ["help/for-the-following-countries"]
   default = "Lista coduri tari (%[list]; utilizeaza cod alpha-2); lasa liber pentru a colecta pentru toate tarile (daca este posibil)."
@@ -511,6 +536,10 @@ Verificarile ruleaza la fiecare doua ore.
 ["help/ignore-ips"]
 
 ["help/ignore-ips-2"]
+
+["help/locked-until"]
+
+["help/need-cities"]
 
 ["help/new-user-email"]
 
@@ -524,8 +553,6 @@ Verificarile ruleaza la fiecare doua ore.
 
 ["help/public"]
 
-["help/rm-hits"]
-
 ["help/save-default-view"]
 
 ["help/turing-test"]
@@ -534,17 +561,17 @@ Verificarile ruleaza la fiecare doua ore.
 
 ["label/24-hour-clock"]
 
+["label/access-to-sites"]
+
 ["label/add-new"]
 
 ["label/all-sites"]
-
-["label/allow-admin-access"]
 
 ["label/allow-visitor-counts"]
 
 ["label/browser-stats"]
 
-["label/campaign-parameters"]
+["label/campaigns"]
 
 ["label/change-code"]
 
@@ -558,25 +585,25 @@ Verificarile ruleaza la fiecare doua ore.
 
 ["label/custom-domain"]
 
+["label/dashboard-allow-embed"]
+
 ["label/dashboard-public"]
 
 ["label/data-retention"]
 
 ["label/date-fmt"]
 
+["label/datepicker"]
+
 ["label/delete-account-confirmation"]
-
-["label/delete-account-contact"]
-
-["label/delete-account-follow-up"]
-
-["label/delete-account-reason"]
-
-["label/delete-account-reason-placeholder"]
 
 ["label/email"]
 
 ["label/email-address"]
+
+["label/email-reports"]
+
+["label/fewer-numbers"]
 
 ["label/for-following-countries"]
 
@@ -586,11 +613,21 @@ Verificarile ruleaza la fiecare doua ore.
 
 ["label/lang"]
 
+["label/language-stats"]
+
 ["label/loc-stats"]
+
+["label/lock-setting"]
 
 ["label/mark-current"]
 
+["label/match-case"]
+
 ["label/match-title"]
+
+["label/merge-account-confirmation"]
+
+["label/merge-to"]
 
 ["label/mfa-token"]
 
@@ -624,8 +661,6 @@ Verificarile ruleaza la fiecare doua ore.
 
 ["label/size-desktophd"]
 
-["label/size-largephones"]
-
 ["label/size-phones"]
 
 ["label/size-stats"]
@@ -633,6 +668,8 @@ Verificarile ruleaza la fiecare doua ore.
 ["label/size-tablets"]
 
 ["label/system-stats"]
+
+["label/theme"]
 
 ["label/thousand-separator"]
 
@@ -658,8 +695,6 @@ Verificarile ruleaza la fiecare doua ore.
 
 ["link/api-docs"]
 
-["link/billing"]
-
 ["link/dashboard"]
 
 ["link/generate-random"]
@@ -668,17 +703,21 @@ Verificarile ruleaza la fiecare doua ore.
 
 ["link/import"]
 
+["link/manage-pageviews"]
+
+["link/merge-account"]
+
 ["link/passwd-mfa"]
 
 ["link/preferences"]
 
 ["link/rm-account"]
 
-["link/rm-views"]
-
 ["link/set-from-browser"]
 
 ["link/settings"]
+
+["link/show-less"]
 
 ["link/show-more"]
 
@@ -696,11 +735,7 @@ Verificarile ruleaza la fiecare doua ore.
 
 ["nav-bot/src"]
 
-["nav-dash/as-text"]
-
 ["nav-dash/back"]
-
-["nav-dash/by-day"]
 
 ["nav-dash/current"]
   default = "Curent(a)"
@@ -712,15 +747,21 @@ Verificarile ruleaza la fiecare doua ore.
 
 ["nav-dash/filter"]
 
+["nav-dash/filter-more-help"]
+
 ["nav-dash/filter-tooltip"]
 
 ["nav-dash/forced-daily"]
+
+["nav-dash/forced-hourly"]
 
 ["nav-dash/forward"]
   default = "inainte"
 
 ["nav-dash/half-year"]
   default = "jumatate de an"
+
+["nav-dash/hour"]
 
 ["nav-dash/last"]
   default = "Ultim(a)"
@@ -733,11 +774,17 @@ Verificarile ruleaza la fiecare doua ore.
 
 ["nav-dash/start-date"]
 
+["nav-dash/view-by"]
+
 ["nav-dash/week"]
   default = "saptamana"
 
 ["nav-dash/year"]
   default = "an"
+
+["nav-fash/filter-less-help"]
+
+["new-paren"]
 
 ["no-title"]
   default = "fara titlu"
@@ -754,13 +801,13 @@ Verificarile ruleaza la fiecare doua ore.
 
 ["notify/export-started-in-background"]
 
+["notify/import-ga-okay"]
+
 ["notify/import-started-in-background"]
 
 ["notify/login-after-password-reset"]
 
 ["notify/multi-factor-auth-enabled"]
-
-["notify/need-business-plan-custom-domain"]
 
 ["notify/need-email-verification-for-api"]
 
@@ -769,10 +816,6 @@ Verificarile ruleaza la fiecare doua ore.
 ["notify/not-found"]
 
 ["notify/password-changed"]
-
-["notify/payment-processed"]
-
-["notify/payment-processing"]
 
 ["notify/reset-to-default"]
 
@@ -800,7 +843,11 @@ Verificarile ruleaza la fiecare doua ore.
 
 ["p/add-goatcounter-to-multiple-websites"]
 
+["p/add-multiple-accounts"]
+
 ["p/additional-errors"]
+
+["p/all-sites"]
 
 ["p/api-intro"]
 
@@ -814,9 +861,7 @@ Verificarile ruleaza la fiecare doua ore.
 
 ["p/csv-file-format"]
 
-["p/delete-account-multi-site"]
-
-["p/delete-account-one-site"]
+["p/delete-account"]
 
 ["p/disable-mfa"]
 
@@ -824,11 +869,19 @@ Verificarile ruleaza la fiecare doua ore.
 
 ["p/error"]
 
+["p/export-csv"]
+
 ["p/export-process"]
 
 ["p/have-mfa"]
 
+["p/import-ga"]
+
 ["p/last-user"]
+
+["p/manage-hits"]
+
+["p/merge-account"]
 
 ["p/no-data"]
 
@@ -840,15 +893,13 @@ Verificarile ruleaza la fiecare doua ore.
 
 ["p/notify-site-deletion"]
 
+["p/num-accounts"]
+
 ["p/remove-site-confirm"]
 
 ["p/remove-site-confirm-contact"]
 
 ["p/remove-site-confirm-current"]
-
-["p/request-data-recovery"]
-
-["p/rm-hits"]
 
 ["p/rm-hits-help"]
 
@@ -860,21 +911,27 @@ Verificarile ruleaza la fiecare doua ore.
 
 ["p/site-domain-link-to-page"]
 
-["p/slow"]
-
 ["p/text-data-retention"]
 
 ["p/verify-email"]
 
 ["page-ranking"]
 
-["restricted-admin-access"]
-
 ["scale-y"]
+
+["theme/dark"]
+
+["theme/light"]
+
+["theme/system"]
+
+["tooltip/change-period"]
 
 ["top-nav/back"]
 
 ["top-nav/dashboard"]
+
+["top-nav/documentation"]
 
 ["top-nav/need-js"]
 
@@ -888,13 +945,7 @@ Verificarile ruleaza la fiecare doua ore.
 
 ["top-nav/sign-out"]
 
-["top-nav/site-code"]
-
 ["top-nav/sites"]
-
-["top-nav/updates"]
-
-["top-nav/user"]
 
 ["unknown"]
 
@@ -926,6 +977,8 @@ Verificarile ruleaza la fiecare doua ore.
 
 ["validate/len-shorter"]
 
+["validate/need-one"]
+
 ["validate/phone"]
 
 ["validate/range-higher"]
@@ -938,7 +991,11 @@ Verificarile ruleaza la fiecare doua ore.
 
 ["validate/utf8"]
 
+["view not set"]
+
 ["widget-setting/help/align"]
+
+["widget-setting/help/chart-style"]
 
 ["widget-setting/help/no-events"]
 
@@ -950,6 +1007,8 @@ Verificarile ruleaza la fiecare doua ore.
 
 ["widget-setting/label/align"]
 
+["widget-setting/label/chart-style"]
+
 ["widget-setting/label/no-events"]
 
 ["widget-setting/label/page-size"]
@@ -957,6 +1016,12 @@ Verificarile ruleaza la fiecare doua ore.
 ["widget-setting/label/ref-page-size"]
 
 ["widget-setting/label/regions"]
+
+["widget-settings/bar-chart"]
+
+["widget-settings/line-chart"]
+
+["widget-settings/text-chart"]
 
 ["y-scale"]
 

@@ -1,8 +1,8 @@
 [__meta__]
   comments = "For some notes, see: https://github.com/arp242/goatcounter/issues/538"
-  generated = 2021-11-29T19:38:18Z
   language = "es-CL"
   maintainers = ["confor <nitoducci@gmail.com>"]
+  modified = 2021-12-07
 
 ["button/add-new"]
   default = "Añadir"
@@ -28,11 +28,10 @@
 ["button/delete-account"]
   default = "Eliminar cuenta, todos los sitios y todos los datos"
 
-["button/delete-all"]
-  default = "Si, elimina todo!"
-
 ["button/delete-everything"]
   default = "Si, elimina todo"
+
+["button/delete-pageviews"]
 
 ["button/disable-mfa"]
   default = "Desactivar MFA"
@@ -45,6 +44,8 @@
 
 ["button/forgot-password"]
   default = "¿Olvidaste la contraseña?"
+
+["button/merge"]
 
 ["button/remove"]
   default = "Remover"
@@ -61,17 +62,18 @@
 ["button/reset-password"]
   default = "Reestablecer contraseña"
 
-["button/rm-hits"]
-  default = "Eliminar datos"
-
 ["button/save"]
   default = "Guardar"
 
 ["button/save-default-view"]
   default = "Guaradr actual vista como predeterminada"
 
+["button/search"]
+
 ["button/send-login-url"]
   default = "Enviar URL para iniciar sesión"
+
+["button/show"]
 
 ["button/sign-in"]
   default = "Iniciar sesión"
@@ -84,6 +86,8 @@
 
 ["button/submit"]
   default = "Enviar"
+
+["button/upload-ga-import"]
 
 ["confirm/delete-user"]
   default = "¿Eliminar %(email)?"
@@ -99,6 +103,8 @@
 ["dashboard/future"]
   default = "futuro"
 
+["dashboard/loading"]
+
 ["dashboard/month-ago"]
   default = "Hace %(n) meses"
   zero    = "Hace %(n) meses"
@@ -110,14 +116,13 @@
 ["dashboard/nothing-to-display"]
   default = "Nada para mostrar"
 
+["dashboard/pages/change"]
+
 ["dashboard/pages/header"]
   default = "Páginas"
 
 ["dashboard/pages/num-visits"]
   default = "Se muestran %(num-visits) de %(total-visits) visitas"
-
-["dashboard/pages/pageviews"]
-  default = "Visitas"
 
 ["dashboard/pages/path"]
   default = "Ruta"
@@ -130,9 +135,6 @@
 
 ["dashboard/pages/title"]
   default = "Título"
-
-["dashboard/pages/views"]
-  default = "Visitas"
 
 ["dashboard/pages/visits"]
   default = "Visitas"
@@ -163,6 +165,8 @@
 ["data-collect/help/country"]
   default = "Nombre de un país, por ejemplo Bélgica, Indonesia, etc."
 
+["data-collect/help/hits"]
+
 ["data-collect/help/language"]
   default = "Idiomas de Accept-Language"
 
@@ -178,8 +182,12 @@
 ["data-collect/help/size"]
   default = "Las dimensiones de la pantalla."
 
+["data-collect/help/user-agent"]
+
 ["data-collect/label/country"]
   default = "País"
+
+["data-collect/label/hits"]
 
 ["data-collect/label/language"]
   default = "Idioma"
@@ -208,6 +216,18 @@
 ["datepicker/month-prev"]
   default = "Mes anterior"
 
+["dont-lock"]
+
+["email-report/daily"]
+
+["email-report/monthly"]
+
+["email-report/never"]
+
+["email-report/two-weeks"]
+
+["email-report/weekly"]
+
 ["email/header"]
   default = "Hola,"
 
@@ -230,9 +250,6 @@ Saludos,
 Martin
 """
 
-["error/account-has-stripe-subscription"]
-  default = "Esta cuenta tiene una subscripción de Stripe; cancela eso primero."
-
 ["error/address-exists"]
   default = "%(addr) ya existe"
 
@@ -247,9 +264,6 @@ Martin
 
 ["error/date-past"]
   default = "Esa fecha sería antes de la creación del sitio; GoatCounter no es *tan* bueno ;-)"
-
-["error/delete-main-site"]
-  default = "No se puede eliminar el sitio principal"
 
 ["error/export-expired"]
   default = "Parece que no hay ningún archivo exportado o quizás expiraron."
@@ -287,11 +301,10 @@ Martin
 ["error/password-does-not-match"]
   default = "La confirmación de contraseña no coincide."
 
-["error/payment-cancelled"]
-  default = "Pago cancelado."
-
 ["error/reset-user-no-account"]
   default = "La cuenta no existe en este sitio: %(email)"
+
+["error/unknown-activation-token"]
 
 ["event"]
   default = "evento"
@@ -301,6 +314,8 @@ Martin
 
 ["header/access"]
   default = "Acceso"
+
+["header/add-api-token"]
 
 ["header/add-new-user"]
   default = "Añadir un nuevo usuario"
@@ -359,6 +374,8 @@ Martin
 ["header/export-or-import"]
   default = "Exportar/Importar"
 
+["header/fewer-number"]
+
 ["header/finished"]
   default = "Finalizado"
 
@@ -383,11 +400,17 @@ Martin
 ["header/last-10-exports"]
   default = "Últimas 10 exportaciones"
 
+["header/last-used-at"]
+
 ["header/locations"]
   default = "Ubicaciones"
 
 ["header/locations-for"]
   default = "Ubicaciones para %(country)"
+
+["header/manage-pageviews"]
+
+["header/merge-account"]
 
 ["header/mfa"]
   default = "Autenticación de múltiples factores"
@@ -397,9 +420,6 @@ Martin
 
 ["header/name"]
   default = "Nombre"
-
-["header/new"]
-  default = "Nuevo"
 
 ["header/pagination-cursor"]
   default = "Cursor de paginación"
@@ -418,9 +438,6 @@ Martin
 
 ["header/reset-password"]
   default = "Reestablece la contraseña para %(email) en %(site-name)"
-
-["header/rm-hits"]
-  default = "Eiminar datos"
 
 ["header/settings"]
   default = "Configuración"
@@ -461,9 +478,6 @@ Martin
 ["header/tracking"]
   default = "Rastreo"
 
-["header/updated"]
-  default = "Actualizaciones"
-
 ["header/user-info"]
   default = "Información de usuario"
 
@@ -473,17 +487,18 @@ Martin
 ["header/users"]
   default = "Usuarios"
 
+["help/allow-embed"]
+
 ["help/allow-visitor-counts"]
   default = "Revisa %[la documentación] para detalles en cómo usar esto."
-
-["help/campaign-parameters"]
-  default = 'Lista de parámetros para considerar como "campañas"; si se configuran entonces el valor será usado como los referentes, sobreescribiendo cualquier valor de la cabecera Referer.'
 
 ["help/cfg-dashboard"]
   default = "Cambia qué mostrar en el tablero y en que orden."
 
 ["help/code-access"]
   default = "Accederás a tu sitio en https://<em>[código]</em>.%(domain)."
+
+["help/configure-dashboard"]
 
 ["help/custom-domain"]
   default = 'Dominio personalizado, por ej. <em>"estadisticas.example.com"</em>. <strong>Nota:</strong> Esto <em>no</em> va a prevenir que los bloqueadores de anuncios bloqueen a GoatCounter, sólo se usa como un "dominio bonito".'
@@ -494,20 +509,25 @@ Martin
 ["help/custom-domain-error"]
   default = "%[%error Aún no verificado]; configura un CNAME para <code>%(domain)</code> - %[%docs instrucciones detalladas]. La verificación ocurre cada 2 horas."
 
-["help/custom-domain-plan"]
-  default = "Se necesita el plan Personal Plus o Business (estás en el plan %(plan); revisa %[%link planes])."
-
 ["help/custom-domain-verified"]
   default = "El dominio fue verificado y configurado (nota: puede pasar hasta una hora para que funcione el certificado)"
 
 ["help/data-retention"]
   default = "Todos los datos serán permanentemente eliminados después de esta cantidad de días. Usa <code>0</code> para nunca eliminarlos."
 
+["help/datepicker"]
+
 ["help/domain-access"]
   default = "Dominio por el cual acceder a este sitio."
 
 ["help/drag-reorder"]
   default = "Arrastralo para reordenar"
+
+["help/email-reports"]
+
+["help/fewer-numbers"]
+
+["help/fewer-numbers-lock"]
 
 ["help/for-the-following-countries"]
   default = "Lista de códigos de paises (%[lista]; usa el código alpha-2); deja blanco para todos los paises (si es que está activado)."
@@ -520,6 +540,10 @@ Martin
 
 ["help/ignore-ips-2"]
   default = "Alternativamente, %[desactivalo para este navegador] (ingresa de nuevo para activar)."
+
+["help/locked-until"]
+
+["help/need-cities"]
 
 ["help/new-user-email"]
   default = "Correo con el que iniciar sesión."
@@ -539,9 +563,6 @@ Martin
 ["help/public"]
   default = "Controla quién puede ver el panel de control."
 
-["help/rm-hits"]
-  default = "Verás un listado antes de eliminar cualquier cosa"
-
 ["help/save-default-view"]
   default = "Guardar esta configuración (es decir, todas las fechas cambiadas en esta caja amarilla) y dejarla como predeterminada para usarla cuando no se especifique nada."
 
@@ -554,14 +575,13 @@ Martin
 ["label/24-hour-clock"]
   default = "Reloj de 24 horas (13:00)"
 
+["label/access-to-sites"]
+
 ["label/add-new"]
   default = "Añadir..."
 
 ["label/all-sites"]
   default = "Todos los sitios"
-
-["label/allow-admin-access"]
-  default = "Permitir acceso de administradores"
 
 ["label/allow-visitor-counts"]
   default = "Permitir añadir contador de visitas en tu sitio web"
@@ -569,8 +589,7 @@ Martin
 ["label/browser-stats"]
   default = "Estadísticas sobre navegadores"
 
-["label/campaign-parameters"]
-  default = "Parámetros para campañas"
+["label/campaigns"]
 
 ["label/change-code"]
   default = "Accederás a tu cuenta en https://<em>[código]</em>.%(domain) - %[%link cambiar]."
@@ -581,9 +600,6 @@ Martin
 ["label/code"]
   default = "Código"
 
-["label/collected-since"]
-  default = "Recopilado desde el 2 de diciembre, 2021"
-
 ["label/csv-compress-format"]
   default = "Archivo CSV; puede estar comprimido con gzip"
 
@@ -592,6 +608,8 @@ Martin
 
 ["label/custom-domain"]
   default = "Dominio personalizado"
+
+["label/dashboard-allow-embed"]
 
 ["label/dashboard-public"]
   default = "Tablero visible por"
@@ -602,26 +620,20 @@ Martin
 ["label/date-fmt"]
   default = "Formato de fecha"
 
+["label/datepicker"]
+
 ["label/delete-account-confirmation"]
   default = "¿Estás seguro que quieres eliminar toda tu cuenta?"
-
-["label/delete-account-contact"]
-  default = "Quizás te contacte con preguntas de seguimiento o comentarios si seleccionas esto. No te convenceré de quedarte (no soy un anuncio) pero quiero hacerte una o dos preguntas, del estilo de si es que hizo falta una función en particular."
-
-["label/delete-account-follow-up"]
-  default = "Acepto que me contacten para hacer un seguimiento"
-
-["label/delete-account-reason"]
-  default = "Apreciaría si me puedes decir si es que hay algo en particular que le falta a GoatCounter, o cualquier otra razón para querer eliminar tu cuenta. Esto es opcional."
-
-["label/delete-account-reason-placeholder"]
-  default = "Razón opcional para el eliminado"
 
 ["label/email"]
   default = "Correo"
 
 ["label/email-address"]
   default = "Correo"
+
+["label/email-reports"]
+
+["label/fewer-numbers"]
 
 ["label/for-following-countries"]
   default = "Sólo para estos paises:"
@@ -641,11 +653,19 @@ Martin
 ["label/loc-stats"]
   default = "Estadísticas sobre ubicaciones"
 
+["label/lock-setting"]
+
 ["label/mark-current"]
   default = "(actual)"
 
+["label/match-case"]
+
 ["label/match-title"]
   default = "Coincidir con los títulos también"
+
+["label/merge-account-confirmation"]
+
+["label/merge-to"]
 
 ["label/mfa-token"]
   default = "Token de MFA"
@@ -695,9 +715,6 @@ Martin
 ["label/size-desktophd"]
   default = "Monitores grandes"
 
-["label/size-largephones"]
-  default = "Teléfonos grandes, tablets pequeños"
-
 ["label/size-phones"]
   default = "Teléfono"
 
@@ -709,6 +726,8 @@ Martin
 
 ["label/system-stats"]
   default = "Estadísticas sobre sistemas operativos"
+
+["label/theme"]
 
 ["label/thousand-separator"]
   default = "Separador de miles"
@@ -746,9 +765,6 @@ Martin
 ["link/api-docs"]
   default = "Documentación de la API"
 
-["link/billing"]
-  default = "Planes"
-
 ["link/dashboard"]
   default = "Tablero"
 
@@ -757,6 +773,12 @@ Martin
 
 ["link/goto-path"]
   default = "Visitar %(path)"
+
+["link/import"]
+
+["link/manage-pageviews"]
+
+["link/merge-account"]
 
 ["link/passwd-mfa"]
   default = "Contraseña y MFA"
@@ -767,14 +789,13 @@ Martin
 ["link/rm-account"]
   default = "Eliminar cuenta"
 
-["link/rm-views"]
-  default = "Eliminar datos"
-
 ["link/set-from-browser"]
   default = "Usar la del navegador"
 
 ["link/settings"]
   default = "Configuración"
+
+["link/show-less"]
 
 ["link/show-more"]
   default = "Ver más"
@@ -800,15 +821,8 @@ Martin
 ["nav-bot/src"]
   default = "Código fuente"
 
-["nav-dash/as-text"]
-  updated = "removed"
-  default = "Ver tabla sólo con texto"
-
 ["nav-dash/back"]
   default = "previo"
-
-["nav-dash/by-day"]
-  default = "Ver por día"
 
 ["nav-dash/current"]
   default = "Actual"
@@ -822,28 +836,35 @@ Martin
 ["nav-dash/filter"]
   default = "Filtrar rutas"
 
-["nav-dash/filter-tooltip"]
-  default = """<p>Filtrar la lista de rutas; coincidirá con la ruta y el título. %[%more More help]</p>
+["nav-dash/filter-more-help"]
 
-	<div>
-		<p>Recognizes the following keywords:</p>
-		<ul>
-			<li><em>at:start</em>, <em>at:end</em>:       match only at the start or end of path or title. Use both for exact match.</li>
-			<li><em>in:path</em>, <em>in:title</em>       match only path or title.</li>
-			<li><em>is:event</em>, <em>is:pageview</em>   show only events or pageviews.</li>
-			<li><em>:not</em> negate the match (that is: only show paths that don't match the filter).</li>
-		</ul>
-	</div>
-  """
+["nav-dash/filter-tooltip"]
+  default = """
+<p>Filtrar la lista de rutas; coincidirá con la ruta y el título. %[%more More help]</p>
+
+  <div>
+    <p>Recognizes the following keywords:</p>
+    <ul>
+      <li><em>at:start</em>, <em>at:end</em>:       match only at the start or end of path or title. Use both for exact match.</li>
+      <li><em>in:path</em>, <em>in:title</em>       match only path or title.</li>
+      <li><em>is:event</em>, <em>is:pageview</em>   show only events or pageviews.</li>
+      <li><em>:not</em> negate the match (that is: only show paths that don't match the filter).</li>
+    </ul>
+  </div>
+"""
 
 ["nav-dash/forced-daily"]
   default = "No se puede usar la vista de cada hora para un rango de tiempo de más de 90 días"
+
+["nav-dash/forced-hourly"]
 
 ["nav-dash/forward"]
   default = "siguiente"
 
 ["nav-dash/half-year"]
   default = "medio año"
+
+["nav-dash/hour"]
 
 ["nav-dash/last"]
   default = "Último"
@@ -857,11 +878,17 @@ Martin
 ["nav-dash/start-date"]
   default = "Fecha inicial del rango para mostrar"
 
+["nav-dash/view-by"]
+
 ["nav-dash/week"]
   default = "semana"
 
 ["nav-dash/year"]
   default = "año"
+
+["nav-fash/filter-less-help"]
+
+["new-paren"]
 
 ["no-title"]
   default = "sin título"
@@ -884,6 +911,8 @@ Martin
 ["notify/export-started-in-background"]
   default = "Exportación comenzada en segundo plano; te llegará un correo cuando esté listo."
 
+["notify/import-ga-okay"]
+
 ["notify/import-started-in-background"]
   default = "Importación comenzada en segundo plano; te llegará un correo cuando esté listo."
 
@@ -892,9 +921,6 @@ Martin
 
 ["notify/multi-factor-auth-enabled"]
   default = "Autenticación de múltiples factores (MFA) activada."
-
-["notify/need-business-plan-custom-domain"]
-  default = "necesitas un plan para usar un dominio personalizado"
 
 ["notify/need-email-verification-for-api"]
   default = "Necesitas verificar tu correo antes de usar la API."
@@ -907,12 +933,6 @@ Martin
 
 ["notify/password-changed"]
   default = "Contraseña cambiada."
-
-["notify/payment-processed"]
-  default = "Pago procesado exitosamente!"
-
-["notify/payment-processing"]
-  default = "El procesador de pagos reportó éxito, pero aún estamos procesando el pago"
 
 ["notify/reset-to-default"]
   default = "Reestablecido a valores por defecto!"
@@ -957,8 +977,12 @@ Martin
 <p>Puedes añadir tantos como quieras.</p>
 """
 
+["p/add-multiple-accounts"]
+
 ["p/additional-errors"]
   default = "Errores adicionales"
+
+["p/all-sites"]
 
 ["p/api-intro"]
   default = "GoatCounter viene con una API limitada; actualmente puedes contar visitas desde la API, crear, eliminar y editar sitios y exportar datos."
@@ -984,6 +1008,8 @@ Martin
 ["p/csv-file-format"]
   default = "El formato del CSV está %[documentado aquí]."
 
+["p/delete-account"]
+
 ["p/disable-mfa"]
   default = "MFA está activado para esta cuenta."
 
@@ -992,6 +1018,8 @@ Martin
 
 ["p/error"]
   default = "Error: %(error-message)"
+
+["p/export-csv"]
 
 ["p/export-process"]
   default = """
@@ -1003,8 +1031,14 @@ Martin
 ["p/have-mfa"]
   default = "Esta cuenta está protegida con autenticación de múltiples factores; ingresa el código de tu aplicación de autenticación."
 
+["p/import-ga"]
+
 ["p/last-user"]
   default = "No se puede eliminar o editar el último administrador"
+
+["p/manage-hits"]
+
+["p/merge-account"]
 
 ["p/no-data"]
   default = """
@@ -1031,6 +1065,8 @@ Comenzar es fácil, sólo añade el siguiente JavaScript en cualquier parte de l
 ["p/notify-site-deletion"]
   default = "%(number) sitios serán eliminados"
 
+["p/num-accounts"]
+
 ["p/remove-site-confirm"]
   default = "¿Estás seguro que quieres eliminar el sitio %(sitename)?<br>Esto va a <strong>eliminar todos los datos</strong>."
 
@@ -1039,12 +1075,6 @@ Comenzar es fácil, sólo añade el siguiente JavaScript en cualquier parte de l
 
 ["p/remove-site-confirm-current"]
   default = "¿Estás seguro de que quieres remover el sitio %(sitename)?<br>Esto va a <strong>eliminar todos los datos</strong> y es el <strong>sitio actual</strong>."
-
-["p/request-data-recovery"]
-  default = "%[Contacta] en 7 días si cambias de opinión y quieres recuperar los datos."
-
-["p/rm-hits"]
-  default = "Eliminar todos los datos de una página."
 
 ["p/rm-hits-help"]
   default = "Las coincidencias son sensibles a mayúsculas y minúsculas. Se puede usar <code>%</code> como un comodín; por ej. <code>/pagina%.html</code> coincide con todo lo que comienza con <code>/pagina</code> y termina con <code>.html</code>, <code>_</code> coincide sólo un caracter, por ej. <code>_.html</code> sólo coincide con <code>a.html</code>, <code>b.html</code>, etc. Usa <code>\\%</code> y <code>\\_</code> para los caracteres literales sin significado especial."
@@ -1061,10 +1091,6 @@ Comenzar es fácil, sólo añade el siguiente JavaScript en cualquier parte de l
 ["p/site-domain-link-to-page"]
   default = 'El dominio de tu sitio, por ej. <em>"www.example.com"</em>, usado para enlaces en la página principal'
 
-["p/slow"]
-  updated = "removed"
-  default = "Cargar muchas páginas puede ser lento, especialmente en dispositivos lentos. Usa una cantidad menor si es que tienes problemas de rendimiento."
-
 ["p/text-data-retention"]
   default = "Esto incluye la retención de datos y configuraciones de recolección!"
 
@@ -1074,17 +1100,24 @@ Comenzar es fácil, sólo añade el siguiente JavaScript en cualquier parte de l
 ["page-ranking"]
   default = "Ranking"
 
-["restricted-admin-access"]
-  default = "Normalmente los administradores no pueden iniciar sesión en tu sitio, pero si activas esto si podrán. Es posible que te pidan activar esto para peticiones de soporte técnico."
-
 ["scale-y"]
   default = "Maximizar escala del eje Y"
+
+["theme/dark"]
+
+["theme/light"]
+
+["theme/system"]
+
+["tooltip/change-period"]
 
 ["top-nav/back"]
   default = "Volver"
 
 ["top-nav/dashboard"]
   default = "Panel"
+
+["top-nav/documentation"]
 
 ["top-nav/need-js"]
   default = "GoatCounter necesita JavaScript activado para funcionar bien; permite JavaScript en el dominio %(domain)."
@@ -1104,17 +1137,8 @@ Comenzar es fácil, sólo añade el siguiente JavaScript en cualquier parte de l
 ["top-nav/sign-out"]
   default = "Cerrar sesión"
 
-["top-nav/site-code"]
-  default = "Código para el sitio"
-
 ["top-nav/sites"]
   default = "Sitios:"
-
-["top-nav/updates"]
-  default = "Actualizaciones"
-
-["top-nav/user"]
-  default = "Usuario"
 
 ["unknown"]
   default = "(desconocido)"
@@ -1161,6 +1185,8 @@ Comenzar es fácil, sólo añade el siguiente JavaScript en cualquier parte de l
 ["validate/len-shorter"]
   default = "debe ser más corto que %d caracteres"
 
+["validate/need-one"]
+
 ["validate/phone"]
   default = "debe ser un número telefónico válido"
 
@@ -1178,6 +1204,8 @@ Comenzar es fácil, sólo añade el siguiente JavaScript en cualquier parte de l
 
 ["validate/utf8"]
   default = "debe ser UTF-8"
+
+["view not set"]
 
 ["widget-setting/help/align"]
   default = "Añadir margen a la izquierda para que el gráfico quede alineado con los gráficos de las páginas"
@@ -1226,3 +1254,4 @@ Comenzar es fácil, sólo añade el siguiente JavaScript en cualquier parte de l
 
 ["y-scale"]
   default = "Escala del eje Y"
+

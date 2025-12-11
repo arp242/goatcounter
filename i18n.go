@@ -3,50 +3,28 @@ package goatcounter
 import (
 	"context"
 	"embed"
-	"fmt"
 	"io/fs"
-	"testing/fstest"
+	"time"
 
 	"github.com/BurntSushi/toml"
 	"golang.org/x/text/language"
 	"zgo.at/errors"
-	"zgo.at/goatcounter/v2/pkg/log"
-	"zgo.at/json"
 	"zgo.at/z18n"
 	"zgo.at/z18n/msgfile"
 	"zgo.at/zdb"
-	"zgo.at/zstd/zfs"
 )
 
-// Translations contains all translation messages.
-//
 //go:embed i18n/*
 var translations embed.FS
 
-// Translations gets the translation messages; a user can have a local override,
-// so we need to apply that per-user.
-func Translations(ctx context.Context) fs.FS {
-	builtin, _ := fs.Sub(translations, "i18n")
-	if ctx == nil || GetUser(ctx) == nil {
-		return builtin
-	}
+// TranslationFiles gets the translation messages.
+var TranslationFiles = func() fs.FS {
+	fsys, _ := fs.Sub(translations, "i18n")
+	return fsys
+}()
 
-	var over OverrideTranslations
-	err := over.Get(ctx, false)
-	if err != nil {
-		return builtin
-	}
-
-	mapfs := fstest.MapFS{}
-	for _, o := range over {
-		t, _ := o.File.TOML()
-		mapfs[o.Name] = &fstest.MapFile{Data: []byte(t)}
-	}
-	return zfs.NewOverlayFS(builtin, mapfs)
-}
-
-var defaultBundle = func() *z18n.Bundle {
-	b, err := newBundle(Translations(context.TODO()))
+var Bundle = func() *z18n.Bundle {
+	b, err := newBundle(TranslationFiles)
 	if err != nil {
 		panic(err)
 	}
@@ -54,30 +32,7 @@ var defaultBundle = func() *z18n.Bundle {
 }()
 
 func DefaultLocale() *z18n.Locale {
-	return defaultBundle.Locale("en")
-}
-
-func GetBundle(ctx context.Context) *z18n.Bundle {
-	if ctx == nil || GetUser(ctx) == nil {
-		return defaultBundle
-	}
-
-	var over OverrideTranslations
-	err := over.Get(ctx, false)
-	if err != nil {
-		if !zdb.ErrNoRows(err) {
-			log.Error(ctx, err)
-		}
-		return defaultBundle
-	}
-
-	b, err := newBundle(Translations(ctx))
-	if err != nil {
-		log.Error(ctx, err)
-		return defaultBundle
-	}
-
-	return b
+	return Bundle.Locale("en")
 }
 
 func newBundle(fsys fs.FS) (*z18n.Bundle, error) {
@@ -86,116 +41,62 @@ func newBundle(fsys fs.FS) (*z18n.Bundle, error) {
 	return b, err
 }
 
-type OverrideTranslation struct {
-	Name    string       `json:"name"`
-	Updated string       `json:"updated"`
-	File    msgfile.File `json:"file"`
-	Diff    string       `json:"diff"`
-}
+type Translation msgfile.File
 
-type OverrideTranslations []OverrideTranslation
-
-func (OverrideTranslations) Key(ctx context.Context) string {
-	return fmt.Sprintf("i18n-%d", MustGetUser(ctx).ID)
-}
-
-type wrap []wrapF
-type wrapF struct{ Name, Updated, TOML string }
-
-func (o OverrideTranslations) encode() (string, error) {
-	var w wrap
-	for _, oo := range o {
-		t, err := oo.File.TOML()
-		if err != nil {
-			return "", err
-		}
-		w = append(w, wrapF{
-			Name:    oo.Name,
-			Updated: oo.Updated,
-			TOML:    t,
-		})
-	}
-	j, err := json.MarshalIndent(w, "", "    ")
-	return string(j), err
-}
-
-func (o *OverrideTranslations) Decode(data string) error {
-	var w wrap
-	err := json.Unmarshal([]byte(data), &w)
+func (t *Translation) ByFilename(ctx context.Context, filename string) error {
+	var s string
+	err := zdb.Get(ctx, &s, `select value from store where key = ?`, "i18n-"+filename)
 	if err != nil {
-		return err
+		return errors.Wrapf(err, "Translation.ByFilename(%q)", filename)
 	}
 
-	oo := make(OverrideTranslations, 0, len(w))
-	for _, ww := range w {
-		var f msgfile.File
-		_, err := toml.Decode(ww.TOML, &f)
+	tt := msgfile.File(*t)
+	_, err = toml.Decode(s, &tt)
+	*t = Translation(tt)
+	return errors.Wrapf(err, "Translation.ByFilename(%q)", filename)
+}
+
+func (t *Translation) Store(ctx context.Context, filename string) error {
+	t.Modified = time.Now().UTC().Truncate(time.Second)
+	tt, err := msgfile.File(*t).TOML()
+	if err != nil {
+		return errors.Wrapf(err, "Translation.Store(%q)", filename)
+	}
+
+	err = zdb.TX(ctx, func(ctx context.Context) error {
+		k := "i18n-" + filename
+		err := zdb.Exec(ctx, `delete from store where key = ?`, k)
 		if err != nil {
 			return err
 		}
-
-		oo = append(oo, OverrideTranslation{
-			Name:    ww.Name,
-			Updated: ww.Updated,
-			File:    f,
-		})
-	}
-
-	*o = oo
-	return nil
+		err = zdb.Exec(ctx, `insert into store (key, value) values (?, ?)`, k, tt)
+		return err
+	})
+	return errors.Wrapf(err, "Translation.Store(%q)", filename)
 }
 
-func (o *OverrideTranslations) Insert(ctx context.Context) error {
-	t, err := o.encode()
+type Translations []Translation
+
+func (t *Translations) List(ctx context.Context) error {
+	var s []struct {
+		Key   string `db:"key"`
+		Value string `db:"value"`
+	}
+	err := zdb.Select(ctx, &s, `select * from store where key like 'i18n-%'`)
 	if err != nil {
-		return errors.Wrap(err, "OverrideTranslations.Insert")
+		return errors.Wrap(err, "Translation.List")
 	}
 
-	err = zdb.Exec(ctx, `insert into store (key, value) values (?, ?)`, o.Key(ctx), t)
-	if err != nil {
-		return errors.Wrap(err, "OverrideTranslations.Insert")
-	}
-
-	cacheI18n(ctx).Delete(o.Key(ctx))
-	return nil
-}
-
-func (o *OverrideTranslations) Update(ctx context.Context) error {
-	t, err := o.encode()
-	if err != nil {
-		return errors.Wrap(err, "OverrideTranslations.Update")
-	}
-
-	err = zdb.Exec(ctx, `update store set value=? where key=?`, t, o.Key(ctx))
-	if err != nil {
-		return errors.Wrap(err, "OverrideTranslations.Update")
-	}
-
-	cacheI18n(ctx).Delete(o.Key(ctx))
-	return nil
-}
-
-func (o *OverrideTranslations) Get(ctx context.Context, insert bool) error {
-	if oo, ok := cacheI18n(ctx).Get(o.Key(ctx)); ok {
-		*o = *oo
-		return nil
-	}
-
-	var data []byte
-	err := zdb.Get(ctx, &data, `select value from store where key = ?`, o.Key(ctx))
-	if err != nil {
-		if insert && zdb.ErrNoRows(err) {
-			*o = OverrideTranslations{}
-			return o.Insert(ctx)
+	*t = make(Translations, len(s))
+	deref := *t
+	for i := range s {
+		tt := msgfile.File(deref[i])
+		_, err = toml.Decode(s[i].Value, &tt)
+		deref[i] = Translation(tt)
+		if err != nil {
+			return errors.Wrap(err, "Translation.List")
 		}
-		return errors.Wrap(err, "OverrideTranslations.Get")
 	}
-
-	err = o.Decode(string(data))
-	if err != nil {
-		return errors.Wrap(err, "OverrideTranslations.List")
-	}
-
-	cacheI18n(ctx).Set(o.Key(ctx), o)
+	*t = deref
 	return nil
 }

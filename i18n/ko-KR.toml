@@ -1,8 +1,7 @@
 [__meta__]
-  comments = ""
-  generated = 2021-11-29T19:38:18Z
   language = "ko-KR"
   maintainers = ["<younggjjo@gmail.com>"]
+  modified = 2025-03-19
 
 ["button/add-new"]
   default = "새로 추가"
@@ -28,11 +27,10 @@
 ["button/delete-account"]
   default = "계정, 모든 사이트 및 모든 데이터 삭제"
 
-["button/delete-all"]
-  default = "네, 다 지워주세요!"
-
 ["button/delete-everything"]
   default = "네, 모두 다 지워주세요"
+
+["button/delete-pageviews"]
 
 ["button/disable-mfa"]
   default = "MFA 비활성화"
@@ -45,6 +43,8 @@
 
 ["button/forgot-password"]
   default = "비밀번호를 잊으셨나요?"
+
+["button/merge"]
 
 ["button/remove"]
   default = "제거"
@@ -61,17 +61,18 @@
 ["button/reset-password"]
   default = "비밀번호 재설정"
 
-["button/rm-hits"]
-  default = "페이지 조휘수 삭제"
-
 ["button/save"]
   default = "저장"
 
 ["button/save-default-view"]
   default = "기본 보기 저장"
 
+["button/search"]
+
 ["button/send-login-url"]
   default = "로그인 URL 보내기"
+
+["button/show"]
 
 ["button/sign-in"]
   default = "로그인"
@@ -84,6 +85,8 @@
 
 ["button/submit"]
   default = "제출"
+
+["button/upload-ga-import"]
 
 ["confirm/delete-user"]
   default = "%(email) 삭제하시겠습니까?"
@@ -99,6 +102,8 @@
 ["dashboard/future"]
   default = "미래"
 
+["dashboard/loading"]
+
 ["dashboard/month-ago"]
   default = "%(n)개월 전"
   zero    = "이번 달"
@@ -110,14 +115,13 @@
 ["dashboard/nothing-to-display"]
   default = "표시할 내용이 없습니다"
 
+["dashboard/pages/change"]
+
 ["dashboard/pages/header"]
   default = "페이지"
 
 ["dashboard/pages/num-visits"]
   default = "%(total-visits)번 방문 중 %(num-visits)번 표시됨"
-
-["dashboard/pages/pageviews"]
-  default = "페이지 조회수"
 
 ["dashboard/pages/path"]
   default = "경로"
@@ -130,9 +134,6 @@
 
 ["dashboard/pages/title"]
   default = "제목"
-
-["dashboard/pages/views"]
-  default = "조회수"
 
 ["dashboard/pages/visits"]
   default = "방문"
@@ -163,6 +164,8 @@
 ["data-collect/help/country"]
   default = "국가 이름(예: 벨기에, 인도네시아 등)"
 
+["data-collect/help/hits"]
+
 ["data-collect/help/language"]
   default = "Accept-Language에서 지원하는 언어"
 
@@ -178,8 +181,12 @@
 ["data-collect/help/size"]
   default = "화면 크기"
 
+["data-collect/help/user-agent"]
+
 ["data-collect/label/country"]
   default = "국가"
+
+["data-collect/label/hits"]
 
 ["data-collect/label/language"]
   default = "언어"
@@ -208,6 +215,18 @@
 ["datepicker/month-prev"]
   default = "이전 달"
 
+["dont-lock"]
+
+["email-report/daily"]
+
+["email-report/monthly"]
+
+["email-report/never"]
+
+["email-report/two-weeks"]
+
+["email-report/weekly"]
+
 ["email/header"]
   default = "안녕하세요,"
 
@@ -219,9 +238,6 @@
 
 ["email/signature"]
   default = "문제, 질문, 의견 또는 다른 전달할 내용이 있나요? 그냥 이 이메일에 회신하세요.\\n\\n감사합니다,\\nMartin"
-
-["error/account-has-stripe-subscription"]
-  default = "이 계정은 아직 Stripe 구독이 활성화되어 있습니다. 먼저 결제 페이지에서 이를 취소하세요."
 
 ["error/address-exists"]
   default = "%(addr)은(는) 이미 존재합니다."
@@ -237,9 +253,6 @@
 
 ["error/date-past"]
   default = "해당 날짜는 사이트가 생성되기 전입니다. GoatCounter가 그렇게까지 뛰어나진 않습니다 ;-)"
-
-["error/delete-main-site"]
-  default = "메인 사이트는 삭제할 수 없습니다."
 
 ["error/export-expired"]
   default = "내보내기가 아직 수행되지 않았거나 만료되었습니다."
@@ -277,11 +290,10 @@
 ["error/password-does-not-match"]
   default = "비밀번호 확인이 일치하지 않습니다."
 
-["error/payment-cancelled"]
-  default = "결제가 취소되었습니다."
-
 ["error/reset-user-no-account"]
   default = "%(email)은(는) 이 사이트에 등록된 계정이 아닙니다."
+
+["error/unknown-activation-token"]
 
 ["event"]
   default = "이벤트"
@@ -291,6 +303,8 @@
 
 ["header/access"]
   default = "접근"
+
+["header/add-api-token"]
 
 ["header/add-new-user"]
   default = "새 사용자 추가"
@@ -349,6 +363,8 @@
 ["header/export-or-import"]
   default = "내보내기/가져오기"
 
+["header/fewer-number"]
+
 ["header/finished"]
   default = "완료됨"
 
@@ -373,11 +389,17 @@
 ["header/last-10-exports"]
   default = "최근 10개 내보내기 기록"
 
+["header/last-used-at"]
+
 ["header/locations"]
   default = "위치"
 
 ["header/locations-for"]
   default = "%(country) 위치"
+
+["header/manage-pageviews"]
+
+["header/merge-account"]
 
 ["header/mfa"]
   default = "다중 인증 (MFA)"
@@ -387,9 +409,6 @@
 
 ["header/name"]
   default = "이름"
-
-["header/new"]
-  default = "새 항목"
 
 ["header/pagination-cursor"]
   default = "페이지네이션 커서"
@@ -408,9 +427,6 @@
 
 ["header/reset-password"]
   default = "%(site-name)에서 %(email) 사용자의 비밀번호 재설정"
-
-["header/rm-hits"]
-  default = "페이지 조회수 삭제"
 
 ["header/settings"]
   default = "설정"
@@ -451,9 +467,6 @@
 ["header/tracking"]
   default = "추적"
 
-["header/updated"]
-  default = "업데이트됨"
-
 ["header/user-info"]
   default = "사용자 정보"
 
@@ -463,17 +476,18 @@
 ["header/users"]
   default = "사용자"
 
+["help/allow-embed"]
+
 ["help/allow-visitor-counts"]
   default = "사용 방법에 대한 자세한 내용은 %[문서]를 참조하세요."
-
-["help/campaign-parameters"]
-  default = "‘캠페인’으로 간주할 매개변수 목록입니다. 설정하면 해당 값이 리퍼러 헤더를 덮어쓰고 리퍼러로 사용됩니다."
 
 ["help/cfg-dashboard"]
   default = "대시보드에 표시할 내용을 변경하고 순서를 조정합니다."
 
 ["help/code-access"]
   default = "사이트에 https://<em>[my-code]</em>.%(domain)에서 접근할 수 있습니다."
+
+["help/configure-dashboard"]
 
 ["help/custom-domain"]
   default = "사용자 지정 도메인 예: <em>“stats.example.com”</em>. <strong>참고:</strong> 이것만으로는 대부분의 광고 차단기에서 GoatCounter가 차단되는 것을 막을 수 없습니다. 단순히 보기 좋은 '커스텀 도메인'을 위한 설정입니다."
@@ -487,20 +501,25 @@
 인증은 2시간마다 실행됩니다.
 """
 
-["help/custom-domain-plan"]
-  default = "개인 플러스 또는 비즈니스 플랜이 필요합니다 (현재 사용 중인 플랜: %(plan); %[%link 결제 정보] 참조)."
-
 ["help/custom-domain-verified"]
   default = "도메인이 인증되어 설정되었습니다. (참고: 인증서가 적용되는 데 최대 1시간이 걸릴 수 있습니다.)"
 
 ["help/data-retention"]
   default = "페이지 조회수 및 관련 데이터를 이 기간이 지나면 영구적으로 삭제합니다. <code>0</code>으로 설정하면 데이터를 삭제하지 않습니다."
 
+["help/datepicker"]
+
 ["help/domain-access"]
   default = "이 사이트에 접근할 도메인."
 
 ["help/drag-reorder"]
   default = "드래그하여 순서를 변경하세요."
+
+["help/email-reports"]
+
+["help/fewer-numbers"]
+
+["help/fewer-numbers-lock"]
 
 ["help/for-the-following-countries"]
   default = "국가 코드 목록 (%[list]; alpha-2 코드 사용); 비워 두면 모든 국가에서 데이터를 수집합니다 (설정이 활성화된 경우)."
@@ -513,6 +532,10 @@
 
 ["help/ignore-ips-2"]
   default = "또는 %[이 브라우저에서 비활성화] (다시 클릭하면 활성화)."
+
+["help/locked-until"]
+
+["help/need-cities"]
 
 ["help/new-user-email"]
   default = "로그인할 이메일 주소."
@@ -532,9 +555,6 @@
 ["help/public"]
   default = "대시보드를 볼 수 있는 사용자 설정."
 
-["help/rm-hits"]
-  default = "삭제되기 전에 일치하는 데이터를 미리 볼 수 있습니다."
-
 ["help/save-default-view"]
   default = "현재 보기(노란색 박스 내 모든 설정)를 기본값으로 저장하여 선택 항목이 없을 때 자동으로 로드되도록 합니다."
 
@@ -547,14 +567,13 @@
 ["label/24-hour-clock"]
   default = "24시간 형식 (13:00)"
 
+["label/access-to-sites"]
+
 ["label/add-new"]
   default = "새로 추가"
 
 ["label/all-sites"]
   default = "모든 사이트"
-
-["label/allow-admin-access"]
-  default = "관리자 접근 허용"
 
 ["label/allow-visitor-counts"]
   default = "웹사이트 방문자 수 허용"
@@ -562,8 +581,7 @@
 ["label/browser-stats"]
   default = "브라우저 통계"
 
-["label/campaign-parameters"]
-  default = "캠페인 매개변수"
+["label/campaigns"]
 
 ["label/change-code"]
   default = "계정 접근 주소: https://<em>[my-code]</em>.%(domain) – %[%link 변경]"
@@ -574,9 +592,6 @@
 ["label/code"]
   default = "코드"
 
-["label/collected-since"]
-  default = "수집 시작일: 2021년 12월 2일"
-
 ["label/csv-compress-format"]
   default = "CSV 파일; gzip으로 압축될 수 있음"
 
@@ -585,6 +600,8 @@
 
 ["label/custom-domain"]
   default = "사용자 지정 도메인"
+
+["label/dashboard-allow-embed"]
 
 ["label/dashboard-public"]
   default = "대시보드 공개 범위"
@@ -595,29 +612,20 @@
 ["label/date-fmt"]
   default = "날짜 형식"
 
+["label/datepicker"]
+
 ["label/delete-account-confirmation"]
   default = "정말로 계정을 삭제하시겠습니까?"
-
-["label/delete-account-contact"]
-  default = """
-추후 추가 질문이나 피드백을 위해 연락드릴 수도 있습니다.
-(설득하려는 목적은 아니며, 특정 기능이 부족한 경우 알려드릴 수도 있습니다.)
-"""
-
-["label/delete-account-follow-up"]
-  default = "추후 연락 가능"
-
-["label/delete-account-reason"]
-  default = "GoatCounter에서 부족한 기능이나 계정을 삭제하는 이유를 알려주시면 감사하겠습니다. (선택 사항)"
-
-["label/delete-account-reason-placeholder"]
-  default = "삭제 사유 (선택 사항)"
 
 ["label/email"]
   default = "이메일"
 
 ["label/email-address"]
   default = "이메일 주소"
+
+["label/email-reports"]
+
+["label/fewer-numbers"]
 
 ["label/for-following-countries"]
   default = "다음 국가에 대해서만:"
@@ -637,11 +645,19 @@
 ["label/loc-stats"]
   default = "위치 통계"
 
+["label/lock-setting"]
+
 ["label/mark-current"]
   default = "(현재)"
 
+["label/match-case"]
+
 ["label/match-title"]
   default = "제목도 일치시킴"
+
+["label/merge-account-confirmation"]
+
+["label/merge-to"]
 
 ["label/mfa-token"]
   default = "MFA 토큰"
@@ -691,9 +707,6 @@
 ["label/size-desktophd"]
   default = "HD보다 큰 컴퓨터 모니터"
 
-["label/size-largephones"]
-  default = "큰 휴대폰, 소형 태블릿"
-
 ["label/size-phones"]
   default = "휴대폰"
 
@@ -705,6 +718,8 @@
 
 ["label/system-stats"]
   default = "시스템 통계"
+
+["label/theme"]
 
 ["label/thousand-separator"]
   default = "천 단위 구분 기호"
@@ -742,9 +757,6 @@
 ["link/api-docs"]
   default = "API 문서"
 
-["link/billing"]
-  default = "청구"
-
 ["link/dashboard"]
   default = "대시보드"
 
@@ -757,6 +769,10 @@
 ["link/import"]
   default = "가져오기/내보내기"
 
+["link/manage-pageviews"]
+
+["link/merge-account"]
+
 ["link/passwd-mfa"]
   default = "비밀번호 & MFA"
 
@@ -766,14 +782,13 @@
 ["link/rm-account"]
   default = "계정 삭제"
 
-["link/rm-views"]
-  default = "페이지뷰 삭제"
-
 ["link/set-from-browser"]
   default = "브라우저에서 설정"
 
 ["link/settings"]
   default = "설정"
+
+["link/show-less"]
 
 ["link/show-more"]
   default = "더 보기"
@@ -802,9 +817,6 @@
 ["nav-dash/back"]
   default = "뒤로"
 
-["nav-dash/by-day"]
-  default = "날짜별 보기"
-
 ["nav-dash/current"]
   default = "현재"
 
@@ -817,28 +829,35 @@
 ["nav-dash/filter"]
   default = "경로 필터"
 
-["nav-dash/filter-tooltip"]
-  default = """<p>경로 목록을 필터링합니다. 경로와 제목에 대해 대소문자를 구분하지 않고 일치시킵니다. %[%more More help]</p>
+["nav-dash/filter-more-help"]
 
-	<div>
-		<p>Recognizes the following keywords:</p>
-		<ul>
-			<li><em>at:start</em>, <em>at:end</em>:       match only at the start or end of path or title. Use both for exact match.</li>
-			<li><em>in:path</em>, <em>in:title</em>       match only path or title.</li>
-			<li><em>is:event</em>, <em>is:pageview</em>   show only events or pageviews.</li>
-			<li><em>:not</em> negate the match (that is: only show paths that don't match the filter).</li>
-		</ul>
-	</div>
-  """
+["nav-dash/filter-tooltip"]
+  default = """
+<p>경로 목록을 필터링합니다. 경로와 제목에 대해 대소문자를 구분하지 않고 일치시킵니다. %[%more More help]</p>
+
+  <div>
+    <p>Recognizes the following keywords:</p>
+    <ul>
+      <li><em>at:start</em>, <em>at:end</em>:       match only at the start or end of path or title. Use both for exact match.</li>
+      <li><em>in:path</em>, <em>in:title</em>       match only path or title.</li>
+      <li><em>is:event</em>, <em>is:pageview</em>   show only events or pageviews.</li>
+      <li><em>:not</em> negate the match (that is: only show paths that don't match the filter).</li>
+    </ul>
+  </div>
+"""
 
 ["nav-dash/forced-daily"]
   default = "90일 이상의 시간 범위에 대해 시간별 보기를 사용할 수 없습니다."
+
+["nav-dash/forced-hourly"]
 
 ["nav-dash/forward"]
   default = "앞으로"
 
 ["nav-dash/half-year"]
   default = "반년"
+
+["nav-dash/hour"]
 
 ["nav-dash/last"]
   default = "마지막"
@@ -852,11 +871,17 @@
 ["nav-dash/start-date"]
   default = "표시할 날짜 범위의 시작"
 
+["nav-dash/view-by"]
+
 ["nav-dash/week"]
   default = "주"
 
 ["nav-dash/year"]
   default = "년"
+
+["nav-fash/filter-less-help"]
+
+["new-paren"]
 
 ["no-title"]
   default = "제목 없음"
@@ -879,6 +904,8 @@
 ["notify/export-started-in-background"]
   default = "내보내기가 백그라운드에서 시작되었습니다. 완료되면 다운로드 링크가 포함된 이메일을 받게 됩니다."
 
+["notify/import-ga-okay"]
+
 ["notify/import-started-in-background"]
   default = "가져오기가 백그라운드에서 시작되었습니다. 완료되면 이메일을 받게 됩니다."
 
@@ -887,9 +914,6 @@
 
 ["notify/multi-factor-auth-enabled"]
   default = "다단계 인증이 활성화되었습니다."
-
-["notify/need-business-plan-custom-domain"]
-  default = "사용자 지정 도메인을 설정하려면 비즈니스 플랜이 필요합니다."
 
 ["notify/need-email-verification-for-api"]
   default = "API를 사용하려면 이메일을 확인해야 합니다."
@@ -902,12 +926,6 @@
 
 ["notify/password-changed"]
   default = "비밀번호가 변경되었습니다."
-
-["notify/payment-processed"]
-  default = "결제가 성공적으로 처리되었습니다!"
-
-["notify/payment-processing"]
-  default = "결제 처리기는 성공을 보고했으나, 결제를 아직 처리 중입니다."
 
 ["notify/reset-to-default"]
   default = "기본값으로 재설정!"
@@ -951,8 +969,12 @@
 <p>원하는 만큼 추가할 수 있습니다.</p>
 """
 
+["p/add-multiple-accounts"]
+
 ["p/additional-errors"]
   default = "추가 오류"
+
+["p/all-sites"]
 
 ["p/api-intro"]
   default = """
@@ -967,7 +989,7 @@ GoatCounter는 제한된 API를 제공합니다. 현재 API를 통해 페이지�
   default = "<p>사이트 코드와 로그인 도메인을 변경하세요.</p><p><strong>경고:</strong> 이것은 <strong>즉시</strong> 적용되며, 이전 코드는 누구나 다시 등록할 수 있습니다. 이미 사이트에서 사용 중이라면 가능한 빨리 변경하거나, 페이지뷰 손실을 방지하기 위해 임시로 두 가지 통합 코드(구 코드와 새 코드)를 추가하세요.</p><p>현재 코드: %(current-code) (%(current-url))</p>"
 
 ["p/change-email"]
-  default = "%[settings]에서 이메일 주소를 변경하세요."
+  default = "%[설정]에서 이메일 주소를 변경하세요."
 
 ["p/collect-disabled"]
   default = "이 정보 수집은 현재 %[설정에서 비활성화되었습니다]."
@@ -990,14 +1012,22 @@ GoatCounter는 제한된 API를 제공합니다. 현재 API를 통해 페이지�
 ["p/error"]
   default = "오류: %(error-message)"
 
+["p/export-csv"]
+
 ["p/export-process"]
   default = "<p>프로세스를 시작하고 완료되면 다운로드 링크를 이메일로 보내드립니다. 한 시간에 한 번만 진행할 수 있으며, 이전 백업을 덮어씁니다.</p><p>이에는 '봇'으로 표시된 페이지 뷰도 포함되며, 이는 개요에는 표시되지 않습니다.</p>"
 
 ["p/have-mfa"]
   default = "이 계정은 다단계 인증으로 보호되어 있습니다. 인증 앱에서 코드를 입력해 주세요."
 
+["p/import-ga"]
+
 ["p/last-user"]
   default = "마지막 관리자 사용자를 삭제하거나 편집할 수 없습니다."
+
+["p/manage-hits"]
+
+["p/merge-account"]
 
 ["p/no-data"]
   default = "<p>%(bold) 데이터가 수신되지 않았습니다. – GoatCounter는 아직 데이터를 받지 않았습니다.<br>시작은 간단합니다. 아래 JavaScript 코드를 페이지에 추가하세요:</p>%[pre %(js_code)]<p>페이지 뷰가 보이지 않으면 광고 차단기가 GoatCounter를 차단했는지 확인하세요 (%(domain) 및/또는 gc.zgo.at 도메인).</p><p>데이터를 받으면 이 메시지가 사라집니다. 추가 문서와 통합된 예제는 상단 메뉴의 %[%link_docs 사이트 코드]를 참조하세요.</p>"
@@ -1014,20 +1044,16 @@ GoatCounter는 제한된 API를 제공합니다. 현재 API를 통해 페이지�
 ["p/notify-site-deletion"]
   default = "%(number) 개의 사이트가 삭제됩니다."
 
+["p/num-accounts"]
+
 ["p/remove-site-confirm"]
   default = "%(sitename) 사이트를 제거하시겠습니까?<br>이 작업은 <strong>모든 관련 데이터를 삭제</strong>합니다."
 
 ["p/remove-site-confirm-contact"]
-  default = "다른 사이트와 병합하거나 새 계정으로 분리하는 등의 작업을 원하시면 %[Contact]에 문의해 주세요."
+  default = "다른 사이트와 병합하거나 새 계정으로 분리하는 등의 작업을 원하시면 %[연락처]에 문의해 주세요."
 
 ["p/remove-site-confirm-current"]
   default = "%(sitename) 사이트를 제거하시겠습니까?<br>이 작업은 <strong>모든 관련 데이터를 삭제</strong>하며 현재 사이트입니다."
-
-["p/request-data-recovery"]
-  default = "%[Contact]에 7일 이내에 변경된 마음이 있으시면 데이터를 복구하려면 연락하세요."
-
-["p/rm-hits"]
-  default = "페이지에 대한 모든 페이지뷰를 제거합니다."
 
 ["p/rm-hits-help"]
   default = "다음 경로들이 %(query)에 맞습니다:"
@@ -1053,17 +1079,24 @@ GoatCounter는 제한된 API를 제공합니다. 현재 API를 통해 페이지�
 ["page-ranking"]
   default = "페이지 순위"
 
-["restricted-admin-access"]
-  default = "일반적으로 관리자는 귀하의 사이트에 '로그인'할 수 없지만, 이 기능이 활성화되면 가능해집니다. 지원 요청 시 이를 활성화해야 할 수도 있습니다."
-
 ["scale-y"]
   default = "Y축을 최대값으로 조정"
+
+["theme/dark"]
+
+["theme/light"]
+
+["theme/system"]
+
+["tooltip/change-period"]
 
 ["top-nav/back"]
   default = "뒤로 가기"
 
 ["top-nav/dashboard"]
   default = "대시보드"
+
+["top-nav/documentation"]
 
 ["top-nav/need-js"]
   default = "GoatCounter는 원활하게 작동하려면 JavaScript가 활성화되어야 합니다. %(domain)에서 JavaScript 실행을 허용하세요."
@@ -1083,17 +1116,8 @@ GoatCounter는 제한된 API를 제공합니다. 현재 API를 통해 페이지�
 ["top-nav/sign-out"]
   default = "로그아웃"
 
-["top-nav/site-code"]
-  default = "사이트 코드"
-
 ["top-nav/sites"]
   default = "사이트"
-
-["top-nav/updates"]
-  default = "업데이트"
-
-["top-nav/user"]
-  default = "사용자"
 
 ["unknown"]
   default = "(알 수 없는)"
@@ -1140,6 +1164,8 @@ GoatCounter는 제한된 API를 제공합니다. 현재 API를 통해 페이지�
 ["validate/len-shorter"]
   default = "%d자보다 짧아야 합니다."
 
+["validate/need-one"]
+
 ["validate/phone"]
   default = "유효한 전화번호여야 합니다."
 
@@ -1157,6 +1183,8 @@ GoatCounter는 제한된 API를 제공합니다. 현재 API를 통해 페이지�
 
 ["validate/utf8"]
   default = "UTF-8이어야 합니다."
+
+["view not set"]
 
 ["widget-setting/help/align"]
   default = "페이지 차트와 맞추기 위해 왼쪽에 여백을 추가하세요."
@@ -1205,3 +1233,4 @@ GoatCounter는 제한된 API를 제공합니다. 현재 API를 통해 페이지�
 
 ["y-scale"]
   default = "Y축 스케일"
+

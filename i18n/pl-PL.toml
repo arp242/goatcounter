@@ -1,8 +1,7 @@
 [__meta__]
-  comments = "|user|"
-  generated = 2021-11-29T19:38:18Z
   language = "pl-PL"
   maintainers = []
+  modified = 2024-04-09
 
 ["button/add-new"]
   default = "Dodaj"
@@ -28,11 +27,10 @@
 ["button/delete-account"]
   default = "Usuń konto, wszystkie witryny i wszystkie dane"
 
-["button/delete-all"]
-  default = "Tak, usuń wszystkie!"
-
 ["button/delete-everything"]
   default = "Tak, usuń wszystko"
+
+["button/delete-pageviews"]
 
 ["button/disable-mfa"]
   default = "Wyłącz MFA"
@@ -45,6 +43,8 @@
 
 ["button/forgot-password"]
   default = "Zapomniałeś hasła?"
+
+["button/merge"]
 
 ["button/remove"]
   default = "Usuń"
@@ -61,17 +61,18 @@
 ["button/reset-password"]
   default = "Resetuj hasło"
 
-["button/rm-hits"]
-  default = "Usuń liczbę odsłon"
-
 ["button/save"]
   default = "Zapisz"
 
 ["button/save-default-view"]
   default = "Zapisz domyślny widok"
 
+["button/search"]
+
 ["button/send-login-url"]
   default = "Wyślij URL logowania"
+
+["button/show"]
 
 ["button/sign-in"]
   default = "Zaloguj się"
@@ -84,6 +85,8 @@
 
 ["button/submit"]
   default = "Zatwierdź"
+
+["button/upload-ga-import"]
 
 ["confirm/delete-user"]
   default = "Usunąć %(email)?"
@@ -99,6 +102,8 @@
 ["dashboard/future"]
   default = "przyszłość"
 
+["dashboard/loading"]
+
 ["dashboard/month-ago"]
   default = "%(n) miesięcy temu"
   zero    = "%(n) miesięcy temu"
@@ -110,14 +115,13 @@
 ["dashboard/nothing-to-display"]
   default = "Nic do wyświetlenia"
 
+["dashboard/pages/change"]
+
 ["dashboard/pages/header"]
   default = "Strony"
 
 ["dashboard/pages/num-visits"]
   default = "wyświetlono %(num-visits) ze wszystkich %(total-visits) wizyt"
-
-["dashboard/pages/pageviews"]
-  default = "Odsłony"
 
 ["dashboard/pages/path"]
   default = "Ścieżka"
@@ -130,9 +134,6 @@
 
 ["dashboard/pages/title"]
   default = "Tytuł"
-
-["dashboard/pages/views"]
-  default = "Odsłony"
 
 ["dashboard/pages/visits"]
   default = "Wizyty"
@@ -163,6 +164,8 @@
 ["data-collect/help/country"]
   default = "Nazwa kraju, na przykład Belgia, Indonezja, itd."
 
+["data-collect/help/hits"]
+
 ["data-collect/help/language"]
   default = "Obsługiwane języki z Accept-Language"
 
@@ -183,6 +186,8 @@
 
 ["data-collect/label/country"]
   default = "Kraj"
+
+["data-collect/label/hits"]
 
 ["data-collect/label/language"]
   default = "Język"
@@ -211,6 +216,18 @@
 ["datepicker/month-prev"]
   default = "Poprzedni miesiąc"
 
+["dont-lock"]
+
+["email-report/daily"]
+
+["email-report/monthly"]
+
+["email-report/never"]
+
+["email-report/two-weeks"]
+
+["email-report/weekly"]
+
 ["email/header"]
   default = "Cześć,"
 
@@ -233,9 +250,6 @@ Dzięki,
 Martin
 """
 
-["error/account-has-stripe-subscription"]
-  default = "To konto nadal ma subskrypcję Stripe; anuluj ją najpierw na stronie rozliczeń."
-
 ["error/address-exists"]
   default = "%(addr) już istnieje"
 
@@ -250,9 +264,6 @@ Martin
 
 ["error/date-past"]
   default = "Byłoby to przed utworzeniem tej witryny; GoatCounter nie jest aż *tak* dobry ;-)"
-
-["error/delete-main-site"]
-  default = "Nie można usunąć głównej witryny"
 
 ["error/export-expired"]
   default = "Wygląda na to, że nie ma jeszcze eksportu lub eksport wygasł."
@@ -290,11 +301,10 @@ Martin
 ["error/password-does-not-match"]
   default = "Potwierdzenie hasła nie pasuje."
 
-["error/payment-cancelled"]
-  default = "Płatność anulowana"
-
 ["error/reset-user-no-account"]
   default = "Konto nie istnieje w tej witrynie: %(email)"
+
+["error/unknown-activation-token"]
 
 ["event"]
   default = "wydarzenie"
@@ -304,6 +314,8 @@ Martin
 
 ["header/access"]
   default = "Dostęp"
+
+["header/add-api-token"]
 
 ["header/add-new-user"]
   default = "Dodaj nowego użytkownika"
@@ -362,6 +374,8 @@ Martin
 ["header/export-or-import"]
   default = "Eksport/Import"
 
+["header/fewer-number"]
+
 ["header/finished"]
   default = "Skończone"
 
@@ -386,11 +400,17 @@ Martin
 ["header/last-10-exports"]
   default = "Ostatnie 10 eksportów"
 
+["header/last-used-at"]
+
 ["header/locations"]
   default = "Kraje"
 
 ["header/locations-for"]
   default = "%(country), regiony:"
+
+["header/manage-pageviews"]
+
+["header/merge-account"]
 
 ["header/mfa"]
   default = "Uwierzytelnianie wieloskładnikowe"
@@ -400,9 +420,6 @@ Martin
 
 ["header/name"]
   default = "Nazwa"
-
-["header/new"]
-  default = "Nowe"
 
 ["header/pagination-cursor"]
   default = "Kursor stronicowania"
@@ -421,9 +438,6 @@ Martin
 
 ["header/reset-password"]
   default = "Resetuj hasło dla %(email) na %(site-name)"
-
-["header/rm-hits"]
-  default = "Usuń odsłony"
 
 ["header/settings"]
   default = "Ustawienia"
@@ -464,9 +478,6 @@ Martin
 ["header/tracking"]
   default = "Śledzenie"
 
-["header/updated"]
-  default = "Aktualizacje"
-
 ["header/user-info"]
   default = "Informacje o użytkowniku"
 
@@ -476,17 +487,18 @@ Martin
 ["header/users"]
   default = "Użytkownicy"
 
+["help/allow-embed"]
+
 ["help/allow-visitor-counts"]
   default = "Sprawdź %[dokumentację], aby wiedzieć, jak używać."
-
-["help/campaign-parameters"]
-  default = "Lista parametrów liczonych jako „kampanie”; jeśli jest ustawiona, ta wartość zostanie ustawiona jako referrer, zastępując dowolny nagłówek Referer."
 
 ["help/cfg-dashboard"]
   default = "Zmień co ma być wyświetlane na pulpicie i w jakiej kolejności."
 
 ["help/code-access"]
   default = "Będziesz mieć dostęp do swojej witryny pod adresem https://<em>[mój-kod]</em>.%(domain)."
+
+["help/configure-dashboard"]
 
 ["help/custom-domain"]
   default = """
@@ -505,20 +517,25 @@ jako domena „ozdobnik”.
 Weryfikacja odbywa się co 2 godziny.
 """
 
-["help/custom-domain-plan"]
-  default = "Wymaga planu Personal Plus lub Business (korzystasz z planu %(plan); zobacz %[%link rachunek])."
-
 ["help/custom-domain-verified"]
   default = "Zweryfikowano i skonfigurowano domenę (uwaga: zadziałanie certyfikatu może potrwać do godziny)."
 
 ["help/data-retention"]
   default = "Odsłony i wszystkie powiązane dane zostaną trwale usunięte po upływie tylu dni. Ustaw <code>0</code>, aby nigdy nie usuwać."
 
+["help/datepicker"]
+
 ["help/domain-access"]
   default = "Domena z której można będzie uzyskać dostęp do tej witryny."
 
 ["help/drag-reorder"]
   default = "Przeciągnij aby zmienić kolejność"
+
+["help/email-reports"]
+
+["help/fewer-numbers"]
+
+["help/fewer-numbers-lock"]
 
 ["help/for-the-following-countries"]
   default = "Lista kodów kraju (%[list]; użyj kodu dwuliterowego); pozostaw puste, aby zbierać ze wszystkich krajów (jeśli jest włączone)."
@@ -531,6 +548,10 @@ Weryfikacja odbywa się co 2 godziny.
 
 ["help/ignore-ips-2"]
   default = "Alternatywnie, %[wyłącz dla tej przeglądarki] (kliknij ponownie, aby włączyć)."
+
+["help/locked-until"]
+
+["help/need-cities"]
 
 ["help/new-user-email"]
   default = "E-mail do logowania."
@@ -550,9 +571,6 @@ Weryfikacja odbywa się co 2 godziny.
 ["help/public"]
   default = "Kontroluj kto może wyświetlać pulpit nawigacyjny."
 
-["help/rm-hits"]
-  default = "Zobaczysz podgląd wyszukiwania zanim cokolwiek zostanie usunięte"
-
 ["help/save-default-view"]
   default = "Zapisz bieżący widok (tj. wszystkie ustawienia w żółtym polu) jako domyślny do wczytania gdy nic nie jest jeszcze wybrane."
 
@@ -565,14 +583,13 @@ Weryfikacja odbywa się co 2 godziny.
 ["label/24-hour-clock"]
   default = "zegar 24-godzinny (13:00)"
 
+["label/access-to-sites"]
+
 ["label/add-new"]
   default = "Dodaj nowego"
 
 ["label/all-sites"]
   default = "Wszystkie witryny"
-
-["label/allow-admin-access"]
-  default = "Zezwól na dostęp admina"
 
 ["label/allow-visitor-counts"]
   default = "Zezwól na dodawanie liczby odwiedzających w Twojej witrynie"
@@ -580,8 +597,7 @@ Weryfikacja odbywa się co 2 godziny.
 ["label/browser-stats"]
   default = "Statystyki przeglądarki"
 
-["label/campaign-parameters"]
-  default = "Parametry kampanii"
+["label/campaigns"]
 
 ["label/change-code"]
   default = "Konto jest dostępne pod adresem https://<em>[mój-kod]</em>.%(domain) – %[%link change]."
@@ -592,9 +608,6 @@ Weryfikacja odbywa się co 2 godziny.
 ["label/code"]
   default = "Kod"
 
-["label/collected-since"]
-  default = "Zbierane od 2 grudnia 2021 r."
-
 ["label/csv-compress-format"]
   default = "plik CSV; może być skompresowany za pomocą gzip"
 
@@ -603,6 +616,8 @@ Weryfikacja odbywa się co 2 godziny.
 
 ["label/custom-domain"]
   default = "Domena niestandardowa"
+
+["label/dashboard-allow-embed"]
 
 ["label/dashboard-public"]
   default = "Panel widoczny dla"
@@ -613,26 +628,20 @@ Weryfikacja odbywa się co 2 godziny.
 ["label/date-fmt"]
   default = "Format dat"
 
+["label/datepicker"]
+
 ["label/delete-account-confirmation"]
   default = "Czy na pewno chcesz usunąć całe konto?"
-
-["label/delete-account-contact"]
-  default = "Jeśli zaznaczysz, mogę się z Tobą skontaktować w razie dodatkowych pytań lub komentarzy. Nie będę Cię przekonywał do pozostawienia konta (nie jestem telekomem), ale mogę zadać jedno lub dwa pytania lub nakreślić plany na przyszłość, jeśli zabrakło Ci kokretnej funkcji."
-
-["label/delete-account-follow-up"]
-  default = "Kontakt jest w porządku"
-
-["label/delete-account-reason"]
-  default = "Byłbym wdzięczny za informację, czy czegoś konkretnego brakuje Ci w GoatCounter lub czy istnieje inny powód usunięcia konta. Jest to całkowicie opcjonalne."
-
-["label/delete-account-reason-placeholder"]
-  default = "Opcjonalny powód usunięcia"
 
 ["label/email"]
   default = "E-mail"
 
 ["label/email-address"]
   default = "Adres E-mail"
+
+["label/email-reports"]
+
+["label/fewer-numbers"]
 
 ["label/for-following-countries"]
   default = "Tylko dla następujących krajów:"
@@ -652,11 +661,19 @@ Weryfikacja odbywa się co 2 godziny.
 ["label/loc-stats"]
   default = "Statystyki krajów"
 
+["label/lock-setting"]
+
 ["label/mark-current"]
   default = "(obecna)"
 
+["label/match-case"]
+
 ["label/match-title"]
   default = "Dopasuj również tytuł"
+
+["label/merge-account-confirmation"]
+
+["label/merge-to"]
 
 ["label/mfa-token"]
   default = "Token MFA"
@@ -706,9 +723,6 @@ Weryfikacja odbywa się co 2 godziny.
 ["label/size-desktophd"]
   default = "Monitory komputerowe większe niż HD"
 
-["label/size-largephones"]
-  default = "Duże telefony, małe tablety"
-
 ["label/size-phones"]
   default = "Telefony"
 
@@ -720,6 +734,8 @@ Weryfikacja odbywa się co 2 godziny.
 
 ["label/system-stats"]
   default = "Statystyki systemowe"
+
+["label/theme"]
 
 ["label/thousand-separator"]
   default = "Separator tysięcy"
@@ -757,9 +773,6 @@ Weryfikacja odbywa się co 2 godziny.
 ["link/api-docs"]
   default = "Dokumentacja API"
 
-["link/billing"]
-  default = "Rachunki"
-
 ["link/dashboard"]
   default = "Pulpit"
 
@@ -768,6 +781,12 @@ Weryfikacja odbywa się co 2 godziny.
 
 ["link/goto-path"]
   default = "Przejdź do %(path)"
+
+["link/import"]
+
+["link/manage-pageviews"]
+
+["link/merge-account"]
 
 ["link/passwd-mfa"]
   default = "Hasło i MFA"
@@ -778,14 +797,13 @@ Weryfikacja odbywa się co 2 godziny.
 ["link/rm-account"]
   default = "Usuń konto"
 
-["link/rm-views"]
-  default = "Usuń liczbę odsłon"
-
 ["link/set-from-browser"]
   default = "Ustaw z przeglądarki"
 
 ["link/settings"]
   default = "Ustawienia"
+
+["link/show-less"]
 
 ["link/show-more"]
   default = "Pokaż więcej"
@@ -814,9 +832,6 @@ Weryfikacja odbywa się co 2 godziny.
 ["nav-dash/back"]
   default = "wstecz"
 
-["nav-dash/by-day"]
-  default = "Wyświetl według dnia"
-
 ["nav-dash/current"]
   default = "Aktualny"
 
@@ -829,28 +844,35 @@ Weryfikacja odbywa się co 2 godziny.
 ["nav-dash/filter"]
   default = "Filtruj ścieżki"
 
-["nav-dash/filter-tooltip"]
-  default = """<p>Filtruj listę ścieżek; uwzględniaj wielkość liter ścieżek i tytułów. %[%more More help]</p>
+["nav-dash/filter-more-help"]
 
-	<div>
-		<p>Recognizes the following keywords:</p>
-		<ul>
-			<li><em>at:start</em>, <em>at:end</em>:       match only at the start or end of path or title. Use both for exact match.</li>
-			<li><em>in:path</em>, <em>in:title</em>       match only path or title.</li>
-			<li><em>is:event</em>, <em>is:pageview</em>   show only events or pageviews.</li>
-			<li><em>:not</em> negate the match (that is: only show paths that don't match the filter).</li>
-		</ul>
-	</div>
-  """
+["nav-dash/filter-tooltip"]
+  default = """
+<p>Filtruj listę ścieżek; uwzględniaj wielkość liter ścieżek i tytułów. %[%more More help]</p>
+
+  <div>
+    <p>Recognizes the following keywords:</p>
+    <ul>
+      <li><em>at:start</em>, <em>at:end</em>:       match only at the start or end of path or title. Use both for exact match.</li>
+      <li><em>in:path</em>, <em>in:title</em>       match only path or title.</li>
+      <li><em>is:event</em>, <em>is:pageview</em>   show only events or pageviews.</li>
+      <li><em>:not</em> negate the match (that is: only show paths that don't match the filter).</li>
+    </ul>
+  </div>
+"""
 
 ["nav-dash/forced-daily"]
   default = "Widok godzinny niedostępny dla zakresu dat powyżej 90 dni"
+
+["nav-dash/forced-hourly"]
 
 ["nav-dash/forward"]
   default = "naprzód"
 
 ["nav-dash/half-year"]
   default = "pół roku"
+
+["nav-dash/hour"]
 
 ["nav-dash/last"]
   default = "Ostatni"
@@ -864,11 +886,17 @@ Weryfikacja odbywa się co 2 godziny.
 ["nav-dash/start-date"]
   default = "Początek zakresu dat do wyświetlenia"
 
+["nav-dash/view-by"]
+
 ["nav-dash/week"]
   default = "tydzień"
 
 ["nav-dash/year"]
   default = "rok"
+
+["nav-fash/filter-less-help"]
+
+["new-paren"]
 
 ["no-title"]
   default = "brak tytułu"
@@ -891,6 +919,8 @@ Weryfikacja odbywa się co 2 godziny.
 ["notify/export-started-in-background"]
   default = "Eksport rozpoczęto w tle; po zakończeniu otrzymasz e-mailem link do ściągnięcia wyników."
 
+["notify/import-ga-okay"]
+
 ["notify/import-started-in-background"]
   default = "Import rozpoczęto w tle; po zakończeniu otrzymasz e-mailem link do ściągnięcia wyników."
 
@@ -899,9 +929,6 @@ Weryfikacja odbywa się co 2 godziny.
 
 ["notify/multi-factor-auth-enabled"]
   default = "MFA włączone."
-
-["notify/need-business-plan-custom-domain"]
-  default = "potrzebuję biznesplanu do ustawienia własnej domeny"
 
 ["notify/need-email-verification-for-api"]
   default = "Do korzystania z API wymagana jest weryfikacja adresu e-mail."
@@ -914,12 +941,6 @@ Weryfikacja odbywa się co 2 godziny.
 
 ["notify/password-changed"]
   default = "Hasło zmienione."
-
-["notify/payment-processed"]
-  default = "Płatność przetworzona prawidłowo!"
-
-["notify/payment-processing"]
-  default = "Płatność zakończyła się powodzeniem, ale przetwarzanie się nie zakończyło."
 
 ["notify/reset-to-default"]
   default = "Zresetowano do domyślnych!"
@@ -966,8 +987,12 @@ oddzielny. Ustawienia bieżącej witryny są kopiowane podczas tworzenia, ale s�
 <p>Można dodać dowolną ilość witryn.</p>
 """
 
+["p/add-multiple-accounts"]
+
 ["p/additional-errors"]
   default = "Dodatkowe błędy"
+
+["p/all-sites"]
 
 ["p/api-intro"]
   default = "GoatCounter jest dostarczany z ograniczonym interfejsem API; obecnie można zliczać odsłony z interfejsu API, tworzyć, usuwać i edytować witryny oraz eksportować dane."
@@ -996,6 +1021,8 @@ kody (ze starym i nowym), aby zapobiec utracie zliczenia jakichkolwiek odsłon.<
 ["p/csv-file-format"]
   default = "Format pliku CSV jest %[udokumentowany tutaj]."
 
+["p/delete-account"]
+
 ["p/disable-mfa"]
   default = "MFA jest aktualnie włączone dla tego konta"
 
@@ -1004,6 +1031,8 @@ kody (ze starym i nowym), aby zapobiec utracie zliczenia jakichkolwiek odsłon.<
 
 ["p/error"]
   default = "Błąd: %(error-message)"
+
+["p/export-csv"]
 
 ["p/export-process"]
   default = """
@@ -1016,8 +1045,14 @@ które nie są wyświetlane w przeglądzie.</p>
 ["p/have-mfa"]
   default = "To konto jest chronione za pomocą uwierzytelniania wieloskładnikowego MFA; wprowadź kod z aplikacji uwierzytelniającej."
 
+["p/import-ga"]
+
 ["p/last-user"]
   default = "Nie można usuwać ani zmieniać ostatniego administratora."
+
+["p/manage-hits"]
+
+["p/merge-account"]
 
 ["p/no-data"]
   default = """
@@ -1044,6 +1079,8 @@ Rozpoczęcie pracy jest dość łatwe, wystarczy dodać następujący kod JavaSc
 ["p/notify-site-deletion"]
   default = "Nastąpi usunięcie %(number) witryn(y)."
 
+["p/num-accounts"]
+
 ["p/remove-site-confirm"]
   default = """
 Czy na pewno chcesz usunąć witrynę %(sitename)?<br>
@@ -1058,12 +1095,6 @@ Spowoduje to <strong>usuniecie wszystkich powiązanych danych</strong>.
 Czy na pewno chcesz usunąć witrynę %(sitename)?<br>
 Spowoduje to <strong>usuniecie wszystkich powiązanych danych</strong> i dotyczy <strong>aktualnie wyświetlanej witryny</strong>.
 """
-
-["p/request-data-recovery"]
-  default = "%[Skontaktuj się] w ciągu 7 dni, jeśli zmieniłeś zdanie i chcesz odzyskać swoje dane."
-
-["p/rm-hits"]
-  default = "Usuń wszystkie odsłony strony."
 
 ["p/rm-hits-help"]
   default = """
@@ -1096,17 +1127,24 @@ znaczeń.
 ["page-ranking"]
   default = "Ranking stron"
 
-["restricted-admin-access"]
-  default = "Zwykle administratorzy nie mogą „zalogować się” do Twojej witryny, ale jeśli jest to włączone, mogą. Możesz zostać poproszony o włączenie tej opcji w przypadku próśb o pomoc."
-
 ["scale-y"]
   default = "Skaluj oś Y do maksimum"
+
+["theme/dark"]
+
+["theme/light"]
+
+["theme/system"]
+
+["tooltip/change-period"]
 
 ["top-nav/back"]
   default = "Wróć"
 
 ["top-nav/dashboard"]
   default = "Pulpit"
+
+["top-nav/documentation"]
 
 ["top-nav/need-js"]
   default = "GoatCounter do prawidłowego działania wymaga włączonej obsługi JavaScript; proszę zezwól na uruchamianie JavaScript z %(domain)."
@@ -1126,17 +1164,8 @@ znaczeń.
 ["top-nav/sign-out"]
   default = "Wyloguj się"
 
-["top-nav/site-code"]
-  default = "Kod witryny"
-
 ["top-nav/sites"]
   default = "Witryny:"
-
-["top-nav/updates"]
-  default = "Aktualizacje"
-
-["top-nav/user"]
-  default = "Użytkownik"
 
 ["unknown"]
   default = "(nieznane)"
@@ -1183,6 +1212,8 @@ znaczeń.
 ["validate/len-shorter"]
   default = "musi być krótszy niż %d znaków"
 
+["validate/need-one"]
+
 ["validate/phone"]
   default = "musi być poprawnym numerem telefonu"
 
@@ -1200,6 +1231,8 @@ znaczeń.
 
 ["validate/utf8"]
   default = "musi być UTF-8"
+
+["view not set"]
 
 ["widget-setting/help/align"]
   default = "Dodaj margines po lewej stronie aby był wyrównany z wykresami stron"
@@ -1248,3 +1281,4 @@ znaczeń.
 
 ["y-scale"]
   default = "Skala osi Y"
+

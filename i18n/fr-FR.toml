@@ -1,8 +1,7 @@
 [__meta__]
-  comments = "|user|"
-  generated = 2021-11-29T19:38:18Z
   language = "fr-FR"
   maintainers = []
+  modified = 2024-04-09
 
 ["button/add-new"]
   default = "Ajouter"
@@ -28,11 +27,10 @@
 ["button/delete-account"]
   default = "Supprimer le compte, tous les sites et toutes les données"
 
-["button/delete-all"]
-  default = "Oui, supprimez-les tous !"
-
 ["button/delete-everything"]
   default = "Oui, supprimez tout"
+
+["button/delete-pageviews"]
 
 ["button/disable-mfa"]
   default = "Désactiver MFA"
@@ -45,6 +43,8 @@
 
 ["button/forgot-password"]
   default = "Mot de passe oublié ?"
+
+["button/merge"]
 
 ["button/remove"]
   default = "Supprimer"
@@ -61,17 +61,18 @@
 ["button/reset-password"]
   default = "Réinitialiser le mot de passe"
 
-["button/rm-hits"]
-  default = "Supprimer les pages vues"
-
 ["button/save"]
   default = "Enregistrer"
 
 ["button/save-default-view"]
   default = "Enregistrer la vue par défaut"
 
+["button/search"]
+
 ["button/send-login-url"]
   default = "Recevoir l'URL de connexion"
+
+["button/show"]
 
 ["button/sign-in"]
   default = "Connexion"
@@ -84,6 +85,8 @@
 
 ["button/submit"]
   default = "Valider"
+
+["button/upload-ga-import"]
 
 ["confirm/delete-user"]
   default = "Supprimer %(email) ?"
@@ -99,6 +102,8 @@
 ["dashboard/future"]
   default = "futur"
 
+["dashboard/loading"]
+
 ["dashboard/month-ago"]
   default = "il y a %(n) mois"
   zero    = "Zéro"
@@ -110,14 +115,13 @@
 ["dashboard/nothing-to-display"]
   default = "Rien à afficher"
 
+["dashboard/pages/change"]
+
 ["dashboard/pages/header"]
   default = "Pages"
 
 ["dashboard/pages/num-visits"]
   default = "%(num-visits) sur %(total-visits) visites affichées"
-
-["dashboard/pages/pageviews"]
-  default = "Pages vues"
 
 ["dashboard/pages/path"]
   default = "Chemin"
@@ -130,9 +134,6 @@
 
 ["dashboard/pages/title"]
   default = "Titre"
-
-["dashboard/pages/views"]
-  default = "Vues"
 
 ["dashboard/pages/visits"]
   default = "Visites"
@@ -163,6 +164,8 @@
 ["data-collect/help/country"]
   default = "Nom du pays, par exemple Belgique, Indonésie, etc..."
 
+["data-collect/help/hits"]
+
 ["data-collect/help/language"]
   default = "Les langues indiquées par l'en-tête Accept-Language"
 
@@ -183,6 +186,8 @@
 
 ["data-collect/label/country"]
   default = "Pays"
+
+["data-collect/label/hits"]
 
 ["data-collect/label/language"]
   default = "Langue"
@@ -211,6 +216,18 @@
 ["datepicker/month-prev"]
   default = "Mois précédent"
 
+["dont-lock"]
+
+["email-report/daily"]
+
+["email-report/monthly"]
+
+["email-report/never"]
+
+["email-report/two-weeks"]
+
+["email-report/weekly"]
+
 ["email/header"]
   default = "Bonjour,"
 
@@ -233,9 +250,6 @@ A plus,
 Martin
 """
 
-["error/account-has-stripe-subscription"]
-  default = "Ce compte a encore un abonnement Stripe ; annulez-le d'abord sur la page de facturation."
-
 ["error/address-exists"]
   default = "%(addr) existe déjà"
 
@@ -250,9 +264,6 @@ Martin
 
 ["error/date-past"]
   default = "C'est avant la création du site ! GoatCounter ne peut pas faire de miracle ;-)"
-
-["error/delete-main-site"]
-  default = "On ne peut pas supprimer le site principal"
 
 ["error/export-expired"]
   default = "Il semble qu'il n'y ait pas encore d'exportation ou qu'elle ait expiré."
@@ -290,11 +301,10 @@ Martin
 ["error/password-does-not-match"]
   default = "La confirmation du mot de passe ne correspond pas."
 
-["error/payment-cancelled"]
-  default = "Paiement annulé."
-
 ["error/reset-user-no-account"]
   default = "Pas un compte pour ce site : %(email)"
+
+["error/unknown-activation-token"]
 
 ["event"]
   default = "évènement"
@@ -304,6 +314,8 @@ Martin
 
 ["header/access"]
   default = "Accès"
+
+["header/add-api-token"]
 
 ["header/add-new-user"]
   default = "Ajouter un nouvel utilisateur"
@@ -362,6 +374,8 @@ Martin
 ["header/export-or-import"]
   default = "Export / Import"
 
+["header/fewer-number"]
+
 ["header/finished"]
   default = "Terminé"
 
@@ -386,11 +400,17 @@ Martin
 ["header/last-10-exports"]
   default = "10 derniers exports"
 
+["header/last-used-at"]
+
 ["header/locations"]
   default = "Pays"
 
 ["header/locations-for"]
   default = "Emplacements pour: %(country)"
+
+["header/manage-pageviews"]
+
+["header/merge-account"]
 
 ["header/mfa"]
   default = "Authentification multi-facteur"
@@ -400,9 +420,6 @@ Martin
 
 ["header/name"]
   default = "Nom"
-
-["header/new"]
-  default = "Nouveau"
 
 ["header/pagination-cursor"]
   default = "Curseur de pagination"
@@ -421,9 +438,6 @@ Martin
 
 ["header/reset-password"]
   default = "Réinitialiser le mot de passe de %(email) pour %(site-name)"
-
-["header/rm-hits"]
-  default = "Supprimer les pages vues"
 
 ["header/settings"]
   default = "Paramètres"
@@ -463,9 +477,6 @@ Martin
 ["header/tracking"]
   default = "Suivi"
 
-["header/updated"]
-  default = "Mises à jour"
-
 ["header/user-info"]
   default = "Information sur l'utilisateur"
 
@@ -475,13 +486,10 @@ Martin
 ["header/users"]
   default = "Utilisateurs"
 
+["help/allow-embed"]
+
 ["help/allow-visitor-counts"]
   default = "Reportez-vous à la %[documentation] pour plus d'explications"
-
-["help/campaign-parameters"]
-  default = """
-Liste des paramètres à compter en tant que \\"campagnes\\" ; si elle est définie, la valeur sera considérée comme le \\"referrer\\" et remplacera l'en-tête Referrer.
-"""
 
 ["help/cfg-dashboard"]
   default = "Modifiez le contenu à afficher sur le tableau de bord et l'ordre des éléments."
@@ -489,10 +497,12 @@ Liste des paramètres à compter en tant que \\"campagnes\\" ; si elle est défi
 ["help/code-access"]
   default = "Vous accéderez à votre site à l'adresse https://<em>[my-code]</em>.%(domain)."
 
+["help/configure-dashboard"]
+
 ["help/custom-domain"]
   default = """
 Domaine personnalisé, par exemple <em>“stats.example.com”</em>.<br>
-<strong>Note :</strong> C'est juste pour faire \\"beau\\" et cela n'empêchera pas la plupart des bloqueurs de publicité de bloquer GoatCounter.
+<strong>Note :</strong> C'est juste pour faire \\\"beau\\\" et cela n'empêchera pas la plupart des bloqueurs de publicité de bloquer GoatCounter.
 """
 
 ["help/custom-domain-cname"]
@@ -500,22 +510,25 @@ Domaine personnalisé, par exemple <em>“stats.example.com”</em>.<br>
 
 ["help/custom-domain-error"]
 
-["help/custom-domain-plan"]
-  default = """
-Nécessite un plan Personal Plus ou Business (vous êtes sur le plan \\"%(plan)\\" ; voir l'onglet %[%link Facturation])
-"""
-
 ["help/custom-domain-verified"]
   default = "Domaine vérifié et configuré (note : le certificat peut prendre jusqu'à une heure pour fonctionner)."
 
 ["help/data-retention"]
   default = "Les pages vues et toutes les données associées seront définitivement supprimées après ce nombre de jours. Mettre <code>0</code> pour ne jamais supprimer."
 
+["help/datepicker"]
+
 ["help/domain-access"]
   default = "Domaine à partir duquel accéder à ce site."
 
 ["help/drag-reorder"]
   default = "Utilisez le drag & drop pour trier"
+
+["help/email-reports"]
+
+["help/fewer-numbers"]
+
+["help/fewer-numbers-lock"]
 
 ["help/for-the-following-countries"]
   default = "Liste des codes pays (%[list]; utilisez la codification alpha-2); laissez en blanc pour avoir tous les pays (si activé)."
@@ -527,6 +540,10 @@ Nécessite un plan Personal Plus ou Business (vous êtes sur le plan \\"%(plan)\
   default = "Ne pas compter les accès provenant de ces adresses IP (liste d'adresses séparées par des virgules, correspondances exactes). %[Ajoutez votre IP actuelle]."
 
 ["help/ignore-ips-2"]
+
+["help/locked-until"]
+
+["help/need-cities"]
 
 ["help/new-user-email"]
   default = "Adresse mél avec laquelle se connecter."
@@ -546,9 +563,6 @@ Nécessite un plan Personal Plus ou Business (vous êtes sur le plan \\"%(plan)\
 ["help/public"]
   default = "Définissez qui peut voir le tableau de bord."
 
-["help/rm-hits"]
-  default = "Il y aura un aperçu des pages concernées avant que tout ne soit définitivement supprimé."
-
 ["help/save-default-view"]
   default = "Enregistrer la vue actuelle (c'est-à-dire le contenu du cadre jaune) comme étant la vue par défaut à charger lorsque rien n'est sélectionné."
 
@@ -561,14 +575,13 @@ Nécessite un plan Personal Plus ou Business (vous êtes sur le plan \\"%(plan)\
 ["label/24-hour-clock"]
   default = "Système horaire sur 24 heures (13:00)"
 
+["label/access-to-sites"]
+
 ["label/add-new"]
   default = "Ajouter un nouveau"
 
 ["label/all-sites"]
   default = "Tous les sites"
-
-["label/allow-admin-access"]
-  default = "Autoriser l'accès admin"
 
 ["label/allow-visitor-counts"]
   default = "Permettre d'ajouter le nombre de visiteurs sur votre site web"
@@ -576,8 +589,7 @@ Nécessite un plan Personal Plus ou Business (vous êtes sur le plan \\"%(plan)\
 ["label/browser-stats"]
   default = "Statistiques navigateur"
 
-["label/campaign-parameters"]
-  default = "Paramètres de la campagne"
+["label/campaigns"]
 
 ["label/change-code"]
   default = "Vous accéderez à votre compte à l'adresse https://<em>[my-code]</em>.%(domain) – %[%link modifier ce code]."
@@ -588,9 +600,6 @@ Nécessite un plan Personal Plus ou Business (vous êtes sur le plan \\"%(plan)\
 ["label/code"]
   default = "Code"
 
-["label/collected-since"]
-  default = "Collecté depuis le 2 décembre 2021"
-
 ["label/csv-compress-format"]
   default = "Fichier CSV ; peut être compressé avec gzip"
 
@@ -599,6 +608,8 @@ Nécessite un plan Personal Plus ou Business (vous êtes sur le plan \\"%(plan)\
 
 ["label/custom-domain"]
   default = "Nom de domaine personnalisé"
+
+["label/dashboard-allow-embed"]
 
 ["label/dashboard-public"]
   default = "Tableau de bord visible par"
@@ -609,26 +620,20 @@ Nécessite un plan Personal Plus ou Business (vous êtes sur le plan \\"%(plan)\
 ["label/date-fmt"]
   default = "Format de date"
 
+["label/datepicker"]
+
 ["label/delete-account-confirmation"]
   default = "Êtes-vous certain de vouloir supprimer l'intégralité de votre compte ?"
-
-["label/delete-account-contact"]
-  default = "<em>Si vous cochez cette case, je vous contacterai (peut-être) pour vous poser quelques questions. Je n'essaierai pas de vous convaincre de rester (je ne suis pas un démarcheur), mais je vous poserai une ou deux questions pour mieux comprendre et je vous présenterai éventuellement mes projets si une fonctionnalité particulière vous manque.</em>"
-
-["label/delete-account-follow-up"]
-  default = "J'accepte d'être éventuellement recontacté"
-
-["label/delete-account-reason"]
-  default = "Pourriez-vous m'indiquer si quelque chose en particulier vous manque dans GoatCounter, ou toute autre raison pour laquelle vous souhaitez supprimer votre compte. <em>Ceci est entièrement facultatif.</em>"
-
-["label/delete-account-reason-placeholder"]
-  default = "Raison de la suppression (facultatif)"
 
 ["label/email"]
   default = "Adresse mél"
 
 ["label/email-address"]
   default = "Adresse mél"
+
+["label/email-reports"]
+
+["label/fewer-numbers"]
 
 ["label/for-following-countries"]
   default = "Pour les pays suivants seulement"
@@ -648,11 +653,19 @@ Nécessite un plan Personal Plus ou Business (vous êtes sur le plan \\"%(plan)\
 ["label/loc-stats"]
   default = "Statistiques de localisation"
 
+["label/lock-setting"]
+
 ["label/mark-current"]
   default = "(courant)"
 
+["label/match-case"]
+
 ["label/match-title"]
   default = "Gérer aussi la correspondance sur le titre"
+
+["label/merge-account-confirmation"]
+
+["label/merge-to"]
 
 ["label/mfa-token"]
   default = "Jeton MFA"
@@ -702,9 +715,6 @@ Nécessite un plan Personal Plus ou Business (vous êtes sur le plan \\"%(plan)\
 ["label/size-desktophd"]
   default = "Écrans d'ordinateur plus grands que HD"
 
-["label/size-largephones"]
-  default = "Grands téléphones ou petites tablettes"
-
 ["label/size-phones"]
   default = "Téléphones"
 
@@ -716,6 +726,8 @@ Nécessite un plan Personal Plus ou Business (vous êtes sur le plan \\"%(plan)\
 
 ["label/system-stats"]
   default = "Statistiques sur le système"
+
+["label/theme"]
 
 ["label/thousand-separator"]
   default = "Séparateur de milliers"
@@ -752,9 +764,6 @@ Nécessite un plan Personal Plus ou Business (vous êtes sur le plan \\"%(plan)\
 ["link/api-docs"]
   default = "Documentation de l'API"
 
-["link/billing"]
-  default = "Facturation"
-
 ["link/dashboard"]
   default = "Tableau de bord"
 
@@ -763,6 +772,12 @@ Nécessite un plan Personal Plus ou Business (vous êtes sur le plan \\"%(plan)\
 
 ["link/goto-path"]
   default = "Aller à %(path)"
+
+["link/import"]
+
+["link/manage-pageviews"]
+
+["link/merge-account"]
 
 ["link/passwd-mfa"]
   default = "Mot de passe et MFA"
@@ -773,14 +788,13 @@ Nécessite un plan Personal Plus ou Business (vous êtes sur le plan \\"%(plan)\
 ["link/rm-account"]
   default = "Supprimer le compte"
 
-["link/rm-views"]
-  default = "Supprimer les pages vues"
-
 ["link/set-from-browser"]
   default = "Défini depuis le navigateur"
 
 ["link/settings"]
   default = "Paramètres"
+
+["link/show-less"]
 
 ["link/show-more"]
   default = "Voir plus"
@@ -809,9 +823,6 @@ Nécessite un plan Personal Plus ou Business (vous êtes sur le plan \\"%(plan)\
 ["nav-dash/back"]
   default = "reculer"
 
-["nav-dash/by-day"]
-  default = "Vue par jour"
-
 ["nav-dash/current"]
   default = "Période en cours"
 
@@ -824,28 +835,35 @@ Nécessite un plan Personal Plus ou Business (vous êtes sur le plan \\"%(plan)\
 ["nav-dash/filter"]
   default = "Filtrer les pages"
 
-["nav-dash/filter-tooltip"]
-  default = """<p>Filtre la liste des pages selon chemin ou titre (sans tenir compte maj/min). %[%more More help]</p>
+["nav-dash/filter-more-help"]
 
-	<div>
-		<p>Recognizes the following keywords:</p>
-		<ul>
-			<li><em>at:start</em>, <em>at:end</em>:       match only at the start or end of path or title. Use both for exact match.</li>
-			<li><em>in:path</em>, <em>in:title</em>       match only path or title.</li>
-			<li><em>is:event</em>, <em>is:pageview</em>   show only events or pageviews.</li>
-			<li><em>:not</em> negate the match (that is: only show paths that don't match the filter).</li>
-		</ul>
-	</div>
-  """
+["nav-dash/filter-tooltip"]
+  default = """
+<p>Filtre la liste des pages selon chemin ou titre (sans tenir compte maj/min). %[%more More help]</p>
+
+  <div>
+    <p>Recognizes the following keywords:</p>
+    <ul>
+      <li><em>at:start</em>, <em>at:end</em>:       match only at the start or end of path or title. Use both for exact match.</li>
+      <li><em>in:path</em>, <em>in:title</em>       match only path or title.</li>
+      <li><em>is:event</em>, <em>is:pageview</em>   show only events or pageviews.</li>
+      <li><em>:not</em> negate the match (that is: only show paths that don't match the filter).</li>
+    </ul>
+  </div>
+"""
 
 ["nav-dash/forced-daily"]
   default = "Impossible d'utiliser la vue horaire pour une période de plus de 90 jours"
+
+["nav-dash/forced-hourly"]
 
 ["nav-dash/forward"]
   default = "avancer"
 
 ["nav-dash/half-year"]
   default = "semestre"
+
+["nav-dash/hour"]
 
 ["nav-dash/last"]
   default = "Voir 1"
@@ -859,11 +877,17 @@ Nécessite un plan Personal Plus ou Business (vous êtes sur le plan \\"%(plan)\
 ["nav-dash/start-date"]
   default = "Date de début des statistiques"
 
+["nav-dash/view-by"]
+
 ["nav-dash/week"]
   default = "semaine"
 
 ["nav-dash/year"]
   default = "an"
+
+["nav-fash/filter-less-help"]
+
+["new-paren"]
 
 ["no-title"]
   default = "pas de titre"
@@ -886,6 +910,8 @@ Nécessite un plan Personal Plus ou Business (vous êtes sur le plan \\"%(plan)\
 ["notify/export-started-in-background"]
   default = "L'exportation a commencé en arrière-plan ; vous recevrez un courriel contenant un lien de téléchargement lorsque l'opération sera terminée."
 
+["notify/import-ga-okay"]
+
 ["notify/import-started-in-background"]
   default = "L'importation a commencé en arrière-plan ; vous recevrez un courriel contenant un lien de téléchargement lorsque l'opération sera terminée."
 
@@ -894,9 +920,6 @@ Nécessite un plan Personal Plus ou Business (vous êtes sur le plan \\"%(plan)\
 
 ["notify/multi-factor-auth-enabled"]
   default = "Authentification multi-facteur activée."
-
-["notify/need-business-plan-custom-domain"]
-  default = "il faut Business Plan pour définir un domaine personnalisé"
 
 ["notify/need-email-verification-for-api"]
   default = "Vous devez valider votre adresse mél avant de pouvoir utiliser l'API."
@@ -909,12 +932,6 @@ Nécessite un plan Personal Plus ou Business (vous êtes sur le plan \\"%(plan)\
 
 ["notify/password-changed"]
   default = "Mot de passe mis à jour."
-
-["notify/payment-processed"]
-  default = "Le paiement a été traité avec succès !"
-
-["notify/payment-processing"]
-  default = "Le processeur de paiement a signalé un succès de l'opération, mais nous sommes toujours en train de traiter le paiement."
 
 ["notify/reset-to-default"]
   default = "Réinitialisation des valeurs par défaut !"
@@ -959,8 +976,12 @@ Nécessite un plan Personal Plus ou Business (vous êtes sur le plan \\"%(plan)\
 <p>Vous pouvez ajouter autant de sites que vous le souhaitez.</p>
 """
 
+["p/add-multiple-accounts"]
+
 ["p/additional-errors"]
   default = "Autres erreurs"
+
+["p/all-sites"]
 
 ["p/api-intro"]
   default = "GoatCounter inclut un API limité. Présentement, vous pouvez l'utiliser pour compter les pages vues, pour créer, supprimer et éditer vos sites, et pour exporter des données."
@@ -979,6 +1000,8 @@ Nécessite un plan Personal Plus ou Business (vous êtes sur le plan \\"%(plan)\
 ["p/csv-file-format"]
   default = "Le format du fichier CSV est %[documenté ici]."
 
+["p/delete-account"]
+
 ["p/disable-mfa"]
   default = "L'authentification MFA est activée pour ce compte."
 
@@ -988,14 +1011,22 @@ Nécessite un plan Personal Plus ou Business (vous êtes sur le plan \\"%(plan)\
 ["p/error"]
   default = "Erreur : %(error-message)"
 
+["p/export-csv"]
+
 ["p/export-process"]
   default = "<p>Démarrer le processus et vous envoyer un lien de téléchargement une fois que c'est fait. une fois qu'il est terminé. Vous ne pouvez effectuer cette opération qu'une fois par heure et elle annulera toutes les sauvegardes précédentes. sauvegardes précédentes que vous pourriez avoir.</p>"
 
 ["p/have-mfa"]
   default = "Ce compte est protégé par une authentification multi-facteurs (MFA) ; veuillez saisir le code de votre application d'authentification."
 
+["p/import-ga"]
+
 ["p/last-user"]
   default = "Impossible de supprimer ou modifier le dernier administrateur"
+
+["p/manage-hits"]
+
+["p/merge-account"]
 
 ["p/no-data"]
   default = "%[%pre %(js_code)]"
@@ -1011,6 +1042,8 @@ Nécessite un plan Personal Plus ou Business (vous êtes sur le plan \\"%(plan)\
 ["p/notify-site-deletion"]
   default = "%(number) sites seront supprimés"
 
+["p/num-accounts"]
+
 ["p/remove-site-confirm"]
   default = """
 Est-ce que vous confirmez la suppression du site %(sitename) ?<br>
@@ -1025,12 +1058,6 @@ Cela va supprimer <strong>toutes ses données</strong>.
 Est-ce que vous confirmez la suppression du site %(sitename) ?<br>
 Il s'agit du <strong>site en cours</strong> et cela va supprimer <strong>toutes ses données</strong>.
 """
-
-["p/request-data-recovery"]
-  default = "%[Pour me contacter] dans les 7 jours si jamais vous changez d'avis et souhaitez récupérer vos données."
-
-["p/rm-hits"]
-  default = "Supprimer toutes les statistiques pour une page"
 
 ["p/rm-hits-help"]
   default = """
@@ -1051,7 +1078,7 @@ Utilisez <code>\\%</code> et <code>\\_</code> pour indiquer la présence d'un % 
 
 ["p/site-domain-link-to-page"]
   default = """
-Le domaine de votre site, par exemple <em>\\"www.example.com\\"</em>, utilisé pour établir un lien vers la page dans l'aperçu.
+Le domaine de votre site, par exemple <em>\\\"www.example.com\\\"</em>, utilisé pour établir un lien vers la page dans l'aperçu.
 """
 
 ["p/text-data-retention"]
@@ -1063,19 +1090,24 @@ Le domaine de votre site, par exemple <em>\\"www.example.com\\"</em>, utilisé p
 ["page-ranking"]
   default = "Classement des pages"
 
-["restricted-admin-access"]
-  default = """
-Normalement, les administrateurs ne peuvent pas se \\"connecter\\" à votre site, mais si cette option est activée, ils peuvent le faire. Il se peut que l'on vous demande d'activer cette fonction lors d'une demande d'assistance.
-"""
-
 ["scale-y"]
   default = "Mettre l'échelle de l'axe Y de tous les graphiques à la valeur maximum de ce graphique (%(n))"
+
+["theme/dark"]
+
+["theme/light"]
+
+["theme/system"]
+
+["tooltip/change-period"]
 
 ["top-nav/back"]
   default = "Retour"
 
 ["top-nav/dashboard"]
   default = "Tableau de bord"
+
+["top-nav/documentation"]
 
 ["top-nav/need-js"]
   default = "GoatCounter a besoin de JavaScript pour fonctionner ; veuillez autoriser l'exécution de JavaScript à partir de %(domaine)."
@@ -1095,17 +1127,8 @@ Normalement, les administrateurs ne peuvent pas se \\"connecter\\" à votre site
 ["top-nav/sign-out"]
   default = "Déconnexion"
 
-["top-nav/site-code"]
-  default = "Code source"
-
 ["top-nav/sites"]
   default = "Sites :"
-
-["top-nav/updates"]
-  default = "Mises à jour"
-
-["top-nav/user"]
-  default = "Utilisateur"
 
 ["unknown"]
   default = "(inconnu)"
@@ -1152,6 +1175,8 @@ Normalement, les administrateurs ne peuvent pas se \\"connecter\\" à votre site
 ["validate/len-shorter"]
   default = "doit compter moins de %d caractères"
 
+["validate/need-one"]
+
 ["validate/phone"]
   default = "doit être un numéro de téléphone valide"
 
@@ -1169,6 +1194,8 @@ Normalement, les administrateurs ne peuvent pas se \\"connecter\\" à votre site
 
 ["validate/utf8"]
   default = "doit être en UTF-8"
+
+["view not set"]
 
 ["widget-setting/help/align"]
   default = "Ajouter une marge à gauche pour aligner sur les graphiques"
@@ -1217,3 +1244,4 @@ Normalement, les administrateurs ne peuvent pas se \\"connecter\\" à votre site
 
 ["y-scale"]
   default = "Échelle de l'axe Y"
+

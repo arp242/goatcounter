@@ -1,8 +1,7 @@
 [__meta__]
-  comments = ""
-  generated = 2021-11-29T19:38:18Z
   language = "de-DE"
   maintainers = ["Jan Wildeboer <jan@wildeboer.net>"]
+  modified = 2023-03-30
 
 ["button/add-new"]
   default = "Hinzufügen"
@@ -28,11 +27,10 @@
 ["button/delete-account"]
   default = "Konto, alle Websites und alle Daten löschen"
 
-["button/delete-all"]
-  default = "Ja, wirklich alles löschen!"
-
 ["button/delete-everything"]
   default = "Ja, alles löschen"
+
+["button/delete-pageviews"]
 
 ["button/disable-mfa"]
   default = "MFA deaktivieren"
@@ -45,6 +43,8 @@
 
 ["button/forgot-password"]
   default = "Passwort vergessen?"
+
+["button/merge"]
 
 ["button/remove"]
   default = "Entfernen"
@@ -61,17 +61,18 @@
 ["button/reset-password"]
   default = "Passwort neu setzen"
 
-["button/rm-hits"]
-  default = "Seitenaufrufe löschen"
-
 ["button/save"]
   default = "Speichern"
 
 ["button/save-default-view"]
   default = "Standardansicht speichern"
 
+["button/search"]
+
 ["button/send-login-url"]
   default = "Login-URL senden"
+
+["button/show"]
 
 ["button/sign-in"]
   default = "Anmelden"
@@ -84,6 +85,8 @@
 
 ["button/submit"]
   default = "Absenden"
+
+["button/upload-ga-import"]
 
 ["confirm/delete-user"]
   default = "%(email) löschen?"
@@ -99,6 +102,8 @@
 ["dashboard/future"]
   default = "Zukunft"
 
+["dashboard/loading"]
+
 ["dashboard/month-ago"]
   default = "Vor %(n) Monaten"
   zero    = "Vor 0 Monaten"
@@ -110,14 +115,13 @@
 ["dashboard/nothing-to-display"]
   default = "Keine Daten verfügbar"
 
+["dashboard/pages/change"]
+
 ["dashboard/pages/header"]
   default = "Seiten"
 
 ["dashboard/pages/num-visits"]
   default = "%(num-visits) von %(total-visits) Besuchen angezeigt"
-
-["dashboard/pages/pageviews"]
-  default = "Seitenaufrufe"
 
 ["dashboard/pages/path"]
   default = "Pfad"
@@ -130,9 +134,6 @@
 
 ["dashboard/pages/title"]
   default = "Titel"
-
-["dashboard/pages/views"]
-  default = "Aufrufe"
 
 ["dashboard/pages/visits"]
   default = "Besuche"
@@ -163,6 +164,8 @@
 ["data-collect/help/country"]
   default = "Land, zum Beispiel Belgien, Indonesien, etc."
 
+["data-collect/help/hits"]
+
 ["data-collect/help/language"]
   default = "Unterstützte Sprachen von Accept-Language"
 
@@ -178,8 +181,12 @@
 ["data-collect/help/size"]
   default = "Bildschirmgröße"
 
+["data-collect/help/user-agent"]
+
 ["data-collect/label/country"]
   default = "Land"
+
+["data-collect/label/hits"]
 
 ["data-collect/label/language"]
   default = "Sprache"
@@ -208,6 +215,18 @@
 ["datepicker/month-prev"]
   default = "Vorheriger Monat"
 
+["dont-lock"]
+
+["email-report/daily"]
+
+["email-report/monthly"]
+
+["email-report/never"]
+
+["email-report/two-weeks"]
+
+["email-report/weekly"]
+
 ["email/header"]
   default = "Hallo!"
 
@@ -225,9 +244,6 @@ Hier ist der entsprechende Link:
 ["email/signature"]
   default = "Haben Sie Fragen, Probleme, Kommentare oder etwas anderes, was sie mir mitteilen wollen? Antworten Sie einfach auf diese e-mail."
 
-["error/account-has-stripe-subscription"]
-  default = "Dieses Konto hat noch ein Stripe-Abonnement. Dieses bitte zuerst auf der Abrechnungsseite entfernen."
-
 ["error/address-exists"]
   default = "%(addr) bereits vergeben"
 
@@ -242,9 +258,6 @@ Hier ist der entsprechende Link:
 
 ["error/date-past"]
   default = "Das wäre, bevor die Website angelegt wurde. Goatcounter ist nicht *so* fortschrittlich :-)"
-
-["error/delete-main-site"]
-  default = "Kann die Hauptwebsite nicht löschen"
 
 ["error/export-expired"]
   default = "Es scheint kein Export vorhanden zu sein, oder der Export ist abgelaufen."
@@ -282,11 +295,10 @@ Hier ist der entsprechende Link:
 ["error/password-does-not-match"]
   default = "Passwörter stimmen nicht überein"
 
-["error/payment-cancelled"]
-  default = "Zahlungen entfernt"
-
 ["error/reset-user-no-account"]
   default = "Kein Benutzer auf dieser Website: %(email)"
+
+["error/unknown-activation-token"]
 
 ["event"]
   default = "Ereignis"
@@ -296,6 +308,8 @@ Hier ist der entsprechende Link:
 
 ["header/access"]
   default = "Zugang"
+
+["header/add-api-token"]
 
 ["header/add-new-user"]
   default = "Neuen Benutzer anlegen"
@@ -354,6 +368,8 @@ Hier ist der entsprechende Link:
 ["header/export-or-import"]
   default = "Export/Import"
 
+["header/fewer-number"]
+
 ["header/finished"]
   default = "Beendet"
 
@@ -378,11 +394,17 @@ Hier ist der entsprechende Link:
 ["header/last-10-exports"]
   default = "Letzte 10 Exporte"
 
+["header/last-used-at"]
+
 ["header/locations"]
   default = "Orte"
 
 ["header/locations-for"]
   default = "Orte für %(country)"
+
+["header/manage-pageviews"]
+
+["header/merge-account"]
 
 ["header/mfa"]
   default = "Multi-Faktor-Authentifizierung"
@@ -392,9 +414,6 @@ Hier ist der entsprechende Link:
 
 ["header/name"]
   default = "Name"
-
-["header/new"]
-  default = "Neu"
 
 ["header/pagination-cursor"]
   default = "Paginierungscursor"
@@ -413,9 +432,6 @@ Hier ist der entsprechende Link:
 
 ["header/reset-password"]
   default = "Passwort für %(email) auf %(site-name) neu setzen"
-
-["header/rm-hits"]
-  default = "Seitenaufrufe löschen"
 
 ["header/settings"]
   default = "Einstellungen"
@@ -456,9 +472,6 @@ Hier ist der entsprechende Link:
 ["header/tracking"]
   default = "Tracking"
 
-["header/updated"]
-  default = "Aktualisierungen"
-
 ["header/user-info"]
   default = "Benutzerinformation"
 
@@ -468,17 +481,18 @@ Hier ist der entsprechende Link:
 ["header/users"]
   default = "Benutzer"
 
+["help/allow-embed"]
+
 ["help/allow-visitor-counts"]
   default = "Bitte die %(the documentation) lesen für Details zur Benutzung"
-
-["help/campaign-parameters"]
-  default = "Liste der Parameter, die als „Kampagnen“ gezählt werden sollen. Wenn gesetzt, wird der Wert als Referrer behandelt und andere Referrer-Header ignoriert."
 
 ["help/cfg-dashboard"]
   default = "Inhalt und Reihenfolge der Dashboard-Anzeige ändern."
 
 ["help/code-access"]
   default = "Ihre Website wird unter  https://<em>[my-code]</em>.%(domain) zur Verfügung stehen."
+
+["help/configure-dashboard"]
 
 ["help/custom-domain"]
   default = """
@@ -492,20 +506,25 @@ Eigene Domain, z.B. <em>„stats.example.com“</em>.
 ["help/custom-domain-error"]
   default = "%[%error Noch nicht verifiziert]; Erstellen sie einen CNAME-Eintrag für <code>%(domain)</code> – %[%docs detaillierte Anweisungen]. Die Überprüfung findet alle 2 Stunden statt."
 
-["help/custom-domain-plan"]
-  default = "Benötigt Personal-Plus- oder Business-Plan (Sie haben momentan %(plan); Siehe  %[%link Abrechnung])."
-
 ["help/custom-domain-verified"]
   default = "Domain verifiziert und eingerichtet (Hinweis: bis das Zertifikat installiert ist, kann bis zu eine Stunde vergehen)."
 
 ["help/data-retention"]
   default = "Seitenaufrufe und damit verknüpfte Daten werden unwiderruflich nach den hier eingestellten Tagen gelöscht. 0 bedeutet: Daten werden nie gelöscht."
 
+["help/datepicker"]
+
 ["help/domain-access"]
   default = "Domain, von der aus Zugriff auf diese Website erfolgt."
 
 ["help/drag-reorder"]
   default = "Reihenfolge durch Verschieben ändern"
+
+["help/email-reports"]
+
+["help/fewer-numbers"]
+
+["help/fewer-numbers-lock"]
 
 ["help/for-the-following-countries"]
   default = "Liste der Länderkürzel (%[list]: 2 Buchstaben Kürzel verwenden): Leer lassen, um alle Länder zu erfassen (wenn ausgewählt)."
@@ -518,6 +537,10 @@ Eigene Domain, z.B. <em>„stats.example.com“</em>.
 
 ["help/ignore-ips-2"]
   default = "Alternativ - %[für diesen Browser deaktivieren] (zum erneuten Aktivieren nochmal anklicken)."
+
+["help/locked-until"]
+
+["help/need-cities"]
 
 ["help/new-user-email"]
   default = "E-Mail für die Anmeldung"
@@ -537,9 +560,6 @@ Eigene Domain, z.B. <em>„stats.example.com“</em>.
 ["help/public"]
   default = "Zugriff auf Dashboard einstellen."
 
-["help/rm-hits"]
-  default = "Vor dem Löschen wird eine Vorschau der Treffer angezeigt werden."
-
 ["help/save-default-view"]
   default = "Diese Einstellungen (alles in der gelben Box) als Voreinstellung speichern."
 
@@ -552,14 +572,13 @@ Eigene Domain, z.B. <em>„stats.example.com“</em>.
 ["label/24-hour-clock"]
   default = "24-Stunden-Format (13:00)"
 
+["label/access-to-sites"]
+
 ["label/add-new"]
   default = "Hinzufügen"
 
 ["label/all-sites"]
   default = "Alle Websites"
-
-["label/allow-admin-access"]
-  default = "Admin-Zugriff erlauben"
 
 ["label/allow-visitor-counts"]
   default = "Besucherzähler auf ihrer Website zulassen"
@@ -567,8 +586,7 @@ Eigene Domain, z.B. <em>„stats.example.com“</em>.
 ["label/browser-stats"]
   default = "Browser-Statistiken"
 
-["label/campaign-parameters"]
-  default = "Kampagnen-Parameter"
+["label/campaigns"]
 
 ["label/change-code"]
   default = "Ihr Kontozugriff erfolgt unter https://<em>[mein-code]</em>.%(domain) – %[%link ändern]."
@@ -579,9 +597,6 @@ Eigene Domain, z.B. <em>„stats.example.com“</em>.
 ["label/code"]
   default = "Code"
 
-["label/collected-since"]
-  default = "Seit dem 2. Dezember 2021 gesammelt"
-
 ["label/csv-compress-format"]
   default = "CSV Datei; eventuell gzip komprimiert"
 
@@ -590,6 +605,8 @@ Eigene Domain, z.B. <em>„stats.example.com“</em>.
 
 ["label/custom-domain"]
   default = "Eigene Domain"
+
+["label/dashboard-allow-embed"]
 
 ["label/dashboard-public"]
   default = "Dashboard sichtbar für"
@@ -600,26 +617,20 @@ Eigene Domain, z.B. <em>„stats.example.com“</em>.
 ["label/date-fmt"]
   default = "Datumsformat"
 
+["label/datepicker"]
+
 ["label/delete-account-confirmation"]
   default = "Sind Sie sicher, dass Sie das gesamte Konto löschen wollen?"
-
-["label/delete-account-contact"]
-  default = "Ich könnte Ihnen ein paar Fragen stellen oder einen Kommentar senden, wenn Sie mir das erlauben. Ich werde Sie nicht überreden wollen, doch hier zu bleiben (ich bin kein Telekomm-Anbieter), aber hoffe, mit ein paar Fragen besser verstehen zu können, wie ich GoatCounter verbessern kann."
-
-["label/delete-account-follow-up"]
-  default = "Einverständnis für Nachbefragung"
-
-["label/delete-account-reason"]
-  default = "Es würde mich freuen zu erfahren, ob Sie etwas Spezielles in GoatCounter vermissen oder aus welchen anderen Gründen Sie beschlossen haben, das Konto zu löschen. Selbstverständlich alles freiwillig."
-
-["label/delete-account-reason-placeholder"]
-  default = "Optionaler Grund für die Löschung"
 
 ["label/email"]
   default = "E-Mail"
 
 ["label/email-address"]
   default = "E-Mail-Adresse"
+
+["label/email-reports"]
+
+["label/fewer-numbers"]
 
 ["label/for-following-countries"]
   default = "Nur für diese Länder:"
@@ -639,11 +650,19 @@ Eigene Domain, z.B. <em>„stats.example.com“</em>.
 ["label/loc-stats"]
   default = "Standort-Statistik"
 
+["label/lock-setting"]
+
 ["label/mark-current"]
   default = "(aktuell)"
 
+["label/match-case"]
+
 ["label/match-title"]
   default = "Auch Titel abgleichen"
+
+["label/merge-account-confirmation"]
+
+["label/merge-to"]
 
 ["label/mfa-token"]
   default = "MFA-Token"
@@ -693,9 +712,6 @@ Eigene Domain, z.B. <em>„stats.example.com“</em>.
 ["label/size-desktophd"]
   default = "Computer-Bildschirme größer als HD"
 
-["label/size-largephones"]
-  default = "Große Mobiltelefone, kleine Tablets"
-
 ["label/size-phones"]
   default = "Mobiltelefone"
 
@@ -707,6 +723,8 @@ Eigene Domain, z.B. <em>„stats.example.com“</em>.
 
 ["label/system-stats"]
   default = "Systemstatistik"
+
+["label/theme"]
 
 ["label/thousand-separator"]
   default = "Trennzeichen für Tausend"
@@ -744,9 +762,6 @@ Eigene Domain, z.B. <em>„stats.example.com“</em>.
 ["link/api-docs"]
   default = "API-Dokumentation"
 
-["link/billing"]
-  default = "Abrechnung"
-
 ["link/dashboard"]
   default = "Dashboard"
 
@@ -759,6 +774,10 @@ Eigene Domain, z.B. <em>„stats.example.com“</em>.
 ["link/import"]
   default = "Import/Export"
 
+["link/manage-pageviews"]
+
+["link/merge-account"]
+
 ["link/passwd-mfa"]
   default = "Passwort und MFA"
 
@@ -768,14 +787,13 @@ Eigene Domain, z.B. <em>„stats.example.com“</em>.
 ["link/rm-account"]
   default = "Konto löschen"
 
-["link/rm-views"]
-  default = "Pageviews löschen"
-
 ["link/set-from-browser"]
   default = "Vom Browser übernehmen"
 
 ["link/settings"]
   default = "Einstellungen"
+
+["link/show-less"]
 
 ["link/show-more"]
   default = "Mehr anzeigen"
@@ -804,9 +822,6 @@ Eigene Domain, z.B. <em>„stats.example.com“</em>.
 ["nav-dash/back"]
   default = "Zurück"
 
-["nav-dash/by-day"]
-  default = "Ansicht Tag"
-
 ["nav-dash/current"]
   default = "Aktuell"
 
@@ -819,28 +834,35 @@ Eigene Domain, z.B. <em>„stats.example.com“</em>.
 ["nav-dash/filter"]
   default = "Pfade filtern"
 
-["nav-dash/filter-tooltip"]
-  default = """<p>Pfadliste filtern; ignoriert Groß-/Kleinschreibung auf Pfad und Titel. %[%more More help]</p>
+["nav-dash/filter-more-help"]
 
-	<div>
-		<p>Recognizes the following keywords:</p>
-		<ul>
-			<li><em>at:start</em>, <em>at:end</em>:       match only at the start or end of path or title. Use both for exact match.</li>
-			<li><em>in:path</em>, <em>in:title</em>       match only path or title.</li>
-			<li><em>is:event</em>, <em>is:pageview</em>   show only events or pageviews.</li>
-			<li><em>:not</em> negate the match (that is: only show paths that don't match the filter).</li>
-		</ul>
-	</div>
-  """
+["nav-dash/filter-tooltip"]
+  default = """
+<p>Pfadliste filtern; ignoriert Groß-/Kleinschreibung auf Pfad und Titel. %[%more More help]</p>
+
+  <div>
+    <p>Recognizes the following keywords:</p>
+    <ul>
+      <li><em>at:start</em>, <em>at:end</em>:       match only at the start or end of path or title. Use both for exact match.</li>
+      <li><em>in:path</em>, <em>in:title</em>       match only path or title.</li>
+      <li><em>is:event</em>, <em>is:pageview</em>   show only events or pageviews.</li>
+      <li><em>:not</em> negate the match (that is: only show paths that don't match the filter).</li>
+    </ul>
+  </div>
+"""
 
 ["nav-dash/forced-daily"]
   default = "Stündliche Anzeige bei Zeitraum über 90 Tagen nicht möglich"
+
+["nav-dash/forced-hourly"]
 
 ["nav-dash/forward"]
   default = "Vorwärts"
 
 ["nav-dash/half-year"]
   default = "Halbjahr"
+
+["nav-dash/hour"]
 
 ["nav-dash/last"]
   default = "Zuletzt"
@@ -854,11 +876,17 @@ Eigene Domain, z.B. <em>„stats.example.com“</em>.
 ["nav-dash/start-date"]
   default = "Anfang Anzeigezeitraum"
 
+["nav-dash/view-by"]
+
 ["nav-dash/week"]
   default = "Woche"
 
 ["nav-dash/year"]
   default = "Jahr"
+
+["nav-fash/filter-less-help"]
+
+["new-paren"]
 
 ["no-title"]
   default = "Kein Titel"
@@ -881,6 +909,8 @@ Eigene Domain, z.B. <em>„stats.example.com“</em>.
 ["notify/export-started-in-background"]
   default = "Export im Hintergrund gestartet; Nach Fertigstellung erhalten sie eine E-Mail mit dem Downloadlink"
 
+["notify/import-ga-okay"]
+
 ["notify/import-started-in-background"]
   default = "Import im Hintergrund gestartet. Nach Fertigstellung erhalten sie eine E-Mail"
 
@@ -889,9 +919,6 @@ Eigene Domain, z.B. <em>„stats.example.com“</em>.
 
 ["notify/multi-factor-auth-enabled"]
   default = "Multi-Faktor-Authentifizierung aktiviert."
-
-["notify/need-business-plan-custom-domain"]
-  default = "Eine eigene Domain benötigt den Business-Plan"
 
 ["notify/need-email-verification-for-api"]
   default = "Ihre E-Mail-Adresse muss verifiziert werden, bevor Sie die API benutzen können."
@@ -904,12 +931,6 @@ Eigene Domain, z.B. <em>„stats.example.com“</em>.
 
 ["notify/password-changed"]
   default = "Passwort wurde geändert."
-
-["notify/payment-processed"]
-  default = "Zahlung erfolgreich verarbeitet!"
-
-["notify/payment-processing"]
-  default = "Die Zahlung wurde autorisiert aber wird intern noch verarbeitet"
 
 ["notify/reset-to-default"]
   default = "Standardeinstellungen wiederherstellen!"
@@ -954,8 +975,12 @@ Eigene Domain, z.B. <em>„stats.example.com“</em>.
 <p>Sie können beliebig viele Websites anlegen.</p>
 """
 
+["p/add-multiple-accounts"]
+
 ["p/additional-errors"]
   default = "Weitere Fehler"
+
+["p/all-sites"]
 
 ["p/api-intro"]
   default = "GoatCounter hat eine eingeschränkte API. Sie können über die API Seitenaufrufe zählen, Websites anlegen, löschen und bearbeiten und Exporte initiieren."
@@ -981,6 +1006,8 @@ Eigene Domain, z.B. <em>„stats.example.com“</em>.
 ["p/csv-file-format"]
   default = "Das Format der CSV-Datei ist %[hier dokumentiert]"
 
+["p/delete-account"]
+
 ["p/disable-mfa"]
   default = "Für diesen Account ist MFA aktiviert."
 
@@ -989,6 +1016,8 @@ Eigene Domain, z.B. <em>„stats.example.com“</em>.
 
 ["p/error"]
   default = "Fehler: %(error-message)"
+
+["p/export-csv"]
 
 ["p/export-process"]
   default = """
@@ -1000,8 +1029,14 @@ Eigene Domain, z.B. <em>„stats.example.com“</em>.
 ["p/have-mfa"]
   default = "Dieser Account verwendet Multi-Faktor-Authentifizierung. Bitte geben Sie den Code aus Ihrer Authentifzierungsapp ein."
 
+["p/import-ga"]
+
 ["p/last-user"]
   default = "Der letzte Admin-Benutzer kann nicht gelöscht oder verändert werden"
+
+["p/manage-hits"]
+
+["p/merge-account"]
 
 ["p/no-data"]
   default = """
@@ -1028,6 +1063,8 @@ Es geht aber schnell und einfach, indem Sie den folgenden JavaScript-Code irgend
 ["p/notify-site-deletion"]
   default = "%(number) Websites werden gelöscht"
 
+["p/num-accounts"]
+
 ["p/remove-site-confirm"]
   default = """
 Sind Sie sich sicher, dass Sie die Website %(sitename) löschen wollen?
@@ -1044,12 +1081,6 @@ Sind Sie sicher, dass Sie die Website %(site name) löschen wollen?
 <br>
 Dadurch werden <strong>alle mit der Website verknüpften Daten</strong> gelöscht. Außerdem ist es die <strong>aktuell verwendete Website</strong>.
 """
-
-["p/request-data-recovery"]
-  default = "%[Kontaktieren Sie uns] innerhalb von maximal 7 Tagen, wenn Sie die Entscheidung rückgängig machen wollen und die Daten wiederhergestellt werden sollen."
-
-["p/rm-hits"]
-  default = "Alle Seitenaufrufe für diese Seite entfernen."
 
 ["p/rm-hits-help"]
   default = """
@@ -1079,17 +1110,24 @@ findet <code>_.html</code> die Treffer <code>a.html</code> und <code>b.html</cod
 ["page-ranking"]
   default = "Seiten-Ranking"
 
-["restricted-admin-access"]
-  default = "Standardmäßig können sich Admins nicht nicht bei Ihrer Website anmelden. Wenn Sie dies aktivieren, dann schon. Für manche Hilfeanfragen kann darum gebeten werden."
-
 ["scale-y"]
   default = "Y-Achse bis Maximum skalieren"
+
+["theme/dark"]
+
+["theme/light"]
+
+["theme/system"]
+
+["tooltip/change-period"]
 
 ["top-nav/back"]
   default = "Zurück"
 
 ["top-nav/dashboard"]
   default = "Dashboard"
+
+["top-nav/documentation"]
 
 ["top-nav/need-js"]
   default = "Goatcounter braucht JavaScript für vollständige Funktionalität. Bitte JavaScript für %(domain) erlauben."
@@ -1109,17 +1147,8 @@ findet <code>_.html</code> die Treffer <code>a.html</code> und <code>b.html</cod
 ["top-nav/sign-out"]
   default = "Abmelden"
 
-["top-nav/site-code"]
-  default = "Website-Code:"
-
 ["top-nav/sites"]
   default = "Websites:"
-
-["top-nav/updates"]
-  default = "Aktualisierungen"
-
-["top-nav/user"]
-  default = "Benutzer"
 
 ["unknown"]
   default = "(unbekannt)"
@@ -1166,6 +1195,8 @@ findet <code>_.html</code> die Treffer <code>a.html</code> und <code>b.html</cod
 ["validate/len-shorter"]
   default = "muss kürzer als %d Zeichen sein"
 
+["validate/need-one"]
+
 ["validate/phone"]
   default = "muss gültige Rufnummer sein"
 
@@ -1183,6 +1214,8 @@ findet <code>_.html</code> die Treffer <code>a.html</code> und <code>b.html</cod
 
 ["validate/utf8"]
   default = "muss UTF-8 sein"
+
+["view not set"]
 
 ["widget-setting/help/align"]
   default = "Linken Rand hinzufügen, um mit den Graphen bündig zu sein"
@@ -1231,3 +1264,4 @@ findet <code>_.html</code> die Treffer <code>a.html</code> und <code>b.html</cod
 
 ["y-scale"]
   default = "Skala der Y-Achse"
+

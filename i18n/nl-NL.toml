@@ -1,7 +1,7 @@
 [__meta__]
-  generated = 2021-11-25T14:01:49Z
   language = "nl-NL"
   maintainers = ["Martin Tournoij <martin@arp242.net>"]
+  modified = 2025-12-11T20:54:54Z
 
 ["button/add-new"]
   default = "Nieuw"
@@ -27,11 +27,11 @@
 ["button/delete-account"]
   default = "Verwijder account, alle sites, en alle data"
 
-["button/delete-all"]
-  default = "Verwijder alles!"
-
 ["button/delete-everything"]
   default = "Verwijder alles"
+
+["button/delete-pageviews"]
+  default = "Verwijder pageviews"
 
 ["button/disable-mfa"]
   default = "Zet MFA uit"
@@ -44,6 +44,9 @@
 
 ["button/forgot-password"]
   default = "Wachtwoord vergeten?"
+
+["button/merge"]
+  default = "Samenvoegen"
 
 ["button/remove"]
   default = "Verwijderen"
@@ -60,17 +63,20 @@
 ["button/reset-password"]
   default = "Wachtwoord opnieuw instellen"
 
-["button/rm-hits"]
-  default = "Verwijder pageviews"
-
 ["button/save"]
   default = "Opslaan"
 
 ["button/save-default-view"]
   default = "Standaard view opslaan"
 
+["button/search"]
+  default = "Zoeken"
+
 ["button/send-login-url"]
   default = "Stuur login URL"
+
+["button/show"]
+  default = "tonen"
 
 ["button/sign-in"]
   default = "Inloggen"
@@ -84,6 +90,9 @@
 ["button/submit"]
   default = "Versturen"
 
+["button/upload-ga-import"]
+  default = "Upload"
+
 ["confirm/delete-user"]
   default = "%(email) verwijderen?"
 
@@ -94,6 +103,9 @@
 ["dashboard/future"]
   default = "toekomst"
 
+["dashboard/loading"]
+  default = "Laden…"
+
 ["dashboard/month-ago"]
   default = "%(n) maanden geleden"
   one     = "1 maand geleden"
@@ -101,14 +113,14 @@
 ["dashboard/nothing-to-display"]
   default = "Niks om weer te geven"
 
+["dashboard/pages/change"]
+  default = "Aanpassen"
+
 ["dashboard/pages/header"]
   default = "Pagina’s"
 
 ["dashboard/pages/num-visits"]
   default = "%(num-visits) van %(total-visits) bezoeken getoond"
-
-["dashboard/pages/pageviews"]
-  default = "Pageviews"
 
 ["dashboard/pages/path"]
   default = "Pad"
@@ -121,9 +133,6 @@
 
 ["dashboard/pages/title"]
   default = "Titel"
-
-["dashboard/pages/views"]
-  default = "Views"
 
 ["dashboard/pages/visits"]
   default = "Bezoeken"
@@ -150,6 +159,9 @@
 ["data-collect/help/country"]
   default = "Naam van het land, b.v. België, Indonesië, enz."
 
+["data-collect/help/hits"]
+  default = "Sla pageviews los op voor exports. Dit beïnvloed verder niks anders. De API kan nog steeds gebruikt worden om samengevoegde data te exporteren."
+
 ["data-collect/help/language"]
   default = "Talen verstuurd met Accept-Language"
 
@@ -165,8 +177,14 @@
 ["data-collect/help/size"]
   default = "Scrermformaat."
 
+["data-collect/help/user-agent"]
+  default = "Browser en besturingssysteem naam herleid van de User-Agent header (de header zelf wordt niet opgeslagen)."
+
 ["data-collect/label/country"]
   default = "Land"
+
+["data-collect/label/hits"]
+  default = "Individuele pageviews"
 
 ["data-collect/label/language"]
   default = "Taal"
@@ -195,6 +213,24 @@
 ["datepicker/month-prev"]
   default = "Volgende maand"
 
+["dont-lock"]
+  default = "Niet blokkeren"
+
+["email-report/daily"]
+  default = "Dagelijks"
+
+["email-report/monthly"]
+  default = "Maandelijks"
+
+["email-report/never"]
+  default = "Nooit"
+
+["email-report/two-weeks"]
+  default = "Elke twee weken"
+
+["email-report/weekly"]
+  default = "Wekelijks"
+
 ["email/header"]
   default = "Hallo,"
 
@@ -217,9 +253,6 @@ Groeten,
 Martin
 """
 
-["error/account-has-stripe-subscription"]
-  default = "Deze account heeft een betaalde Stripe abonnement; deze moet eerst opgezegd worden op de facturering pagina."
-
 ["error/address-exists"]
   default = "%(addr) bestaat al"
 
@@ -234,9 +267,6 @@ Martin
 
 ["error/date-past"]
   default = "Dat zou voor de aanmaakdatum van de site zijn; GoatCounter is nou ook weer niet *zo* goed ;-)"
-
-["error/delete-main-site"]
-  default = "Kan de hoofdsite niet verwijderen"
 
 ["error/export-expired"]
   default = "Deze export is nog niet klaar of is verlopen."
@@ -274,11 +304,11 @@ Martin
 ["error/password-does-not-match"]
   default = "Wachtwoord bevestiging komt niet overeen."
 
-["error/payment-cancelled"]
-  default = "Betaling stopgezet."
-
 ["error/reset-user-no-account"]
   default = "Geen gebruiker op deze site: %(email)"
+
+["error/unknown-activation-token"]
+  default = "Onbekend activatietoken"
 
 ["event"]
   default = "event"
@@ -288,6 +318,9 @@ Martin
 
 ["header/access"]
   default = "Toegang"
+
+["header/add-api-token"]
+  default = "Maak nieuw API token"
 
 ["header/add-new-user"]
   default = "Maak een nieuwe gebruiker"
@@ -346,6 +379,9 @@ Martin
 ["header/export-or-import"]
   default = "Export/Import"
 
+["header/fewer-number"]
+  default = "Toon minder nummers"
+
 ["header/finished"]
   default = "Klaar"
 
@@ -370,11 +406,20 @@ Martin
 ["header/last-10-exports"]
   default = "Laatste 10 exports"
 
+["header/last-used-at"]
+  default = "Laatst gebruikt"
+
 ["header/locations"]
   default = "Locaties"
 
 ["header/locations-for"]
   default = "Locaties voor %(country)"
+
+["header/manage-pageviews"]
+  default = "Pageviews beheren"
+
+["header/merge-account"]
+  default = "Accounts samenvoegen"
 
 ["header/mfa"]
   default = "Multi-factor authenticatie"
@@ -384,9 +429,6 @@ Martin
 
 ["header/name"]
   default = "Naam"
-
-["header/new"]
-  default = "Nieuw"
 
 ["header/pagination-cursor"]
   default = "Cursor"
@@ -405,9 +447,6 @@ Martin
 
 ["header/reset-password"]
   default = "Wachtwoord opnieuw instellen voor %(email) op %(site-name)"
-
-["header/rm-hits"]
-  default = "Verwijder pageviews"
 
 ["header/settings"]
   default = "Instellingen"
@@ -448,9 +487,6 @@ Martin
 ["header/tracking"]
   default = "Tracking"
 
-["header/updated"]
-  default = "Updates"
-
 ["header/user-info"]
   default = "Gebruikersinformatie"
 
@@ -460,17 +496,20 @@ Martin
 ["header/users"]
   default = "Gebruikers"
 
+["help/allow-embed"]
+  default = "Komma-gescheiden lijst van domeinen en URLs die GoatCounter mogen embedded in een frame; %[volledige documentatie]."
+
 ["help/allow-visitor-counts"]
   default = "Zie %[de documentatie] voor details."
-
-["help/campaign-parameters"]
-  default = "Lijst van parameters om als campagnes te gebruiken; als deze aanwezig is zal het als referrer gebruikt worden, en de Referrer header overschrijven."
 
 ["help/cfg-dashboard"]
   default = "Verander wat er op het dashboard weergegeven wordt, en in welke volgorde."
 
 ["help/code-access"]
   default = "Je account is beschikbaar op https://<em>[mijn-code]</em>.%(domein)."
+
+["help/configure-dashboard"]
+  default = "Dashboard aanpassen"
 
 ["help/custom-domain"]
   default = """
@@ -488,20 +527,29 @@ blokkeren, en is alleen bedoeld als een “vanity domain”.
 De verificatie checkt elke 2 uur.
 """
 
-["help/custom-domain-plan"]
-  default = "Vereist Personal Plus of Business plan (je hebt het %(plan) plan; zie %[%link facturering])."
-
 ["help/custom-domain-verified"]
   default = "Domein geverifieerd en actief (N.B.: het kan nog een uur duren voordat het TLS certificaat werkt)."
 
 ["help/data-retention"]
   default = "Pageviews en alle geassocieerde data zullen permanent verwijderd worden na zoveel dagen. <code>0</code> om nooit te verwijderen."
 
+["help/datepicker"]
+  default = "GoatCounter gebruikt een JavaScript datepicker op desktop systemen omdat dit meestal fijner werkt. Dit kan uitgezet worden om de browser datapicker te gebruiken. Op mobiele systemen wordt altijd de browser datapicker gebruikt."
+
 ["help/domain-access"]
   default = "Domein voor deze site."
 
 ["help/drag-reorder"]
   default = "Versleep om te herordenen"
+
+["help/email-reports"]
+  default = "Rapportages worden op de eerste dag van de periode verstuurd (b.v. de eerste dag van de maand)."
+
+["help/fewer-numbers"]
+  default = 'Toon geen nummers op het dashboard. Dit is bedoeld om een redelijk nuttig overzicht te geven wat er gebeurt op de site, maar om "obsessie" over de exacte nummers te voorkomen'
+
+["help/fewer-numbers-lock"]
+  default = "Deze instelling van niet worden uitgeschakeld voor de opgegeven tijdsperiode."
 
 ["help/for-the-following-countries"]
   default = "Lijst met landcodes (%[lijst]; gebruik de alpha-2 code); laat leeg om te verzamelen voor alle landen (als dit aan staat)."
@@ -514,6 +562,12 @@ De verificatie checkt elke 2 uur.
 
 ["help/ignore-ips-2"]
   default = "Of %[zet uit voor deze browser] (klik nogmaals om weer aan te zetten)."
+
+["help/locked-until"]
+  default = "Geblokkeerd tot %(date)"
+
+["help/need-cities"]
+  default = 'Deze optie vereist de "Cities" versie van de GeoIP database. Zie de <tt>-geo</tt> flag in <tt>goatcounter help serve</tt>.'
 
 ["help/new-user-email"]
   default = "Email om mee in te loggen."
@@ -533,9 +587,6 @@ De verificatie checkt elke 2 uur.
 ["help/public"]
   default = "Stel in wie het dashboard kan zien."
 
-["help/rm-hits"]
-  default = "Je ziet eerst een preview voordat er iets verwijderd wordt"
-
 ["help/save-default-view"]
   default = "Sla huidige view (alle instellingen in het gele vak) op als de standaard om te laden als er nog niks geselecteerd is."
 
@@ -548,14 +599,14 @@ De verificatie checkt elke 2 uur.
 ["label/24-hour-clock"]
   default = "24-uurs klok (13:00)"
 
+["label/access-to-sites"]
+  default = "Toegang tot sites"
+
 ["label/add-new"]
   default = "Maak nieuw"
 
 ["label/all-sites"]
   default = "Alle sites"
-
-["label/allow-admin-access"]
-  default = "Admin toegang toestaan"
 
 ["label/allow-visitor-counts"]
   default = "Toestaan de statestieken te tonen op je website"
@@ -563,8 +614,8 @@ De verificatie checkt elke 2 uur.
 ["label/browser-stats"]
   default = "Browser stats"
 
-["label/campaign-parameters"]
-  default = "Campagneparameters"
+["label/campaigns"]
+  default = "Campagnes"
 
 ["label/change-code"]
   default = "Je gebruikt je account op https://<em>[mijn-code]</em>.%(domain) – %[%link verander]."
@@ -575,9 +626,6 @@ De verificatie checkt elke 2 uur.
 ["label/code"]
   default = "Code"
 
-["label/collected-since"]
-  default = "Verzameld sinds 2 dec."
-
 ["label/csv-compress-format"]
   default = "CSV bestand; kan met gzip gecomprimeerd zijn"
 
@@ -586,6 +634,9 @@ De verificatie checkt elke 2 uur.
 
 ["label/custom-domain"]
   default = "Eigen domein"
+
+["label/dashboard-allow-embed"]
+  default = "Sites die GoatCounter mogen embedden"
 
 ["label/dashboard-public"]
   default = "Dashboard zichtbaar voor"
@@ -596,33 +647,23 @@ De verificatie checkt elke 2 uur.
 ["label/date-fmt"]
   default = "Formaat datum"
 
+["label/datepicker"]
+  default = "Gebruik custom datepicker"
+
 ["label/delete-account-confirmation"]
   default = "Weet je zeker dat je je hele account wilt verwijderen?"
-
-["label/delete-account-contact"]
-  default = """
-Soms volg ik op met een vraag of opmerking als je dit aanzet. Ik ben geen Ziggo
-en is niet bedoeld om te smeken om toch te blijven, maar soms is er wel eens een
-vraag te beantwoorden of iets anders interessants te melden.
-"""
-
-["label/delete-account-follow-up"]
-  default = "Het is okay om contact op te nemen"
-
-["label/delete-account-reason"]
-  default = """
-Ik hoor graag waarom je je account verwijderd, bijvoorbeeld omdat je iets mist
-of een andere reden. Dit is compleet optioneel.
-"""
-
-["label/delete-account-reason-placeholder"]
-  default = "Optionele reden voor verwijderen"
 
 ["label/email"]
   default = "Email"
 
 ["label/email-address"]
   default = "Emailadres"
+
+["label/email-reports"]
+  default = "Stuur email rapporten"
+
+["label/fewer-numbers"]
+  default = "Toon minder nummers"
 
 ["label/for-following-countries"]
   default = "Alleen voor de landen:"
@@ -642,11 +683,23 @@ of een andere reden. Dit is compleet optioneel.
 ["label/loc-stats"]
   default = "Locatie stats"
 
+["label/lock-setting"]
+  default = "Blokkeer instelling"
+
 ["label/mark-current"]
   default = "(huidig)"
 
+["label/match-case"]
+  default = "Zoek hoofdlettergevoelig"
+
 ["label/match-title"]
   default = "Zoek ook op titel"
+
+["label/merge-account-confirmation"]
+  default = "Weet je zeker dat je deze accounts wil samenvoegen?"
+
+["label/merge-to"]
+  default = "Voeg paden samen bij"
 
 ["label/mfa-token"]
   default = "MFA Token"
@@ -696,9 +749,6 @@ of een andere reden. Dit is compleet optioneel.
 ["label/size-desktophd"]
   default = "Computerschermen groter dan HD"
 
-["label/size-largephones"]
-  default = "Grote telefoons, kleine tablets"
-
 ["label/size-phones"]
   default = "Telefoons"
 
@@ -710,6 +760,9 @@ of een andere reden. Dit is compleet optioneel.
 
 ["label/system-stats"]
   default = "Systeem stats"
+
+["label/theme"]
+  default = "Thema"
 
 ["label/thousand-separator"]
   default = "Teken voor nummergroepering"
@@ -747,9 +800,6 @@ of een andere reden. Dit is compleet optioneel.
 ["link/api-docs"]
   default = "API documentatie"
 
-["link/billing"]
-  default = "Facturering"
-
 ["link/dashboard"]
   default = "Dashboard"
 
@@ -762,6 +812,12 @@ of een andere reden. Dit is compleet optioneel.
 ["link/import"]
   default = "Import/Export"
 
+["link/manage-pageviews"]
+  default = "Pageviews beheren"
+
+["link/merge-account"]
+  default = "Account samenvoegen"
+
 ["link/passwd-mfa"]
   default = "Wachtwoord & MFA"
 
@@ -771,14 +827,14 @@ of een andere reden. Dit is compleet optioneel.
 ["link/rm-account"]
   default = "Verwijder account"
 
-["link/rm-views"]
-  default = "Verwijder pageviews"
-
 ["link/set-from-browser"]
   default = "Stel in van browser"
 
 ["link/settings"]
   default = "Instellingen"
+
+["link/show-less"]
+  default = "(toon minder)"
 
 ["link/show-more"]
   default = "Toon meer"
@@ -804,15 +860,8 @@ of een andere reden. Dit is compleet optioneel.
 ["nav-bot/src"]
   default = "Broncode"
 
-["nav-dash/as-text"]
-  updated = "removed"
-  default = "Als tekst tabel"
-
 ["nav-dash/back"]
   default = "eerder"
-
-["nav-dash/by-day"]
-  default = "Per dag"
 
 ["nav-dash/current"]
   default = "Huidige"
@@ -826,28 +875,38 @@ of een andere reden. Dit is compleet optioneel.
 ["nav-dash/filter"]
   default = "Filter paden"
 
-["nav-dash/filter-tooltip"]
-  default = """<p>Filter de lijst met paden; hoofdletter ongevoelig en filtert op de padnaam en titel. %[%more Meer help]</p>
+["nav-dash/filter-more-help"]
+  default = "Meer help"
 
-	<div>
-		<p>Recognizes the following keywords:</p>
-		<ul>
-			<li><em>at:start</em>, <em>at:end</em>:       match only at the start or end of path or title. Use both for exact match.</li>
-			<li><em>in:path</em>, <em>in:title</em>       match only path or title.</li>
-			<li><em>is:event</em>, <em>is:pageview</em>   show only events or pageviews.</li>
-			<li><em>:not</em> negate the match (that is: only show paths that don't match the filter).</li>
-		</ul>
-	</div>
-  """
+["nav-dash/filter-tooltip"]
+  default = """
+<p>Filter de lijst met paden; hoofdletter ongevoelig en filtert op de padnaam en titel. %[%more Meer help]</p>
+
+  <div>
+    <p>Recognizes the following keywords:</p>
+    <ul>
+      <li><em>at:start</em>, <em>at:end</em>:       match only at the start or end of path or title. Use both for exact match.</li>
+      <li><em>in:path</em>, <em>in:title</em>       match only path or title.</li>
+      <li><em>is:event</em>, <em>is:pageview</em>   show only events or pageviews.</li>
+      <li><em>:not</em> negate the match (that is: only show paths that don't match the filter).</li>
+    </ul>
+  </div>
+"""
 
 ["nav-dash/forced-daily"]
   default = "Kan niet per uur bekijken voor meer dan 90 dagen"
+
+["nav-dash/forced-hourly"]
+  default = "Kan niet per dag tonen voor een tijdsbestek van minder dan 7 dagen"
 
 ["nav-dash/forward"]
   default = "later"
 
 ["nav-dash/half-year"]
   default = "half jaar"
+
+["nav-dash/hour"]
+  default = "uur"
 
 ["nav-dash/last"]
   default = "Laatste"
@@ -861,11 +920,20 @@ of een andere reden. Dit is compleet optioneel.
 ["nav-dash/start-date"]
   default = "Startdatum om te tonen"
 
+["nav-dash/view-by"]
+  default = "Groepeer"
+
 ["nav-dash/week"]
   default = "week"
 
 ["nav-dash/year"]
   default = "jaar"
+
+["nav-fash/filter-less-help"]
+  default = "Minder help"
+
+["new-paren"]
+  default = "(nieuw)"
 
 ["no-title"]
   default = "geen titel"
@@ -888,6 +956,9 @@ of een andere reden. Dit is compleet optioneel.
 ["notify/export-started-in-background"]
   default = "Export in de achtergrond gestart; je krijgt een email met een download link als deze klaar is."
 
+["notify/import-ga-okay"]
+  default = "Data met succes verwerkt"
+
 ["notify/import-started-in-background"]
   default = "Import in de achtergrond gestart; je krijgt een email als deze klaar is."
 
@@ -896,9 +967,6 @@ of een andere reden. Dit is compleet optioneel.
 
 ["notify/multi-factor-auth-enabled"]
   default = "Multi-factor authenticatie aangezet."
-
-["notify/need-business-plan-custom-domain"]
-  default = "business plan nodig voor eigen domein"
 
 ["notify/need-email-verification-for-api"]
   default = "Je moet eerst je email bevestigen voordat je de API kan gebruiken."
@@ -911,12 +979,6 @@ of een andere reden. Dit is compleet optioneel.
 
 ["notify/password-changed"]
   default = "Wachtwoord veranderd."
-
-["notify/payment-processed"]
-  default = "Betaling verwerkt!"
-
-["notify/payment-processing"]
-  default = "The payment processor reported success, but we're still processing the payment"
 
 ["notify/reset-to-default"]
   default = "Hersteld naar standaardinstellingen!"
@@ -964,8 +1026,13 @@ maar zijn daarna los.</p>
 <p>Je kan zoveel sites maken als je wil.</p>
 """
 
+["p/add-multiple-accounts"]
+
 ["p/additional-errors"]
   default = "Foutmeldingen"
+
+["p/all-sites"]
+  default = "Alle sites, inclusief sites die nog niet aangemaakt zijn"
 
 ["p/api-intro"]
   default = "GoatCounter komt met een beperkte API; op het moment kan je pageviews met de API sturen, en sites en exports beheren."
@@ -994,6 +1061,9 @@ site (de oude en nieuwe code) om te voorkomen dat pageviews verloren gaan.</p>
 ["p/csv-file-format"]
   default = "Het CSV-formaat is %[hier gedocumenteerd]."
 
+["p/delete-account"]
+  default = "De site en alle data zal permanent verwijderd worden zonder mogelijkheid van herstel."
+
 ["p/disable-mfa"]
   default = "MFA is aan voor deze account."
 
@@ -1002,6 +1072,8 @@ site (de oude en nieuwe code) om te voorkomen dat pageviews verloren gaan.</p>
 
 ["p/error"]
   default = "Foutmelding: %(error-message)"
+
+["p/export-csv"]
 
 ["p/export-process"]
   default = """
@@ -1016,8 +1088,15 @@ zijn, welke niet getoond worden in het overzicht.</p>
 ["p/have-mfa"]
   default = "Deze account is beschermd met multi-factor authenticatie; gebruik de authenticatie applicatie om een code te genereren"
 
+["p/import-ga"]
+
 ["p/last-user"]
   default = "Kan laatste admingebruiker niet verwijderen of aanpassen"
+
+["p/manage-hits"]
+  default = "Pageviews verwijderen of samenvoegen"
+
+["p/merge-account"]
 
 ["p/no-data"]
   default = """
@@ -1049,6 +1128,9 @@ pageviews opgenomen van na de vorige export.
 ["p/notify-site-deletion"]
   default = "%(number) sites zullen verwijderd worden"
 
+["p/num-accounts"]
+  default = "Deze account bevat %(n) sites:"
+
 ["p/remove-site-confirm"]
   default = """
 Weet je zeker dat je de site %(sitename) wilt verwijderen?<br>
@@ -1064,12 +1146,6 @@ Weet je zeker dat je de site %(sitename) wilt verwijderen?<br>
 Dit zal <strong>alle data verwijderen</strong> en dit is <strong>de huidige
 site</strong>.
 """
-
-["p/request-data-recovery"]
-  default = "%[Contact] binnen 7 dagen als je je account hersteld wil hebben."
-
-["p/rm-hits"]
-  default = "Verwijder alle pageviews voor een pad."
 
 ["p/rm-hits-help"]
   default = """
@@ -1093,10 +1169,6 @@ betekenis.
 ["p/site-domain-link-to-page"]
   default = "Domein voor je site, b.v.<em>“www.example.com”</em>, gebruikt om naar de site te linken in het overzicht."
 
-["p/slow"]
-  updated = "removed"
-  default = "Het kan langzaam zijn om veel pagina's te laden, met name op wat oudere apparaten. Zet dit getal lager als je problemen ondervind."
-
 ["p/text-data-retention"]
   default = "Dit is inclusief de dataretentie en datacollectie instelllingen!"
 
@@ -1106,17 +1178,28 @@ betekenis.
 ["page-ranking"]
   default = "Pagina ranking"
 
-["restricted-admin-access"]
-  default = "Normaal gesproken kunnen admins niet bij je site, maar als dit aanstaat kan dat wel. Dit wordt soms gevraagd voor support."
-
 ["scale-y"]
   default = "Schaal Y-as naar maximaal"
+
+["theme/dark"]
+  default = "Donker"
+
+["theme/light"]
+  default = "Licht"
+
+["theme/system"]
+  default = "Gebruik systeeminstelling"
+
+["tooltip/change-period"]
 
 ["top-nav/back"]
   default = "Terug"
 
 ["top-nav/dashboard"]
   default = "Dashboard"
+
+["top-nav/documentation"]
+  default = "Help"
 
 ["top-nav/need-js"]
   default = "GoatCounter heeft JavaScript nodig om goed te kunnen functioneren."
@@ -1136,17 +1219,8 @@ betekenis.
 ["top-nav/sign-out"]
   default = "Uitloggen"
 
-["top-nav/site-code"]
-  default = "Site code"
-
 ["top-nav/sites"]
   default = "Sites:"
-
-["top-nav/updates"]
-  default = "Updates"
-
-["top-nav/user"]
-  default = "Gebruiker"
 
 ["unknown"]
   default = "(onbekend)"
@@ -1193,6 +1267,8 @@ betekenis.
 ["validate/len-shorter"]
   default = "moet korter dan %d tekens zijn"
 
+["validate/need-one"]
+
 ["validate/phone"]
   default = "moet een geldig telefoonnummer zijn"
 
@@ -1210,6 +1286,8 @@ betekenis.
 
 ["validate/utf8"]
   default = "moet UTF-8 zijn"
+
+["view not set"]
 
 ["widget-setting/help/align"]
   default = "Marge aan de linkerkant zodat de grafieken uitlijnen"
@@ -1232,6 +1310,7 @@ betekenis.
   default = "Lijn uit met pagina's"
 
 ["widget-setting/label/chart-style"]
+  default = "Grafiek stijl"
 
 ["widget-setting/label/no-events"]
   default = "Zonder events"
@@ -1246,25 +1325,13 @@ betekenis.
   default = "Toon regio's"
 
 ["widget-settings/bar-chart"]
+  default = "Staafgrafiek"
 
 ["widget-settings/line-chart"]
+  default = "Lijngrafiek"
 
 ["widget-settings/text-chart"]
+  default = "Teksttabel"
 
 ["y-scale"]
   default = "Y-as schaal"
-
-["label/phones"]
-  default = "Telefoons"
-
-["label/large-phones"]
-  default = "Grote telefoons, kleine tablets"
-
-["label/tablets"]
-  default = "Tablets en kleine laptops"
-
-["label/desktops"]
-  default = "Computerschermen"
-
-["label/desktops-hd"]
-  default = "Computerschermen groter dan HD"

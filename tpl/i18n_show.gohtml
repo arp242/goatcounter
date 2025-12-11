@@ -19,11 +19,12 @@
 	</ul>
 </div>
 
+{{if .ShowTOML}}<textarea>{{.TOML}}</textarea>{{end}}
+
 <div id="i18n-header">
 	<div style="display: flex; justify-content: space-between;">
 		<div>
-			Language: {{.File.Language}}<br>
-			{{if .File.Maintainers}}Maintainers: {{join .File.Maintainers ", "}}{{else}}No maintainers{{end}}<br>
+			Language: {{.File.Language}}; {{if .File.Maintainers}}Maintainers: {{join .File.Maintainers ", "}}{{else}}No maintainers{{end}}<br>
 			<br>
 			Note: all fields will be saved automatically.
 		</div>
@@ -55,7 +56,7 @@
 		- Merge from template
 		- Delete
 		*/}}
-		<form method="POST" action="{{.Base}}/i18n/submit/{{.TOMLFile}}">
+		<form method="POST" action="{{.Base}}/i18n/submit/{{.Filename}}">
 			<input type="hidden" name="csrf" value="{{$.User.CSRFToken}}">
 			<button>Send changes<br><small>Changes are saved automatically; use this when you're finished</small></button>
 		</form>

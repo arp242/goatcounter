@@ -2,7 +2,7 @@
 //
 // TODO: on tab make sure the entire entry is visible, sometimes the original on
 // the left is larger.
-$('textarea').each(function(_, t) {
+$('.i18n-message textarea').each(function(_, t) {
 	$(t).css('height', (t.scrollHeight + 2) + 'px');
 })
 

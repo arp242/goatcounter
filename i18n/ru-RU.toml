@@ -1,8 +1,7 @@
 [__meta__]
-  comments = "|user|"
-  generated = 2021-11-29T19:38:18Z
   language = "ru-RU"
   maintainers = []
+  modified = 2024-04-09
 
 ["button/add-new"]
   default = "Добавить"
@@ -28,11 +27,10 @@
 ["button/delete-account"]
   default = "Удалить аккаунт, все сайты и все данные"
 
-["button/delete-all"]
-  default = "Да, удалить все!"
-
 ["button/delete-everything"]
   default = "Да, удалить всё"
+
+["button/delete-pageviews"]
 
 ["button/disable-mfa"]
   default = "Отключить MFA"
@@ -45,6 +43,8 @@
 
 ["button/forgot-password"]
   default = "Забыли пароль?"
+
+["button/merge"]
 
 ["button/remove"]
   default = "Удалить"
@@ -61,17 +61,18 @@
 ["button/reset-password"]
   default = "Сбросить пароль"
 
-["button/rm-hits"]
-  default = "Удалить просмотры"
-
 ["button/save"]
   default = "Сохранить"
 
 ["button/save-default-view"]
   default = "Сохранить представление по умолчанию"
 
+["button/search"]
+
 ["button/send-login-url"]
   default = "Отправить URL для входа"
+
+["button/show"]
 
 ["button/sign-in"]
   default = "Войти"
@@ -84,6 +85,8 @@
 
 ["button/submit"]
   default = "Отправить"
+
+["button/upload-ga-import"]
 
 ["confirm/delete-user"]
   default = "Удалить %(email)?"
@@ -99,6 +102,8 @@
 ["dashboard/future"]
   default = "будущее"
 
+["dashboard/loading"]
+
 ["dashboard/month-ago"]
   default = "%(n) месяцев назад"
   zero    = "%(n) месяцев назад"
@@ -110,14 +115,13 @@
 ["dashboard/nothing-to-display"]
   default = "Нет данных для отображения"
 
+["dashboard/pages/change"]
+
 ["dashboard/pages/header"]
   default = "Страницы"
 
 ["dashboard/pages/num-visits"]
   default = "Отображено %(num-visits) визитов из %(total-visits)"
-
-["dashboard/pages/pageviews"]
-  default = "Просмотры страниц"
 
 ["dashboard/pages/path"]
   default = "Путь"
@@ -130,9 +134,6 @@
 
 ["dashboard/pages/title"]
   default = "Заголовок"
-
-["dashboard/pages/views"]
-  default = "Просмотры"
 
 ["dashboard/pages/visits"]
   default = "Визиты"
@@ -163,6 +164,8 @@
 ["data-collect/help/country"]
   default = "Название страны, например: Бельгия, Индонезия, и т.д."
 
+["data-collect/help/hits"]
+
 ["data-collect/help/language"]
   default = "Поддерживаемые языки из Accept-Language"
 
@@ -183,6 +186,8 @@
 
 ["data-collect/label/country"]
   default = "Страна"
+
+["data-collect/label/hits"]
 
 ["data-collect/label/language"]
   default = "Язык"
@@ -211,6 +216,18 @@
 ["datepicker/month-prev"]
   default = "Предыдущий месяц"
 
+["dont-lock"]
+
+["email-report/daily"]
+
+["email-report/monthly"]
+
+["email-report/never"]
+
+["email-report/two-weeks"]
+
+["email-report/weekly"]
+
 ["email/header"]
   default = "Привет,"
 
@@ -233,9 +250,6 @@
 Мартин
 """
 
-["error/account-has-stripe-subscription"]
-  default = "Для этого аккаунта по-прежнему подключена подписка Stripe; её необходимо отменить на странице биллинга."
-
 ["error/address-exists"]
   default = "%(addr) уже существует"
 
@@ -250,9 +264,6 @@
 
 ["error/date-past"]
   default = "Это раньше момента создания сайта; GoatCounter не *настолько* хорош  ;-)"
-
-["error/delete-main-site"]
-  default = "Невозможно удалить основной сайт"
 
 ["error/export-expired"]
   default = "Похоже, экспорт ещё не осуществлялся либо просрочился."
@@ -290,11 +301,10 @@
 ["error/password-does-not-match"]
   default = "Подтверждение пароля не совпадает."
 
-["error/payment-cancelled"]
-  default = "Платёж отменён."
-
 ["error/reset-user-no-account"]
   default = "Аккаунта %(email) нет на этом сайте"
+
+["error/unknown-activation-token"]
 
 ["event"]
   default = "событие"
@@ -304,6 +314,8 @@
 
 ["header/access"]
   default = "Доступ"
+
+["header/add-api-token"]
 
 ["header/add-new-user"]
   default = "Добавить нового пользователя"
@@ -362,6 +374,8 @@
 ["header/export-or-import"]
   default = "Экспорт/Импорт"
 
+["header/fewer-number"]
+
 ["header/finished"]
   default = "Завершено"
 
@@ -386,11 +400,17 @@
 ["header/last-10-exports"]
   default = "Последние 10 экспортов"
 
+["header/last-used-at"]
+
 ["header/locations"]
   default = "Локации"
 
 ["header/locations-for"]
   default = "Локации для %(coutry)"
+
+["header/manage-pageviews"]
+
+["header/merge-account"]
 
 ["header/mfa"]
   default = "MFA"
@@ -400,9 +420,6 @@
 
 ["header/name"]
   default = "Имя"
-
-["header/new"]
-  default = "Создать"
 
 ["header/pagination-cursor"]
   default = "Страничный курсор"
@@ -421,9 +438,6 @@
 
 ["header/reset-password"]
   default = "Сбросить пароль для %(email) на %(site-name)"
-
-["header/rm-hits"]
-  default = "Удалить просмотры"
 
 ["header/settings"]
   default = "Настройки"
@@ -464,9 +478,6 @@
 ["header/tracking"]
   default = "Отслеживание"
 
-["header/updated"]
-  default = "Обновления"
-
 ["header/user-info"]
   default = "Информация о пользователе"
 
@@ -476,16 +487,17 @@
 ["header/users"]
   default = "Пользователи"
 
+["help/allow-embed"]
+
 ["help/allow-visitor-counts"]
   default = "Обратитесь %[the documentation] за инструкциями по использованию."
-
-["help/campaign-parameters"]
-  default = 'Список параметров, засчитываемых за "кампании"; переопределит любой заголовок Referrer если задан.'
 
 ["help/cfg-dashboard"]
   default = "Изменить состав и порядок отображаемых на консоли элементов."
 
 ["help/code-access"]
+
+["help/configure-dashboard"]
 
 ["help/custom-domain"]
 
@@ -493,16 +505,22 @@
 
 ["help/custom-domain-error"]
 
-["help/custom-domain-plan"]
-
 ["help/custom-domain-verified"]
 
 ["help/data-retention"]
+
+["help/datepicker"]
 
 ["help/domain-access"]
 
 ["help/drag-reorder"]
   default = "Порядок меняется перетаскиванием"
+
+["help/email-reports"]
+
+["help/fewer-numbers"]
+
+["help/fewer-numbers-lock"]
 
 ["help/for-the-following-countries"]
 
@@ -511,6 +529,10 @@
 ["help/ignore-ips"]
 
 ["help/ignore-ips-2"]
+
+["help/locked-until"]
+
+["help/need-cities"]
 
 ["help/new-user-email"]
   default = "Адрес электронной почты для входа."
@@ -530,8 +552,6 @@
 ["help/public"]
   default = "Настраивайте кто может видеть консоль."
 
-["help/rm-hits"]
-
 ["help/save-default-view"]
 
 ["help/turing-test"]
@@ -543,21 +563,19 @@
 ["label/24-hour-clock"]
   default = "24-часовой формат (13:00)"
 
+["label/access-to-sites"]
+
 ["label/add-new"]
   default = "Добавить новый"
 
 ["label/all-sites"]
   default = "Все сайты"
 
-["label/allow-admin-access"]
-  default = "Разрешить административный доступ"
-
 ["label/allow-visitor-counts"]
 
 ["label/browser-stats"]
 
-["label/campaign-parameters"]
-  default = "Параметры кампании"
+["label/campaigns"]
 
 ["label/change-code"]
 
@@ -567,8 +585,6 @@
 ["label/code"]
   default = "Код"
 
-["label/collected-since"]
-
 ["label/csv-compress-format"]
 
 ["label/current-passwd"]
@@ -576,6 +592,8 @@
 
 ["label/custom-domain"]
   default = "Собственный домен"
+
+["label/dashboard-allow-embed"]
 
 ["label/dashboard-public"]
   default = "Просмотр консоли разрешён"
@@ -585,35 +603,20 @@
 ["label/date-fmt"]
   default = "Формат дат"
 
+["label/datepicker"]
+
 ["label/delete-account-confirmation"]
   default = "Вы уверены, что хотите удалить аккаунт целиком?"
-
-["label/delete-account-contact"]
-  default = """
-Если вы поставите галочку, я могу связаться с вами для обратной связи.
-Обещаю не уговаривать остаться (я не сотовый оператор),
-но могу задать несколько вопросов о ваших планах в случае
-если вам недостаёт конкретной функциональности.
-"""
-
-["label/delete-account-follow-up"]
-  default = "Разрешаю связаться со мной"
-
-["label/delete-account-reason"]
-  default = """
-Буду благодарен если вы расскажете о конкретных моментах,
-которых вам недоставало в GoatCounter, или прочих причинах,
-по которым вы решили удалить аккаунт. Это совершенно не обязательно.
-"""
-
-["label/delete-account-reason-placeholder"]
-  default = "Причина удаления, по желанию"
 
 ["label/email"]
   default = "Электронная почта"
 
 ["label/email-address"]
   default = "Адрес электронной почты"
+
+["label/email-reports"]
+
+["label/fewer-numbers"]
 
 ["label/for-following-countries"]
   default = "Только для следующих стран:"
@@ -633,11 +636,19 @@
 ["label/loc-stats"]
   default = "Статистика по локациям"
 
+["label/lock-setting"]
+
 ["label/mark-current"]
   default = "(текущий)"
 
+["label/match-case"]
+
 ["label/match-title"]
   default = "Также сопоставлять заголовок"
+
+["label/merge-account-confirmation"]
+
+["label/merge-to"]
 
 ["label/mfa-token"]
   default = "Токен мультифакторной аутентификации"
@@ -687,9 +698,6 @@
 ["label/size-desktophd"]
   default = "Компьютеры с экранами больше, чем HD"
 
-["label/size-largephones"]
-  default = "Большие телефоны, малые планшеты"
-
 ["label/size-phones"]
   default = "Телефоны"
 
@@ -701,6 +709,8 @@
 
 ["label/system-stats"]
   default = "Статистика по операционным системам"
+
+["label/theme"]
 
 ["label/thousand-separator"]
   default = "Разделитель тысяч"
@@ -738,9 +748,6 @@
 ["link/api-docs"]
   default = "Документация API"
 
-["link/billing"]
-  default = "Биллинг"
-
 ["link/dashboard"]
   default = "Консоль"
 
@@ -749,6 +756,12 @@
 
 ["link/goto-path"]
   default = "Перейти к %(path)"
+
+["link/import"]
+
+["link/manage-pageviews"]
+
+["link/merge-account"]
 
 ["link/passwd-mfa"]
   default = "Пароль и MFA"
@@ -759,14 +772,13 @@
 ["link/rm-account"]
   default = "Удалить аккаунт"
 
-["link/rm-views"]
-  default = "Удалить просмотры"
-
 ["link/set-from-browser"]
   default = "Скопировать из браузера"
 
 ["link/settings"]
   default = "настройки"
+
+["link/show-less"]
 
 ["link/show-more"]
   default = "Показать ещё"
@@ -795,9 +807,6 @@
 ["nav-dash/back"]
   default = "назад"
 
-["nav-dash/by-day"]
-  default = "Просмотр по дням"
-
 ["nav-dash/current"]
   default = "Текущая"
 
@@ -810,16 +819,22 @@
 ["nav-dash/filter"]
   default = "Фильтровать пути"
 
+["nav-dash/filter-more-help"]
+
 ["nav-dash/filter-tooltip"]
 
 ["nav-dash/forced-daily"]
   default = "Cannot use the hourly view for a time range of more than 90 days"
+
+["nav-dash/forced-hourly"]
 
 ["nav-dash/forward"]
   default = "вперёд"
 
 ["nav-dash/half-year"]
   default = "полугодие"
+
+["nav-dash/hour"]
 
 ["nav-dash/last"]
   default = "Последний"
@@ -833,11 +848,17 @@
 ["nav-dash/start-date"]
   default = "Начало диапазона отображаемых дат"
 
+["nav-dash/view-by"]
+
 ["nav-dash/week"]
   default = "неделя"
 
 ["nav-dash/year"]
   default = "год"
+
+["nav-fash/filter-less-help"]
+
+["new-paren"]
 
 ["no-title"]
   default = "без заголовка"
@@ -858,6 +879,8 @@
 
 ["notify/export-started-in-background"]
 
+["notify/import-ga-okay"]
+
 ["notify/import-started-in-background"]
 
 ["notify/login-after-password-reset"]
@@ -865,8 +888,6 @@
 
 ["notify/multi-factor-auth-enabled"]
   default = "Мультифакторная аутентификация включена."
-
-["notify/need-business-plan-custom-domain"]
 
 ["notify/need-email-verification-for-api"]
 
@@ -877,12 +898,6 @@
 
 ["notify/password-changed"]
   default = "Пароль изменён."
-
-["notify/payment-processed"]
-  default = "Платёж успешно обработан!"
-
-["notify/payment-processing"]
-  default = "Оплата успешно прошла через платёжный шлюз, но мы всё ещё её обрабатываем"
 
 ["notify/reset-to-default"]
   default = "Сбросить к заводским настройкам!"
@@ -916,8 +931,12 @@
 
 ["p/add-goatcounter-to-multiple-websites"]
 
+["p/add-multiple-accounts"]
+
 ["p/additional-errors"]
   default = "Дополнительные ошибки"
+
+["p/all-sites"]
 
 ["p/api-intro"]
   default = "Для GoatCounter доступен ограниченный API. На данный момент вы можете использовать его для подсчёта просмотров, создания, редактирования и удаления сайтов, а также для создания экспортов."
@@ -932,9 +951,7 @@
 
 ["p/csv-file-format"]
 
-["p/delete-account-multi-site"]
-
-["p/delete-account-one-site"]
+["p/delete-account"]
 
 ["p/disable-mfa"]
   default = "Мультифакторная аутентификация включена для этого аккаунта."
@@ -944,11 +961,19 @@
 
 ["p/error"]
 
+["p/export-csv"]
+
 ["p/export-process"]
 
 ["p/have-mfa"]
 
+["p/import-ga"]
+
 ["p/last-user"]
+
+["p/manage-hits"]
+
+["p/merge-account"]
 
 ["p/no-data"]
 
@@ -960,15 +985,13 @@
 
 ["p/notify-site-deletion"]
 
+["p/num-accounts"]
+
 ["p/remove-site-confirm"]
 
 ["p/remove-site-confirm-contact"]
 
 ["p/remove-site-confirm-current"]
-
-["p/request-data-recovery"]
-
-["p/rm-hits"]
 
 ["p/rm-hits-help"]
 
@@ -987,16 +1010,24 @@
 
 ["page-ranking"]
 
-["restricted-admin-access"]
-
 ["scale-y"]
   default = "Масштабировать ось Y до максимума"
+
+["theme/dark"]
+
+["theme/light"]
+
+["theme/system"]
+
+["tooltip/change-period"]
 
 ["top-nav/back"]
   default = "Назад"
 
 ["top-nav/dashboard"]
   default = "Консоль"
+
+["top-nav/documentation"]
 
 ["top-nav/need-js"]
 
@@ -1014,17 +1045,8 @@
 ["top-nav/sign-out"]
   default = "Выйти"
 
-["top-nav/site-code"]
-  default = "Site code"
-
 ["top-nav/sites"]
   default = "Сайты:"
-
-["top-nav/updates"]
-  default = "Обновления"
-
-["top-nav/user"]
-  default = "Пользователь"
 
 ["unknown"]
   default = "(неизвестно)"
@@ -1069,6 +1091,8 @@
 ["validate/len-shorter"]
   default = "должно быть меньше %d символов"
 
+["validate/need-one"]
+
 ["validate/phone"]
   default = "должно быть корректным номером телефона"
 
@@ -1086,6 +1110,8 @@
 
 ["validate/utf8"]
   default = "должно быть строкой UTF-8"
+
+["view not set"]
 
 ["widget-setting/help/align"]
 
@@ -1130,3 +1156,4 @@
 
 ["y-scale"]
   default = "Масштаб оси Y"
+

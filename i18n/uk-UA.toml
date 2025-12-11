@@ -1,204 +1,194 @@
 [__meta__]
-  language = "hi"
+  language = "uk-UA"
   maintainers = []
-  modified = 2023-05-19
+  modified = 2024-06-13
 
 ["button/add-new"]
-  default = "नया जोड़ें"
+  default = "Додати новий"
 
 ["button/add-user"]
-  default = "नया उपयोगकर्ता जोड़ें"
+  default = "Додати нового користувача"
 
 ["button/cfg-dashboard"]
-  default = "डैशबोर्ड लेआउट कॉन्फ़िगर करें"
+  default = "Налаштувати макет інформаційної панелі"
 
 ["button/change"]
-  default = "बदलें"
+  default = "Змінити"
 
 ["button/change-passwd"]
-  default = "पासवर्ड बदलें"
+  default = "Змінити пароль"
 
 ["button/copy"]
-  default = "कॉपी"
+  default = "Копіювати"
 
 ["button/delete"]
-  default = "हटाएं"
+  default = "Видалити"
 
 ["button/delete-account"]
-  default = "खाता, सभी साइटें और सभी डेटा हटाएं"
+  default = "Видалити обліковий запис, усі сайти та всі дані"
 
 ["button/delete-everything"]
-  default = "हां, सब कुछ हटा दें"
+  default = "Так, видалити все"
 
 ["button/delete-pageviews"]
 
 ["button/disable-mfa"]
-  default = "MFA अक्षम करें"
+  default = "Вимкнути MFA"
 
 ["button/edit"]
-  default = "संपादित करें"
+  default = "Редагувати"
 
 ["button/enable-mfa"]
-  default = "MFA सक्षम करें"
+  default = "Увімкнути MFA"
 
 ["button/forgot-password"]
-  default = "क्या आप पासवर्ड भूल गए हैं?"
+  default = "Забули пароль?"
 
 ["button/merge"]
 
 ["button/remove"]
-  default = "हटाएं"
+  default = "Видалити"
 
 ["button/request-reset"]
-  default = "पासवर्ड रीसेट करने का अनुरोध करें"
+  default = "Запит на скидання пароля"
 
 ["button/resend-email"]
-  default = "ईमेल दुबारा भेजें"
+  default = "Повторно надіслати електронного листа"
 
 ["button/reset-defaults"]
-  default = "डिफ़ॉल्ट पर रीसेट करें"
+  default = "Відновити налаштування за замовчуванням"
 
 ["button/reset-password"]
-  default = "पासवर्ड रीसेट करें"
+  default = "Скинути пароль"
 
 ["button/save"]
-  default = "सहेजें"
+  default = "Зберегти"
 
 ["button/save-default-view"]
-  default = "डिफ़ॉल्ट दृश्य सहेजें"
+  default = "Зберегти перегляд за замовчуванням"
 
 ["button/search"]
 
 ["button/send-login-url"]
-  default = "लॉग इन URL भेजें"
+  default = "Надіслати посилання для входу"
 
 ["button/show"]
 
 ["button/sign-in"]
-  default = "साइन इन करें"
+  default = "Увійти"
 
 ["button/start-export"]
-  default = "निर्यात शुरू करें"
+  default = "Розпочати експорт"
 
 ["button/start-import"]
-  default = "आयात शुरू करें"
+  default = "Розпочати імпорт"
 
 ["button/submit"]
-  default = "जमा करें"
+  default = "Надіслати"
 
 ["button/upload-ga-import"]
 
 ["confirm/delete-user"]
-  default = "%(email) को हटाएं?"
+  default = "Видалити %(email)?"
 
 ["dashboard/day-ago"]
-  default = "%(n) दिन पहले"
 
 ["dashboard/future"]
-  default = "भविष्य"
 
 ["dashboard/loading"]
 
 ["dashboard/month-ago"]
-  default = "%(n) महीने पहले"
 
 ["dashboard/nothing-to-display"]
-  default = "प्रदर्शित करने के लिए कुछ नहीं"
+  default = "Нічого показувати"
 
 ["dashboard/pages/change"]
 
 ["dashboard/pages/header"]
-  default = "पृष्ठ"
+  default = "Сторінок"
 
 ["dashboard/pages/num-visits"]
-  default = "%(total-visits) में से %(num-visits) विज़िट दिखाई गईं"
+  default = "%(num-visits) із %(total-visits) показано відвідувань"
 
 ["dashboard/pages/path"]
-  default = "पथ"
+  default = "Шлях"
 
 ["dashboard/pages/stats"]
-  default = "आँकड़े"
+  default = "Статистика"
 
 ["dashboard/pages/stats-tooltip"]
-  default = "हर बार चयनित समय सीमा के 1/12वें हिस्से को दर्शाता है"
+  default = "Кожна смужка відповідає 1/12 вибраного діапазону часу"
 
 ["dashboard/pages/title"]
-  default = "नाम"
+  default = "Заголовок"
 
 ["dashboard/pages/visits"]
-  default = "विज़िट"
+  default = "Відвідувань"
 
 ["dashboard/today"]
-  default = "आज"
+  default = "Сьогодні"
 
 ["dashboard/tooltip-event"]
-  default = "%(unique) क्लिक; %(clicks) कुल क्लिक"
+  default = "%(unique) кліків; %(clicks) загальна кількість кліків"
 
 ["dashboard/totals/header"]
-  default = "योग"
+  default = "Загальна кількість"
 
 ["dashboard/totals/num-visits"]
-  default = "%(num-visits) विज़िट"
+  default = "%(num-visits) відвідувань"
 
 ["dashboard/week-ago"]
-  default = "%(n) सप्ताह पहले"
 
 ["dashboard/yesterday"]
-  default = "बिता कल"
+  default = "Вчора"
 
 ["data-collect/help/country"]
-  default = "देश का नाम, उदाहरण के लिए भारत, नेपाल, आदि।"
+  default = "Назва країни, наприклад Бельгія, Індонезія тощо."
 
 ["data-collect/help/hits"]
 
 ["data-collect/help/language"]
-  default = "Accept-Language से समर्थित भाषाएं"
 
 ["data-collect/help/referrer"]
-  default = "Referer हेडर और अभियान पैरामीटर।"
 
 ["data-collect/help/region"]
-  default = "क्षेत्र, उदाहरण के लिए टेक्सास, बाली, आदि। इसके लिए विवरण प्रति देश अलग-अलग हैं।"
 
 ["data-collect/help/sessions"]
-  default = "अद्वितीय विज़िट को 8 घंटे तक ट्रैक करें; जैसे यदि आप इसे अक्षम करते हैं तो पृष्ठ को फिर से लोड करने के लिए F5 दबाने पर 1 के बजाय 2 पेज व्यू दिखेंगे"
 
 ["data-collect/help/size"]
-  default = "स्क्रीन साईज़"
+  default = "Розмір екрану."
 
 ["data-collect/help/user-agent"]
 
 ["data-collect/label/country"]
-  default = "देश"
+  default = "Країна"
 
 ["data-collect/label/hits"]
 
 ["data-collect/label/language"]
-  default = "भाषा"
+  default = "Мова"
 
 ["data-collect/label/referrer"]
-  default = "रेफरर"
+  default = "Референт"
 
 ["data-collect/label/region"]
-  default = "क्षेत्र"
+  default = "Регіон"
 
 ["data-collect/label/sessions"]
-  default = "सत्र"
+  default = "Сеанси"
 
 ["data-collect/label/size"]
-  default = "आकार"
+  default = "Розмір"
 
 ["data-collect/label/user-agent"]
-  default = "उपयोगकर्ता-एजेंट"
 
 ["datepicker/keyboard"]
-  default = "दिनांक चुनने के लिए तीर कुंजियों का उपयोग करें"
 
 ["datepicker/month-next"]
-  default = "अगला महीना"
+  default = "Наступний місяць"
 
 ["datepicker/month-prev"]
-  default = "पिछला महीना"
+  default = "Попередній місяць"
 
 ["dont-lock"]
 
@@ -213,243 +203,240 @@
 ["email-report/weekly"]
 
 ["email/header"]
-  default = "नमस्ते,"
+  default = "Привіт там,"
 
 ["email/password-reset"]
   default = """
-किसी ने (उम्मीद है कि आपने) आपके गोटकाउंटर खाते पर पासवर्ड रीसेट करने का अनुरोध किया है।
+Хтось (сподіваємось, ви) попросили скинути пароль у вашому обліковому записі.
 
-आप इसे यहाँ से कर सकते हैं:
+Ви можете це зробити тут:
 %(link)
 """
 
 ["email/reset-user-email-subject"]
-  default = "%(domain) के लिए पासवर्ड रीसेट करें"
+  default = "Скидання пароля для %(domain)"
 
 ["email/signature"]
-  default = """
-मुझे कोई समस्या, प्रश्न, टिप्पणी या कुछ और बताने के लिए बस इस ईमेल का जवाब दें।
-
-आपका आज्ञाकारी,
-मार्टिन
-"""
 
 ["error/address-exists"]
-  default = "%(addr) पहले से मौजूद है"
+  default = "%(addr) вже існує"
 
 ["error/could-not-read"]
-  default = "इसे gzip के रूप में नहीं पढ़ा जा सका: %(err)"
+  default = "Не зміг прочитати як gzip: %(err)"
 
 ["error/date-future"]
-  default = "यह भविष्य में होगा"
 
 ["error/date-mismatch"]
-  default = "समाप्ति तिथि प्रारंभ तिथि से पहले की है"
 
 ["error/date-past"]
-  default = "वह साइट के निर्माण से पहले होगा; गोटकाउंटर *उतना* भी अच्छा नहीं है ;-)"
 
 ["error/export-expired"]
-  default = "ऐसा लगता है कि अभी तक कोई निर्यात नहीं हुआ है या निर्यात की समय सीमा समाप्त हो गई है।"
 
 ["error/incorrect-password"]
-  default = "वर्तमान पासवर्ड गलत है।"
+  default = "Введений пароль невірний."
 
 ["error/invalid-end-date"]
-  default = "अमान्य समाप्ति तिथि: %(date)"
+  default = "Недійсна кінцева дата: %(date)"
 
 ["error/invalid-start-date"]
-  default = "अमान्य प्रारंभ तिथि: %(date)"
+  default = "Недійсна початкова дата: %(date)"
 
 ["error/load-url"]
-  default = "%(url) लोड नहीं हो सका: %(error)"
+  default = "Не міг завантажити %(url): %(error)"
 
 ["error/login-invalid"]
-  default = "अमान्य लॉगिन"
+  default = "Невірний логін"
 
 ["error/login-no-password"]
-  default = "%(email) के लिए कोई पासवर्ड सेट नहीं है; कृपया इसे रीसेट करें"
+  default = "Не встановлено пароля на %(email); Будь ласка, скиньте його"
 
 ["error/login-not-found"]
-  default = "उपयोगकर्ता %(email) नहीं मिला"
+  default = "Користувач %(email) не знайдено"
 
 ["error/login-token-expired"]
-  default = "दिए गए टोकन के लिए उपयोगकर्ता नहीं मिल सका; शायद इसकी समय सीमा समाप्त हो गई है या इसका उपयोग पहले ही किया जा चुका है?"
 
 ["error/login-wrong-pwd"]
-  default = "%(email) के लिए पासवर्ड गलत है"
+  default = "Неправильний пароль для %(email)"
 
 ["error/not-found"]
-  default = "नहीं मिला"
+  default = "Не знайдено"
 
 ["error/password-does-not-match"]
-  default = "पासवर्ड की पुष्टि मेल नहीं खाती."
 
 ["error/reset-user-no-account"]
-  default = "इस साइट पर यह खाता नहीं है: %(email)"
 
 ["error/unknown-activation-token"]
 
 ["event"]
+  default = "подія"
 
 ["forgot-domain-help"]
-  default = "ईमेल से जुड़े सभी डोमेन की सूची ईमेल करें।"
+  default = "Надішліть список усіх доменів, пов’язаних із адресою електронної пошти."
 
 ["header/access"]
+  default = "Доступ"
 
 ["header/add-api-token"]
 
 ["header/add-new-user"]
-  default = "एक नया उपयोगकर्ता जोड़ें"
+  default = "Додати нового користувача"
 
 ["header/allow-access"]
-  default = "उपयोग की अनुमति दें"
+  default = "Дозволити доступу"
 
 ["header/api"]
-  default = "एपीआई"
+  default = "API"
 
 ["header/api-tokens"]
-  default = "एपीआई टोकन"
+  default = "API tokens"
 
 ["header/browsers"]
-  default = "ब्राउज़र्स"
+  default = "Браузери"
 
 ["header/change-code"]
-  default = "साइट कोड बदलें"
+  default = "Змінити код сайту"
 
 ["header/change-passwd"]
-  default = "पासवर्ड बदलें"
+  default = "Змінити пароль"
 
 ["header/code"]
-  default = "कोड"
+  default = "Код"
 
 ["header/copy-settings"]
-  default = "सेटिंग्स कॉपी करें"
+  default = "Налаштування копіювання"
 
 ["header/created-at"]
-  default = "निर्माण का समय"
+  default = "Створений у"
 
 ["header/dashboard"]
-  default = "डैशबोर्ड"
+  default = "Інформаційна панель"
 
 ["header/data-collection"]
-  default = "डेटा संग्रहण"
+  default = "Збір даних"
 
 ["header/delete-account"]
-  default = "खाता हटाएं"
+  default = "Видалити обліковий запис"
 
 ["header/domain"]
-  default = "डोमेन"
+  default = "Домен"
 
 ["header/domain-settings"]
-  default = "डोमेन सेटिंग्स"
+  default = "Налаштування домена"
 
 ["header/edit-user"]
-  default = "उपयोगकर्ता %(email) संपादित करें"
+  default = "Редагувати користувача %(email)"
 
 ["header/email"]
-  default = "ईमेल"
+  default = "Електронна пошта"
 
 ["header/export"]
-  default = "निर्यात"
+  default = "Експорт"
 
 ["header/export-or-import"]
-  default = "आयात/निर्यात"
+  default = "Експорт / імпорт"
 
 ["header/fewer-number"]
 
 ["header/finished"]
-  default = "समाप्त"
+  default = "Завершено"
 
 ["header/forgot-domain"]
-  default = "डोमेन भूल गए"
 
 ["header/forgot-password"]
-  default = "पासवर्ड भूल गए"
 
 ["header/hash"]
-  default = "हैश"
 
 ["header/import"]
-  default = "आयात"
+  default = "Імпорт"
 
 ["header/l10n"]
-  default = "स्थानीयकरण"
+  default = "Локалізація"
 
 ["header/languages"]
-  default = "भाषाएं"
+  default = "Мови"
 
 ["header/last-10-exports"]
-  default = "पिछले 10 निर्यात"
+  default = "Останні 10-ть експортів"
 
 ["header/last-used-at"]
 
 ["header/locations"]
-  default = "स्थान"
+  default = "Місця"
 
 ["header/locations-for"]
-  default = "%(country) के लिए स्थान"
+  default = "Місця для %(country)"
 
 ["header/manage-pageviews"]
 
 ["header/merge-account"]
 
 ["header/mfa"]
-  default = "मल्टी-फैक्टर ऑथेंटिकेशन"
 
 ["header/n-hits"]
-  default = "# हिट"
 
 ["header/name"]
-  default = "नाम"
+  default = "Ім'я"
 
 ["header/pagination-cursor"]
-  default = "पेजिनेशन कर्सर"
 
 ["header/passwd-mfa"]
-  default = "पासवर्ड और MFA"
 
 ["header/path"]
-  default = "पथ"
+  default = "Шлях"
 
 ["header/permissions"]
-  default = "अनुमतियां"
+  default = "Дозволи"
 
 ["header/preferences"]
+  default = "Уподобання"
 
 ["header/reset-password"]
 
 ["header/settings"]
+  default = "Налаштування"
 
 ["header/sign-in-at"]
+  default = "Увійдіть у %(name)"
 
 ["header/site-settings"]
+  default = "Налаштування сайту"
 
 ["header/sites"]
+  default = "Сайти"
 
 ["header/size"]
+  default = "Розмір"
 
 ["header/sizes"]
+  default = "Розміри"
 
 ["header/start-pagination-cursor"]
 
 ["header/started"]
+  default = "Розпочато"
 
 ["header/systems"]
+  default = "Системи"
 
 ["header/title"]
+  default = "Заголовок"
 
 ["header/token"]
+  default = "Token"
 
 ["header/toprefs"]
 
 ["header/tracking"]
+  default = "Відстеження"
 
 ["header/user-info"]
+  default = "Інформація користувача"
 
 ["header/user-information"]
+  default = "Інформація користувача"
 
 ["header/users"]
+  default = "Користувачі"
 
 ["help/allow-embed"]
 
@@ -926,14 +913,19 @@
 ["validate/phone"]
 
 ["validate/range-higher"]
+  default = "має бути %d або вище"
 
 ["validate/range-lower"]
+  default = "має бути %d або нижче"
 
 ["validate/required"]
+  default = "має бути встановлений"
 
 ["validate/url"]
+  default = "має бути діючим (URL) посилання"
 
 ["validate/utf8"]
+  default = "має бути UTF-8"
 
 ["view not set"]
 
@@ -950,22 +942,30 @@
 ["widget-setting/help/regions"]
 
 ["widget-setting/label/align"]
+  default = "Align with pages"
 
 ["widget-setting/label/chart-style"]
+  default = "Стиль діаграми"
 
 ["widget-setting/label/no-events"]
+  default = "Виключити події"
 
 ["widget-setting/label/page-size"]
+  default = "Розмір сторінки"
 
 ["widget-setting/label/ref-page-size"]
 
 ["widget-setting/label/regions"]
+  default = "Показати регіони"
 
 ["widget-settings/bar-chart"]
 
 ["widget-settings/line-chart"]
+  default = "Лінійна діаграма"
 
 ["widget-settings/text-chart"]
+  default = "Текстова таблиця"
 
 ["y-scale"]
+  default = "Y-axis шкала"
 

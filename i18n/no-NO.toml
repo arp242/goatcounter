@@ -1,204 +1,200 @@
 [__meta__]
-  language = "hi"
+  language = "no-NO"
   maintainers = []
-  modified = 2023-05-19
+  modified = 2025-04-21
 
 ["button/add-new"]
-  default = "नया जोड़ें"
+  default = "Legg til"
 
 ["button/add-user"]
-  default = "नया उपयोगकर्ता जोड़ें"
+  default = "Legg til bruker"
 
 ["button/cfg-dashboard"]
-  default = "डैशबोर्ड लेआउट कॉन्फ़िगर करें"
+  default = "Konfigurer dashboardoppsett"
 
 ["button/change"]
-  default = "बदलें"
+  default = "Endre"
 
 ["button/change-passwd"]
-  default = "पासवर्ड बदलें"
+  default = "Endre passord"
 
 ["button/copy"]
-  default = "कॉपी"
+  default = "Kopier"
 
 ["button/delete"]
-  default = "हटाएं"
+  default = "Slett"
 
 ["button/delete-account"]
-  default = "खाता, सभी साइटें और सभी डेटा हटाएं"
+  default = "Slett konto, alle sider, og all data"
 
 ["button/delete-everything"]
-  default = "हां, सब कुछ हटा दें"
+  default = "Ja, slett alt"
 
 ["button/delete-pageviews"]
 
 ["button/disable-mfa"]
-  default = "MFA अक्षम करें"
+  default = "Skru av MFA"
 
 ["button/edit"]
-  default = "संपादित करें"
+  default = "Endre"
 
 ["button/enable-mfa"]
-  default = "MFA सक्षम करें"
+  default = "Skru på MFA"
 
 ["button/forgot-password"]
-  default = "क्या आप पासवर्ड भूल गए हैं?"
+  default = "Glemt passord?"
 
 ["button/merge"]
 
 ["button/remove"]
-  default = "हटाएं"
+  default = "Fjern"
 
 ["button/request-reset"]
-  default = "पासवर्ड रीसेट करने का अनुरोध करें"
+  default = "Forespør tilbakestilling av passord"
 
 ["button/resend-email"]
-  default = "ईमेल दुबारा भेजें"
+  default = "Send e-post på nytt"
 
 ["button/reset-defaults"]
-  default = "डिफ़ॉल्ट पर रीसेट करें"
+  default = "Tilbakestill til standardvalg"
 
 ["button/reset-password"]
-  default = "पासवर्ड रीसेट करें"
+  default = "Tilbakestill passord"
 
 ["button/save"]
-  default = "सहेजें"
+  default = "Lagre"
 
 ["button/save-default-view"]
-  default = "डिफ़ॉल्ट दृश्य सहेजें"
+  default = "Lagre standardvisning"
 
 ["button/search"]
 
 ["button/send-login-url"]
-  default = "लॉग इन URL भेजें"
+  default = "Send innloggingslenke"
 
 ["button/show"]
 
 ["button/sign-in"]
-  default = "साइन इन करें"
+  default = "Logg inn"
 
 ["button/start-export"]
-  default = "निर्यात शुरू करें"
+  default = "Start eksport"
 
 ["button/start-import"]
-  default = "आयात शुरू करें"
+  default = "Start import"
 
 ["button/submit"]
-  default = "जमा करें"
+  default = "Send inn"
 
 ["button/upload-ga-import"]
 
 ["confirm/delete-user"]
-  default = "%(email) को हटाएं?"
+  default = "Slett %(email)?"
 
 ["dashboard/day-ago"]
-  default = "%(n) दिन पहले"
+  default = "%(n) dag siden"
+  zero    = "%(n) dager"
+  one     = "%(n) dag siden"
+  two     = "%(n) dager"
+  few     = "%(n) dager"
+  many    = "%(n) dager"
 
 ["dashboard/future"]
-  default = "भविष्य"
+  default = "Fremtidige"
 
 ["dashboard/loading"]
 
 ["dashboard/month-ago"]
-  default = "%(n) महीने पहले"
 
 ["dashboard/nothing-to-display"]
-  default = "प्रदर्शित करने के लिए कुछ नहीं"
+  default = "Ingenting å vise"
 
 ["dashboard/pages/change"]
 
 ["dashboard/pages/header"]
-  default = "पृष्ठ"
+  default = "Sider"
 
 ["dashboard/pages/num-visits"]
-  default = "%(total-visits) में से %(num-visits) विज़िट दिखाई गईं"
 
 ["dashboard/pages/path"]
-  default = "पथ"
+  default = "Bane"
 
 ["dashboard/pages/stats"]
-  default = "आँकड़े"
+  default = "Statistikk"
 
 ["dashboard/pages/stats-tooltip"]
-  default = "हर बार चयनित समय सीमा के 1/12वें हिस्से को दर्शाता है"
+  default = "Hver stolpe representerer 1/12 av det valgte tidsrommet"
 
 ["dashboard/pages/title"]
-  default = "नाम"
+  default = "Tittel"
 
 ["dashboard/pages/visits"]
-  default = "विज़िट"
+  default = "Besøk"
 
 ["dashboard/today"]
-  default = "आज"
+  default = "I dag"
 
 ["dashboard/tooltip-event"]
-  default = "%(unique) क्लिक; %(clicks) कुल क्लिक"
+  default = "%(unique) klikk; %(clicks) totale klikk"
 
 ["dashboard/totals/header"]
-  default = "योग"
+  default = "Totalt"
 
 ["dashboard/totals/num-visits"]
-  default = "%(num-visits) विज़िट"
+  default = "%(num-visits) besøkende"
 
 ["dashboard/week-ago"]
-  default = "%(n) सप्ताह पहले"
 
 ["dashboard/yesterday"]
-  default = "बिता कल"
+  default = "I går"
 
 ["data-collect/help/country"]
-  default = "देश का नाम, उदाहरण के लिए भारत, नेपाल, आदि।"
+  default = "Landets navn, som Belgia, Indonesia også videre"
 
 ["data-collect/help/hits"]
 
 ["data-collect/help/language"]
-  default = "Accept-Language से समर्थित भाषाएं"
 
 ["data-collect/help/referrer"]
-  default = "Referer हेडर और अभियान पैरामीटर।"
 
 ["data-collect/help/region"]
-  default = "क्षेत्र, उदाहरण के लिए टेक्सास, बाली, आदि। इसके लिए विवरण प्रति देश अलग-अलग हैं।"
+  default = "Region, som Texas eller Bali. Detaljene for dette varierer per land."
 
 ["data-collect/help/sessions"]
-  default = "अद्वितीय विज़िट को 8 घंटे तक ट्रैक करें; जैसे यदि आप इसे अक्षम करते हैं तो पृष्ठ को फिर से लोड करने के लिए F5 दबाने पर 1 के बजाय 2 पेज व्यू दिखेंगे"
 
 ["data-collect/help/size"]
-  default = "स्क्रीन साईज़"
+  default = "Skjermstørrelse"
 
 ["data-collect/help/user-agent"]
 
 ["data-collect/label/country"]
-  default = "देश"
+  default = "Land"
 
 ["data-collect/label/hits"]
 
 ["data-collect/label/language"]
-  default = "भाषा"
+  default = "Språk"
 
 ["data-collect/label/referrer"]
-  default = "रेफरर"
 
 ["data-collect/label/region"]
-  default = "क्षेत्र"
+  default = "Region"
 
 ["data-collect/label/sessions"]
-  default = "सत्र"
+  default = "Sesjoner"
 
 ["data-collect/label/size"]
-  default = "आकार"
+  default = "Størrelse"
 
 ["data-collect/label/user-agent"]
-  default = "उपयोगकर्ता-एजेंट"
 
 ["datepicker/keyboard"]
-  default = "दिनांक चुनने के लिए तीर कुंजियों का उपयोग करें"
 
 ["datepicker/month-next"]
-  default = "अगला महीना"
+  default = "Neste måned"
 
 ["datepicker/month-prev"]
-  default = "पिछला महीना"
+  default = "Forrige måned"
 
 ["dont-lock"]
 
@@ -213,231 +209,208 @@
 ["email-report/weekly"]
 
 ["email/header"]
-  default = "नमस्ते,"
+  default = "Hei der,"
 
 ["email/password-reset"]
-  default = """
-किसी ने (उम्मीद है कि आपने) आपके गोटकाउंटर खाते पर पासवर्ड रीसेट करने का अनुरोध किया है।
-
-आप इसे यहाँ से कर सकते हैं:
-%(link)
-"""
 
 ["email/reset-user-email-subject"]
-  default = "%(domain) के लिए पासवर्ड रीसेट करें"
 
 ["email/signature"]
   default = """
-मुझे कोई समस्या, प्रश्न, टिप्पणी या कुछ और बताने के लिए बस इस ईमेल का जवाब दें।
-
-आपका आज्ञाकारी,
-मार्टिन
+Har du noen problemer, spørsmål, kommentarer eller noe annet å fortelle meg? Bare svar på denne e-posten.
+Hilsen Martin
 """
 
 ["error/address-exists"]
-  default = "%(addr) पहले से मौजूद है"
 
 ["error/could-not-read"]
-  default = "इसे gzip के रूप में नहीं पढ़ा जा सका: %(err)"
 
 ["error/date-future"]
-  default = "यह भविष्य में होगा"
+  default = "Det ville være i fremtiden"
 
 ["error/date-mismatch"]
-  default = "समाप्ति तिथि प्रारंभ तिथि से पहले की है"
+  default = "sluttdato er før startdato"
 
 ["error/date-past"]
-  default = "वह साइट के निर्माण से पहले होगा; गोटकाउंटर *उतना* भी अच्छा नहीं है ;-)"
 
 ["error/export-expired"]
-  default = "ऐसा लगता है कि अभी तक कोई निर्यात नहीं हुआ है या निर्यात की समय सीमा समाप्त हो गई है।"
 
 ["error/incorrect-password"]
-  default = "वर्तमान पासवर्ड गलत है।"
+  default = "Nåværende passord er feil"
 
 ["error/invalid-end-date"]
-  default = "अमान्य समाप्ति तिथि: %(date)"
+  default = "Ugyldig sluttdato: %(date)"
 
 ["error/invalid-start-date"]
-  default = "अमान्य प्रारंभ तिथि: %(date)"
+  default = "Ugyldig startdato: %(date)"
 
 ["error/load-url"]
-  default = "%(url) लोड नहीं हो सका: %(error)"
 
 ["error/login-invalid"]
-  default = "अमान्य लॉगिन"
+  default = "Feil innlogging"
 
 ["error/login-no-password"]
-  default = "%(email) के लिए कोई पासवर्ड सेट नहीं है; कृपया इसे रीसेट करें"
 
 ["error/login-not-found"]
-  default = "उपयोगकर्ता %(email) नहीं मिला"
+  default = "Bruker %(email) ikke funnet"
 
 ["error/login-token-expired"]
-  default = "दिए गए टोकन के लिए उपयोगकर्ता नहीं मिल सका; शायद इसकी समय सीमा समाप्त हो गई है या इसका उपयोग पहले ही किया जा चुका है?"
 
 ["error/login-wrong-pwd"]
-  default = "%(email) के लिए पासवर्ड गलत है"
+  default = "Feil passord for %(email)"
 
 ["error/not-found"]
-  default = "नहीं मिला"
+  default = "Ikke funnet"
 
 ["error/password-does-not-match"]
-  default = "पासवर्ड की पुष्टि मेल नहीं खाती."
 
 ["error/reset-user-no-account"]
-  default = "इस साइट पर यह खाता नहीं है: %(email)"
 
 ["error/unknown-activation-token"]
 
 ["event"]
+  default = "hendelse"
 
 ["forgot-domain-help"]
-  default = "ईमेल से जुड़े सभी डोमेन की सूची ईमेल करें।"
 
 ["header/access"]
+  default = "Tilgang"
 
 ["header/add-api-token"]
 
 ["header/add-new-user"]
-  default = "एक नया उपयोगकर्ता जोड़ें"
+  default = "Legg til bruker"
 
 ["header/allow-access"]
-  default = "उपयोग की अनुमति दें"
+  default = "Tillatt tilgang"
 
 ["header/api"]
-  default = "एपीआई"
+  default = "API"
 
 ["header/api-tokens"]
-  default = "एपीआई टोकन"
 
 ["header/browsers"]
-  default = "ब्राउज़र्स"
+  default = "Nettlesere"
 
 ["header/change-code"]
-  default = "साइट कोड बदलें"
+  default = "Endre sidens kode"
 
 ["header/change-passwd"]
-  default = "पासवर्ड बदलें"
+  default = "Endre passord"
 
 ["header/code"]
-  default = "कोड"
+  default = "Kode"
 
 ["header/copy-settings"]
-  default = "सेटिंग्स कॉपी करें"
 
 ["header/created-at"]
-  default = "निर्माण का समय"
 
 ["header/dashboard"]
-  default = "डैशबोर्ड"
 
 ["header/data-collection"]
-  default = "डेटा संग्रहण"
+  default = "Datasamling"
 
 ["header/delete-account"]
-  default = "खाता हटाएं"
+  default = "Slett konto"
 
 ["header/domain"]
-  default = "डोमेन"
+  default = "Domene"
 
 ["header/domain-settings"]
-  default = "डोमेन सेटिंग्स"
+  default = "Domeneinstillinger"
 
 ["header/edit-user"]
-  default = "उपयोगकर्ता %(email) संपादित करें"
 
 ["header/email"]
-  default = "ईमेल"
+  default = "E-post"
 
 ["header/export"]
-  default = "निर्यात"
+  default = "Eksport"
 
 ["header/export-or-import"]
-  default = "आयात/निर्यात"
+  default = "Eksport/import"
 
 ["header/fewer-number"]
 
 ["header/finished"]
-  default = "समाप्त"
+  default = "Ferdig"
 
 ["header/forgot-domain"]
-  default = "डोमेन भूल गए"
+  default = "Glemt domene"
 
 ["header/forgot-password"]
-  default = "पासवर्ड भूल गए"
 
 ["header/hash"]
-  default = "हैश"
 
 ["header/import"]
-  default = "आयात"
 
 ["header/l10n"]
-  default = "स्थानीयकरण"
 
 ["header/languages"]
-  default = "भाषाएं"
 
 ["header/last-10-exports"]
-  default = "पिछले 10 निर्यात"
 
 ["header/last-used-at"]
 
 ["header/locations"]
-  default = "स्थान"
 
 ["header/locations-for"]
-  default = "%(country) के लिए स्थान"
 
 ["header/manage-pageviews"]
 
 ["header/merge-account"]
 
 ["header/mfa"]
-  default = "मल्टी-फैक्टर ऑथेंटिकेशन"
 
 ["header/n-hits"]
-  default = "# हिट"
 
 ["header/name"]
-  default = "नाम"
+  default = "Navn"
 
 ["header/pagination-cursor"]
-  default = "पेजिनेशन कर्सर"
 
 ["header/passwd-mfa"]
-  default = "पासवर्ड और MFA"
+  default = "Passord & MFA"
 
 ["header/path"]
-  default = "पथ"
+  default = "Bane"
 
 ["header/permissions"]
-  default = "अनुमतियां"
+  default = "Tillatelser"
 
 ["header/preferences"]
+  default = "Preferanser"
 
 ["header/reset-password"]
 
 ["header/settings"]
+  default = "Instillinger"
 
 ["header/sign-in-at"]
+  default = "Logg inn på %(name)"
 
 ["header/site-settings"]
+  default = "Sideinstillinger"
 
 ["header/sites"]
+  default = "Side"
 
 ["header/size"]
+  default = "Størrelse"
 
 ["header/sizes"]
+  default = "Størrelser"
 
 ["header/start-pagination-cursor"]
 
 ["header/started"]
+  default = "Startet"
 
 ["header/systems"]
+  default = "Systemer"
 
 ["header/title"]
+  default = "Tittel"
 
 ["header/token"]
 
@@ -446,10 +419,13 @@
 ["header/tracking"]
 
 ["header/user-info"]
+  default = "Brukerinformasjon"
 
 ["header/user-information"]
+  default = "Brukerinformasjon"
 
 ["header/users"]
+  default = "Brukere"
 
 ["help/allow-embed"]
 
@@ -552,28 +528,35 @@
 ["label/delete-account-confirmation"]
 
 ["label/email"]
+  default = "E-post"
 
 ["label/email-address"]
+  default = "E-postadresse"
 
 ["label/email-reports"]
 
 ["label/fewer-numbers"]
 
 ["label/for-following-countries"]
+  default = "Kun for de følgende landene:"
 
 ["label/goatcounter-domain"]
 
 ["label/ignore-ips"]
+  default = "Ignorer IP-adresser"
 
 ["label/lang"]
+  default = "Språk"
 
 ["label/language-stats"]
+  default = "Språk statistikk"
 
 ["label/loc-stats"]
 
 ["label/lock-setting"]
 
 ["label/mark-current"]
+  default = "(nåværende)"
 
 ["label/match-case"]
 
@@ -586,28 +569,35 @@
 ["label/mfa-token"]
 
 ["label/new-code"]
+  default = "Ny kode"
 
 ["label/new-password"]
+  default = "Nytt passord"
 
 ["label/new-password-confirm"]
+  default = "Nytt passord (bekreft)"
 
 ["label/pagination-cursor"]
 
 ["label/password"]
+  default = "Passord"
 
 ["label/paths"]
 
 ["label/public-anyone"]
+  default = "Hvem som helst"
 
 ["label/public-private"]
 
 ["label/public-token"]
 
 ["label/secret"]
+  default = "Hemmelighet"
 
 ["label/secret-access"]
 
 ["label/secret-token"]
+  default = "Hemmelig token"
 
 ["label/set-default"]
 
@@ -616,6 +606,7 @@
 ["label/size-desktophd"]
 
 ["label/size-phones"]
+  default = "Telefoner"
 
 ["label/size-stats"]
 

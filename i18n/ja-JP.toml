@@ -1,8 +1,7 @@
 [__meta__]
-  comments = ""
-  generated = 2021-11-29T19:38:18Z
   language = "ja-JP"
-  maintainers = [""]
+  maintainers = []
+  modified = 2022-08-22
 
 ["button/add-new"]
   default = "新規追加"
@@ -28,11 +27,10 @@
 ["button/delete-account"]
   default = "アカウント・すべてのサイト・すべてのデータを削除"
 
-["button/delete-all"]
-  default = "はい、すべてを削除します！"
-
 ["button/delete-everything"]
   default = "はい、すべてを削除します"
+
+["button/delete-pageviews"]
 
 ["button/disable-mfa"]
   default = "MFA を無効化"
@@ -45,6 +43,8 @@
 
 ["button/forgot-password"]
   default = "パスワードをお忘れですか？"
+
+["button/merge"]
 
 ["button/remove"]
   default = "削除"
@@ -61,17 +61,18 @@
 ["button/reset-password"]
   default = "パスワードリセット"
 
-["button/rm-hits"]
-  default = "ページビューを削除"
-
 ["button/save"]
   default = "保存"
 
 ["button/save-default-view"]
   default = "デフォルトビューを保存"
 
+["button/search"]
+
 ["button/send-login-url"]
   default = "ログイン URL を送信"
+
+["button/show"]
 
 ["button/sign-in"]
   default = "サインイン"
@@ -85,6 +86,8 @@
 ["button/submit"]
   default = "送信"
 
+["button/upload-ga-import"]
+
 ["confirm/delete-user"]
   default = "%(email) を削除しますか？"
 
@@ -94,20 +97,21 @@
 ["dashboard/future"]
   default = "未来"
 
+["dashboard/loading"]
+
 ["dashboard/month-ago"]
   default = "%(n) か月前"
 
 ["dashboard/nothing-to-display"]
   default = "表示するものがありません"
 
+["dashboard/pages/change"]
+
 ["dashboard/pages/header"]
   default = "ページ"
 
 ["dashboard/pages/num-visits"]
   default = "%(total-visits) 回の訪問のうち %(num-visits) 回を表示"
-
-["dashboard/pages/pageviews"]
-  default = "ページビュー"
 
 ["dashboard/pages/path"]
   default = "パス"
@@ -120,9 +124,6 @@
 
 ["dashboard/pages/title"]
   default = "タイトル"
-
-["dashboard/pages/views"]
-  default = "ビュー"
 
 ["dashboard/pages/visits"]
   default = "訪問"
@@ -148,6 +149,8 @@
 ["data-collect/help/country"]
   default = "国名 (例: Belgium、Indonesia など)"
 
+["data-collect/help/hits"]
+
 ["data-collect/help/language"]
   default = "Accept-Languageで対応可能な言語"
 
@@ -163,8 +166,12 @@
 ["data-collect/help/size"]
   default = "スクリーンサイズ"
 
+["data-collect/help/user-agent"]
+
 ["data-collect/label/country"]
   default = "国"
+
+["data-collect/label/hits"]
 
 ["data-collect/label/language"]
   default = "言語"
@@ -193,6 +200,18 @@
 ["datepicker/month-prev"]
   default = "前の月"
 
+["dont-lock"]
+
+["email-report/daily"]
+
+["email-report/monthly"]
+
+["email-report/never"]
+
+["email-report/two-weeks"]
+
+["email-report/weekly"]
+
 ["email/header"]
   default = "こんにちは、"
 
@@ -216,9 +235,6 @@
 Martin
 """
 
-["error/account-has-stripe-subscription"]
-  default = "このアカウントには、Stripe サブスクリプションがあるので、まず課金ページでそれをキャンセルしてください。"
-
 ["error/address-exists"]
   default = "%(addr) はすでに存在します"
 
@@ -233,9 +249,6 @@ Martin
 
 ["error/date-past"]
   default = "これはサイトの作成前です"
-
-["error/delete-main-site"]
-  default = "メインサイトは削除できません"
 
 ["error/export-expired"]
   default = "まだエクスポートが行われていないか、エクスポートの有効期限が切れているようです。"
@@ -273,11 +286,10 @@ Martin
 ["error/password-does-not-match"]
   default = "パスワードの確認が一致していません。"
 
-["error/payment-cancelled"]
-  default = "支払いがキャンセルされました。"
-
 ["error/reset-user-no-account"]
   default = "このサイトのアカウントではありません: %(email)"
+
+["error/unknown-activation-token"]
 
 ["event"]
   default = "イベント"
@@ -287,6 +299,8 @@ Martin
 
 ["header/access"]
   default = "アクセス"
+
+["header/add-api-token"]
 
 ["header/add-new-user"]
   default = "新規ユーザー追加"
@@ -345,6 +359,8 @@ Martin
 ["header/export-or-import"]
   default = "インポート/エクスポート"
 
+["header/fewer-number"]
+
 ["header/finished"]
   default = "完了"
 
@@ -369,11 +385,17 @@ Martin
 ["header/last-10-exports"]
   default = "過去 10 回のエクスポート"
 
+["header/last-used-at"]
+
 ["header/locations"]
   default = "位置"
 
 ["header/locations-for"]
   default = "%(country) の位置"
+
+["header/manage-pageviews"]
+
+["header/merge-account"]
 
 ["header/mfa"]
   default = "多要素認証"
@@ -383,9 +405,6 @@ Martin
 
 ["header/name"]
   default = "名前"
-
-["header/new"]
-  default = "新規"
 
 ["header/pagination-cursor"]
   default = "ページネーションカーソル"
@@ -404,9 +423,6 @@ Martin
 
 ["header/reset-password"]
   default = "%(site-name) の %(email) のパスワードをリセット"
-
-["header/rm-hits"]
-  default = "ページビューを削除"
 
 ["header/settings"]
   default = "設定"
@@ -447,9 +463,6 @@ Martin
 ["header/tracking"]
   default = "トラッキング"
 
-["header/updated"]
-  default = "更新"
-
 ["header/user-info"]
   default = "ユーザー情報"
 
@@ -459,17 +472,18 @@ Martin
 ["header/users"]
   default = "ユーザー"
 
+["help/allow-embed"]
+
 ["help/allow-visitor-counts"]
   default = "使い方の詳細は%[ドキュメント]をご覧ください。"
-
-["help/campaign-parameters"]
-  default = "「Campaign」としてカウントするパラメータ一覧です。設定された場合、その値が Referrer として設定され Referer ヘッダが上書きされます。"
 
 ["help/cfg-dashboard"]
   default = "ダッシュボードに表示する内容や順番を変更します。"
 
 ["help/code-access"]
   default = "https://<em>[コード]</em>.%(domain) からアクセスします。"
+
+["help/configure-dashboard"]
 
 ["help/custom-domain"]
   default = "カスタムドメイン (例: <em>stats.example.com</em>)。<strong>注意:</strong> この機能を使用してもほとんどの広告ブロッカーによる GoatCounter のブロックは阻止<em>できません</em>。この機能は「バニティドメイン」としての使用を意図しています。"
@@ -483,20 +497,25 @@ Martin
 検証は 2 時間ごとに実行されます。
 """
 
-["help/custom-domain-plan"]
-  default = "Personal Plus または Business プランが必要です (あなたは現在 %(plan) プランです、%[%link 課金])。"
-
 ["help/custom-domain-verified"]
   default = "ドメインの検証と設定です (注意: 証明書が機能するまでに 1 時間程度かかる場合があります)。"
 
 ["help/data-retention"]
   default = "ページビューと関連するすべてのデータは指定された日数経過後に完全に削除されます。<code>0</code> に設定すると永久に削除されません。"
 
+["help/datepicker"]
+
 ["help/domain-access"]
   default = "このサイトにアクセスするためのドメインです。"
 
 ["help/drag-reorder"]
   default = "ドラッグして並び替え"
+
+["help/email-reports"]
+
+["help/fewer-numbers"]
+
+["help/fewer-numbers-lock"]
 
 ["help/for-the-following-countries"]
   default = "国名コードの一覧 (%[一覧]、alpha-2 コードを使用)。空白のままにすると、すべての国について収集します (有効な場合)。"
@@ -509,6 +528,10 @@ Martin
 
 ["help/ignore-ips-2"]
   default = "または、%[このブラウザでは無効にする] (もう一度クリックすると有効に戻ります)。"
+
+["help/locked-until"]
+
+["help/need-cities"]
 
 ["help/new-user-email"]
   default = "ログインに使用するメールです。"
@@ -528,9 +551,6 @@ Martin
 ["help/public"]
   default = "ダッシュボードを閲覧可能な人を設定します。"
 
-["help/rm-hits"]
-  default = "削除前にプレビューが表示されます"
-
 ["help/save-default-view"]
   default = "現在のビュー (黄色のボックス内のすべての設定) を未選択時に読み込むデフォルトとして保存します。"
 
@@ -543,14 +563,13 @@ Martin
 ["label/24-hour-clock"]
   default = "24 時間表示 (13:00)"
 
+["label/access-to-sites"]
+
 ["label/add-new"]
   default = "新規追加"
 
 ["label/all-sites"]
   default = "すべてのサイト"
-
-["label/allow-admin-access"]
-  default = "管理者アクセスを許可"
 
 ["label/allow-visitor-counts"]
   default = "ウェブサイトへの訪問者カウントの追加を許可"
@@ -558,8 +577,7 @@ Martin
 ["label/browser-stats"]
   default = "ブラウザ統計"
 
-["label/campaign-parameters"]
-  default = "Campaign パラメータ"
+["label/campaigns"]
 
 ["label/change-code"]
   default = "https://<em>[コード]</em>.%(domain) からアカウントにアクセスします。 – %[%link 変更]"
@@ -570,9 +588,6 @@ Martin
 ["label/code"]
   default = "コード"
 
-["label/collected-since"]
-  default = "2021 年 12 月 2 日以降に収集"
-
 ["label/csv-compress-format"]
   default = "CSV ファイル (gzip 圧縮も可)"
 
@@ -581,6 +596,8 @@ Martin
 
 ["label/custom-domain"]
   default = "カスタムドメイン"
+
+["label/dashboard-allow-embed"]
 
 ["label/dashboard-public"]
   default = "ダッシュボードを閲覧可能な人"
@@ -591,26 +608,20 @@ Martin
 ["label/date-fmt"]
   default = "日付の形式"
 
+["label/datepicker"]
+
 ["label/delete-account-confirmation"]
   default = "アカウント全体を削除してよろしいですか？"
-
-["label/delete-account-contact"]
-  default = "ここにチェック入れると、フォローアップの質問やコメントで連絡するかもしれません。私は通信事業者ではないのであなたを説得したりはしませんが、いくつか質問をしたり、不足している機能に関する将来の計画を説明したりする場合があります。"
-
-["label/delete-account-follow-up"]
-  default = "フォローアップを許可"
-
-["label/delete-account-reason"]
-  default = "GoatCounter に足りないもの、またはアカウントを削除したい理由をお教えいただけると幸いです。これは完全に任意です。"
-
-["label/delete-account-reason-placeholder"]
-  default = "削除の理由 (任意)"
 
 ["label/email"]
   default = "メールアドレス"
 
 ["label/email-address"]
   default = "メールアドレス"
+
+["label/email-reports"]
+
+["label/fewer-numbers"]
 
 ["label/for-following-countries"]
   default = "以下の国のみ対象:"
@@ -630,11 +641,19 @@ Martin
 ["label/loc-stats"]
   default = "位置統計"
 
+["label/lock-setting"]
+
 ["label/mark-current"]
   default = "(現在)"
 
+["label/match-case"]
+
 ["label/match-title"]
   default = "タイトルも含める"
+
+["label/merge-account-confirmation"]
+
+["label/merge-to"]
 
 ["label/mfa-token"]
   default = "MFA トークン"
@@ -684,9 +703,6 @@ Martin
 ["label/size-desktophd"]
   default = "HD より大きいコンピュータモニター"
 
-["label/size-largephones"]
-  default = "大きな携帯電話・小さなタブレット"
-
 ["label/size-phones"]
   default = "携帯電話"
 
@@ -698,6 +714,8 @@ Martin
 
 ["label/system-stats"]
   default = "システム統計"
+
+["label/theme"]
 
 ["label/thousand-separator"]
   default = "区切り文字"
@@ -735,9 +753,6 @@ Martin
 ["link/api-docs"]
   default = "API ドキュメント"
 
-["link/billing"]
-  default = "課金"
-
 ["link/dashboard"]
   default = "ダッシュボード"
 
@@ -746,6 +761,12 @@ Martin
 
 ["link/goto-path"]
   default = "%(path) を開く"
+
+["link/import"]
+
+["link/manage-pageviews"]
+
+["link/merge-account"]
 
 ["link/passwd-mfa"]
   default = "パスワードと MFA"
@@ -756,14 +777,13 @@ Martin
 ["link/rm-account"]
   default = "アカウント削除"
 
-["link/rm-views"]
-  default = "ページビュー削除"
-
 ["link/set-from-browser"]
   default = "ブラウザから設定"
 
 ["link/settings"]
   default = "設定"
+
+["link/show-less"]
 
 ["link/show-more"]
   default = "さらに表示"
@@ -792,9 +812,6 @@ Martin
 ["nav-dash/back"]
   default = "戻る"
 
-["nav-dash/by-day"]
-  default = "日別で表示"
-
 ["nav-dash/current"]
   default = "この"
 
@@ -807,28 +824,35 @@ Martin
 ["nav-dash/filter"]
   default = "パスで絞り込む"
 
-["nav-dash/filter-tooltip"]
-  default = """<p>パスとタイトルを大文字小文字の区別なしで絞り込みます. %[%more More help]</p>
+["nav-dash/filter-more-help"]
 
-	<div>
-		<p>Recognizes the following keywords:</p>
-		<ul>
-			<li><em>at:start</em>, <em>at:end</em>:       match only at the start or end of path or title. Use both for exact match.</li>
-			<li><em>in:path</em>, <em>in:title</em>       match only path or title.</li>
-			<li><em>is:event</em>, <em>is:pageview</em>   show only events or pageviews.</li>
-			<li><em>:not</em> negate the match (that is: only show paths that don't match the filter).</li>
-		</ul>
-	</div>
-  """
+["nav-dash/filter-tooltip"]
+  default = """
+<p>パスとタイトルを大文字小文字の区別なしで絞り込みます. %[%more More help]</p>
+
+  <div>
+    <p>Recognizes the following keywords:</p>
+    <ul>
+      <li><em>at:start</em>, <em>at:end</em>:       match only at the start or end of path or title. Use both for exact match.</li>
+      <li><em>in:path</em>, <em>in:title</em>       match only path or title.</li>
+      <li><em>is:event</em>, <em>is:pageview</em>   show only events or pageviews.</li>
+      <li><em>:not</em> negate the match (that is: only show paths that don't match the filter).</li>
+    </ul>
+  </div>
+"""
 
 ["nav-dash/forced-daily"]
   default = "表示期間が 90 日を超える場合、時刻は表示できません"
+
+["nav-dash/forced-hourly"]
 
 ["nav-dash/forward"]
   default = "進む"
 
 ["nav-dash/half-year"]
   default = "半年"
+
+["nav-dash/hour"]
 
 ["nav-dash/last"]
   default = "過去"
@@ -842,11 +866,17 @@ Martin
 ["nav-dash/start-date"]
   default = "表示期間の開始日"
 
+["nav-dash/view-by"]
+
 ["nav-dash/week"]
   default = "1 週間"
 
 ["nav-dash/year"]
   default = "1 年"
+
+["nav-fash/filter-less-help"]
+
+["new-paren"]
 
 ["no-title"]
   default = "タイトルなし"
@@ -869,6 +899,8 @@ Martin
 ["notify/export-started-in-background"]
   default = "バックグラウンドでエクスポートが開始されました。完了すると、ダウンロードリンクが記載されたメールが届きます。"
 
+["notify/import-ga-okay"]
+
 ["notify/import-started-in-background"]
   default = "バックグラウンドでインポートが開始されました。完了すると、メールが届きます。"
 
@@ -877,9 +909,6 @@ Martin
 
 ["notify/multi-factor-auth-enabled"]
   default = "多要素認証が有効になりました。"
-
-["notify/need-business-plan-custom-domain"]
-  default = "カスタムドメインを設定するには Business プランが必要です"
 
 ["notify/need-email-verification-for-api"]
   default = "API を利用する前に、メールアドレスの検証が必要です。"
@@ -892,12 +921,6 @@ Martin
 
 ["notify/password-changed"]
   default = "パスワードが変更されました。"
-
-["notify/payment-processed"]
-  default = "支払いプロセスが正常に完了しました。"
-
-["notify/payment-processing"]
-  default = "支払い処理業者から成功の報告を受けましたが、まだ支払い処理中です"
 
 ["notify/reset-to-default"]
   default = "デフォルトにリセットしました"
@@ -942,8 +965,12 @@ Martin
 <p>追加する数に制限はありません。</p>
 """
 
+["p/add-multiple-accounts"]
+
 ["p/additional-errors"]
   default = "その他のエラー"
+
+["p/all-sites"]
 
 ["p/api-intro"]
   default = "GoatCounter には限られた API が付属しています。現在、あなたは API からページビューのカウント、サイトの作成、サイトの削除、サイトの編集、エクスポートの作成が行えます。"
@@ -969,6 +996,8 @@ Martin
 ["p/csv-file-format"]
   default = "CSV ファイルの形式については%[こちらのドキュメント]をご覧ください。"
 
+["p/delete-account"]
+
 ["p/disable-mfa"]
   default = "このアカウントでは、現在 MFA が有効です。"
 
@@ -977,6 +1006,8 @@ Martin
 
 ["p/error"]
   default = "エラー: %(error-message)"
+
+["p/export-csv"]
 
 ["p/export-process"]
   default = """
@@ -988,8 +1019,14 @@ Martin
 ["p/have-mfa"]
   default = "このアカウントは多要素認証で保護されています。認証アプリに表示されているコードを入力してください。"
 
+["p/import-ga"]
+
 ["p/last-user"]
   default = "唯一の管理者ユーザーのため削除・編集できません"
+
+["p/manage-hits"]
+
+["p/merge-account"]
 
 ["p/no-data"]
   default = """
@@ -1015,6 +1052,8 @@ Martin
 ["p/notify-site-deletion"]
   default = "%(number) 件のサイトが削除されます"
 
+["p/num-accounts"]
+
 ["p/remove-site-confirm"]
   default = """
 サイト %(sitename) を削除してよろしいですか？<br>
@@ -1029,12 +1068,6 @@ Martin
 サイト %(sitename) を削除してよろしいですか？<br>
 これにより、<strong>関連するすべてのデータ</strong>と<strong>現在のサイトが削除されます</strong>。
 """
-
-["p/request-data-recovery"]
-  default = "気が変わりデータの復元を希望する場合は 7 日以内に%[ご連絡]ください。"
-
-["p/rm-hits"]
-  default = "特定ページのページビューをすべて削除します。"
 
 ["p/rm-hits-help"]
   default = "大文字と小文字は区別されません。ワイルドカードとして <code>%</code> に対応しています (例: <code>/page%.html</code> は <code>/page</code> で始まり <code>.html</code> で終わるものすべてに一致します)。<code>_</code> は任意の文字に一致します (例: <code>_.html</code> は <code>a.html</code> や <code>b.html</code> に一致します)。特別な意味を持たない文字列としては <code>\\%</code> や <code>\\_</code> を使用できます。"
@@ -1060,17 +1093,24 @@ Martin
 ["page-ranking"]
   default = "ページランキング"
 
-["restricted-admin-access"]
-  default = "通常、管理者はあなたのサイトに「ログイン」できませんが、これを有効にすると「ログイン」できるようになります。サポートのために、これを有効にするよう求められる場合があります。"
-
 ["scale-y"]
   default = "Y 軸のスケールを最大にする"
+
+["theme/dark"]
+
+["theme/light"]
+
+["theme/system"]
+
+["tooltip/change-period"]
 
 ["top-nav/back"]
   default = "戻る"
 
 ["top-nav/dashboard"]
   default = "ダッシュボード"
+
+["top-nav/documentation"]
 
 ["top-nav/need-js"]
   default = "GoatCounter を正しく機能させるには JavaScript を有効にする必要があります。%(domain) による JavaScript の実行を許可してください。"
@@ -1090,17 +1130,8 @@ Martin
 ["top-nav/sign-out"]
   default = "サインアウト"
 
-["top-nav/site-code"]
-  default = "サイトコード"
-
 ["top-nav/sites"]
   default = "サイト:"
-
-["top-nav/updates"]
-  default = "更新"
-
-["top-nav/user"]
-  default = "ユーザー"
 
 ["unknown"]
   default = "(不明)"
@@ -1147,6 +1178,8 @@ Martin
 ["validate/len-shorter"]
   default = "%d より短い必要があります"
 
+["validate/need-one"]
+
 ["validate/phone"]
   default = "有効な電話番号である必要があります"
 
@@ -1164,6 +1197,8 @@ Martin
 
 ["validate/utf8"]
   default = "UTF-8 である必要があります"
+
+["view not set"]
 
 ["widget-setting/help/align"]
   default = "ページのグラフと揃うように左側に余白を追加します"
@@ -1212,3 +1247,4 @@ Martin
 
 ["y-scale"]
   default = "Y 軸スケール"
+

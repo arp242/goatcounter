@@ -1,7 +1,7 @@
 [__meta__]
-  comments = "|user|"
-  generated = 2021-11-29T19:38:18Z
   language = "zh-TW"
+  maintainers = []
+  modified = 2024-04-09
 
 ["button/add-new"]
   default = "新增"
@@ -27,11 +27,10 @@
 ["button/delete-account"]
   default = "刪除帳號、所有網站和所有資料"
 
-["button/delete-all"]
-  default = "是，全部刪除！"
-
 ["button/delete-everything"]
   default = "是，刪除一切"
+
+["button/delete-pageviews"]
 
 ["button/disable-mfa"]
   default = "關閉多重要素驗證"
@@ -44,6 +43,8 @@
 
 ["button/forgot-password"]
   default = "忘記密碼？"
+
+["button/merge"]
 
 ["button/remove"]
   default = "移除"
@@ -60,16 +61,17 @@
 ["button/reset-password"]
   default = "重設密碼"
 
-["button/rm-hits"]
-  default = "刪除頁面瀏覽"
-
 ["button/save"]
   default = "儲存"
 
 ["button/save-default-view"]
   default = "儲存預設版面"
 
+["button/search"]
+
 ["button/send-login-url"]
+
+["button/show"]
 
 ["button/sign-in"]
   default = "登入"
@@ -82,6 +84,8 @@
 
 ["button/submit"]
   default = "送出"
+
+["button/upload-ga-import"]
 
 ["confirm/delete-user"]
   default = "刪除 %(email)？"
@@ -97,6 +101,8 @@
 ["dashboard/future"]
   default = "未來"
 
+["dashboard/loading"]
+
 ["dashboard/month-ago"]
   default = "%(n) 個月前"
   zero    = "0 個月前"
@@ -108,12 +114,12 @@
 ["dashboard/nothing-to-display"]
   default = "沒有資料顯示"
 
+["dashboard/pages/change"]
+
 ["dashboard/pages/header"]
   default = "頁面"
 
 ["dashboard/pages/num-visits"]
-
-["dashboard/pages/pageviews"]
 
 ["dashboard/pages/path"]
   default = "路徑"
@@ -125,9 +131,6 @@
 
 ["dashboard/pages/title"]
   default = "標題"
-
-["dashboard/pages/views"]
-  default = "瀏覽數"
 
 ["dashboard/pages/visits"]
 
@@ -156,6 +159,8 @@
 ["data-collect/help/country"]
   default = "國家名稱，例如比利時、印尼等。"
 
+["data-collect/help/hits"]
+
 ["data-collect/help/language"]
 
 ["data-collect/help/referrer"]
@@ -168,8 +173,12 @@
 ["data-collect/help/size"]
   default = "螢幕尺寸。"
 
+["data-collect/help/user-agent"]
+
 ["data-collect/label/country"]
   default = "國家"
+
+["data-collect/label/hits"]
 
 ["data-collect/label/language"]
   default = "語言"
@@ -190,6 +199,18 @@
   default = "下個月"
 
 ["datepicker/month-prev"]
+
+["dont-lock"]
+
+["email-report/daily"]
+
+["email-report/monthly"]
+
+["email-report/never"]
+
+["email-report/two-weeks"]
+
+["email-report/weekly"]
 
 ["email/header"]
   default = "您好："
@@ -213,8 +234,6 @@
 馬丁
 """
 
-["error/account-has-stripe-subscription"]
-
 ["error/address-exists"]
 
 ["error/could-not-read"]
@@ -225,9 +244,6 @@
 
 ["error/date-past"]
   default = "那是在網站架設之前；GoatCounter 還沒「那麼」神呢 ;-)"
-
-["error/delete-main-site"]
-  default = "無法刪除主要網站"
 
 ["error/export-expired"]
 
@@ -259,11 +275,10 @@
 ["error/password-does-not-match"]
   default = "密碼確認不符。"
 
-["error/payment-cancelled"]
-  default = "付款已取消。"
-
 ["error/reset-user-no-account"]
   default = "此網站無此帳號：%(email)"
+
+["error/unknown-activation-token"]
 
 ["event"]
   default = "活動"
@@ -273,6 +288,8 @@
 
 ["header/access"]
   default = "權限"
+
+["header/add-api-token"]
 
 ["header/add-new-user"]
   default = "新增使用者"
@@ -331,6 +348,8 @@
 ["header/export-or-import"]
   default = "匯出 / 匯入"
 
+["header/fewer-number"]
+
 ["header/finished"]
   default = "結束"
 
@@ -354,18 +373,22 @@
 
 ["header/last-10-exports"]
 
+["header/last-used-at"]
+
 ["header/locations"]
   default = "位置"
 
 ["header/locations-for"]
+
+["header/manage-pageviews"]
+
+["header/merge-account"]
 
 ["header/mfa"]
 
 ["header/n-hits"]
 
 ["header/name"]
-
-["header/new"]
 
 ["header/pagination-cursor"]
 
@@ -381,8 +404,6 @@
 ["header/preferences"]
 
 ["header/reset-password"]
-
-["header/rm-hits"]
 
 ["header/settings"]
   default = "設定"
@@ -420,8 +441,6 @@
 ["header/tracking"]
   default = "追蹤"
 
-["header/updated"]
-
 ["header/user-info"]
   default = "使用者資訊"
 
@@ -431,16 +450,18 @@
 ["header/users"]
   default = "使用者"
 
+["help/allow-embed"]
+
 ["help/allow-visitor-counts"]
   default = "詳情請參閱 %[the documentation] 了解如何使用。"
-
-["help/campaign-parameters"]
 
 ["help/cfg-dashboard"]
   default = "修改在儀表板上顯示什麼以及顯示的順序。"
 
 ["help/code-access"]
   default = "您可透過 https://<em>[我的代碼]</em>.%(domain) 瀏覽您的網站。"
+
+["help/configure-dashboard"]
 
 ["help/custom-domain"]
   default = """
@@ -457,16 +478,21 @@
 驗證每 2 小時執行一次。
 """
 
-["help/custom-domain-plan"]
-  default = "需要個人加強版或商業計劃（您目前使用的是 %(plan) 計劃；參見 %[%link billing]）。"
-
 ["help/custom-domain-verified"]
 
 ["help/data-retention"]
 
+["help/datepicker"]
+
 ["help/domain-access"]
 
 ["help/drag-reorder"]
+
+["help/email-reports"]
+
+["help/fewer-numbers"]
+
+["help/fewer-numbers-lock"]
 
 ["help/for-the-following-countries"]
 
@@ -475,6 +501,10 @@
 ["help/ignore-ips"]
 
 ["help/ignore-ips-2"]
+
+["help/locked-until"]
+
+["help/need-cities"]
 
 ["help/new-user-email"]
 
@@ -488,8 +518,6 @@
 
 ["help/public"]
 
-["help/rm-hits"]
-
 ["help/save-default-view"]
 
 ["help/turing-test"]
@@ -499,18 +527,18 @@
 ["label/24-hour-clock"]
   default = "24 小時制時間"
 
+["label/access-to-sites"]
+
 ["label/add-new"]
 
 ["label/all-sites"]
   default = "全部網站"
 
-["label/allow-admin-access"]
-
 ["label/allow-visitor-counts"]
 
 ["label/browser-stats"]
 
-["label/campaign-parameters"]
+["label/campaigns"]
 
 ["label/change-code"]
 
@@ -518,8 +546,6 @@
 
 ["label/code"]
   default = "代碼"
-
-["label/collected-since"]
 
 ["label/csv-compress-format"]
 
@@ -529,6 +555,8 @@
 ["label/custom-domain"]
   default = "自訂域名"
 
+["label/dashboard-allow-embed"]
+
 ["label/dashboard-public"]
 
 ["label/data-retention"]
@@ -536,21 +564,19 @@
 ["label/date-fmt"]
   default = "日期格式"
 
+["label/datepicker"]
+
 ["label/delete-account-confirmation"]
-
-["label/delete-account-contact"]
-
-["label/delete-account-follow-up"]
-
-["label/delete-account-reason"]
-
-["label/delete-account-reason-placeholder"]
 
 ["label/email"]
   default = "信箱"
 
 ["label/email-address"]
   default = "信箱"
+
+["label/email-reports"]
+
+["label/fewer-numbers"]
 
 ["label/for-following-countries"]
 
@@ -567,10 +593,18 @@
 
 ["label/loc-stats"]
 
+["label/lock-setting"]
+
 ["label/mark-current"]
   default = "（目前）"
 
+["label/match-case"]
+
 ["label/match-title"]
+
+["label/merge-account-confirmation"]
+
+["label/merge-to"]
 
 ["label/mfa-token"]
 
@@ -610,9 +644,6 @@
 ["label/size-desktophd"]
   default = "高解析度電腦螢幕"
 
-["label/size-largephones"]
-  default = "大型手機、小型平板"
-
 ["label/size-phones"]
   default = "手機"
 
@@ -622,6 +653,8 @@
   default = "平板和小型筆電"
 
 ["label/system-stats"]
+
+["label/theme"]
 
 ["label/thousand-separator"]
 
@@ -653,14 +686,18 @@
 ["link/api-docs"]
   default = "API 文件"
 
-["link/billing"]
-
 ["link/dashboard"]
   default = "儀表板"
 
 ["link/generate-random"]
 
 ["link/goto-path"]
+
+["link/import"]
+
+["link/manage-pageviews"]
+
+["link/merge-account"]
 
 ["link/passwd-mfa"]
   default = "密碼和多重要素驗證"
@@ -670,12 +707,12 @@
 ["link/rm-account"]
   default = "刪除帳號"
 
-["link/rm-views"]
-
 ["link/set-from-browser"]
 
 ["link/settings"]
   default = "設定"
+
+["link/show-less"]
 
 ["link/show-more"]
   default = "顯示更多"
@@ -704,8 +741,6 @@
 ["nav-dash/back"]
   default = "較舊"
 
-["nav-dash/by-day"]
-
 ["nav-dash/current"]
   default = "目前"
 
@@ -716,15 +751,21 @@
 
 ["nav-dash/filter"]
 
+["nav-dash/filter-more-help"]
+
 ["nav-dash/filter-tooltip"]
 
 ["nav-dash/forced-daily"]
+
+["nav-dash/forced-hourly"]
 
 ["nav-dash/forward"]
   default = "較新"
 
 ["nav-dash/half-year"]
   default = "半年"
+
+["nav-dash/hour"]
 
 ["nav-dash/last"]
   default = "過往"
@@ -737,11 +778,17 @@
 
 ["nav-dash/start-date"]
 
+["nav-dash/view-by"]
+
 ["nav-dash/week"]
   default = "週"
 
 ["nav-dash/year"]
   default = "年"
+
+["nav-fash/filter-less-help"]
+
+["new-paren"]
 
 ["no-title"]
   default = "無標題"
@@ -758,13 +805,13 @@
 
 ["notify/export-started-in-background"]
 
+["notify/import-ga-okay"]
+
 ["notify/import-started-in-background"]
 
 ["notify/login-after-password-reset"]
 
 ["notify/multi-factor-auth-enabled"]
-
-["notify/need-business-plan-custom-domain"]
 
 ["notify/need-email-verification-for-api"]
 
@@ -775,10 +822,6 @@
 
 ["notify/password-changed"]
   default = "密碼已修改。"
-
-["notify/payment-processed"]
-
-["notify/payment-processing"]
 
 ["notify/reset-to-default"]
   default = "恢復為預設！"
@@ -808,7 +851,11 @@
 
 ["p/add-goatcounter-to-multiple-websites"]
 
+["p/add-multiple-accounts"]
+
 ["p/additional-errors"]
+
+["p/all-sites"]
 
 ["p/api-intro"]
 
@@ -822,9 +869,7 @@
 
 ["p/csv-file-format"]
 
-["p/delete-account-multi-site"]
-
-["p/delete-account-one-site"]
+["p/delete-account"]
 
 ["p/disable-mfa"]
 
@@ -833,12 +878,20 @@
 ["p/error"]
   default = "錯誤：%(error-message)"
 
+["p/export-csv"]
+
 ["p/export-process"]
 
 ["p/have-mfa"]
 
+["p/import-ga"]
+
 ["p/last-user"]
   default = "無法刪除或編輯最後一位管理員使用者"
+
+["p/manage-hits"]
+
+["p/merge-account"]
 
 ["p/no-data"]
 
@@ -851,15 +904,13 @@
 ["p/notify-site-deletion"]
   default = "%(number) 個網站將被刪除"
 
+["p/num-accounts"]
+
 ["p/remove-site-confirm"]
 
 ["p/remove-site-confirm-contact"]
 
 ["p/remove-site-confirm-current"]
-
-["p/request-data-recovery"]
-
-["p/rm-hits"]
 
 ["p/rm-hits-help"]
 
@@ -877,15 +928,23 @@
 
 ["page-ranking"]
 
-["restricted-admin-access"]
-
 ["scale-y"]
+
+["theme/dark"]
+
+["theme/light"]
+
+["theme/system"]
+
+["tooltip/change-period"]
 
 ["top-nav/back"]
   default = "返回"
 
 ["top-nav/dashboard"]
   default = "儀表板"
+
+["top-nav/documentation"]
 
 ["top-nav/need-js"]
 
@@ -902,15 +961,8 @@
 ["top-nav/sign-out"]
   default = "登出"
 
-["top-nav/site-code"]
-
 ["top-nav/sites"]
   default = "網站："
-
-["top-nav/updates"]
-
-["top-nav/user"]
-  default = "使用者"
 
 ["unknown"]
   default = "（未知）"
@@ -943,6 +995,8 @@
 
 ["validate/len-shorter"]
 
+["validate/need-one"]
+
 ["validate/phone"]
 
 ["validate/range-higher"]
@@ -955,6 +1009,8 @@
 
 ["validate/utf8"]
   default = "必須為 UTF-8"
+
+["view not set"]
 
 ["widget-setting/help/align"]
 
@@ -996,3 +1052,4 @@
 
 ["y-scale"]
   default = "Y 軸尺寸"
+

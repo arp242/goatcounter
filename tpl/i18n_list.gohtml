@@ -3,34 +3,32 @@
 
 <h1>GoatCounter translations</h1>
 <h2>Instructions</h2>
-<p>Anyone can help translate GoatCounter; how this works:</p>
-<ul>
-	<li>To test a new translation you can set it as active in the list below. If
-		you edit an existing language changes will immediately show up.</li>
-	<li>Feel free to edit this as much as you want, changes will show up for you
-		only; nothing is changed for anyone else.</li>
-	<li>To push changes click “send changes”, this will email me the file you’ve
-		edited. e.g. it’s like sending a pull request.</li>
-	<li>You can’t view what other people are working on at the moment; to
-		prevent duplicate work especially for new translations or other large
-		changes I encourage people to either
-		<a target="_blank" href="https://github.com/arp242/goatcounter/issues/new?title=New%20translation:">create a tracking issue</a>
-		and/or email <a target="_blank" href="mailto:support@goatcounter.com">support@goatcounter.com</a>
-		first to coördinate things.</li>
-</ul>
+<p>Anyone can help translate GoatCounter. To prevent abuse edited translations
+won't show up in the UI until it's approved. You can also directly edit the TOML
+files from git (<a href="https://github.com/arp242/goatcounter/tree/main/i18n")>see the
+<code>i18n/</code> directory</a>).</p>
+
+<p>There are {{.TotalStrings}} translatable strings in total.</p>
 
 <h2>Edit translations</h2>
-<ul>
+<table id="i18n-list">
+	<thead><tr>
+		<th>File</th>
+		<th>Completed</th>
+		<th>Number of strings</th>
+		<th>Modified</th>
+	</tr></thead>
+<tbody>
 	{{range $f := .Files}}
-		<li><a style="display: inline-block; width: 10em;" href="{{$.Base}}/i18n/{{index $f 0}}">{{index $f 1}}</a> –
-			<form method="post" action="{{$.Base}}/i18n/set/{{index $f 0}}">
-				<input type="hidden" name="csrf" value="{{$.User.CSRFToken}}">
-				<input type="hidden" name="language" value="{{index $f 0}}">
-				<button class="link">set as active</button>
-			</form>
-		</li>
+		<tr>
+			<td><a href="{{$.Base}}/i18n/{{$f.Name}}">{{$f.Name}}</a></td>
+			<td>{{printf "%.0f" (percentage $f.Num $.TotalStrings)}}%</td>
+			<td>{{$f.Num}} strings</td>
+			<td>{{if $f.Mod}}yes{{end}}</td>
+		</tr>
 	{{end}}
-</ul>
+</tbody>
+</table>
 
 <h2>Create new</h2>
 <form method="post" action="{{.Base}}/i18n" class="vertical">

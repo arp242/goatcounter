@@ -1,7 +1,7 @@
 [__meta__]
-  comments = ""
-  generated = 2021-11-29T19:38:18Z
   language = "id-ID"
+  maintainers = []
+  modified = 2023-01-12
 
 ["button/add-new"]
   default = "Tambahkan baru"
@@ -27,11 +27,10 @@
 ["button/delete-account"]
   default = "Hapus akun, semua situs, dan semua data"
 
-["button/delete-all"]
-  default = "Iya, hapus semuanya!"
-
 ["button/delete-everything"]
   default = "Iya, hapus semuanya"
+
+["button/delete-pageviews"]
 
 ["button/disable-mfa"]
   default = "Nonaktifkan autentikasi multifaktor"
@@ -44,6 +43,8 @@
 
 ["button/forgot-password"]
   default = "Lupa kata sandi?"
+
+["button/merge"]
 
 ["button/remove"]
   default = "Hapus"
@@ -60,17 +61,18 @@
 ["button/reset-password"]
   default = "Atur ulang kata sandi"
 
-["button/rm-hits"]
-  default = "Hapus tampilan laman"
-
 ["button/save"]
   default = "Simpan"
 
 ["button/save-default-view"]
   default = "Simpan tampilan bawaan"
 
+["button/search"]
+
 ["button/send-login-url"]
   default = "Kirim URL login"
+
+["button/show"]
 
 ["button/sign-in"]
   default = "Masuk"
@@ -83,6 +85,8 @@
 
 ["button/submit"]
   default = "Kirim"
+
+["button/upload-ga-import"]
 
 ["confirm/delete-user"]
   default = "Hapus %(email)?"
@@ -98,6 +102,8 @@
 ["dashboard/future"]
   default = "masa depan"
 
+["dashboard/loading"]
+
 ["dashboard/month-ago"]
   default = "%(n) bulan yang lalu"
   zero    = "%(n) bulan yang lalu"
@@ -109,14 +115,13 @@
 ["dashboard/nothing-to-display"]
   default = "Tidak ada yang ditampilkan"
 
+["dashboard/pages/change"]
+
 ["dashboard/pages/header"]
   default = "Laman"
 
 ["dashboard/pages/num-visits"]
   default = "%(num-visits) dari %(total-visits) tampilan diperlihatkan"
-
-["dashboard/pages/pageviews"]
-  default = "Tampilan laman"
 
 ["dashboard/pages/path"]
   default = "Jalur"
@@ -129,9 +134,6 @@
 
 ["dashboard/pages/title"]
   default = "Judul"
-
-["dashboard/pages/views"]
-  default = "Tampilan"
 
 ["dashboard/pages/visits"]
   default = "Kunjungan"
@@ -162,6 +164,8 @@
 ["data-collect/help/country"]
   default = "Nama negara, misalnya Belgia, Indonesia, dll."
 
+["data-collect/help/hits"]
+
 ["data-collect/help/language"]
   default = "Bahasa yang didukung dari Accept-Language"
 
@@ -177,8 +181,12 @@
 ["data-collect/help/size"]
   default = "Ukuran layar."
 
+["data-collect/help/user-agent"]
+
 ["data-collect/label/country"]
   default = "Negara"
+
+["data-collect/label/hits"]
 
 ["data-collect/label/language"]
   default = "Bahasa"
@@ -207,6 +215,18 @@
 ["datepicker/month-prev"]
   default = "Bulan sebelumnya"
 
+["dont-lock"]
+
+["email-report/daily"]
+
+["email-report/monthly"]
+
+["email-report/never"]
+
+["email-report/two-weeks"]
+
+["email-report/weekly"]
+
 ["email/header"]
   default = "Halo,"
 
@@ -227,9 +247,6 @@ Semangat,
 Martin
 """
 
-["error/account-has-stripe-subscription"]
-  default = "Akun ini masih memiliki langganan Stripe; batalkan itu dahulu pada laman penagihan."
-
 ["error/address-exists"]
   default = "%(addr) sudah ada"
 
@@ -244,9 +261,6 @@ Martin
 
 ["error/date-past"]
   default = "Itu seharusnya sebelum pembuatan situsnya; GoatCounter *belum* sebaik itu ;-)"
-
-["error/delete-main-site"]
-  default = "Tidak dapat menghapus situs utama"
 
 ["error/export-expired"]
   default = "Sepertinya belum ada pengeksporan atau eksporan telah kedaluwarsa."
@@ -284,11 +298,10 @@ Martin
 ["error/password-does-not-match"]
   default = "Konfirmasi kata sandi tidak cocok."
 
-["error/payment-cancelled"]
-  default = "Pembayaran dibatalkan."
-
 ["error/reset-user-no-account"]
   default = "Bukan sebuah akun di situs ini: %(email)"
+
+["error/unknown-activation-token"]
 
 ["event"]
   default = "peristiwa"
@@ -298,6 +311,8 @@ Martin
 
 ["header/access"]
   default = "Akses"
+
+["header/add-api-token"]
 
 ["header/add-new-user"]
   default = "Tambahkan pengguna baru"
@@ -356,6 +371,8 @@ Martin
 ["header/export-or-import"]
   default = "Ekspor/Impor"
 
+["header/fewer-number"]
+
 ["header/finished"]
   default = "Selesai"
 
@@ -380,11 +397,17 @@ Martin
 ["header/last-10-exports"]
   default = "10 ekspor terakhir"
 
+["header/last-used-at"]
+
 ["header/locations"]
   default = "Lokasi"
 
 ["header/locations-for"]
   default = "Lokasi untuk %(country)"
+
+["header/manage-pageviews"]
+
+["header/merge-account"]
 
 ["header/mfa"]
   default = "Autentikasi multifaktor"
@@ -394,9 +417,6 @@ Martin
 
 ["header/name"]
   default = "Nama"
-
-["header/new"]
-  default = "Baru"
 
 ["header/pagination-cursor"]
   default = "Kursor paginasi"
@@ -415,9 +435,6 @@ Martin
 
 ["header/reset-password"]
   default = "Atur ulang kata sandi untuk %(email) di %(site-name)"
-
-["header/rm-hits"]
-  default = "Hapus tampilan laman"
 
 ["header/settings"]
   default = "Pengaturan"
@@ -458,9 +475,6 @@ Martin
 ["header/tracking"]
   default = "Pelacakan"
 
-["header/updated"]
-  default = "Pembaruan"
-
 ["header/user-info"]
   default = "Informasi pengguna"
 
@@ -470,17 +484,18 @@ Martin
 ["header/users"]
   default = "Pengguna"
 
+["help/allow-embed"]
+
 ["help/allow-visitor-counts"]
   default = "Lihat %[dokumentasinya] untuk rincian cara penggunaan."
-
-["help/campaign-parameters"]
-  default = "Daftar parameter untuk dihitung sebagai ‘kampanye’; jika ditetapkan nilai akan ditetapkan sebagai pengarah utama, dan tidak mengutamakan tajuk Pengarah apa pun."
 
 ["help/cfg-dashboard"]
   default = "Ubah apa yang ditampilkan pada dasbor dan urutannya."
 
 ["help/code-access"]
   default = "Anda akan mengakses situs Anda di https://<em>[kode-saya]</em>.%(domain)."
+
+["help/configure-dashboard"]
 
 ["help/custom-domain"]
   default = """
@@ -497,20 +512,25 @@ Domain khusus, mis. <em>“statistik.contoh.com”</em>.
 Verifikasi akan dijalankan setiap 2 jam.
 """
 
-["help/custom-domain-plan"]
-  default = "Membutuhkan langganan Personal Plus atau Bisnis (Anda berada di langganan %(plan); lihat %[%link penagihan])."
-
 ["help/custom-domain-verified"]
   default = "Domain sudah diverifikasi dan sudah disiapkan (catatan: mungkin membutuhkan sampai satu jam supaya sertifikat dapat digunakan)"
 
 ["help/data-retention"]
   default = "Tampilan laman dan semua data terkait akan dihapus secara permanen setelah hari berikut ini. Tetapkan ke <code>0</code> untuk tidak pernah hapus."
 
+["help/datepicker"]
+
 ["help/domain-access"]
   default = "Domain untuk mengakses situs ini."
 
 ["help/drag-reorder"]
   default = "Tarik untuk mengurutkan ulang"
+
+["help/email-reports"]
+
+["help/fewer-numbers"]
+
+["help/fewer-numbers-lock"]
 
 ["help/for-the-following-countries"]
   default = "Daftar kode negara (%[daftar]; gunakan kode alpha-2); tinggalkan kosong untuk mengumpulkan semua negara (jika diaktifkan)."
@@ -523,6 +543,10 @@ Verifikasi akan dijalankan setiap 2 jam.
 
 ["help/ignore-ips-2"]
   default = "Secara alternatif, %[nonaktifkan untuk peramban ini] (klik lagi untuk mengaktifkan)."
+
+["help/locked-until"]
+
+["help/need-cities"]
 
 ["help/new-user-email"]
   default = "Email untuk masuk."
@@ -542,9 +566,6 @@ Verifikasi akan dijalankan setiap 2 jam.
 ["help/public"]
   default = "Kendali siapa yang dapat melihat dasbor."
 
-["help/rm-hits"]
-  default = "Anda akan melihat tampilan pencocokan sebelum apa pun dihapus"
-
 ["help/save-default-view"]
   default = "Simpan tampilan saat ini (yaitu semua pengaturan dalam kotak kuning) sebagai bawaan untuk dimuat ketika belum memilih apa pun."
 
@@ -557,14 +578,13 @@ Verifikasi akan dijalankan setiap 2 jam.
 ["label/24-hour-clock"]
   default = "24 jam (13.00)"
 
+["label/access-to-sites"]
+
 ["label/add-new"]
   default = "Tambahkan baru"
 
 ["label/all-sites"]
   default = "Semua situs"
-
-["label/allow-admin-access"]
-  default = "Perbolehkan pengaksesan admin"
 
 ["label/allow-visitor-counts"]
   default = "Perbolehkan menambahkan hitungan pengunjung di situs web Anda"
@@ -572,8 +592,7 @@ Verifikasi akan dijalankan setiap 2 jam.
 ["label/browser-stats"]
   default = "Statistik peramban"
 
-["label/campaign-parameters"]
-  default = "Parameter kampanye"
+["label/campaigns"]
 
 ["label/change-code"]
   default = "Anda akan mengakses akun Anda di https://<em>[kode-saya]</em>.%(domain) – %[%link ubah]."
@@ -584,9 +603,6 @@ Verifikasi akan dijalankan setiap 2 jam.
 ["label/code"]
   default = "Kode"
 
-["label/collected-since"]
-  default = "Dikumpulkan sejak 2 Des 2021"
-
 ["label/csv-compress-format"]
   default = "Berkas CSV; dapat dikecilkan dengan gzip"
 
@@ -595,6 +611,8 @@ Verifikasi akan dijalankan setiap 2 jam.
 
 ["label/custom-domain"]
   default = "Domain khusus"
+
+["label/dashboard-allow-embed"]
 
 ["label/dashboard-public"]
   default = "Dasbor dapat dilihat oleh"
@@ -605,26 +623,20 @@ Verifikasi akan dijalankan setiap 2 jam.
 ["label/date-fmt"]
   default = "Format tanggal"
 
+["label/datepicker"]
+
 ["label/delete-account-confirmation"]
   default = "Apakah Anda yakin ingin menghapus seluruh akun Anda?"
-
-["label/delete-account-contact"]
-  default = "Saya mungkin menghubungi Anda dengan pertanyaan lanjutan atau komentar jika Anda mencentang ini. Saya tidak akan coba untuk meyakinkan Anda untuk tetap tinggal (saya bukan telekom), tetapi saya mungkin mengajukan beberapa pertanyaan, atau memberitahu rencana masa depan jika Anda membutuhkan fitur yang belum ada."
-
-["label/delete-account-follow-up"]
-  default = "Tidak apa-apa untuk menindaklanjuti"
-
-["label/delete-account-reason"]
-  default = "Ini akan diapresiasikan jika Anda dapat memberitahu saya jika ada sesuatu yang belum ada di GoatCounter, atau alasan penghapusan akun lain yang Anda punya. Ini sepenuhnya opsional."
-
-["label/delete-account-reason-placeholder"]
-  default = "Alasan opsional untuk penghapusan"
 
 ["label/email"]
   default = "Email"
 
 ["label/email-address"]
   default = "Alamat email"
+
+["label/email-reports"]
+
+["label/fewer-numbers"]
 
 ["label/for-following-countries"]
   default = "Hanya untuk negara berikut"
@@ -644,11 +656,19 @@ Verifikasi akan dijalankan setiap 2 jam.
 ["label/loc-stats"]
   default = "Statistik lokasi"
 
+["label/lock-setting"]
+
 ["label/mark-current"]
   default = "(saat ini)"
 
+["label/match-case"]
+
 ["label/match-title"]
   default = "Juga cocokkan dengan judul"
+
+["label/merge-account-confirmation"]
+
+["label/merge-to"]
 
 ["label/mfa-token"]
   default = "Token Autentikasi Multifaktor"
@@ -698,9 +718,6 @@ Verifikasi akan dijalankan setiap 2 jam.
 ["label/size-desktophd"]
   default = "Monitor komputer lebih besar dari HD"
 
-["label/size-largephones"]
-  default = "Ponsel besar, tablet kecil"
-
 ["label/size-phones"]
   default = "Ponsel"
 
@@ -712,6 +729,8 @@ Verifikasi akan dijalankan setiap 2 jam.
 
 ["label/system-stats"]
   default = "Statistik sistem"
+
+["label/theme"]
 
 ["label/thousand-separator"]
   default = "Pemisah ribuan"
@@ -749,9 +768,6 @@ Verifikasi akan dijalankan setiap 2 jam.
 ["link/api-docs"]
   default = "Dokumentasi API"
 
-["link/billing"]
-  default = "Penagihan"
-
 ["link/dashboard"]
   default = "Dasbor"
 
@@ -760,6 +776,12 @@ Verifikasi akan dijalankan setiap 2 jam.
 
 ["link/goto-path"]
   default = "Pergi ke %(path)"
+
+["link/import"]
+
+["link/manage-pageviews"]
+
+["link/merge-account"]
 
 ["link/passwd-mfa"]
   default = "Kata sandi & autentikasi multifaktor"
@@ -770,14 +792,13 @@ Verifikasi akan dijalankan setiap 2 jam.
 ["link/rm-account"]
   default = "Hapus akun"
 
-["link/rm-views"]
-  default = "Hapus tampilan laman"
-
 ["link/set-from-browser"]
   default = "Tetapkan dari peramban"
 
 ["link/settings"]
   default = "pengaturan"
+
+["link/show-less"]
 
 ["link/show-more"]
   default = "Tampilkan lebih banyak"
@@ -806,9 +827,6 @@ Verifikasi akan dijalankan setiap 2 jam.
 ["nav-dash/back"]
   default = "sebelumnya"
 
-["nav-dash/by-day"]
-  default = "Tampilkan berdasarkan hari"
-
 ["nav-dash/current"]
   default = "Saat ini"
 
@@ -821,28 +839,35 @@ Verifikasi akan dijalankan setiap 2 jam.
 ["nav-dash/filter"]
   default = "Saring jalur"
 
-["nav-dash/filter-tooltip"]
-  default = """<p>Saring daftar jalur; tidak berpengaruh oleh huruf besar/kecil dan dicocokkan pada jalur dan judul. %[%more More help]</p>
+["nav-dash/filter-more-help"]
 
-	<div>
-		<p>Recognizes the following keywords:</p>
-		<ul>
-			<li><em>at:start</em>, <em>at:end</em>:       match only at the start or end of path or title. Use both for exact match.</li>
-			<li><em>in:path</em>, <em>in:title</em>       match only path or title.</li>
-			<li><em>is:event</em>, <em>is:pageview</em>   show only events or pageviews.</li>
-			<li><em>:not</em> negate the match (that is: only show paths that don't match the filter).</li>
-		</ul>
-	</div>
-  """
+["nav-dash/filter-tooltip"]
+  default = """
+<p>Saring daftar jalur; tidak berpengaruh oleh huruf besar/kecil dan dicocokkan pada jalur dan judul. %[%more More help]</p>
+
+  <div>
+    <p>Recognizes the following keywords:</p>
+    <ul>
+      <li><em>at:start</em>, <em>at:end</em>:       match only at the start or end of path or title. Use both for exact match.</li>
+      <li><em>in:path</em>, <em>in:title</em>       match only path or title.</li>
+      <li><em>is:event</em>, <em>is:pageview</em>   show only events or pageviews.</li>
+      <li><em>:not</em> negate the match (that is: only show paths that don't match the filter).</li>
+    </ul>
+  </div>
+"""
 
 ["nav-dash/forced-daily"]
   default = "Tidak dapat menggunakan tampilan per jam untuk jangka waktu lebih dari 90 hari"
+
+["nav-dash/forced-hourly"]
 
 ["nav-dash/forward"]
   default = "berikutnya"
 
 ["nav-dash/half-year"]
   default = "setengah tahun"
+
+["nav-dash/hour"]
 
 ["nav-dash/last"]
   default = "Terakhir"
@@ -856,11 +881,17 @@ Verifikasi akan dijalankan setiap 2 jam.
 ["nav-dash/start-date"]
   default = "Mulai jangka waktu untuk ditampilkan"
 
+["nav-dash/view-by"]
+
 ["nav-dash/week"]
   default = "pekan"
 
 ["nav-dash/year"]
   default = "tahun"
+
+["nav-fash/filter-less-help"]
+
+["new-paren"]
 
 ["no-title"]
   default = "tidak ada judul"
@@ -883,6 +914,8 @@ Verifikasi akan dijalankan setiap 2 jam.
 ["notify/export-started-in-background"]
   default = "Pengeksporan dimulai di latar belakang; Anda akan mendapatkan sebuah email dengan tautan pengunduhan ketika sudah selesai."
 
+["notify/import-ga-okay"]
+
 ["notify/import-started-in-background"]
   default = "Pengimporan dimulai di latar belakakng; Anda akan mendapatkan sebuah email ketika sudah selesai."
 
@@ -891,9 +924,6 @@ Verifikasi akan dijalankan setiap 2 jam.
 
 ["notify/multi-factor-auth-enabled"]
   default = "Autentikasi multifaktor diaktifkan."
-
-["notify/need-business-plan-custom-domain"]
-  default = "membutuhkan langganan bisnis untuk dapat menetapkan domain khusus"
 
 ["notify/need-email-verification-for-api"]
   default = "Anda harus memverifikasi email Anda sebelum Anda dapat menggunakan API."
@@ -906,12 +936,6 @@ Verifikasi akan dijalankan setiap 2 jam.
 
 ["notify/password-changed"]
   default = "Kata sandi diubah."
-
-["notify/payment-processed"]
-  default = "Pembayaran berhasil diproses!"
-
-["notify/payment-processing"]
-  default = "Pemroses pembayaran melaporkan berhasil, tetapi kami masih memroses pembayarannya"
 
 ["notify/reset-to-default"]
   default = "Atur ulang ke bawaan!"
@@ -956,8 +980,12 @@ Verifikasi akan dijalankan setiap 2 jam.
 <p>Anda dapat menambahkan sebanyak yang Anda ingin.</p>
 """
 
+["p/add-multiple-accounts"]
+
 ["p/additional-errors"]
   default = "Kesalahan tambahan"
+
+["p/all-sites"]
 
 ["p/api-intro"]
   default = "GoatCounter memiliki API terbatas; saat ini Anda dapat menghitung tampilan laman dari API, buat, hapus, dan sunting situs, dan buat pengeksporan."
@@ -983,6 +1011,8 @@ Verifikasi akan dijalankan setiap 2 jam.
 ["p/csv-file-format"]
   default = "Format berkas CSV %[didokumentasikan di sini]."
 
+["p/delete-account"]
+
 ["p/disable-mfa"]
   default = "Autentikasi multifaktor saat ini diaktifkan untuk akun ini."
 
@@ -991,6 +1021,8 @@ Verifikasi akan dijalankan setiap 2 jam.
 
 ["p/error"]
   default = "Kesalahan: %(error-message)"
+
+["p/export-csv"]
 
 ["p/export-process"]
   default = """
@@ -1002,8 +1034,14 @@ Verifikasi akan dijalankan setiap 2 jam.
 ["p/have-mfa"]
   default = "Akun ini dilindungi oleh autentikasi multifaktor; silakan memasukkan kode dari aplikasi autentikasi Anda."
 
+["p/import-ga"]
+
 ["p/last-user"]
   default = "Tidak dapat menghapus atau menyunting pengguna admin terakhir"
+
+["p/manage-hits"]
+
+["p/merge-account"]
 
 ["p/no-data"]
   default = """
@@ -1030,6 +1068,8 @@ Tinggal tambahkan JavaScript berikut ini di mana pun pada laman:</p>
 ["p/notify-site-deletion"]
   default = "%(number) situs akan dihapus"
 
+["p/num-accounts"]
+
 ["p/remove-site-confirm"]
   default = """
 Apakah Anda yakin ingin menghapus situs %(sitename)?<br>
@@ -1044,12 +1084,6 @@ Ini akan <strong>menghapus semua data terkait</strong>.
 Apakah Anda yakin ingin menghapus situs %(sitename)?<br>
 Ini akan <strong>menghapus semua data terkait</strong> dan <strong>ini adalah situs saat ini</strong>.
 """
-
-["p/request-data-recovery"]
-  default = "%[Hubungi] dalam 7 hari jika Anda berubah pikiran dan ingin memulihkan data Anda."
-
-["p/rm-hits"]
-  default = "Hapus semua tampilan laman untuk sebuah laman."
 
 ["p/rm-hits-help"]
   default = """
@@ -1078,17 +1112,24 @@ Pencocokan tidak dipengaruhi oleh huruf besar/kecil. Mendukung <code>%</code> se
 ["page-ranking"]
   default = "Peringkatan laman"
 
-["restricted-admin-access"]
-  default = "Biasanya administrator tidak dapat “masuk” ke situs Anda, tetapi jika ini diaktifkan mereka dapat mengakses situs ini. Anda mungkin ditanyakan untuk mengaktifkan ini untuk permintaan dukungan."
-
 ["scale-y"]
   default = "Skalakan axis Y ke maks"
+
+["theme/dark"]
+
+["theme/light"]
+
+["theme/system"]
+
+["tooltip/change-period"]
 
 ["top-nav/back"]
   default = "Kembali"
 
 ["top-nav/dashboard"]
   default = "Dasbor"
+
+["top-nav/documentation"]
 
 ["top-nav/need-js"]
   default = "GoatCounter membutuhkan JavaScript aktif untuk berfungsi dengan baik; mohon perbolehkan JavaScript untuk berjalan dari %(domain)."
@@ -1108,17 +1149,8 @@ Pencocokan tidak dipengaruhi oleh huruf besar/kecil. Mendukung <code>%</code> se
 ["top-nav/sign-out"]
   default = "Keluar"
 
-["top-nav/site-code"]
-  default = "Kode situs"
-
 ["top-nav/sites"]
   default = "Situs:"
-
-["top-nav/updates"]
-  default = "Pembaruan"
-
-["top-nav/user"]
-  default = "Pengguna"
 
 ["unknown"]
   default = "(tidak diketahui)"
@@ -1165,6 +1197,8 @@ Pencocokan tidak dipengaruhi oleh huruf besar/kecil. Mendukung <code>%</code> se
 ["validate/len-shorter"]
   default = "harus lebih pendek dari %d karakter"
 
+["validate/need-one"]
+
 ["validate/phone"]
   default = "harus nomor telepon yang absah"
 
@@ -1182,6 +1216,8 @@ Pencocokan tidak dipengaruhi oleh huruf besar/kecil. Mendukung <code>%</code> se
 
 ["validate/utf8"]
   default = "harus UTF-8"
+
+["view not set"]
 
 ["widget-setting/help/align"]
   default = "Tambahkan batasan ke kiri supaya sejajar dengan grafik laman"
@@ -1230,3 +1266,4 @@ Pencocokan tidak dipengaruhi oleh huruf besar/kecil. Mendukung <code>%</code> se
 
 ["y-scale"]
   default = "Skala axis Y"
+

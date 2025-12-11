@@ -64,7 +64,6 @@ var (
 	keyCacheCampaigns  = &struct{ n string }{""}
 	keyChangedTitles   = &struct{ n string }{""}
 	keyCacheSitesProxy = &struct{ n string }{""}
-	keyCacheI18n       = &struct{ n string }{""}
 
 	keyConfig = &struct{ n string }{""}
 )
@@ -178,7 +177,6 @@ func NewCache(ctx context.Context) context.Context {
 	ctx = context.WithValue(ctx, keyCacheRefs, zcache.New[string, Ref](1*time.Hour, 5*time.Minute))
 	ctx = context.WithValue(ctx, keyCacheLoc, zcache.New[string, *Location](zcache.NoExpiration, zcache.NoExpiration))
 	ctx = context.WithValue(ctx, keyCacheCampaigns, zcache.New[string, *Campaign](24*time.Hour, 15*time.Minute))
-	ctx = context.WithValue(ctx, keyCacheI18n, zcache.New[string, *OverrideTranslations](zcache.NoExpiration, zcache.NoExpiration))
 	ctx = context.WithValue(ctx, keyChangedTitles, zcache.New[string, []string](48*time.Hour, 1*time.Hour))
 	return ctx
 }
@@ -241,12 +239,6 @@ func cacheCampaigns(ctx context.Context) *zcache.Cache[string, *Campaign] {
 		return c.(*zcache.Cache[string, *Campaign])
 	}
 	return zcache.New[string, *Campaign](0, 0)
-}
-func cacheI18n(ctx context.Context) *zcache.Cache[string, *OverrideTranslations] {
-	if c := ctx.Value(keyCacheI18n); c != nil {
-		return c.(*zcache.Cache[string, *OverrideTranslations])
-	}
-	return zcache.New[string, *OverrideTranslations](0, 0)
 }
 func cacheChangedTitles(ctx context.Context) *zcache.Cache[string, []string] {
 	if c := ctx.Value(keyChangedTitles); c != nil {

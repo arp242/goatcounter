@@ -1,204 +1,215 @@
 [__meta__]
-  language = "hi"
+  language = "cs"
   maintainers = []
-  modified = 2023-05-19
+  modified = 2024-09-02
 
 ["button/add-new"]
-  default = "नया जोड़ें"
+  default = "Přidat nový"
 
 ["button/add-user"]
-  default = "नया उपयोगकर्ता जोड़ें"
+  default = "Přidat nového uživatele"
 
 ["button/cfg-dashboard"]
-  default = "डैशबोर्ड लेआउट कॉन्फ़िगर करें"
+  default = "Nastavit layout dashboardu"
 
 ["button/change"]
-  default = "बदलें"
+  default = "Změnit"
 
 ["button/change-passwd"]
-  default = "पासवर्ड बदलें"
+  default = "Změnit heslo"
 
 ["button/copy"]
-  default = "कॉपी"
+  default = "Zkopírovat"
 
 ["button/delete"]
-  default = "हटाएं"
+  default = "smazat"
 
 ["button/delete-account"]
-  default = "खाता, सभी साइटें और सभी डेटा हटाएं"
+  default = "Smazat účet, všechny stránky a všechna data"
 
 ["button/delete-everything"]
-  default = "हां, सब कुछ हटा दें"
+  default = "Ano, smazat vše"
 
 ["button/delete-pageviews"]
 
 ["button/disable-mfa"]
-  default = "MFA अक्षम करें"
+  default = "Vypnout MFA"
 
 ["button/edit"]
-  default = "संपादित करें"
+  default = "Upravit"
 
 ["button/enable-mfa"]
-  default = "MFA सक्षम करें"
+  default = "Zapnout MFA"
 
 ["button/forgot-password"]
-  default = "क्या आप पासवर्ड भूल गए हैं?"
+  default = "Zapomenuté heslo?"
 
 ["button/merge"]
 
 ["button/remove"]
-  default = "हटाएं"
+  default = "Odebrat"
 
 ["button/request-reset"]
-  default = "पासवर्ड रीसेट करने का अनुरोध करें"
+  default = "Požádat o změnu hesla"
 
 ["button/resend-email"]
-  default = "ईमेल दुबारा भेजें"
+  default = "Odeslat email znovu"
 
 ["button/reset-defaults"]
-  default = "डिफ़ॉल्ट पर रीसेट करें"
 
 ["button/reset-password"]
-  default = "पासवर्ड रीसेट करें"
+  default = "Reset hesla"
 
 ["button/save"]
-  default = "सहेजें"
+  default = "Uložit"
 
 ["button/save-default-view"]
-  default = "डिफ़ॉल्ट दृश्य सहेजें"
+  default = "Uložit výchozí zobrazení"
 
 ["button/search"]
 
 ["button/send-login-url"]
-  default = "लॉग इन URL भेजें"
+  default = "Odeslat přihlašovací URL"
 
 ["button/show"]
 
 ["button/sign-in"]
-  default = "साइन इन करें"
+  default = "Přihlásit se"
 
 ["button/start-export"]
-  default = "निर्यात शुरू करें"
+  default = "Exportovat"
 
 ["button/start-import"]
-  default = "आयात शुरू करें"
+  default = "Importovat"
 
 ["button/submit"]
-  default = "जमा करें"
+  default = "Potvrdit"
 
 ["button/upload-ga-import"]
 
 ["confirm/delete-user"]
-  default = "%(email) को हटाएं?"
+  default = "Smazat %(email)?"
 
 ["dashboard/day-ago"]
-  default = "%(n) दिन पहले"
+  default = "Výchozí"
+  zero    = "Nula dní zpět"
+  one     = "Jeden den zpět"
+  two     = "Dva dny zpět"
+  few     = "Pár dní zpět"
+  many    = "Mnoho dní zpět"
 
 ["dashboard/future"]
-  default = "भविष्य"
+  default = "budoucnost"
 
 ["dashboard/loading"]
 
 ["dashboard/month-ago"]
-  default = "%(n) महीने पहले"
+  default = "Výchozí"
+  zero    = "Nula měsíců zpět"
+  one     = "Jeden měsíc zpět"
+  two     = "Dva měsíce zpět"
+  few     = "Pár měsíců zpět"
+  many    = "Mnoho měsíců zpět"
 
 ["dashboard/nothing-to-display"]
-  default = "प्रदर्शित करने के लिए कुछ नहीं"
+  default = "Nic k zobrazení"
 
 ["dashboard/pages/change"]
 
 ["dashboard/pages/header"]
-  default = "पृष्ठ"
+  default = "Stránky"
 
 ["dashboard/pages/num-visits"]
-  default = "%(total-visits) में से %(num-visits) विज़िट दिखाई गईं"
+  default = "%(num-visits) návstěv z celkových %(total-visits) zobrazeno"
 
 ["dashboard/pages/path"]
-  default = "पथ"
+  default = "Cesta"
 
 ["dashboard/pages/stats"]
-  default = "आँकड़े"
+  default = "Statistiky"
 
 ["dashboard/pages/stats-tooltip"]
-  default = "हर बार चयनित समय सीमा के 1/12वें हिस्से को दर्शाता है"
+  default = "Každý blok reprezentuje jednu 1/12 z vybraného časového rámce"
 
 ["dashboard/pages/title"]
-  default = "नाम"
+  default = "Titulek"
 
 ["dashboard/pages/visits"]
-  default = "विज़िट"
+  default = "Návštěvy"
 
 ["dashboard/today"]
-  default = "आज"
+  default = "Dnes"
 
 ["dashboard/tooltip-event"]
-  default = "%(unique) क्लिक; %(clicks) कुल क्लिक"
+  default = "%(unique) kliknutí; %(clicks) celkově kliknutí"
 
 ["dashboard/totals/header"]
-  default = "योग"
+  default = "Celkově"
 
 ["dashboard/totals/num-visits"]
-  default = "%(num-visits) विज़िट"
+  default = "%(num-visits) návstěv"
 
 ["dashboard/week-ago"]
-  default = "%(n) सप्ताह पहले"
+  default = "týdnů zpět"
+  zero    = "týdnů zpět"
+  one     = "týden zpět"
+  two     = "týdny zpět"
+  few     = "týdnů zpět"
+  many    = "týdnů zpět"
 
 ["dashboard/yesterday"]
-  default = "बिता कल"
+  default = "Včera"
 
 ["data-collect/help/country"]
-  default = "देश का नाम, उदाहरण के लिए भारत, नेपाल, आदि।"
+  default = "Název státu, například Belgie, Indonesie, etc."
 
 ["data-collect/help/hits"]
 
 ["data-collect/help/language"]
-  default = "Accept-Language से समर्थित भाषाएं"
+  default = "Podporované jazyky z hlavičky Accept-Language"
 
 ["data-collect/help/referrer"]
-  default = "Referer हेडर और अभियान पैरामीटर।"
+  default = "Hlavička referer a parametry kampaní"
 
 ["data-collect/help/region"]
-  default = "क्षेत्र, उदाहरण के लिए टेक्सास, बाली, आदि। इसके लिए विवरण प्रति देश अलग-अलग हैं।"
 
 ["data-collect/help/sessions"]
-  default = "अद्वितीय विज़िट को 8 घंटे तक ट्रैक करें; जैसे यदि आप इसे अक्षम करते हैं तो पृष्ठ को फिर से लोड करने के लिए F5 दबाने पर 1 के बजाय 2 पेज व्यू दिखेंगे"
 
 ["data-collect/help/size"]
-  default = "स्क्रीन साईज़"
+  default = "Velikost obrazovky."
 
 ["data-collect/help/user-agent"]
 
 ["data-collect/label/country"]
-  default = "देश"
+  default = "Země"
 
 ["data-collect/label/hits"]
 
 ["data-collect/label/language"]
-  default = "भाषा"
+  default = "Jazyk"
 
 ["data-collect/label/referrer"]
-  default = "रेफरर"
+  default = "Referer"
 
 ["data-collect/label/region"]
-  default = "क्षेत्र"
 
 ["data-collect/label/sessions"]
-  default = "सत्र"
+  default = "Sezení"
 
 ["data-collect/label/size"]
-  default = "आकार"
+  default = "Velikost"
 
 ["data-collect/label/user-agent"]
-  default = "उपयोगकर्ता-एजेंट"
+  default = "User-agent"
 
 ["datepicker/keyboard"]
-  default = "दिनांक चुनने के लिए तीर कुंजियों का उपयोग करें"
+  default = "Použijte šipky k výběru data"
 
 ["datepicker/month-next"]
-  default = "अगला महीना"
+  default = "Další měsíc"
 
 ["datepicker/month-prev"]
-  default = "पिछला महीना"
+  default = "Předchozí měsíc"
 
 ["dont-lock"]
 
@@ -213,207 +224,155 @@
 ["email-report/weekly"]
 
 ["email/header"]
-  default = "नमस्ते,"
+  default = "Ahoj,"
 
 ["email/password-reset"]
   default = """
-किसी ने (उम्मीद है कि आपने) आपके गोटकाउंटर खाते पर पासवर्ड रीसेट करने का अनुरोध किया है।
+Někdo (snad ty) požádal o reset hesla na tvém GoatCounter účtu.
 
-आप इसे यहाँ से कर सकते हैं:
-%(link)
+Můžeš to udělat zde:
 """
 
 ["email/reset-user-email-subject"]
-  default = "%(domain) के लिए पासवर्ड रीसेट करें"
+  default = "Reset hesla pro %(domain)"
 
 ["email/signature"]
   default = """
-मुझे कोई समस्या, प्रश्न, टिप्पणी या कुछ और बताने के लिए बस इस ईमेल का जवाब दें।
+Nějaké problémy, otázky, komentáře nebo cokoliv dalšího? Odpověz na tento email.
 
-आपका आज्ञाकारी,
-मार्टिन
+Měj se,
+Martin
 """
 
 ["error/address-exists"]
-  default = "%(addr) पहले से मौजूद है"
+  default = "%(addr) už existuje"
 
 ["error/could-not-read"]
-  default = "इसे gzip के रूप में नहीं पढ़ा जा सका: %(err)"
 
 ["error/date-future"]
-  default = "यह भविष्य में होगा"
 
 ["error/date-mismatch"]
-  default = "समाप्ति तिथि प्रारंभ तिथि से पहले की है"
 
 ["error/date-past"]
-  default = "वह साइट के निर्माण से पहले होगा; गोटकाउंटर *उतना* भी अच्छा नहीं है ;-)"
 
 ["error/export-expired"]
-  default = "ऐसा लगता है कि अभी तक कोई निर्यात नहीं हुआ है या निर्यात की समय सीमा समाप्त हो गई है।"
 
 ["error/incorrect-password"]
-  default = "वर्तमान पासवर्ड गलत है।"
 
 ["error/invalid-end-date"]
-  default = "अमान्य समाप्ति तिथि: %(date)"
 
 ["error/invalid-start-date"]
-  default = "अमान्य प्रारंभ तिथि: %(date)"
 
 ["error/load-url"]
-  default = "%(url) लोड नहीं हो सका: %(error)"
 
 ["error/login-invalid"]
-  default = "अमान्य लॉगिन"
 
 ["error/login-no-password"]
-  default = "%(email) के लिए कोई पासवर्ड सेट नहीं है; कृपया इसे रीसेट करें"
 
 ["error/login-not-found"]
-  default = "उपयोगकर्ता %(email) नहीं मिला"
 
 ["error/login-token-expired"]
-  default = "दिए गए टोकन के लिए उपयोगकर्ता नहीं मिल सका; शायद इसकी समय सीमा समाप्त हो गई है या इसका उपयोग पहले ही किया जा चुका है?"
 
 ["error/login-wrong-pwd"]
-  default = "%(email) के लिए पासवर्ड गलत है"
 
 ["error/not-found"]
-  default = "नहीं मिला"
 
 ["error/password-does-not-match"]
-  default = "पासवर्ड की पुष्टि मेल नहीं खाती."
 
 ["error/reset-user-no-account"]
-  default = "इस साइट पर यह खाता नहीं है: %(email)"
 
 ["error/unknown-activation-token"]
 
 ["event"]
 
 ["forgot-domain-help"]
-  default = "ईमेल से जुड़े सभी डोमेन की सूची ईमेल करें।"
 
 ["header/access"]
 
 ["header/add-api-token"]
 
 ["header/add-new-user"]
-  default = "एक नया उपयोगकर्ता जोड़ें"
 
 ["header/allow-access"]
-  default = "उपयोग की अनुमति दें"
 
 ["header/api"]
-  default = "एपीआई"
 
 ["header/api-tokens"]
-  default = "एपीआई टोकन"
 
 ["header/browsers"]
-  default = "ब्राउज़र्स"
 
 ["header/change-code"]
-  default = "साइट कोड बदलें"
 
 ["header/change-passwd"]
-  default = "पासवर्ड बदलें"
 
 ["header/code"]
-  default = "कोड"
 
 ["header/copy-settings"]
-  default = "सेटिंग्स कॉपी करें"
 
 ["header/created-at"]
-  default = "निर्माण का समय"
 
 ["header/dashboard"]
-  default = "डैशबोर्ड"
 
 ["header/data-collection"]
-  default = "डेटा संग्रहण"
 
 ["header/delete-account"]
-  default = "खाता हटाएं"
 
 ["header/domain"]
-  default = "डोमेन"
 
 ["header/domain-settings"]
-  default = "डोमेन सेटिंग्स"
 
 ["header/edit-user"]
-  default = "उपयोगकर्ता %(email) संपादित करें"
 
 ["header/email"]
-  default = "ईमेल"
 
 ["header/export"]
-  default = "निर्यात"
 
 ["header/export-or-import"]
-  default = "आयात/निर्यात"
 
 ["header/fewer-number"]
 
 ["header/finished"]
-  default = "समाप्त"
 
 ["header/forgot-domain"]
-  default = "डोमेन भूल गए"
 
 ["header/forgot-password"]
-  default = "पासवर्ड भूल गए"
 
 ["header/hash"]
-  default = "हैश"
 
 ["header/import"]
-  default = "आयात"
+  default = "Import"
 
 ["header/l10n"]
-  default = "स्थानीयकरण"
 
 ["header/languages"]
-  default = "भाषाएं"
+  default = "Jazyky"
 
 ["header/last-10-exports"]
-  default = "पिछले 10 निर्यात"
 
 ["header/last-used-at"]
 
 ["header/locations"]
-  default = "स्थान"
+  default = "Lokace"
 
 ["header/locations-for"]
-  default = "%(country) के लिए स्थान"
 
 ["header/manage-pageviews"]
 
 ["header/merge-account"]
 
 ["header/mfa"]
-  default = "मल्टी-फैक्टर ऑथेंटिकेशन"
 
 ["header/n-hits"]
-  default = "# हिट"
 
 ["header/name"]
-  default = "नाम"
 
 ["header/pagination-cursor"]
-  default = "पेजिनेशन कर्सर"
 
 ["header/passwd-mfa"]
-  default = "पासवर्ड और MFA"
 
 ["header/path"]
-  default = "पथ"
 
 ["header/permissions"]
-  default = "अनुमतियां"
 
 ["header/preferences"]
 

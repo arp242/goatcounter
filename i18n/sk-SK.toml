@@ -1,8 +1,7 @@
 [__meta__]
-  comments = ""
-  generated = 2021-11-29T19:38:18Z
   language = "sk-SK"
   maintainers = ["Radovan Psotný <radovan.psotny@rpsotny.sk>"]
+  modified = 2025-07-23
 
 ["button/add-new"]
   default = "Pridať"
@@ -28,11 +27,10 @@
 ["button/delete-account"]
   default = "Zmazať účet, všetky stránky a všetky údaje"
 
-["button/delete-all"]
-  default = "Áno, vymazať všetky!"
-
 ["button/delete-everything"]
   default = "Áno, vymazať všetko"
+
+["button/delete-pageviews"]
 
 ["button/disable-mfa"]
   default = "Vypnúť MFA"
@@ -45,6 +43,8 @@
 
 ["button/forgot-password"]
   default = "Zabudli ste heslo?"
+
+["button/merge"]
 
 ["button/remove"]
   default = "Odstrániť"
@@ -61,17 +61,18 @@
 ["button/reset-password"]
   default = "Obnoviť heslo"
 
-["button/rm-hits"]
-  default = "Vymazať pozretia stránok"
-
 ["button/save"]
   default = "Uložiť"
 
 ["button/save-default-view"]
   default = "Uložiť predvolený pohľad"
 
+["button/search"]
+
 ["button/send-login-url"]
   default = "Odoslať login URL"
+
+["button/show"]
 
 ["button/sign-in"]
   default = "Prihlásiť sa"
@@ -84,6 +85,8 @@
 
 ["button/submit"]
   default = "Odoslať"
+
+["button/upload-ga-import"]
 
 ["confirm/delete-user"]
   default = "Chcete vymazať %(email)?"
@@ -99,6 +102,8 @@
 ["dashboard/future"]
   default = "budúce"
 
+["dashboard/loading"]
+
 ["dashboard/month-ago"]
   default = "Pred %(n) mesiacmi"
   zero    = "Pred 0 mesiacmi"
@@ -110,14 +115,13 @@
 ["dashboard/nothing-to-display"]
   default = "Nič k zobrazeniu"
 
+["dashboard/pages/change"]
+
 ["dashboard/pages/header"]
   default = "Stránky"
 
 ["dashboard/pages/num-visits"]
   default = "Zobrazené %(num-visits) z %(total-visits) pozretí"
-
-["dashboard/pages/pageviews"]
-  default = "Pozretia stránok"
 
 ["dashboard/pages/path"]
   default = "Cesta"
@@ -130,9 +134,6 @@
 
 ["dashboard/pages/title"]
   default = "Nadpis"
-
-["dashboard/pages/views"]
-  default = "Pozretia"
 
 ["dashboard/pages/visits"]
   default = "Návštevy"
@@ -163,6 +164,8 @@
 ["data-collect/help/country"]
   default = "Názov krajiny, napríklad Belgicko, Indonézia atď."
 
+["data-collect/help/hits"]
+
 ["data-collect/help/language"]
   default = "Podporované jazyky z Accept-Language"
 
@@ -178,8 +181,12 @@
 ["data-collect/help/size"]
   default = "Veľkosť obrazovky."
 
+["data-collect/help/user-agent"]
+
 ["data-collect/label/country"]
   default = "Krajina"
+
+["data-collect/label/hits"]
 
 ["data-collect/label/language"]
   default = "Jazyk"
@@ -208,6 +215,18 @@
 ["datepicker/month-prev"]
   default = "Predošlý mesiac"
 
+["dont-lock"]
+
+["email-report/daily"]
+
+["email-report/monthly"]
+
+["email-report/never"]
+
+["email-report/two-weeks"]
+
+["email-report/weekly"]
+
 ["email/header"]
   default = "Ahoj,"
 
@@ -229,9 +248,6 @@ S pozdravom,
 Martin
 """
 
-["error/account-has-stripe-subscription"]
-  default = "Tento účet má stále odber na Stripe; najprv ho zrušte na stránke platieb."
-
 ["error/address-exists"]
   default = "%(addr) už existuje"
 
@@ -246,9 +262,6 @@ Martin
 
 ["error/date-past"]
   default = "To by bolo pred vytvorením stránky"
-
-["error/delete-main-site"]
-  default = "Nie je možné vymazať hlavnú stránku"
 
 ["error/export-expired"]
   default = "Vyzerá to, že ste ešte neexportovali alebo export uz vypršal."
@@ -286,11 +299,10 @@ Martin
 ["error/password-does-not-match"]
   default = "Heslá sa nezhodujú."
 
-["error/payment-cancelled"]
-  default = "Platba zrušená."
-
 ["error/reset-user-no-account"]
   default = "Žiaden účet na tejto stránke: %(email)"
+
+["error/unknown-activation-token"]
 
 ["event"]
   default = "udalosť"
@@ -300,6 +312,8 @@ Martin
 
 ["header/access"]
   default = "Prístup"
+
+["header/add-api-token"]
 
 ["header/add-new-user"]
   default = "Pridať nového užívateľa"
@@ -358,6 +372,8 @@ Martin
 ["header/export-or-import"]
   default = "Export/Import"
 
+["header/fewer-number"]
+
 ["header/finished"]
   default = "Dokončené"
 
@@ -382,11 +398,17 @@ Martin
 ["header/last-10-exports"]
   default = "Posledných 10 exportov"
 
+["header/last-used-at"]
+
 ["header/locations"]
   default = "Miesta"
 
 ["header/locations-for"]
   default = "Miesta pre %(country)"
+
+["header/manage-pageviews"]
+
+["header/merge-account"]
 
 ["header/mfa"]
   default = "Multi-faktorová autentifikácia"
@@ -396,9 +418,6 @@ Martin
 
 ["header/name"]
   default = "Názov"
-
-["header/new"]
-  default = "Nový"
 
 ["header/pagination-cursor"]
   default = "Kurzor stránkovania"
@@ -417,9 +436,6 @@ Martin
 
 ["header/reset-password"]
   default = "Reset hesla pre %(email) na %(site-name)"
-
-["header/rm-hits"]
-  default = "Vymazať pozretia stránok"
 
 ["header/settings"]
   default = "Nastavenia"
@@ -460,9 +476,6 @@ Martin
 ["header/tracking"]
   default = "Sledovanie"
 
-["header/updated"]
-  default = "Aktualizácie"
-
 ["header/user-info"]
   default = "Užívateľské informácie"
 
@@ -472,17 +485,18 @@ Martin
 ["header/users"]
   default = "Užívatelia"
 
+["help/allow-embed"]
+
 ["help/allow-visitor-counts"]
   default = "Pozrieť %[the documentation] s detailmi použitia."
-
-["help/campaign-parameters"]
-  default = "Zoznam parametrov, ktoré sa počítajú ako 'kampane'; ak je nastavené, hodnota bude použitá ako odkazujúca stránka a prepíše akékoľvek Referrer hlavičky."
 
 ["help/cfg-dashboard"]
   default = "Zmeniť prvky, ktoré sa majú zobraziť na nástenke a v akom poradí."
 
 ["help/code-access"]
   default = "Stránka je dostupná na https://<em>[my-code]</em>.%(domain)."
+
+["help/configure-dashboard"]
 
 ["help/custom-domain"]
   default = 'Vlastná doména, napr. <em>"stats.example.com"</em>. <strong>Poznámka:</strong> Toto <em>nezabráni</em> väčšine adblockerov blokovať GoatCounter, a teda je myslená ako "prázdna doména".'
@@ -493,20 +507,25 @@ Martin
 ["help/custom-domain-error"]
   default = "%[%error Not yet verified]; nastaviť CNAME záznam pre <code>%(domain)</code> - %[%docs detailed instructions]. Overenie beží každé 2 hodiny."
 
-["help/custom-domain-plan"]
-  default = "Je vyžadovaný Personal Plus alebo Business plán (teraz máte %(plan) plán; viac na %[%link billing])."
-
 ["help/custom-domain-verified"]
   default = "Doména bola overená a nastavená (poznámka: môže trvať až hodinu, kým certifikát začne fungovať)."
 
 ["help/data-retention"]
   default = "Zobrazenia stránok a všetky pridružené údaje budú navždy vymazané po tomto počte dní. Nastavte na <code>0</code> pre zabránenie vymazania."
 
+["help/datepicker"]
+
 ["help/domain-access"]
   default = "Doména, cez ktorú sa dostanete na túto stránku."
 
 ["help/drag-reorder"]
   default = "Pre zoradenie presuňte"
+
+["help/email-reports"]
+
+["help/fewer-numbers"]
+
+["help/fewer-numbers-lock"]
 
 ["help/for-the-following-countries"]
   default = "Zoznam kódov krajín (%[list]; použite 2-miestny písmenový kód); ponechajte prázdne pre štatistiky zo všetkých krajín (ak je zapnuté)."
@@ -519,6 +538,10 @@ Martin
 
 ["help/ignore-ips-2"]
   default = "Alternatívne, %[disable for this browser] (kliknúť znovu pre zapnutie)."
+
+["help/locked-until"]
+
+["help/need-cities"]
 
 ["help/new-user-email"]
   default = "Email pre prihlásenie."
@@ -538,9 +561,6 @@ Martin
 ["help/public"]
   default = "Nastaviť, kto môže vidieť nástenku."
 
-["help/rm-hits"]
-  default = "Pred vymazaním vám bude zobrazený prehľad zhôd."
-
 ["help/save-default-view"]
   default = "Uložiť aktuálny pohľad (t. j. všetky nastavenia v žltom obdĺžniku) ako predvolený, ak ešte nie je nič zvolené."
 
@@ -553,14 +573,13 @@ Martin
 ["label/24-hour-clock"]
   default = "24-hodinový formát (13:00)"
 
+["label/access-to-sites"]
+
 ["label/add-new"]
   default = "Pridať"
 
 ["label/all-sites"]
   default = "Všetky stránky"
-
-["label/allow-admin-access"]
-  default = "Povoliť admin prístup"
 
 ["label/allow-visitor-counts"]
   default = "Povoliť pridanie počítadla návštevníkov na vašu webstránku"
@@ -568,8 +587,7 @@ Martin
 ["label/browser-stats"]
   default = "Štatistiky prehliadačov"
 
-["label/campaign-parameters"]
-  default = "Parametre kampane"
+["label/campaigns"]
 
 ["label/change-code"]
   default = "Ku svojmu účtu sa dostanete cez https://<em>[my-code]</em>.%(domain) - %[%link change]."
@@ -580,9 +598,6 @@ Martin
 ["label/code"]
   default = "Kód"
 
-["label/collected-since"]
-  default = "Zozbierané od 2. decembra 2021"
-
 ["label/csv-compress-format"]
   default = "CSV súbor; môže byť komprimovaný cez gzip"
 
@@ -591,6 +606,8 @@ Martin
 
 ["label/custom-domain"]
   default = "Vlastná doména"
+
+["label/dashboard-allow-embed"]
 
 ["label/dashboard-public"]
   default = "Nástenku môže zobraziť"
@@ -601,26 +618,20 @@ Martin
 ["label/date-fmt"]
   default = "Formát dátumu"
 
+["label/datepicker"]
+
 ["label/delete-account-confirmation"]
   default = "Ste si istý, že chcete vymazať celý svoj účet?"
-
-["label/delete-account-contact"]
-  default = "Ak toto označíte, budem vás môcť kontaktovať s nejakými otázkami alebo komentármi. Nebudem vás presviedčať, aby ste ostali (nie som Telekom), ale môžem sa vás spýtať jednu-dve otázky ohľadom budúcich plánov, ak vám chýba nejaká funkcia."
-
-["label/delete-account-follow-up"]
-  default = "Sledovanie je v poriadku"
-
-["label/delete-account-reason"]
-  default = "Ocenil by som, ak by ste mi dali vedieť, či existuje niečo konkrétne, čo vám v GoatCounter chýba, alebo akékoľvek iné dôvody pre vymazanie vášho účtu. Je to úplne dobrovoľné."
-
-["label/delete-account-reason-placeholder"]
-  default = "Voliteľné dôvody pre vymazanie"
 
 ["label/email"]
   default = "Email"
 
 ["label/email-address"]
   default = "Emailová adresa"
+
+["label/email-reports"]
+
+["label/fewer-numbers"]
 
 ["label/for-following-countries"]
   default = "Iba pre tieto krajiny:"
@@ -640,11 +651,19 @@ Martin
 ["label/loc-stats"]
   default = "Štatistiky pre lokáciu"
 
+["label/lock-setting"]
+
 ["label/mark-current"]
   default = "(aktuálne)"
 
+["label/match-case"]
+
 ["label/match-title"]
   default = "Brať do úvahy aj nadpis"
+
+["label/merge-account-confirmation"]
+
+["label/merge-to"]
 
 ["label/mfa-token"]
   default = "MFA Token"
@@ -694,9 +713,6 @@ Martin
 ["label/size-desktophd"]
   default = "Monitory počítača väčšie ako HD"
 
-["label/size-largephones"]
-  default = "Veľké mobily, malé tablety"
-
 ["label/size-phones"]
   default = "Mobily"
 
@@ -708,6 +724,8 @@ Martin
 
 ["label/system-stats"]
   default = "Systémové štatistiky"
+
+["label/theme"]
 
 ["label/thousand-separator"]
   default = "Oddeľovač tisícok"
@@ -745,9 +763,6 @@ Martin
 ["link/api-docs"]
   default = "API dokumentácia"
 
-["link/billing"]
-  default = "Platby"
-
 ["link/dashboard"]
   default = "Nástenka"
 
@@ -760,6 +775,10 @@ Martin
 ["link/import"]
   default = "Import/Export"
 
+["link/manage-pageviews"]
+
+["link/merge-account"]
+
 ["link/passwd-mfa"]
   default = "Heslo & MFA"
 
@@ -769,14 +788,13 @@ Martin
 ["link/rm-account"]
   default = "Vymazať účet"
 
-["link/rm-views"]
-  default = "Vymazať pozretia stránok"
-
 ["link/set-from-browser"]
   default = "Nastaviť z prehliadača"
 
 ["link/settings"]
   default = "nastavenia"
+
+["link/show-less"]
 
 ["link/show-more"]
   default = "Zobraziť viac"
@@ -805,9 +823,6 @@ Martin
 ["nav-dash/back"]
   default = "späť"
 
-["nav-dash/by-day"]
-  default = "Zobraziť za deň"
-
 ["nav-dash/current"]
   default = "Aktuálne"
 
@@ -820,28 +835,35 @@ Martin
 ["nav-dash/filter"]
   default = "Filtrovať cesty"
 
-["nav-dash/filter-tooltip"]
-  default = """<p>Filtrovať zoznamy ciest; pri cestách a nadpisoch sa nerozlišujú malé a veľké písmená. %[%more More help]</p>
+["nav-dash/filter-more-help"]
 
-	<div>
-		<p>Recognizes the following keywords:</p>
-		<ul>
-			<li><em>at:start</em>, <em>at:end</em>:       match only at the start or end of path or title. Use both for exact match.</li>
-			<li><em>in:path</em>, <em>in:title</em>       match only path or title.</li>
-			<li><em>is:event</em>, <em>is:pageview</em>   show only events or pageviews.</li>
-			<li><em>:not</em> negate the match (that is: only show paths that don't match the filter).</li>
-		</ul>
-	</div>
-  """
+["nav-dash/filter-tooltip"]
+  default = """
+<p>Filtrovať zoznamy ciest; pri cestách a nadpisoch sa nerozlišujú malé a veľké písmená. %[%more More help]</p>
+
+  <div>
+    <p>Recognizes the following keywords:</p>
+    <ul>
+      <li><em>at:start</em>, <em>at:end</em>:       match only at the start or end of path or title. Use both for exact match.</li>
+      <li><em>in:path</em>, <em>in:title</em>       match only path or title.</li>
+      <li><em>is:event</em>, <em>is:pageview</em>   show only events or pageviews.</li>
+      <li><em>:not</em> negate the match (that is: only show paths that don't match the filter).</li>
+    </ul>
+  </div>
+"""
 
 ["nav-dash/forced-daily"]
   default = "Nemožno použiť hodinový pohľad pre časové rozmedzie väčšie ako 90 dní"
+
+["nav-dash/forced-hourly"]
 
 ["nav-dash/forward"]
   default = "dopredu"
 
 ["nav-dash/half-year"]
   default = "polrok"
+
+["nav-dash/hour"]
 
 ["nav-dash/last"]
   default = "Posledný"
@@ -855,11 +877,17 @@ Martin
 ["nav-dash/start-date"]
   default = "Začiatok rozsahu dátumov pre zobrazenie"
 
+["nav-dash/view-by"]
+
 ["nav-dash/week"]
   default = "týždeň"
 
 ["nav-dash/year"]
   default = "rok"
+
+["nav-fash/filter-less-help"]
+
+["new-paren"]
 
 ["no-title"]
   default = "bez nadpisu"
@@ -882,6 +910,8 @@ Martin
 ["notify/export-started-in-background"]
   default = "Export začal na pozadí; po jeho dokončení dostanete email s linkom na stiahnutie."
 
+["notify/import-ga-okay"]
+
 ["notify/import-started-in-background"]
   default = "Import začal na pozadí; po jeho dokončení dostanete email."
 
@@ -890,9 +920,6 @@ Martin
 
 ["notify/multi-factor-auth-enabled"]
   default = "Multi-faktorová autentifikácia bola zapnutá."
-
-["notify/need-business-plan-custom-domain"]
-  default = "potrebujete business plán pre nastavenie vlastnej domény"
 
 ["notify/need-email-verification-for-api"]
   default = "Najprv musíte overiť váš email, potom môžete používať API."
@@ -905,12 +932,6 @@ Martin
 
 ["notify/password-changed"]
   default = "Heslo bolo zmenené."
-
-["notify/payment-processed"]
-  default = "Platba bola úspešne spracovaná!"
-
-["notify/payment-processing"]
-  default = "Spracovateľ platby zaznamenal jej dokončenie, no my ju ešte stále spracúvame."
 
 ["notify/reset-to-default"]
   default = "Obnoviť predvolené!"
@@ -955,8 +976,12 @@ Martin
 <p>Môžete ich pridať koľkokoľvek.</p>
 """
 
+["p/add-multiple-accounts"]
+
 ["p/additional-errors"]
   default = "Ďalšie chyby"
+
+["p/all-sites"]
 
 ["p/api-intro"]
   default = "GoatCounter má obmedzené API; momentálne môžete vidieť počet zobrazení stránok, pridávať, mazať, upravovať stránky a vytvárať exporty."
@@ -994,6 +1019,8 @@ Martin
 ["p/error"]
   default = "Chyba: %(error-message)"
 
+["p/export-csv"]
+
 ["p/export-process"]
   default = """
 <p>Začnem proces a pošlem vám mail s linkom pre stiahnutie po dokončení. Túto akciu je možné vykonať iba raz za hodinu a prepíše akékoľvek predošlé zálohy, ktoré máte.</p>
@@ -1004,8 +1031,14 @@ Martin
 ["p/have-mfa"]
   default = "Tento účet je chránený multi-faktorovou autentifikáciou; prosím, zadajte kód z vašej autentifikačnej aplikácie."
 
+["p/import-ga"]
+
 ["p/last-user"]
   default = "Nemožno vymazať alebo upraviť posledného admin užívateľa"
+
+["p/manage-hits"]
+
+["p/merge-account"]
 
 ["p/no-data"]
   default = """
@@ -1055,12 +1088,6 @@ Ste si istý, že chcete odstrániť stránku %(sitename)?<br>
 Toto <strong>vymaže všetky pridružené údaje</strong> a je to <strong>aktuálna stránka</strong>.
 """
 
-["p/request-data-recovery"]
-  default = "%[Contact] do 7 dní, ak si to rozmyslíte a chcete obnoviť vaše údaje."
-
-["p/rm-hits"]
-  default = "Vymazať všetky pozretia stránky."
-
 ["p/rm-hits-help"]
   default = """
 Pri hľadaní nezáleží na malých a veľkých písmenách. Podporuje <code>%</code> ako wildcard; napr.
@@ -1088,17 +1115,24 @@ Pri hľadaní nezáleží na malých a veľkých písmenách. Podporuje <code>%<
 ["page-ranking"]
   default = "Skóre stránky"
 
-["restricted-admin-access"]
-  default = 'Normálne sa administrátori nedokážu "prihlásiť" na vašu stránku, ale ak je toto nastavenie zapnuté, tak môžu. Môže to byť vyžadované v požiadavkách podpory.'
-
 ["scale-y"]
   default = "Zväčšiť os Y na maximum"
+
+["theme/dark"]
+
+["theme/light"]
+
+["theme/system"]
+
+["tooltip/change-period"]
 
 ["top-nav/back"]
   default = "Späť"
 
 ["top-nav/dashboard"]
   default = "Nástenka"
+
+["top-nav/documentation"]
 
 ["top-nav/need-js"]
   default = "GoatCounter potrebuje zapnutý JavaScript pre správne fungovanie; prosím, povoľte JavaScript na doméne %(domain)."
@@ -1118,17 +1152,8 @@ Pri hľadaní nezáleží na malých a veľkých písmenách. Podporuje <code>%<
 ["top-nav/sign-out"]
   default = "Odhlásiť sa"
 
-["top-nav/site-code"]
-  default = "Kód stránky"
-
 ["top-nav/sites"]
   default = "Stránky:"
-
-["top-nav/updates"]
-  default = "Aktualizácie"
-
-["top-nav/user"]
-  default = "Užívateľ"
 
 ["unknown"]
   default = "(neznámy)"
@@ -1175,6 +1200,8 @@ Pri hľadaní nezáleží na malých a veľkých písmenách. Podporuje <code>%<
 ["validate/len-shorter"]
   default = "musí byť kratšie ako %d znakov"
 
+["validate/need-one"]
+
 ["validate/phone"]
   default = "musí byť platné telefónne číslo"
 
@@ -1192,6 +1219,8 @@ Pri hľadaní nezáleží na malých a veľkých písmenách. Podporuje <code>%<
 
 ["validate/utf8"]
   default = "musí byť UTF-8"
+
+["view not set"]
 
 ["widget-setting/help/align"]
   default = "Pridať odsadenie vľavo, aby sa zarovnal s grafmi stránky"
@@ -1240,3 +1269,4 @@ Pri hľadaní nezáleží na malých a veľkých písmenách. Podporuje <code>%<
 
 ["y-scale"]
   default = "Zväčšenie osi Y"
+

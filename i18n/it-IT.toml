@@ -1,8 +1,8 @@
 [__meta__]
   comments = "https://github.com/arp242/goatcounter/issues/539"
-  generated = 2021-11-29T19:38:18Z
   language = "it-IT"
   maintainers = ["Matteo Cosentino <cosentino.matteo.it@gmail.com>"]
+  modified = 2021-12-11
 
 ["button/add-new"]
   default = "Aggiungi nuovo"
@@ -28,11 +28,10 @@
 ["button/delete-account"]
   default = "Cancella account, tutti i siti e tutti i dati"
 
-["button/delete-all"]
-  default = "Sì, cancella tutto!"
-
 ["button/delete-everything"]
   default = "Sì, cancella tutto"
+
+["button/delete-pageviews"]
 
 ["button/disable-mfa"]
   default = "Disabilita MFA"
@@ -45,6 +44,8 @@
 
 ["button/forgot-password"]
   default = "Password dimenticata?"
+
+["button/merge"]
 
 ["button/remove"]
   default = "Rimuovi"
@@ -61,17 +62,18 @@
 ["button/reset-password"]
   default = "Reimposta password"
 
-["button/rm-hits"]
-  default = "Cancella visite"
-
 ["button/save"]
   default = "Salva"
 
 ["button/save-default-view"]
   default = "Salva visualizzazione di default"
 
+["button/search"]
+
 ["button/send-login-url"]
   default = "Invia URL di login"
+
+["button/show"]
 
 ["button/sign-in"]
   default = "Accedi"
@@ -84,6 +86,8 @@
 
 ["button/submit"]
   default = "Invia"
+
+["button/upload-ga-import"]
 
 ["confirm/delete-user"]
   default = "Cancellare %(email)?"
@@ -99,6 +103,8 @@
 ["dashboard/future"]
   default = "futuro"
 
+["dashboard/loading"]
+
 ["dashboard/month-ago"]
   default = "%(n) mesi fa"
   zero    = "Zero"
@@ -110,14 +116,13 @@
 ["dashboard/nothing-to-display"]
   default = "Niente da mostrare"
 
+["dashboard/pages/change"]
+
 ["dashboard/pages/header"]
   default = "Pagine"
 
 ["dashboard/pages/num-visits"]
   default = "Mostrate %(num-visits) di %(total-visits) visite"
-
-["dashboard/pages/pageviews"]
-  default = "Visualizzazioni"
 
 ["dashboard/pages/path"]
   default = "Percorso"
@@ -130,9 +135,6 @@
 
 ["dashboard/pages/title"]
   default = "Titolo"
-
-["dashboard/pages/views"]
-  default = "Visualizzazioni"
 
 ["dashboard/pages/visits"]
   default = "Visite"
@@ -163,6 +165,8 @@
 ["data-collect/help/country"]
   default = "Nome del paese, per esempio Belgio, Indonesia, ecc."
 
+["data-collect/help/hits"]
+
 ["data-collect/help/language"]
   default = "Lingue supportate da Accept-Language"
 
@@ -178,8 +182,12 @@
 ["data-collect/help/size"]
   default = "Dimensione schermo"
 
+["data-collect/help/user-agent"]
+
 ["data-collect/label/country"]
   default = "Paese"
+
+["data-collect/label/hits"]
 
 ["data-collect/label/language"]
   default = "Lingua"
@@ -208,6 +216,18 @@
 ["datepicker/month-prev"]
   default = "Mese passato"
 
+["dont-lock"]
+
+["email-report/daily"]
+
+["email-report/monthly"]
+
+["email-report/never"]
+
+["email-report/two-weeks"]
+
+["email-report/weekly"]
+
 ["email/header"]
   default = "Ciao,"
 
@@ -229,9 +249,6 @@ Saluti,
 Martin
 """
 
-["error/account-has-stripe-subscription"]
-  default = "Questo account ha un abbonamento Stripe; annullalo sulla pagina fatturazione."
-
 ["error/address-exists"]
   default = "%(addr) esiste già"
 
@@ -246,9 +263,6 @@ Martin
 
 ["error/date-past"]
   default = "Sarebbe prima della data di creazione del sito; GoatCounter non funziona *così* bene ;-)"
-
-["error/delete-main-site"]
-  default = "Non puoi cancellare il sito principale"
 
 ["error/export-expired"]
   default = "Sembra che non ci sia alcun export o che l'export sia scaduto"
@@ -286,11 +300,10 @@ Martin
 ["error/password-does-not-match"]
   default = "Le password immesse non combaciano."
 
-["error/payment-cancelled"]
-  default = "Pagamento annullato."
-
 ["error/reset-user-no-account"]
   default = "%(email) non corrisponde a un account su questo sito"
+
+["error/unknown-activation-token"]
 
 ["event"]
   default = "evento"
@@ -300,6 +313,8 @@ Martin
 
 ["header/access"]
   default = "Accedi"
+
+["header/add-api-token"]
 
 ["header/add-new-user"]
   default = "Aggiungi un nuovo utente"
@@ -358,6 +373,8 @@ Martin
 ["header/export-or-import"]
   default = "Esporta/Imports"
 
+["header/fewer-number"]
+
 ["header/finished"]
   default = "Finito"
 
@@ -382,11 +399,17 @@ Martin
 ["header/last-10-exports"]
   default = "Ultimi 10 export"
 
+["header/last-used-at"]
+
 ["header/locations"]
   default = "Luoghi"
 
 ["header/locations-for"]
   default = "Luoghi in %(country)"
+
+["header/manage-pageviews"]
+
+["header/merge-account"]
 
 ["header/mfa"]
   default = "Multi-factor authentication"
@@ -396,9 +419,6 @@ Martin
 
 ["header/name"]
   default = "Nome"
-
-["header/new"]
-  default = "Nuovo"
 
 ["header/pagination-cursor"]
   default = "Cursore paginazione"
@@ -417,9 +437,6 @@ Martin
 
 ["header/reset-password"]
   default = "Resetta password per %(email) a %(site-name)"
-
-["header/rm-hits"]
-  default = "Cancella visualizzazioni"
 
 ["header/settings"]
   default = "Impostazioni"
@@ -460,9 +477,6 @@ Martin
 ["header/tracking"]
   default = "Tracciamento"
 
-["header/updated"]
-  default = "Aggiornamenti"
-
 ["header/user-info"]
   default = "Informazioni utente"
 
@@ -472,17 +486,18 @@ Martin
 ["header/users"]
   default = "Utenti"
 
+["help/allow-embed"]
+
 ["help/allow-visitor-counts"]
   default = "Guarda %[la documentazione] per dettagli sull'utilizzo"
-
-["help/campaign-parameters"]
-  default = 'Liste di parametri da considerare "campagne"; se impostato, il valore sarà impostato come referrer, sovrascrivendo eventuali header Referer'
 
 ["help/cfg-dashboard"]
   default = "Modifica cosa mostrare sulla dashboard e in che ordine"
 
 ["help/code-access"]
   default = "Accederai al tuo sito a https://<em>[il-mio-codice]</em>.%(domain)"
+
+["help/configure-dashboard"]
 
 ["help/custom-domain"]
   default = """
@@ -499,20 +514,25 @@ Domini personalizzati come <em>“stats.example.com”</em>.
 La verifica è effettuata ogni 2 ore.
 """
 
-["help/custom-domain-plan"]
-  default = "Richiede il piano Personal Plus o Business (tu stai utilizzando il piano %(plan); guarda %[%link fatturazione])."
-
 ["help/custom-domain-verified"]
   default = "Dominio verificato e pronto (nota: potrebbe volerci fino ad un'ora prima che il certificato funzioni)."
 
 ["help/data-retention"]
   default = "Le visualizzazioni e tutti i dati associati verranno rimossi permanentemente dopo questo ammontare di giorni. Imposta a <code>0</code> per non eliminarli mai."
 
+["help/datepicker"]
+
 ["help/domain-access"]
   default = "Dominio da cui accedere al sito"
 
 ["help/drag-reorder"]
   default = "Trascina per ordinare"
+
+["help/email-reports"]
+
+["help/fewer-numbers"]
+
+["help/fewer-numbers-lock"]
 
 ["help/for-the-following-countries"]
   default = "Lista di codici paese (%[list]; usare il codice alpha-2); lasciare bianco per recuperare tutti i paesi (se abilitato)."
@@ -525,6 +545,10 @@ La verifica è effettuata ogni 2 ore.
 
 ["help/ignore-ips-2"]
   default = "Alternativamente, %[disabilita per questo browser] (clicca nuovamente per abilitare)."
+
+["help/locked-until"]
+
+["help/need-cities"]
 
 ["help/new-user-email"]
   default = "Email di login"
@@ -544,9 +568,6 @@ La verifica è effettuata ogni 2 ore.
 ["help/public"]
   default = "Controlla chi può vedere la dashboard"
 
-["help/rm-hits"]
-  default = "Vedrai una preview dei match prima che qualunque cosa venga cancellata"
-
 ["help/save-default-view"]
   default = "Salva la visione attuale (es. tutte le impostazioni nel box giallo) come default da caricare quando nulla è selezionato."
 
@@ -559,14 +580,13 @@ La verifica è effettuata ogni 2 ore.
 ["label/24-hour-clock"]
   default = "Orologio 24-ore (13.00)"
 
+["label/access-to-sites"]
+
 ["label/add-new"]
   default = "Aggiungi nuovo"
 
 ["label/all-sites"]
   default = "Tutti i siti"
-
-["label/allow-admin-access"]
-  default = "Consenti accesso amministratore"
 
 ["label/allow-visitor-counts"]
   default = "Consenti l'aggiunta del contatore visitatori al tuo sito"
@@ -574,8 +594,7 @@ La verifica è effettuata ogni 2 ore.
 ["label/browser-stats"]
   default = "Statistiche browser"
 
-["label/campaign-parameters"]
-  default = "Parametri campagna"
+["label/campaigns"]
 
 ["label/change-code"]
   default = "Accederai al tuo account su https://<em>[il-mio-codice]</em>.%(domain) – %[%link cambia]."
@@ -586,9 +605,6 @@ La verifica è effettuata ogni 2 ore.
 ["label/code"]
   default = "Codice"
 
-["label/collected-since"]
-  default = "Raccolti dal 2 Dic 2021"
-
 ["label/csv-compress-format"]
   default = "File CSV; può essere compresso con gzip"
 
@@ -597,6 +613,8 @@ La verifica è effettuata ogni 2 ore.
 
 ["label/custom-domain"]
   default = "Dominio attuale"
+
+["label/dashboard-allow-embed"]
 
 ["label/dashboard-public"]
   default = "Dashboard visibile da"
@@ -607,26 +625,20 @@ La verifica è effettuata ogni 2 ore.
 ["label/date-fmt"]
   default = "Formato data"
 
+["label/datepicker"]
+
 ["label/delete-account-confirmation"]
   default = "Sicuro di voler cancellare l'intero acount?"
-
-["label/delete-account-contact"]
-  default = "Potrei contattarti con alcune domande di follow-up o per un commento se spunti questa casella. Non cercherò di convincerti a restare (non sono una compagnia telefonica), ma potrei farti una domanda o due per fare piani futuri o per sapere se c'è qualche feature che a parer tuo manca."
-
-["label/delete-account-follow-up"]
-  default = "Sono d'accordo ad essere contattato"
-
-["label/delete-account-reason"]
-  default = "Mi farebbe piacere se mi dicessi se c'è qualcosa in particolare che manca a GoatCounter, o se hai altre ragioni per cancellare il tuo account. Questo è assolutamente opzionale."
-
-["label/delete-account-reason-placeholder"]
-  default = "Ragione della cancellazione (opzionale)"
 
 ["label/email"]
   default = "Email"
 
 ["label/email-address"]
   default = "Indirizzo Email"
+
+["label/email-reports"]
+
+["label/fewer-numbers"]
 
 ["label/for-following-countries"]
   default = "Solo per i seguenti paesi:"
@@ -646,11 +658,19 @@ La verifica è effettuata ogni 2 ore.
 ["label/loc-stats"]
   default = "Statistiche località"
 
+["label/lock-setting"]
+
 ["label/mark-current"]
   default = "(attuale)"
 
+["label/match-case"]
+
 ["label/match-title"]
   default = "Controlla anche il titolo"
+
+["label/merge-account-confirmation"]
+
+["label/merge-to"]
 
 ["label/mfa-token"]
   default = "Token MFA"
@@ -700,9 +720,6 @@ La verifica è effettuata ogni 2 ore.
 ["label/size-desktophd"]
   default = "Monitor di computer più grandi dell'HD"
 
-["label/size-largephones"]
-  default = "Grandi telefoni, piccoli tablet"
-
 ["label/size-phones"]
   default = "Telefoni"
 
@@ -714,6 +731,8 @@ La verifica è effettuata ogni 2 ore.
 
 ["label/system-stats"]
   default = "Statistiche sistema"
+
+["label/theme"]
 
 ["label/thousand-separator"]
   default = "Separatore migliaia"
@@ -751,9 +770,6 @@ La verifica è effettuata ogni 2 ore.
 ["link/api-docs"]
   default = "Documentazione API"
 
-["link/billing"]
-  default = "Fatturazione"
-
 ["link/dashboard"]
   default = "Dashboard"
 
@@ -762,6 +778,12 @@ La verifica è effettuata ogni 2 ore.
 
 ["link/goto-path"]
   default = "Vai a %(path)"
+
+["link/import"]
+
+["link/manage-pageviews"]
+
+["link/merge-account"]
 
 ["link/passwd-mfa"]
   default = "Password & MFA"
@@ -772,14 +794,13 @@ La verifica è effettuata ogni 2 ore.
 ["link/rm-account"]
   default = "Cancella account"
 
-["link/rm-views"]
-  default = "Cancella visualizzazioni"
-
 ["link/set-from-browser"]
   default = "Imposta per browser"
 
 ["link/settings"]
   default = "impostazioni"
+
+["link/show-less"]
 
 ["link/show-more"]
   default = "Mostra di più"
@@ -805,14 +826,8 @@ La verifica è effettuata ogni 2 ore.
 ["nav-bot/src"]
   default = "Codice sorgente"
 
-["nav-dash/as-text"]
-  default = "Visualizza come tabella"
-
 ["nav-dash/back"]
   default = "indietro"
-
-["nav-dash/by-day"]
-  default = "Visualizza per giorno"
 
 ["nav-dash/current"]
   default = "Questo/a"
@@ -826,28 +841,35 @@ La verifica è effettuata ogni 2 ore.
 ["nav-dash/filter"]
   default = "Filtra i percorsi"
 
-["nav-dash/filter-tooltip"]
-  default = """<p>Filtra la lista di percorsi; controlli case-insensitive su path e titolo. %[%more More help]</p>
+["nav-dash/filter-more-help"]
 
-	<div>
-		<p>Recognizes the following keywords:</p>
-		<ul>
-			<li><em>at:start</em>, <em>at:end</em>:       match only at the start or end of path or title. Use both for exact match.</li>
-			<li><em>in:path</em>, <em>in:title</em>       match only path or title.</li>
-			<li><em>is:event</em>, <em>is:pageview</em>   show only events or pageviews.</li>
-			<li><em>:not</em> negate the match (that is: only show paths that don't match the filter).</li>
-		</ul>
-	</div>
-  """
+["nav-dash/filter-tooltip"]
+  default = """
+<p>Filtra la lista di percorsi; controlli case-insensitive su path e titolo. %[%more More help]</p>
+
+  <div>
+    <p>Recognizes the following keywords:</p>
+    <ul>
+      <li><em>at:start</em>, <em>at:end</em>:       match only at the start or end of path or title. Use both for exact match.</li>
+      <li><em>in:path</em>, <em>in:title</em>       match only path or title.</li>
+      <li><em>is:event</em>, <em>is:pageview</em>   show only events or pageviews.</li>
+      <li><em>:not</em> negate the match (that is: only show paths that don't match the filter).</li>
+    </ul>
+  </div>
+"""
 
 ["nav-dash/forced-daily"]
   default = "Non è possibile utilizzare viste orarie per un range superiore a 90 giorni"
+
+["nav-dash/forced-hourly"]
 
 ["nav-dash/forward"]
   default = "avanti"
 
 ["nav-dash/half-year"]
   default = "semestre"
+
+["nav-dash/hour"]
 
 ["nav-dash/last"]
   default = "Ultimo/a"
@@ -861,11 +883,17 @@ La verifica è effettuata ogni 2 ore.
 ["nav-dash/start-date"]
   default = "Data di inizio del range da mostrare"
 
+["nav-dash/view-by"]
+
 ["nav-dash/week"]
   default = "settimana"
 
 ["nav-dash/year"]
   default = "anno"
+
+["nav-fash/filter-less-help"]
+
+["new-paren"]
 
 ["no-title"]
   default = "nessun titolo"
@@ -888,6 +916,8 @@ La verifica è effettuata ogni 2 ore.
 ["notify/export-started-in-background"]
   default = "L'export è iniziato in background, riceverai un'email con il link di download una volta terminato."
 
+["notify/import-ga-okay"]
+
 ["notify/import-started-in-background"]
   default = "L'import è iniziato in backdround, riceverai un'email una volta terminato."
 
@@ -896,9 +926,6 @@ La verifica è effettuata ogni 2 ore.
 
 ["notify/multi-factor-auth-enabled"]
   default = "Autenticazione multi-factor abilitata."
-
-["notify/need-business-plan-custom-domain"]
-  default = "è necessario un piano business per settare un dominio personalizzato"
 
 ["notify/need-email-verification-for-api"]
   default = "Devi verificare la tua email prima di poter utilizzare le API."
@@ -911,12 +938,6 @@ La verifica è effettuata ogni 2 ore.
 
 ["notify/password-changed"]
   default = "Password cambiata."
-
-["notify/payment-processed"]
-  default = "Pagamento processato correttamente!"
-
-["notify/payment-processing"]
-  default = "Il sistema di elaborazione del pagamento ha dato esito positivo, ma stiamo ancora elaborando il pagamento."
 
 ["notify/reset-to-default"]
   default = "Resetta le impostazioni di default!"
@@ -964,8 +985,12 @@ Le impostazioni correnti del sito sono copiate al momento della creazione, ma do
 <p> Puoi aggiungerne quanti ne vuoi. </p>
 """
 
+["p/add-multiple-accounts"]
+
 ["p/additional-errors"]
   default = "Errori addizionali"
+
+["p/all-sites"]
 
 ["p/api-intro"]
   default = "GoatCounter mette a dispisizione API limitate; al momento puoi contare le visite da API, creare, cancellare e modificare siti e creare export."
@@ -992,6 +1017,8 @@ e il vecchio codice potrà essere utilizzato da chiunque; se lo stai già utiliz
 ["p/csv-file-format"]
   default = "Il formato del file CSV è %[documentato qui]."
 
+["p/delete-account"]
+
 ["p/disable-mfa"]
   default = "MFA abilitata per questo account."
 
@@ -1000,6 +1027,8 @@ e il vecchio codice potrà essere utilizzato da chiunque; se lo stai già utiliz
 
 ["p/error"]
   default = "Errore: %(error-message)"
+
+["p/export-csv"]
 
 ["p/export-process"]
   default = """
@@ -1011,8 +1040,14 @@ e il vecchio codice potrà essere utilizzato da chiunque; se lo stai già utiliz
 ["p/have-mfa"]
   default = "Questo account è proteddo dall'autenticazione a più fattori; per favore inserisci il codice dell'app authenticator."
 
+["p/import-ga"]
+
 ["p/last-user"]
   default = "Impossibile cancellare o modificare l'ultimo account amministratore"
+
+["p/manage-hits"]
+
+["p/merge-account"]
 
 ["p/no-data"]
   default = """
@@ -1041,6 +1076,8 @@ Nell'email sarà presente un \"cursore di paginazione\", se lo inserisci qui, ve
 ["p/notify-site-deletion"]
   default = "%(number) siti verranno cancellati"
 
+["p/num-accounts"]
+
 ["p/remove-site-confirm"]
   default = """
 Sicuro di voler rimuovere il sito %(sitename)?<br>
@@ -1055,12 +1092,6 @@ Questa azione <strong>cancellerà tutti i dati assocuati</strong>.
 Sicuro di voler rimuovere il sito %(sitename)?<br>
 Questa azione <strong>cancellerà tutti i dati assocuati</strong> ed è il <strong>sito attuale</strong>.
 """
-
-["p/request-data-recovery"]
-  default = "%[Contattaci] entro 7 giorni se hai cambiato idea e vuoi recuperare i dati."
-
-["p/rm-hits"]
-  default = "Rimuovi tutte le visualizzazioni da un sito"
 
 ["p/rm-hits-help"]
   default = """
@@ -1082,8 +1113,6 @@ termina in <code>.html</code>. <code>_</code> corrisponde ad un qualunque caratt
 ["p/site-domain-link-to-page"]
   default = "Il dominio del tuo sito, es. <em>“www.example.com”</em>, utilizzato per puntare alla pagina nella panoramica"
 
-["p/slow"]
-
 ["p/text-data-retention"]
   default = "Questo include la memorizzazione dei dati e delle impostazioni."
 
@@ -1096,17 +1125,24 @@ Per favore verifica la tua email cliccando sul link inviato a %(email).
 ["page-ranking"]
   default = "Ranking della pagina"
 
-["restricted-admin-access"]
-  default = 'Normalmente gli amministratori non possono fare il "log in" nel tuo sito. Ma se questa impostazione è abilitata, potranno. Potrebbe venirti chiesto di abilitarlo per le richieste di supporto.'
-
 ["scale-y"]
   default = "Scala l'asse delle Y al massimo"
+
+["theme/dark"]
+
+["theme/light"]
+
+["theme/system"]
+
+["tooltip/change-period"]
 
 ["top-nav/back"]
   default = "Indietro"
 
 ["top-nav/dashboard"]
   default = "Dashboard"
+
+["top-nav/documentation"]
 
 ["top-nav/need-js"]
   default = "GoatCounter ha bisogno che JavaScript sia abilitato per funzionare correttamente; per favore abilita JavaScript su %(domain)."
@@ -1126,17 +1162,8 @@ Per favore verifica la tua email cliccando sul link inviato a %(email).
 ["top-nav/sign-out"]
   default = "Esci"
 
-["top-nav/site-code"]
-  default = "Codice del sito"
-
 ["top-nav/sites"]
   default = "Siti:"
-
-["top-nav/updates"]
-  default = "Aggiornamenti"
-
-["top-nav/user"]
-  default = "Utente"
 
 ["unknown"]
   default = "(sconosciuto)"
@@ -1183,6 +1210,8 @@ Per favore verifica la tua email cliccando sul link inviato a %(email).
 ["validate/len-shorter"]
   default = "non può essere più corto di %d caratteri"
 
+["validate/need-one"]
+
 ["validate/phone"]
   default = "dev'essere un numero di telefono valido"
 
@@ -1201,8 +1230,12 @@ Per favore verifica la tua email cliccando sul link inviato a %(email).
 ["validate/utf8"]
   default = "dev'essere UTF-8"
 
+["view not set"]
+
 ["widget-setting/help/align"]
   default = "Aggiungi margine a sinistra per allineare i grafici delle pagine"
+
+["widget-setting/help/chart-style"]
 
 ["widget-setting/help/no-events"]
   default = "Non includere eventi nella panoramica dei Totali"
@@ -1219,6 +1252,8 @@ Per favore verifica la tua email cliccando sul link inviato a %(email).
 ["widget-setting/label/align"]
   default = "Allinea alle pagine"
 
+["widget-setting/label/chart-style"]
+
 ["widget-setting/label/no-events"]
   default = "Escludi eventi"
 
@@ -1231,5 +1266,12 @@ Per favore verifica la tua email cliccando sul link inviato a %(email).
 ["widget-setting/label/regions"]
   default = "Mostra regioni"
 
+["widget-settings/bar-chart"]
+
+["widget-settings/line-chart"]
+
+["widget-settings/text-chart"]
+
 ["y-scale"]
   default = "Scala asse delle Y"
+

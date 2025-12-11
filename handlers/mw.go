@@ -329,7 +329,7 @@ func addz18n() func(http.Handler) http.Handler {
 			if u := goatcounter.GetUser(r.Context()); u != nil {
 				userLang = u.Settings.Language
 			}
-			*r = *r.WithContext(z18n.With(r.Context(), goatcounter.GetBundle(r.Context()).
+			*r = *r.WithContext(z18n.With(r.Context(), goatcounter.Bundle.
 				Locale(userLang, siteLang, r.Header.Get("Accept-Language"))))
 			next.ServeHTTP(w, r)
 		})
