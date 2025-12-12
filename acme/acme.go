@@ -8,11 +8,12 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"slices"
 	"strings"
+	"sync"
 
 	crypto_acme "golang.org/x/crypto/acme"
 	"golang.org/x/crypto/acme/autocert"
-	"golang.org/x/sync/singleflight"
 	"zgo.at/goatcounter/v2"
 	"zgo.at/goatcounter/v2/pkg/log"
 	"zgo.at/zdb"
@@ -196,12 +197,12 @@ func Reset() {
 }
 
 // Make a new certificate for the domain.
-func Make(ctx context.Context, domain string) error {
+func Make(ctx context.Context, domain string) (bool, error) {
 	if manager == nil {
 		panic("acme.MakeCert: no manager, use Setup() first")
 	}
 	if !validForwarding(ctx, domain) {
-		return nil
+		return false, nil
 	}
 
 	hello := &tls.ClientHelloInfo{
@@ -220,34 +221,33 @@ func Make(ctx context.Context, domain string) error {
 
 	_, err := manager.GetCertificate(hello)
 	if err != nil {
-		return fmt.Errorf("acme.Make: %w", err) // No multiline output with zgo.at/errors
+		return false, fmt.Errorf("acme.Make: %w", err) // No multiline output with zgo.at/errors
 	}
-	return nil
+	return true, nil
 }
 
-var resolveSelf singleflight.Group
+var (
+	selfOnce sync.Once
+	self     []string
+)
 
 func validForwarding(ctx context.Context, domain string) bool {
-	x, _, _ := resolveSelf.Do("resolveSelf", func() (any, error) {
-		// For "serve" we don't know what the end destination will be, so always
-		// check.
+	selfOnce.Do(func() {
+		// For "serve" we don't know, so always check.
 		if !goatcounter.Config(ctx).GoatcounterCom {
-			return []string{}, nil
+			return
 		}
 
 		addrs, err := net.LookupHost(goatcounter.Config(ctx).Domain)
 		if err != nil {
 			l.Errorf(ctx, "could not look up host %q: %s", goatcounter.Config(ctx).Domain, err)
-			return []string{}, nil
+			return
 		}
 
 		l.Debugf(ctx, "me: %q", addrs)
-		return addrs, nil
+		self = addrs
 	})
-	me := x.([]string)
-
-	if len(me) == 0 {
-		l.Debug(ctx, "len(me)==0)")
+	if len(self) == 0 {
 		return true
 	}
 
@@ -257,12 +257,9 @@ func validForwarding(ctx context.Context, domain string) bool {
 	}
 
 	for _, a := range addrs {
-		for _, m := range me {
-			if a == m {
-				return true
-			}
+		if slices.Contains(self, a) {
+			return true
 		}
 	}
-
 	return false
 }

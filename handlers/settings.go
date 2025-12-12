@@ -31,6 +31,7 @@ import (
 	"zgo.at/zstd/zint"
 	"zgo.at/zstd/zruntime"
 	"zgo.at/zstd/ztime"
+	"zgo.at/zstd/ztype"
 	"zgo.at/zvalidate"
 )
 
@@ -204,13 +205,19 @@ func (h settings) mainSave(w http.ResponseWriter, r *http.Request) error {
 	if makecert {
 		ctx := context.WithoutCancel(r.Context())
 		bgrun.RunFunction(fmt.Sprintf("acme.Make:%s", args.Cname), func() {
-			err := acme.Make(ctx, args.Cname)
+			ok, err := acme.Make(ctx, args.Cname)
 			if err != nil {
 				log.Error(ctx, err, "domain", args.Cname)
 				return
 			}
 
-			err = site.UpdateCnameSetupAt(ctx)
+			if ok && site.CnameSetupAt == nil {
+				site.CnameSetupAt = ztype.Ptr(ztime.Now(ctx))
+				err = site.UpdateCnameSetupAt(ctx)
+			} else if !ok && site.CnameSetupAt != nil {
+				site.CnameSetupAt = nil
+				err = site.UpdateCnameSetupAt(ctx)
+			}
 			if err != nil {
 				log.Error(ctx, err, "domain", args.Cname)
 			}
@@ -322,6 +329,7 @@ func (h settings) sitesAdd(w http.ResponseWriter, r *http.Request) error {
 			return err
 		}
 		if !goatcounter.Config(r.Context()).GoatcounterCom {
+			newSite.CnameSetupAt = ztype.Ptr(ztime.Now(ctx))
 			return newSite.UpdateCnameSetupAt(ctx)
 		}
 		return nil

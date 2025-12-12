@@ -271,9 +271,13 @@ func (s *Site) Update(ctx context.Context) error {
 		return err
 	}
 
+	if s.Cname == nil || *s.Cname == "" {
+		s.Cname, s.CnameSetupAt = nil, nil
+	}
+
 	err = zdb.Exec(ctx,
-		`update sites set settings=?, user_defaults=?, cname=?, link_domain=?, updated_at=? where site_id=?`,
-		s.Settings, s.UserDefaults, s.Cname, s.LinkDomain, s.UpdatedAt, s.ID)
+		`update sites set settings=?, user_defaults=?, cname=?, link_domain=?, updated_at=?, cname_setup_at=? where site_id=?`,
+		s.Settings, s.UserDefaults, s.Cname, s.LinkDomain, s.UpdatedAt, s.CnameSetupAt, s.ID)
 	if err != nil {
 		return errors.Wrap(err, "Site.Update")
 	}
@@ -373,16 +377,12 @@ func (s *Site) UpdateCnameSetupAt(ctx context.Context) error {
 		return errors.New("ID == 0")
 	}
 
-	n := ztime.Now(ctx)
-	s.CnameSetupAt = &n
-
 	err := zdb.Exec(ctx,
 		`update sites set cname_setup_at=$1 where site_id=$2`,
 		s.CnameSetupAt, s.ID)
 	if err != nil {
 		return errors.Wrap(err, "Site.UpdateCnameSetupAt")
 	}
-
 	s.ClearCache(ctx, false)
 	return nil
 }

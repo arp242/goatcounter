@@ -14,6 +14,7 @@ import (
 	"zgo.at/goatcounter/v2/pkg/log"
 	"zgo.at/zdb"
 	"zgo.at/zstd/ztime"
+	"zgo.at/zstd/ztype"
 )
 
 func oldExports(ctx context.Context) error {
@@ -179,13 +180,19 @@ func renewACME(ctx context.Context) error {
 	}
 
 	for _, s := range sites {
-		err := acme.Make(ctx, *s.Cname)
+		ok, err := acme.Make(ctx, *s.Cname)
 		if err != nil {
 			log.Module("cron-acme").Error(ctx, err, "cname", *s.Cname)
 			continue
 		}
 
-		err = s.UpdateCnameSetupAt(ctx)
+		if ok && s.CnameSetupAt == nil {
+			s.CnameSetupAt = ztype.Ptr(ztime.Now(ctx))
+			err = s.UpdateCnameSetupAt(ctx)
+		} else if !ok && s.CnameSetupAt != nil {
+			s.CnameSetupAt = nil
+			err = s.UpdateCnameSetupAt(ctx)
+		}
 		if err != nil {
 			log.Module("cron-acme").Error(ctx, err, "cname", *s.Cname)
 			continue

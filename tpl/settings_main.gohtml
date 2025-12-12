@@ -69,7 +69,7 @@
 					Custom domain, e.g. <em>“stats.example.com”</em>.
 					<strong>Note:</strong> This <em>won’t</em> prevent most
 					adblockers from blocking GoatCounter, and is just intended
-					as a nice “vanity domain”.
+					as a convenient “vanity domain”.
 				`}}<br><br>
 					{{if .Site.CnameSetupAt}}
 						{{.T "help/custom-domain-verified|Domain verified and set up (note: it may take up to an hour for the certificate to work)."}}
@@ -77,11 +77,10 @@
 						{{.T `help/custom-domain-error|
 							%[%error Not yet verified]; set a CNAME record to <code>%(domain)</code> – %[%docs detailed instructions].
 							The verification runs every 2 hours.` (map
-								"domain" ""
-								"error" (tag "span" `style="color: red;"`)
-								"docs"  (tag "a"
-								`href="https://www.goatcounter.com/help/faq#custom-domain" target="_blank"`)
-						)}}
+								"domain" (printf "%s.%s" .Site.Code .Domain)
+								"error"  (tag "span" `style="color: red;"`)
+								"docs"   (tag "a" `href="https://www.goatcounter.com/help/faq#custom-domain" target="_blank"`))
+						}}
 					{{else}}
 						{{.T `help/custom-domain-cname|Set a CNAME record to <code>%(domain)</code> – %[%docs detailed instructions].` (map
 							"docs"   (tag "a" `href="https://www.goatcounter.com/help/faq#custom-domain" target="_blank"`)
