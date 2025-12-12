@@ -34,7 +34,7 @@ type Hit struct {
 	Query string     `db:"-" json:"q,omitempty"`
 	Bot   int        `db:"-" json:"b,omitempty"`
 
-	RefScheme       *string    `db:"ref_scheme" json:"-"`
+	RefScheme       string     `db:"ref_scheme" json:"-"`
 	UserAgentHeader string     `db:"-" json:"-"`
 	Location        string     `db:"location" json:"-"`
 	Language        *string    `db:"language" json:"-"`
@@ -233,20 +233,24 @@ func (h *Hit) Defaults(ctx context.Context, initial bool) error {
 		}
 	}
 
-	if h.RefScheme == nil && h.Ref != "" && h.RefURL != nil {
-		if h.RefURL.Scheme == "http" || h.RefURL.Scheme == "https" {
-			h.RefScheme = RefSchemeHTTP
-		} else {
-			h.RefScheme = RefSchemeOther
-		}
+	if h.RefScheme == "" {
+		h.RefScheme = RefSchemeOther
+		if h.Ref != "" && h.RefURL != nil {
+			if h.RefURL.Scheme == "http" || h.RefURL.Scheme == "https" {
+				h.RefScheme = RefSchemeHTTP
+			}
 
-		var generated bool
-		h.Ref, generated = cleanRefURL(h.Ref, h.RefURL)
-		if generated {
-			h.RefScheme = RefSchemeGenerated
+			var generated bool
+			h.Ref, generated = cleanRefURL(h.Ref, h.RefURL)
+			if generated {
+				h.RefScheme = RefSchemeGenerated
+			}
 		}
 	}
-	h.Ref = strings.TrimRight(h.Ref, "/")
+	h.Ref = strings.TrimSpace(strings.TrimRight(h.Ref, "/"))
+	if h.Ref == "" {
+		h.RefScheme = RefSchemeOther
+	}
 
 	if initial {
 		return nil

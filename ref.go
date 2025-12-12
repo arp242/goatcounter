@@ -8,15 +8,14 @@ import (
 	"zgo.at/errors"
 	"zgo.at/zdb"
 	"zgo.at/zstd/ztime"
-	"zgo.at/zstd/ztype"
 )
 
 // ref_scheme column
 var (
-	RefSchemeHTTP      = ztype.Ptr("h")
-	RefSchemeOther     = ztype.Ptr("o")
-	RefSchemeGenerated = ztype.Ptr("g")
-	RefSchemeCampaign  = ztype.Ptr("c")
+	RefSchemeHTTP      = "h"
+	RefSchemeOther     = "o"
+	RefSchemeGenerated = "g"
+	RefSchemeCampaign  = "c"
 )
 
 var groups = map[string]string{
@@ -84,9 +83,9 @@ var hostAlias = map[string]string{
 type RefID int32
 
 type Ref struct {
-	ID        RefID   `db:"ref_id"`
-	Ref       string  `db:"ref"`
-	RefScheme *string `db:"ref_scheme"`
+	ID        RefID  `db:"ref_id"`
+	Ref       string `db:"ref"`
+	RefScheme string `db:"ref_scheme"`
 }
 
 func (r *Ref) Defaults(ctx context.Context) {}
@@ -104,11 +103,8 @@ func (r *Ref) Validate(ctx context.Context) error {
 }
 
 func (r *Ref) GetOrInsert(ctx context.Context) error {
-	k := r.Ref
-	if r.RefScheme != nil {
-		k += string(*r.RefScheme)
-	}
-	if r.Ref == "" && r.RefScheme == nil {
+	k := r.RefScheme + r.Ref
+	if r.Ref == "" && r.RefScheme == RefSchemeOther {
 		r.ID = 1
 		return nil
 	}
@@ -134,16 +130,14 @@ func (r *Ref) GetOrInsert(ctx context.Context) error {
 		return nil
 	}
 	if !zdb.ErrNoRows(err) {
-		return errors.Wrapf(err, "Ref.GetOrInsert %q %q: %w",
-			ztype.Deref(r.RefScheme, "<nil>"), r.Ref, err)
+		return errors.Wrapf(err, "Ref.GetOrInsert(%q, %q): %w", r.Ref, r.RefScheme, err)
 	}
 
 	r.ID, err = zdb.InsertID[RefID](ctx, "ref_id",
 		`insert into refs (ref, ref_scheme) values (?, ?)`,
 		r.Ref, r.RefScheme)
 	if err != nil {
-		return errors.Wrapf(err, "Ref.GetOrInsert %q %q: %w",
-			ztype.Deref(r.RefScheme, "<nil>"), r.Ref, err)
+		return errors.Wrapf(err, "Ref.GetOrInsert(%q, %q): %w", r.Ref, r.RefScheme, err)
 	}
 
 	cacheRefs(ctx).Set(k, *r)
@@ -170,6 +164,11 @@ func cleanRefURL(ref string, refURL *url.URL) (string, bool) {
 	if strings.HasPrefix(refURL.Host, "www.google.") || strings.HasPrefix(refURL.Host, "google.") {
 		// Group all "google.co.nz", "google.nl", etc. as "Google".
 		return "Google", true
+	}
+
+	if strings.Contains(refURL.Host, "yandex.") {
+		// yandex.ru, yandex.az, yandex.com, tel.yandex.com, many more
+		return "Yandex", true
 	}
 
 	if strings.Contains(refURL.Host, "search.yahoo.com") {

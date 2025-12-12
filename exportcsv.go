@@ -358,9 +358,9 @@ func (row ExportCSVRow) Hit(ctx context.Context, siteID SiteID) (Hit, error) {
 
 	if row.RefScheme != "" {
 		v.Include("refScheme", row.RefScheme,
-			[]string{*RefSchemeHTTP, *RefSchemeOther, *RefSchemeGenerated, *RefSchemeCampaign})
+			[]string{RefSchemeHTTP, RefSchemeOther, RefSchemeGenerated, RefSchemeCampaign})
 		if row.RefScheme != "" {
-			hit.RefScheme = &row.RefScheme
+			hit.RefScheme = row.RefScheme
 		}
 	}
 

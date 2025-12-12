@@ -135,9 +135,9 @@ create unique index "systems#name#version"  on systems(name, version);
 create table refs (
 	ref_id         {{auto_increment}},
 	ref            varchar        not null,
-	ref_scheme     varchar        null
+	ref_scheme     varchar        not null
 );
-insert into refs (ref, ref_scheme) values ('', null);
+insert into refs (ref, ref_scheme) values ('', 'o');
 create unique index "refs#ref#ref_scheme" on refs(lower(ref), ref_scheme);
 {{psql `alter table refs cluster on "refs#ref#ref_scheme";`}}
 
@@ -360,6 +360,7 @@ insert into version values
 	('2025-06-21-2-drop-sizes'),
 	('2025-07-01-1-share-api-tokens'),
 	('2025-12-03-1-unique-browsers'),
-	('2025-12-10-1-datepicker');
+	('2025-12-10-1-datepicker'),
+	('2025-12-12-1-ref-scheme');
 
 -- vim:ft=sql:tw=0

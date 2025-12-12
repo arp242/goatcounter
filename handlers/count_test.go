@@ -53,38 +53,38 @@ func TestBackendCount(t *testing.T) {
 		{"ref", url.Values{"p": {"/foo.html"}, "r": {"https://example.com"}}, nil, 200, goatcounter.Hit{
 			Path:      "/foo.html",
 			Ref:       "example.com",
-			RefScheme: ztype.Ptr("h"),
+			RefScheme: "h",
 		}},
 
 		{"str ref", url.Values{"p": {"/foo.html"}, "r": {"example"}}, nil, 200, goatcounter.Hit{
 			Path:      "/foo.html",
 			Ref:       "example",
-			RefScheme: ztype.Ptr("o"),
+			RefScheme: "o",
 		}},
 
 		{"ref params", url.Values{"p": {"/foo.html"}, "r": {"https://example.com?p=x"}}, nil, 200, goatcounter.Hit{
 			Path:      "/foo.html",
 			Ref:       "example.com",
-			RefScheme: ztype.Ptr("h"),
+			RefScheme: "h",
 		}},
 
 		{"full", url.Values{"p": {"/foo.html"}, "t": {"XX"}, "r": {"https://example.com?p=x"}, "s": {"40,50,1"}}, nil, 200, goatcounter.Hit{
 			Path:      "/foo.html",
 			Title:     "XX",
 			Ref:       "example.com",
-			RefScheme: ztype.Ptr("h"),
+			RefScheme: "h",
 			Width:     ztype.Ptr(int16(40)),
 		}},
 
 		{"campaign", url.Values{"p": {"/foo.html"}, "q": {"ref=AAA"}}, nil, 200, goatcounter.Hit{
 			Path:      "/foo.html",
 			Ref:       "AAA",
-			RefScheme: ztype.Ptr("c"),
+			RefScheme: "c",
 		}},
 		{"campaign_override", url.Values{"p": {"/foo.html?ref=AAA"}, "q": {"ref=AAA"}}, nil, 200, goatcounter.Hit{
 			Path:      "/foo.html",
 			Ref:       "AAA",
-			RefScheme: ztype.Ptr("c"),
+			RefScheme: "c",
 		}},
 
 		{"width,height,dpr", url.Values{"p": {"/a"}, "s": {"1920,1080,2"}}, nil, 200, goatcounter.Hit{

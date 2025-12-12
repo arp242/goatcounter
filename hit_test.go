@@ -28,7 +28,7 @@ func TestHitDefaultsRef(t *testing.T) {
 		wantOriginal *string
 		wantScheme   string
 	}{
-		{"", "", nil, nil, ""},
+		{"", "", nil, nil, "o"},
 
 		{"xx:", "", nil, nil, "o"}, // Empty as "xx:" is parsed as the scheme.
 
@@ -76,9 +76,8 @@ func TestHitDefaultsRef(t *testing.T) {
 				t.Fatalf("wrong Ref\nout:  %#v\nwant: %#v\n",
 					h.Ref, tt.wantRef)
 			}
-			if ztype.Deref(h.RefScheme, "") != tt.wantScheme {
-				t.Fatalf("wrong RefScheme\nout:  %#v\nwant: %#v\n",
-					ztype.Deref(h.RefScheme, ""), tt.wantScheme)
+			if h.RefScheme != tt.wantScheme {
+				t.Fatalf("wrong RefScheme\nout:  %#v\nwant: %#v\n", h.RefScheme, tt.wantScheme)
 			}
 		})
 	}

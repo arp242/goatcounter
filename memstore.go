@@ -270,7 +270,7 @@ func (m *ms) processHit(ctx context.Context, h *Hit) bool {
 	}
 
 	if !site.Settings.Collect.Has(CollectReferrer) {
-		h.Query, h.Ref, h.RefScheme, h.RefURL = "", "", nil, nil
+		h.Query, h.Ref, h.RefScheme, h.RefURL = "", "", "", nil
 	}
 
 	err = h.Defaults(ctx, false)

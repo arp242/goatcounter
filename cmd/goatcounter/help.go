@@ -238,6 +238,7 @@ commas.
     import         Imports
     import-api     Imports from the API
     memstore       Storing of pageviews in the database
+    migrate        Database migrations
     monitor        Additional logs in "goatcounter monitor"
     session        Internal "session" generation to track visitors
     sql-query      Log all SQL queries
