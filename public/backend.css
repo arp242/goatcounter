@@ -266,6 +266,7 @@ tr.target .chart-left { display: block; }
 #filter-help ul            { margin:0; padding-inline-start:20px; }
 #filter-help p             { margin:0; }
 #filter-help div           { margin-top:.75em; display:none; }
+#filter-paths +.loading    { position:absolute; right:5px; line-height:1.6em; }
 
 /* Text is all off on iOS if we don't do this. This is the styling Safari
  * applies to <input> and <textarea> */
