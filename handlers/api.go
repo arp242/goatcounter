@@ -921,10 +921,10 @@ func (h api) hits(w http.ResponseWriter, r *http.Request) error {
 		args.Limit = 1
 	}
 	if args.Start.IsZero() {
-		args.Start = ztime.AddPeriod(ztime.Now(r.Context()), -7, ztime.Day)
+		args.Start = ztime.StartOf(ztime.AddPeriod(ztime.Now(r.Context()), -7, ztime.Day), ztime.Day)
 	}
 	if args.End.IsZero() {
-		args.End = ztime.Now(r.Context())
+		args.End = ztime.EndOf(ztime.Now(r.Context()), ztime.Day)
 	}
 
 	includeIDs, excludeIDs, err := findPaths(r.Context(), args.PathByName, args.IncludePaths, args.ExcludePaths)
@@ -1004,10 +1004,10 @@ func (h api) refs(w http.ResponseWriter, r *http.Request) error {
 		args.Limit = 1
 	}
 	if args.Start.IsZero() {
-		args.Start = ztime.AddPeriod(ztime.Now(r.Context()), -7, ztime.Day)
+		args.Start = ztime.StartOf(ztime.AddPeriod(ztime.Now(r.Context()), -7, ztime.Day), ztime.Day)
 	}
 	if args.End.IsZero() {
-		args.End = ztime.Now(r.Context())
+		args.End = ztime.EndOf(ztime.Now(r.Context()), ztime.Day)
 	}
 
 	var refs goatcounter.HitStats
@@ -1078,10 +1078,10 @@ func (h api) countTotal(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 	if args.Start.IsZero() {
-		args.Start = ztime.AddPeriod(ztime.Now(r.Context()), -7, ztime.Day)
+		args.Start = ztime.StartOf(ztime.AddPeriod(ztime.Now(r.Context()), -7, ztime.Day), ztime.Day)
 	}
 	if args.End.IsZero() {
-		args.End = ztime.Now(r.Context())
+		args.End = ztime.EndOf(ztime.Now(r.Context()), ztime.Day)
 	}
 
 	includeIDs, _, err := findPaths(r.Context(), args.PathByName, args.IncludePaths, nil)
@@ -1178,10 +1178,10 @@ func (h api) stats(w http.ResponseWriter, r *http.Request) error {
 		args.Limit = 1
 	}
 	if args.Start.IsZero() {
-		args.Start = ztime.AddPeriod(ztime.Now(r.Context()), -7, ztime.Day)
+		args.Start = ztime.StartOf(ztime.AddPeriod(ztime.Now(r.Context()), -7, ztime.Day), ztime.Day)
 	}
 	if args.End.IsZero() {
-		args.End = ztime.Now(r.Context())
+		args.End = ztime.EndOf(ztime.Now(r.Context()), ztime.Day)
 	}
 
 	var (
@@ -1260,10 +1260,10 @@ func (h api) statsDetail(w http.ResponseWriter, r *http.Request) error {
 		args.Limit = 1
 	}
 	if args.Start.IsZero() {
-		args.Start = ztime.AddPeriod(ztime.Now(r.Context()), -7, ztime.Day)
+		args.Start = ztime.StartOf(ztime.AddPeriod(ztime.Now(r.Context()), -7, ztime.Day), ztime.Day)
 	}
 	if args.End.IsZero() {
-		args.End = ztime.Now(r.Context())
+		args.End = ztime.EndOf(ztime.Now(r.Context()), ztime.Day)
 	}
 
 	var (
