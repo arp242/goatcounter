@@ -2,6 +2,8 @@ module zgo.at/goatcounter/v2
 
 go 1.25.5
 
+replace zgo.at/zdb => /home/martin/code/Golib/zdb
+
 require (
 	github.com/bmatcuk/doublestar/v4 v4.9.1
 	github.com/go-chi/chi/v5 v5.2.3

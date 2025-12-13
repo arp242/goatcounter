@@ -4,8 +4,8 @@ with x as (
 		sum(count) as count
 	from language_stats
 	where
-		site_id = :site and day >= :start and day <= :end
-		{{:filter and path_id :in (:filter)}}
+		site_id = :site and day >= :start and day <= :end and
+		:filter
 	group by language
 	order by count desc, language
 	limit :limit offset :offset

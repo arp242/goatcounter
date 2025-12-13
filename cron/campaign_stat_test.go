@@ -25,7 +25,7 @@ func TestCampaignStats(t *testing.T) {
 	}...)
 
 	var have goatcounter.HitStats
-	err := have.ListCampaigns(ctx, ztime.NewRange(now).To(now), nil, 10, 0)
+	err := have.ListCampaigns(ctx, ztime.NewRange(now).To(now), goatcounter.PathFilter{}, 10, 0)
 	if err != nil {
 		t.Fatal(err)
 	}

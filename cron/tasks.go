@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log/slog"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -245,6 +246,49 @@ func vacuumRefs(ctx context.Context) error {
 			select ref_id from hits group by ref_id
 		)
 	`)
+}
+
+func oldFilters(ctx context.Context) error {
+	ival := goatcounter.Interval(ctx, 1)
+	var ids []goatcounter.FilterID
+	err := zdb.Select(ctx, &ids, `delete from filters where last_used_at < `+ival+` returning filter_id`)
+	if err != nil {
+		return err
+	}
+
+	return zdb.Exec(ctx, `delete from filter_paths where filter_id :in (:ids)`, map[string]any{
+		"in":  pgIn(ctx),
+		"ids": pgArray(ctx, ids),
+	})
+}
+
+func pgIn(ctx context.Context) zdb.SQL {
+	if zdb.SQLDialect(ctx) == zdb.DialectPostgreSQL {
+		return "= any"
+	}
+	return "in"
+}
+func pgArray[T ~int8 | ~int16 | ~int32 | ~int64](ctx context.Context, p []T) any {
+	if zdb.SQLDialect(ctx) == zdb.DialectSQLite {
+		return p
+	}
+
+	if len(p) == 0 {
+		var zero T
+		return zero
+	}
+
+	var b strings.Builder
+	b.Grow(len(p) * 3)
+	b.WriteByte('{')
+	for i, pp := range p {
+		if i > 0 {
+			b.WriteByte(',')
+		}
+		b.WriteString(strconv.FormatInt(int64(pp), 10))
+	}
+	b.WriteByte('}')
+	return b.String()
 }
 
 func sessions(ctx context.Context) error {
