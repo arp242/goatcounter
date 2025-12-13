@@ -76,14 +76,14 @@ const (
 	// 127.0.0.1    user -  [10/Oct/2000:13:55:36 -0700] "GET     /path HTTP/1.1" 200     2326  "https://ref" "Mozilla/5.0"
 	// $remote_addr $ignore [$datetime]                  "$method $path $http"    $status $size "$referrer"   "$user_agent"
 	Combined      = `$remote_addr $ignore [$datetime] "$method $path $http" $status $size "$referrer" "$user_agent"`
-	CombinedVhost = `$host:` + Combined
+	CombinedVhost = `$host ` + Combined
 
 	// Common log format.
 	//
 	// 127.0.0.1    user -  [10/Oct/2000:13:55:36 -0700] "GET     /path HTTP/1.1" 200     2326
 	// $remote_addr $ignore [$datetime]                  "$method $path $http"    $status $size`
 	Common      = `$remote_addr $ignore [$datetime] "$method $path $http" $status $size`
-	CommonVhost = `$host:` + Common
+	CommonVhost = `$host ` + Common
 
 	// Bunny; works for both the regular and "extended" format.
 	// https://docs.bunny.net/docs/cdn-log-format

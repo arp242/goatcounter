@@ -67,6 +67,9 @@ unreleased
 
 - API Tokens will now work for all sites the user has access to.
 
+- Fix default `combined-vhost` and `common-vhost` log formats from `$host:[..]`
+  to `$host [..]`.
+
 - Include all sites in email reports, instead of just the first site that was
   created.
 
