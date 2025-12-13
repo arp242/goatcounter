@@ -113,7 +113,7 @@ PATH:
 		case string:
 			// We are expecting a map
 			if typeNum != _Map {
-				// XXX - use type names in errors.
+				// TODO: use type names in errors.
 				return fmt.Errorf("expected a map for %s but found %d", v, typeNum)
 			}
 			for range size {
@@ -135,7 +135,7 @@ PATH:
 		case int:
 			// We are expecting an array
 			if typeNum != _Slice {
-				// XXX - use type names in errors.
+				// TODO: use type names in errors.
 				return fmt.Errorf("expected a slice for %d but found %d", v, typeNum)
 			}
 			var i uint
