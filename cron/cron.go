@@ -25,6 +25,7 @@ func (t Task) ID() string {
 
 var Tasks = []Task{
 	{"vacuum pageviews (data retention)", dataRetention, 24 * time.Hour},
+	{"vacuum refs", vacuumRefs, 24 * time.Hour},
 	{"vacuum pageviews (old bot)", oldBot, 24 * time.Hour},
 	{"renew ACME certs", renewACME, 2 * time.Hour},
 	{"vacuum soft-deleted sites", vacuumDeleted, 12 * time.Hour},

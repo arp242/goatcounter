@@ -232,6 +232,21 @@ func vacuumDeleted(ctx context.Context) error {
 	return nil
 }
 
+// Refs are not scoped to a site and after deleting pageviews (manually or
+// through data retention) can become unused.
+//
+// In ref_counts we only store visitors (first_hit=true), whereas hits stores
+// everything. We need to check both tables.
+func vacuumRefs(ctx context.Context) error {
+	return zdb.Exec(ctx, `
+		delete from refs where ref_id not in (
+			select ref_id from ref_counts group by ref_id
+			union
+			select ref_id from hits group by ref_id
+		)
+	`)
+}
+
 func sessions(ctx context.Context) error {
 	goatcounter.Memstore.EvictSessions(ctx)
 	return nil
