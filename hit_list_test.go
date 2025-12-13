@@ -212,7 +212,7 @@ func TestHitListsList(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		paths, err := PathFilterFromQuery(ctx, "x", true)
+		paths, err := PathFilterFromQuery(ctx, "x")
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -245,7 +245,7 @@ func TestGetTotalCount(t *testing.T) {
 		Hit{Path: "ev", FirstVisit: false, Event: true})
 
 	{
-		have, err := GetTotalCount(ctx, rng, nil)
+		have, err := GetTotalCount(ctx, rng, PathFilter{})
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -339,7 +339,7 @@ func TestHitListTotals(t *testing.T) {
 		for i, filter := range [][]PathID{nil, []PathID{1}, []PathID{2}, []PathID{1, 2}} {
 			t.Run("", func(t *testing.T) {
 				var hs HitList
-				count, err := hs.Totals(ctx, rng, filter, GroupHourly, false)
+				count, err := hs.Totals(ctx, rng, PathFilterFromIDs(filter), GroupHourly, false)
 				if err != nil {
 					t.Fatal(err)
 				}
@@ -414,7 +414,7 @@ func TestHitListTotals(t *testing.T) {
 		for i, filter := range [][]PathID{nil, []PathID{1}, []PathID{2}, []PathID{1, 2}} {
 			t.Run("", func(t *testing.T) {
 				var hs HitList
-				count, err := hs.Totals(ctx, rng, filter, GroupDaily, false)
+				count, err := hs.Totals(ctx, rng, PathFilterFromIDs(filter), GroupDaily, false)
 				if err != nil {
 					t.Fatal(err)
 				}
