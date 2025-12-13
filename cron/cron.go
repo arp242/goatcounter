@@ -3,6 +3,7 @@ package cron
 
 import (
 	"context"
+	"math/rand/v2"
 	"strings"
 	"sync/atomic"
 	"time"
@@ -27,11 +28,11 @@ var Tasks = []Task{
 	{"vacuum pageviews (data retention)", dataRetention, 24 * time.Hour},
 	{"vacuum refs", vacuumRefs, 24 * time.Hour},
 	{"vacuum pageviews (old bot)", oldBot, 24 * time.Hour},
-	{"renew ACME certs", renewACME, 2 * time.Hour},
 	{"vacuum soft-deleted sites", vacuumDeleted, 12 * time.Hour},
+	{"renew ACME certs", renewACME, 2 * time.Hour},
 	{"rm old exports", oldExports, 1 * time.Hour},
-	{"cycle sessions", sessions, 1 * time.Minute},
 	{"send email reports", EmailReports, 1 * time.Hour},
+	{"cycle sessions", sessions, 1 * time.Minute},
 	{"persist hits", persistAndStat, time.Duration(persistInterval.Load())},
 }
 
@@ -73,13 +74,27 @@ func Start(ctx context.Context) {
 	for _, t := range Tasks {
 		go func(t Task) {
 			defer log.Recover(ctx)
-			id := t.ID()
 
+			id := t.ID()
 			for {
 				if id == "persistAndStat" {
 					time.Sleep(time.Duration(persistInterval.Load()))
 				} else {
-					time.Sleep(t.Period)
+					p := t.Period
+					// Add some random jitter to prevent jobs from running at
+					// the same time.
+					if t.Period > time.Minute {
+						m := t.Period / 50
+						if t.Period >= time.Hour*12 {
+							m = t.Period / 100
+						}
+						rnd := time.Duration(rand.Int64N(int64(m))).Round(time.Second)
+						if rand.IntN(2) == 1 {
+							rnd = -rnd
+						}
+						p += rnd
+					}
+					time.Sleep(p)
 				}
 				if stopped.Value() == 1 {
 					return
