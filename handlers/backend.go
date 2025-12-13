@@ -116,7 +116,7 @@ func (h backend) Mount(r chi.Router, db zdb.DB, dev bool, domainStatic string, d
 		}
 
 		a := r.With(mware.Headers(http.Header{
-			"Strict-Transport-Security": []string{"max-age=7776000"},
+			"Strict-Transport-Security": []string{"max-age=63072000"}, // 2 years
 			"X-Content-Type-Options":    []string{"nosniff"},
 			"X-Frame-Options":           []string{}, // Clear default from zhttp
 		}), keyAuth, addz18n())
