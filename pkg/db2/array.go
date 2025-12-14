@@ -1,4 +1,4 @@
-package goatcounter
+package db2
 
 import (
 	"context"
@@ -8,14 +8,14 @@ import (
 	"zgo.at/zdb"
 )
 
-func pgIn(ctx context.Context) zdb.SQL {
+func In(ctx context.Context) zdb.SQL {
 	if zdb.SQLDialect(ctx) == zdb.DialectPostgreSQL {
 		return "= any"
 	}
 	return "in"
 }
 
-func pgArray[T ~int8 | ~int16 | ~int32 | ~int64](ctx context.Context, p []T) any {
+func Array[T ~int8 | ~int16 | ~int32 | ~int64](ctx context.Context, p []T) any {
 	if zdb.SQLDialect(ctx) == zdb.DialectSQLite {
 		return p
 	}
@@ -40,7 +40,7 @@ func pgArray[T ~int8 | ~int16 | ~int32 | ~int64](ctx context.Context, p []T) any
 
 var sqlArrayEscaper = strings.NewReplacer(`'`, `''`, `"`, `\"`)
 
-func pgArrayString(ctx context.Context, p []string) any {
+func ArrayString(ctx context.Context, p []string) any {
 	if zdb.SQLDialect(ctx) == zdb.DialectSQLite {
 		return p
 	}

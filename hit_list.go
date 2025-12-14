@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"zgo.at/errors"
+	"zgo.at/goatcounter/v2/pkg/db2"
 	"zgo.at/tz"
 	"zgo.at/zdb"
 	"zgo.at/zstd/zbool"
@@ -147,9 +148,9 @@ func (h *HitLists) List(
 			"site":    site.ID,
 			"start":   rng.Start,
 			"end":     rng.End,
-			"filter":  pgArray(ctx, pathFilter),
-			"in":      pgIn(ctx),
-			"exclude": pgArray(ctx, exclude),
+			"filter":  db2.Array(ctx, pathFilter),
+			"in":      db2.In(ctx),
+			"exclude": db2.Array(ctx, exclude),
 			"limit":   limit + 1,
 		})
 		if err != nil {
@@ -186,8 +187,8 @@ func (h *HitLists) List(
 			"site":  site.ID,
 			"start": rng.Start.Format("2006-01-02"),
 			"end":   rng.End.Format("2006-01-02"),
-			"paths": pgArray(ctx, paths),
-			"in":    pgIn(ctx),
+			"paths": db2.Array(ctx, paths),
+			"in":    db2.In(ctx),
 		})
 		if err != nil {
 			return 0, false, errors.Wrap(err, "HitLists.List hit_stats")
@@ -238,8 +239,8 @@ func (h *HitList) Totals(ctx context.Context, rng ztime.Range, pathFilter []Path
 		"site":      site.ID,
 		"start":     rng.Start,
 		"end":       rng.End,
-		"filter":    pgArray(ctx, pathFilter),
-		"in":        pgIn(ctx),
+		"filter":    db2.Array(ctx, pathFilter),
+		"in":        db2.In(ctx),
 		"no_events": noEvents,
 	})
 	if err != nil {
@@ -474,8 +475,8 @@ func GetTotalCount(ctx context.Context, rng ztime.Range, pathFilter []PathID, no
 		"end":       rng.End,
 		"start_utc": rng.Start.In(user.Settings.Timezone.Location),
 		"end_utc":   rng.End.In(user.Settings.Timezone.Location),
-		"filter":    pgArray(ctx, pathFilter),
-		"in":        pgIn(ctx),
+		"filter":    db2.Array(ctx, pathFilter),
+		"in":        db2.In(ctx),
 		"no_events": noEvents,
 		"tz":        user.Settings.Timezone.Offset(),
 	})
@@ -508,8 +509,8 @@ func (h HitLists) Diff(ctx context.Context, rng, prev ztime.Range) ([]float64, e
 		"end":       rng.End,
 		"prevstart": prev.Start,
 		"prevend":   prev.End,
-		"paths":     pgArray(ctx, paths),
-		"in":        pgIn(ctx),
+		"paths":     db2.Array(ctx, paths),
+		"in":        db2.In(ctx),
 	})
 	return diffs, errors.Wrap(err, "HitList.DiffTotal")
 }

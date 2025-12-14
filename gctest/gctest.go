@@ -17,7 +17,7 @@ import (
 	"zgo.at/goatcounter/v2/pkg/geo"
 	"zgo.at/z18n"
 	"zgo.at/zdb"
-	"zgo.at/zdb/drivers/go-sqlite3"
+	"zgo.at/zdb-drivers/go-sqlite3"
 	"zgo.at/zstd/zcrypto"
 	"zgo.at/zstd/zgo"
 	"zgo.at/zstd/ztype"

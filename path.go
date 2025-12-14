@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"zgo.at/errors"
+	"zgo.at/goatcounter/v2/pkg/db2"
 	"zgo.at/goatcounter/v2/pkg/log"
 	"zgo.at/zdb"
 	"zgo.at/zstd/zbool"
@@ -180,8 +181,8 @@ func (p Path) Merge(ctx context.Context, paths Paths) error {
 				"Group":      strings.Join(group, ", "),
 				"path_id":    p.ID,
 				"site_id":    siteID,
-				"paths":      pgArray(ctx, pathIDs),
-				"in":         pgIn(ctx),
+				"paths":      db2.Array(ctx, pathIDs),
+				"in":         db2.In(ctx),
 			})
 			if err != nil {
 				return err
@@ -191,8 +192,8 @@ func (p Path) Merge(ctx context.Context, paths Paths) error {
 				map[string]any{
 					"tbl":     zdb.SQL(t.Table),
 					"site_id": siteID,
-					"paths":   pgArray(ctx, pathIDs),
-					"in":      pgIn(ctx),
+					"paths":   db2.Array(ctx, pathIDs),
+					"in":      db2.In(ctx),
 				})
 			if err != nil {
 				return err
@@ -211,8 +212,8 @@ func (p Path) Merge(ctx context.Context, paths Paths) error {
 		}
 		err := zdb.Select(ctx, &hitStats, `load:paths.Merge-hit_stats`, map[string]any{
 			"site_id": siteID,
-			"paths":   pgArray(ctx, loadPathIDs),
-			"in":      pgIn(ctx),
+			"paths":   db2.Array(ctx, loadPathIDs),
+			"in":      db2.In(ctx),
 		})
 		if err != nil {
 			return err
@@ -221,8 +222,8 @@ func (p Path) Merge(ctx context.Context, paths Paths) error {
 			delete from hit_stats where site_id=:site_id and path_id :in (:paths)`,
 			map[string]any{
 				"site_id": siteID,
-				"paths":   pgArray(ctx, pathIDs),
-				"in":      pgIn(ctx),
+				"paths":   db2.Array(ctx, pathIDs),
+				"in":      db2.In(ctx),
 			})
 		if err != nil {
 			return err
@@ -255,8 +256,8 @@ func (p Path) Merge(ctx context.Context, paths Paths) error {
 			map[string]any{
 				"site_id": siteID,
 				"path_id": p.ID,
-				"paths":   pgArray(ctx, pathIDs),
-				"in":      pgIn(ctx),
+				"paths":   db2.Array(ctx, pathIDs),
+				"in":      db2.In(ctx),
 			})
 		if err != nil {
 			return err
@@ -265,8 +266,8 @@ func (p Path) Merge(ctx context.Context, paths Paths) error {
 			delete from paths where site_id=:site_id and path_id :in (:paths)`,
 			map[string]any{
 				"site_id": siteID,
-				"paths":   pgArray(ctx, pathIDs),
-				"in":      pgIn(ctx),
+				"paths":   db2.Array(ctx, pathIDs),
+				"in":      db2.In(ctx),
 			})
 	})
 	return errors.Wrapf(err, "Path.Merge(%d, %v)", p.ID, pathIDs)
@@ -376,8 +377,8 @@ func FindPathIDs(ctx context.Context, list []string) ([]PathID, error) {
 		select path_id from paths where site_id=:site_id and lower(path) :in (:paths)`,
 		map[string]any{
 			"site_id": MustGetSite(ctx).ID,
-			"paths":   pgArrayString(ctx, list),
-			"in":      pgIn(ctx),
+			"paths":   db2.ArrayString(ctx, list),
+			"in":      db2.In(ctx),
 		})
 	return paths, errors.Wrap(err, "FindPathIDs")
 }

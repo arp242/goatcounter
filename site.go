@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"zgo.at/errors"
+	"zgo.at/goatcounter/v2/pkg/db2"
 	"zgo.at/guru"
 	"zgo.at/json"
 	"zgo.at/zdb"
@@ -688,8 +689,8 @@ func (s Site) DeleteOlderThan(ctx context.Context, days int) error {
 				select path_id from hit_counts where site_id=:site_id and path_id :in (:paths)`,
 				map[string]any{
 					"site_id": s.ID,
-					"paths":   pgArray(ctx, pathIDs),
-					"in":      pgIn(ctx),
+					"paths":   db2.Array(ctx, pathIDs),
+					"in":      db2.In(ctx),
 				})
 			if err != nil {
 				return errors.Wrap(err, "Site.DeleteOlderThan")
@@ -701,8 +702,8 @@ func (s Site) DeleteOlderThan(ctx context.Context, days int) error {
 					delete from paths where site_id=:site_id and path_id :in (:paths)`,
 					map[string]any{
 						"site_id": s.ID,
-						"paths":   pgArray(ctx, diff),
-						"in":      pgIn(ctx),
+						"paths":   db2.Array(ctx, diff),
+						"in":      db2.In(ctx),
 					})
 				if err != nil {
 					return errors.Wrap(err, "Site.DeleteOlderThan")

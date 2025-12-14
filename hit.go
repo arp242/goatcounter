@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"zgo.at/errors"
+	"zgo.at/goatcounter/v2/pkg/db2"
 	"zgo.at/zdb"
 	"zgo.at/zstd/zbool"
 	"zgo.at/zstd/zint"
@@ -387,8 +388,8 @@ func (h *Hits) Purge(ctx context.Context, pathIDs []PathID) error {
 				map[string]any{
 					"tbl":     zdb.SQL(t),
 					"site_id": siteID,
-					"paths":   pgArray(ctx, pathIDs),
-					"in":      pgIn(ctx),
+					"paths":   db2.Array(ctx, pathIDs),
+					"in":      db2.In(ctx),
 				})
 			if err != nil {
 				return errors.Wrapf(err, "Hits.Purge %s", t)
