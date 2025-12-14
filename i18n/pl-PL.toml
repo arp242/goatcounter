@@ -126,12 +126,6 @@
 ["dashboard/pages/path"]
   default = "Ścieżka"
 
-["dashboard/pages/stats"]
-  default = "Statystyki"
-
-["dashboard/pages/stats-tooltip"]
-  default = "Każdy słupek reprezentuje 1/12 wybranego zakresu czasu"
-
 ["dashboard/pages/title"]
   default = "Tytuł"
 

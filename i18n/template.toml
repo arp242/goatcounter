@@ -207,14 +207,6 @@
   loc     = ["tpl/_dashboard_pages_text.gohtml:22"]
   default = "Path"
 
-["dashboard/pages/stats"]
-  loc     = ["tpl/_dashboard_pages_text.gohtml:24"]
-  default = "Stats"
-
-["dashboard/pages/stats-tooltip"]
-  loc     = ["tpl/_dashboard_pages_text.gohtml:24"]
-  default = "Every bar represents 1/12th of the selected time range"
-
 ["dashboard/pages/title"]
   loc     = ["tpl/_dashboard_pages_text.gohtml:23"]
   default = "Title"

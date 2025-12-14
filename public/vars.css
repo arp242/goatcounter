@@ -69,8 +69,6 @@
     --text-table-even-bg:      #fafafa;                    /* Styles for pages overview with the chart style set to "text" */
     --text-table-border:       #eaeaea;
     --text-table-rank-text:    #555;
-    --text-table-chart-bg:     #f9f9f9;
-    --text-table-chart-border: #c9c9c9;
 
     --widget-border:           #e6e6e6;                    /* "Widget settings" page */
     --widget-dragging-border:  yellow;

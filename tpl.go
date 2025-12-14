@@ -128,7 +128,6 @@ func init() {
 	})
 
 	// Implemented as function for performance.
-	tplfunc.Add("text_chart", textChart)
 	tplfunc.Add("horizontal_chart", HorizontalChart)
 
 	tplfunc.Add("markdown", func(file string, scope any) template.HTML {
@@ -363,28 +362,6 @@ func renderMarkdown(in []byte) []byte {
 	md = reTemplate.ReplaceAll(md, []byte(`{{$1 "$2"$3}}`))
 	md = reHeaderLinks.ReplaceAll(md, []byte(`<h$1 id="$2">$3 <a href="#$2"></a></h$1>`))
 	return md
-}
-
-var textSymbols = []rune{
-	'\u2007', // FIGURE SPACE; this one has the closest width to the blocks.
-	'▁',      // U+2581 LOWER ONE EIGHTH BLOCK
-	'▂',      // U+2582 LOWER ONE QUARTER BLOCK
-	'▃',      // U+2583 LOWER THREE EIGHTHS BLOCK
-	'▄',      // U+2584 LOWER HALF BLOCK
-	'▅',      // U+2585 LOWER FIVE EIGHTHS BLOCK
-	'▆',      // U+2586 LOWER THREE QUARTERS BLOCK
-	'▇',      // U+2587 LOWER SEVEN EIGHTHS BLOCK
-	'█',      // U+2588 FULL BLOCK
-}
-
-func textChart(ctx context.Context, stats []HitListStat, max int) template.HTML {
-	_, chunked := ChunkStat(stats)
-	symb := make([]rune, 0, 12)
-	for _, chunk := range chunked {
-		perc := int(math.Floor(float64(chunk) / float64(max) * 100))
-		symb = append(symb, textSymbols[perc/12])
-	}
-	return template.HTML(symb)
 }
 
 func HorizontalChart(ctx context.Context, stats HitStats, total int, link, paginate bool) template.HTML {

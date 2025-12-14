@@ -125,12 +125,6 @@
 ["dashboard/pages/path"]
   default = "Pad"
 
-["dashboard/pages/stats"]
-  default = "Stats"
-
-["dashboard/pages/stats-tooltip"]
-  default = "Elke staaf is 1/12de van de geselecteerde tijdselectie"
-
 ["dashboard/pages/title"]
   default = "Titel"
 

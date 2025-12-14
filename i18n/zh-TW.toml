@@ -124,11 +124,6 @@
 ["dashboard/pages/path"]
   default = "路徑"
 
-["dashboard/pages/stats"]
-  default = "統計資訊"
-
-["dashboard/pages/stats-tooltip"]
-
 ["dashboard/pages/title"]
   default = "標題"
 

@@ -126,12 +126,6 @@
 ["dashboard/pages/path"]
   default = "路径"
 
-["dashboard/pages/stats"]
-  default = "统计"
-
-["dashboard/pages/stats-tooltip"]
-  default = "每一条代表所选时间范围的 1/12"
-
 ["dashboard/pages/title"]
   default = "标题"
 

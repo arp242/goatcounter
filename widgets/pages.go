@@ -122,14 +122,7 @@ func (w Pages) RenderHTML(ctx context.Context, shared SharedData) (string, any) 
 	t += ".gohtml"
 
 	// Correct max for chunked data in text view.
-	if w.Style == "text" {
-		for _, p := range w.Pages {
-			m, _ := goatcounter.ChunkStat(p.Stats)
-			if m > w.Max {
-				w.Max = m
-			}
-		}
-	} else if len(w.Pages) > 0 && len(w.Pages[0].Stats) > 0 {
+	if w.Style != "text" && len(w.Pages) > 0 && len(w.Pages[0].Stats) > 0 {
 		// Set days in the future to -1; we filter this in the JS when rendering
 		// the chart.
 		// It's easier to do this here because JavaScript Date() has piss-poor

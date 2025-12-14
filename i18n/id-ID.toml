@@ -126,12 +126,6 @@
 ["dashboard/pages/path"]
   default = "Jalur"
 
-["dashboard/pages/stats"]
-  default = "Statistik"
-
-["dashboard/pages/stats-tooltip"]
-  default = "Setiap bilah menunjukkan 1/12 dari rentang waktu yang dipilih"
-
 ["dashboard/pages/title"]
   default = "Judul"
 

@@ -118,12 +118,6 @@
 ["dashboard/pages/path"]
   default = "Yol"
 
-["dashboard/pages/stats"]
-  default = "İstatistikler"
-
-["dashboard/pages/stats-tooltip"]
-  default = "Her çubuk, seçilen zaman aralığının 1/12'sini temsil eder"
-
 ["dashboard/pages/title"]
   default = "Başlık"
 

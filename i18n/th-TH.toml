@@ -112,11 +112,6 @@
 
 ["dashboard/pages/path"]
 
-["dashboard/pages/stats"]
-  default = "สถิติ"
-
-["dashboard/pages/stats-tooltip"]
-
 ["dashboard/pages/title"]
 
 ["dashboard/pages/visits"]

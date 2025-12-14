@@ -127,12 +127,6 @@
 ["dashboard/pages/path"]
   default = "Percorso"
 
-["dashboard/pages/stats"]
-  default = "Statistiche"
-
-["dashboard/pages/stats-tooltip"]
-  default = "Ogni barra rappresenta 1/12 del range temporale selezionato"
-
 ["dashboard/pages/title"]
   default = "Titolo"
 

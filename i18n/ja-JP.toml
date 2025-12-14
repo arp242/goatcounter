@@ -116,12 +116,6 @@
 ["dashboard/pages/path"]
   default = "パス"
 
-["dashboard/pages/stats"]
-  default = "統計"
-
-["dashboard/pages/stats-tooltip"]
-  default = "各バーは選択された表示期間の 1/12 を表します"
-
 ["dashboard/pages/title"]
   default = "タイトル"
 

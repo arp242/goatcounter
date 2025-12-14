@@ -126,12 +126,6 @@
 ["dashboard/pages/path"]
   default = "Путь"
 
-["dashboard/pages/stats"]
-  default = "Статистика"
-
-["dashboard/pages/stats-tooltip"]
-  default = "Каждый столбец представляет 1/12 выбранного временного диапазона"
-
 ["dashboard/pages/title"]
   default = "Заголовок"
 

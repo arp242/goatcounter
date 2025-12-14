@@ -126,12 +126,6 @@
 ["dashboard/pages/path"]
   default = "Cesta"
 
-["dashboard/pages/stats"]
-  default = "Údaje"
-
-["dashboard/pages/stats-tooltip"]
-  default = "Každá čiarka reprezentuje dvanástinu zo zvoleného časového rozmedzia"
-
 ["dashboard/pages/title"]
   default = "Nadpis"
 

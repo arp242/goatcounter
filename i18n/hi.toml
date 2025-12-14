@@ -116,12 +116,6 @@
 ["dashboard/pages/path"]
   default = "पथ"
 
-["dashboard/pages/stats"]
-  default = "आँकड़े"
-
-["dashboard/pages/stats-tooltip"]
-  default = "हर बार चयनित समय सीमा के 1/12वें हिस्से को दर्शाता है"
-
 ["dashboard/pages/title"]
   default = "नाम"
 

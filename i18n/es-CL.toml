@@ -127,12 +127,6 @@
 ["dashboard/pages/path"]
   default = "Ruta"
 
-["dashboard/pages/stats"]
-  default = "Estadísticas"
-
-["dashboard/pages/stats-tooltip"]
-  default = "Cada barrita representa 1/12 del rango de tiempo seleccionado"
-
 ["dashboard/pages/title"]
   default = "Título"
 

@@ -180,11 +180,6 @@ tr.target .chart-left { display: block; }
 .count-list-text .col-idx    { width: 1em; color: var(--text-table-rank-text); }
 .count-list-text .col-n      { text-align: right; width: 1em; } /* Hint to make the column as small as possible */
 .count-list-text .col-diff   { text-align: right; width: 1em; } /* Hint to make the column as small as possible */
-.count-list-text .col-d      { width: 12em; font-size: 1.2em; padding: 0; text-align: center; }
-.count-list-text .col-d      { vertical-align: top; }
-.count-list-text .col-d span { display: inline-block; margin-top: .8em; padding-top: 2px; line-height: 1em;
-                               font-family: monospace; letter-spacing: 3px; padding-right: 3px;
-                               border: 1px solid var(--text-table-chart-border); border-radius: 2px; color: var(--chart-line); background-color: var(--text-table-chart-bg); }
 
 /*** Horizontal charts
  ********************/

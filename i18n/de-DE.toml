@@ -126,12 +126,6 @@
 ["dashboard/pages/path"]
   default = "Pfad"
 
-["dashboard/pages/stats"]
-  default = "Statistiken"
-
-["dashboard/pages/stats-tooltip"]
-  default = "Jeder Balken repräsentiert ein Zwölftel des gewählten Zeitraums"
-
 ["dashboard/pages/title"]
   default = "Titel"
 

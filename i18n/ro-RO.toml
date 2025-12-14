@@ -126,12 +126,6 @@
 ["dashboard/pages/path"]
   default = "Cale"
 
-["dashboard/pages/stats"]
-  default = "Statistici"
-
-["dashboard/pages/stats-tooltip"]
-  default = "Fiecare bara reprezinta 1/12 din intervalul selectat"
-
 ["dashboard/pages/title"]
   default = "Titlu"
 

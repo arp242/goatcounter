@@ -113,12 +113,6 @@
 ["dashboard/pages/path"]
   default = "Шлях"
 
-["dashboard/pages/stats"]
-  default = "Статистика"
-
-["dashboard/pages/stats-tooltip"]
-  default = "Кожна смужка відповідає 1/12 вибраного діапазону часу"
-
 ["dashboard/pages/title"]
   default = "Заголовок"
 

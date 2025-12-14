@@ -125,12 +125,6 @@
 ["dashboard/pages/path"]
   default = "Cesta"
 
-["dashboard/pages/stats"]
-  default = "Statistiky"
-
-["dashboard/pages/stats-tooltip"]
-  default = "Každý blok reprezentuje jednu 1/12 z vybraného časového rámce"
-
 ["dashboard/pages/title"]
   default = "Titulek"
 

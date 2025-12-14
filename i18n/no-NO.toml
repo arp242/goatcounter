@@ -119,12 +119,6 @@
 ["dashboard/pages/path"]
   default = "Bane"
 
-["dashboard/pages/stats"]
-  default = "Statistikk"
-
-["dashboard/pages/stats-tooltip"]
-  default = "Hver stolpe representerer 1/12 av det valgte tidsrommet"
-
 ["dashboard/pages/title"]
   default = "Tittel"
 

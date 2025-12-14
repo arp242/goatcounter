@@ -126,12 +126,6 @@
 ["dashboard/pages/path"]
   default = "Chemin"
 
-["dashboard/pages/stats"]
-  default = "Stats"
-
-["dashboard/pages/stats-tooltip"]
-  default = "Chaque barre représente 1/12ème de la plage de temps sélectionnée"
-
 ["dashboard/pages/title"]
   default = "Titre"
 
