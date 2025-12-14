@@ -146,8 +146,6 @@ tr.target small.go                { display: inline-block; }
 /* Border doesn't affect layout. */
 .count-list:not(.count-list-text) .load-refs { border-bottom: 4px solid transparent; margin-bottom: -4px; }
 
-.count-list-text .refs { margin-top: 1em; }
-
 .chart { position: relative; height: 50px; width: 100%; margin-bottom: 1em; }
 
 .chart-left {
@@ -171,15 +169,14 @@ tr.target .chart-left { display: block; }
 
 /*** Text pageviews
  ******************/
-.count-list-text .rlink { white-space: normal; overflow: inherit; }
-.count-list-text td     { padding: .5em; }
-
-.count-list-text tbody tr           { border-bottom: 1px solid var(--text-table-border); border-top: 1px solid var(--text-table-border); }
-.count-list-text tr:nth-child(even) { background-color: var(--text-table-even-bg); }
-
-.count-list-text .col-idx    { width: 1em; color: var(--text-table-rank-text); }
-.count-list-text .col-n      { text-align: right; width: 1em; } /* Hint to make the column as small as possible */
-.count-list-text .col-diff   { text-align: right; width: 1em; } /* Hint to make the column as small as possible */
+.count-list-text .rlink             { white-space:normal; overflow:inherit; }
+.count-list-text td                 { padding:.5em; }
+.count-list-text .refs .rows        { margin-top:1em; }
+.count-list-text tbody tr           { border-bottom:1px solid var(--text-table-border); border-top:1px solid var(--text-table-border); }
+.count-list-text tr:nth-child(even) { background-color:var(--text-table-even-bg); }
+.count-list-text .col-idx           { width:1em; color:var(--text-table-rank-text); }
+.count-list-text .col-n             { text-align:right; width:1em; } /* Make column as small as possible */
+.count-list-text .col-diff          { text-align:right; width:1em; }
 
 /*** Horizontal charts
  ********************/
