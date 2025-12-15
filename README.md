@@ -213,7 +213,7 @@ You need Go 1.21 or newer and a C compiler. If you compile it with
 
 You can build from source with:
 
-    % git clone --branch=release-2.6 https://github.com/arp242/goatcounter
+    % git clone --branch=release-2.7 https://github.com/arp242/goatcounter
     % cd goatcounter
     % go build ./cmd/goatcounter
 
