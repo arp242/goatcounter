@@ -1,9 +1,10 @@
-tmp=./goatcounter-data/dist
-
 matrix="
 linux amd64
 linux arm64 CC=aarch64-linux-musl-gcc
 "
+
+os=$(uname -s | tr '[[:upper:]]' '[[:lower:]]')
+[ $os != linux ] && matrix="$os $(uname -m)"
 
 build_flags="-trimpath -ldflags='-extldflags=-static -w -s -X zgo.at/goatcounter/v2.Version=$tag' -tags=osusergo,netgo,sqlite_omit_load_extension ./cmd/goatcounter"
 
