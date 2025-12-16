@@ -356,7 +356,7 @@ func TestSettingsMerge(t *testing.T) {
 			"paths":      "2",
 		})
 		check(ctx, t, `
-			path_id  site_id  path    title  event
+			path_id  site_id  path    title  event  host
 			1        1        /one           0
 			3        1        /three         0
 
@@ -391,7 +391,7 @@ func TestSettingsMerge(t *testing.T) {
 			"paths":      "2,3",
 		})
 		check(ctx, t, `
-			path_id  site_id  path  title  event
+			path_id  site_id  path  title  event  host
 			1        1        /one         0
 
 			site_id  path_id  hour                 total

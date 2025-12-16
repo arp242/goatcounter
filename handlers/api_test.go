@@ -659,7 +659,7 @@ func TestAPIPaths(t *testing.T) {
 			}, "", 200, `{
             "more": false,
             "paths": [
-                {"event": false, "id": 1, "path": "/a", "title": "Hello"}
+                {"event": false, "id": 1, "path": "/a", "host": "", "title": "Hello"}
             ]}`,
 		},
 
@@ -669,26 +669,26 @@ func TestAPIPaths(t *testing.T) {
 			}, "", 200, `{
 			"more": true,
 			"paths": [
-				{"event": false, "id": 1, "path": "/1", "title": "1 - 1"},
-				{"event": false, "id": 2, "path": "/2", "title": "2 - 2"},
-				{"event": false, "id": 3, "path": "/3", "title": "3 - 3"},
-				{"event": false, "id": 4, "path": "/4", "title": "4 - 4"},
-				{"event": false, "id": 5, "path": "/5", "title": "5 - 5"},
-				{"event": false, "id": 6, "path": "/6", "title": "6 - 6"},
-				{"event": false, "id": 7, "path": "/7", "title": "7 - 7"},
-				{"event": false, "id": 8, "path": "/8", "title": "8 - 8"},
-				{"event": false, "id": 9, "path": "/9", "title": "9 - 9"},
-				{"event": false, "id": 10, "path": "/10", "title": "10 - 10"},
-				{"event": false, "id": 11, "path": "/11", "title": "11 - 11"},
-				{"event": false, "id": 12, "path": "/12", "title": "12 - 12"},
-				{"event": false, "id": 13, "path": "/13", "title": "13 - 13"},
-				{"event": false, "id": 14, "path": "/14", "title": "14 - 14"},
-				{"event": false, "id": 15, "path": "/15", "title": "15 - 15"},
-				{"event": false, "id": 16, "path": "/16", "title": "16 - 16"},
-				{"event": false, "id": 17, "path": "/17", "title": "17 - 17"},
-				{"event": false, "id": 18, "path": "/18", "title": "18 - 18"},
-				{"event": false, "id": 19, "path": "/19", "title": "19 - 19"},
-				{"event": false, "id": 20, "path": "/20", "title": "20 - 20"}
+				{"event": false, "id": 1, "path": "/1", "host": "", "title": "1 - 1"},
+				{"event": false, "id": 2, "path": "/2", "host": "", "title": "2 - 2"},
+				{"event": false, "id": 3, "path": "/3", "host": "", "title": "3 - 3"},
+				{"event": false, "id": 4, "path": "/4", "host": "", "title": "4 - 4"},
+				{"event": false, "id": 5, "path": "/5", "host": "", "title": "5 - 5"},
+				{"event": false, "id": 6, "path": "/6", "host": "", "title": "6 - 6"},
+				{"event": false, "id": 7, "path": "/7", "host": "", "title": "7 - 7"},
+				{"event": false, "id": 8, "path": "/8", "host": "", "title": "8 - 8"},
+				{"event": false, "id": 9, "path": "/9", "host": "", "title": "9 - 9"},
+				{"event": false, "id": 10, "path": "/10", "host": "", "title": "10 - 10"},
+				{"event": false, "id": 11, "path": "/11", "host": "", "title": "11 - 11"},
+				{"event": false, "id": 12, "path": "/12", "host": "", "title": "12 - 12"},
+				{"event": false, "id": 13, "path": "/13", "host": "", "title": "13 - 13"},
+				{"event": false, "id": 14, "path": "/14", "host": "", "title": "14 - 14"},
+				{"event": false, "id": 15, "path": "/15", "host": "", "title": "15 - 15"},
+				{"event": false, "id": 16, "path": "/16", "host": "", "title": "16 - 16"},
+				{"event": false, "id": 17, "path": "/17", "host": "", "title": "17 - 17"},
+				{"event": false, "id": 18, "path": "/18", "host": "", "title": "18 - 18"},
+				{"event": false, "id": 19, "path": "/19", "host": "", "title": "19 - 19"},
+				{"event": false, "id": 20, "path": "/20", "host": "", "title": "20 - 20"}
 			]}`,
 		},
 
@@ -698,11 +698,11 @@ func TestAPIPaths(t *testing.T) {
 			}, "after=19&limit=5", 200, `{
 			"more": true,
 			"paths": [
-				{"event": false, "id": 20, "path": "/20", "title": "20 - 20"},
-				{"event": false, "id": 21, "path": "/21", "title": "21 - 21"},
-				{"event": false, "id": 22, "path": "/22", "title": "22 - 22"},
-				{"event": false, "id": 23, "path": "/23", "title": "23 - 23"},
-				{"event": false, "id": 24, "path": "/24", "title": "24 - 24"}
+				{"event": false, "id": 20, "path": "/20", "host": "", "title": "20 - 20"},
+				{"event": false, "id": 21, "path": "/21", "host": "", "title": "21 - 21"},
+				{"event": false, "id": 22, "path": "/22", "host": "", "title": "22 - 22"},
+				{"event": false, "id": 23, "path": "/23", "host": "", "title": "23 - 23"},
+				{"event": false, "id": 24, "path": "/24", "host": "", "title": "24 - 24"}
 			]}`,
 		},
 
@@ -712,11 +712,11 @@ func TestAPIPaths(t *testing.T) {
 			}, "after=45&limit=5", 200, `{
 			"more": false,
 			"paths": [
-				{"event": false, "id": 46, "path": "/46", "title": "46 - 46"},
-				{"event": false, "id": 47, "path": "/47", "title": "47 - 47"},
-				{"event": false, "id": 48, "path": "/48", "title": "48 - 48"},
-				{"event": false, "id": 49, "path": "/49", "title": "49 - 49"},
-				{"event": false, "id": 50, "path": "/50", "title": "50 - 50"}
+				{"event": false, "id": 46, "path": "/46", "host": "", "title": "46 - 46"},
+				{"event": false, "id": 47, "path": "/47", "host": "", "title": "47 - 47"},
+				{"event": false, "id": 48, "path": "/48", "host": "", "title": "48 - 48"},
+				{"event": false, "id": 49, "path": "/49", "host": "", "title": "49 - 49"},
+				{"event": false, "id": 50, "path": "/50", "host": "", "title": "50 - 50"}
 			]}`,
 		},
 
@@ -781,6 +781,7 @@ func TestAPIHits(t *testing.T) {
 				"event":         false,
 				"max":           1,
 				"path":          "/50",
+				"host": "",
 				"path_id":       50,
 				"title":         "title - 50",
 				"stats": [{
@@ -821,6 +822,7 @@ func TestAPIHits(t *testing.T) {
 				"event": false,
 				"max": 1,
 				"path": "/49",
+				"host": "",
 				"path_id": 49,
 				"title": "title - 49",
 				"stats": [{
@@ -861,6 +863,7 @@ func TestAPIHits(t *testing.T) {
 				"event": false,
 				"max": 1,
 				"path": "/48",
+				"host": "",
 				"path_id": 48,
 				"title": "title - 48",
 				"stats": [{
@@ -908,6 +911,7 @@ func TestAPIHits(t *testing.T) {
 				"event": false,
 				"max": 1,
 				"path": "/48",
+				"host": "",
 				"path_id": 48,
 				"title": "title - 48",
 				"stats": [{
@@ -935,6 +939,7 @@ func TestAPIHits(t *testing.T) {
 				"event": false,
 				"max": 1,
 				"path": "/10",
+				"host": "",
 				"path_id": 10,
 				"title": "title - 10",
 				"stats": [{
@@ -962,6 +967,7 @@ func TestAPIHits(t *testing.T) {
 				"event": false,
 				"max": 1,
 				"path": "/10",
+				"host": "",
 				"path_id": 10,
 				"title": "title - 10",
 				"stats": [{
