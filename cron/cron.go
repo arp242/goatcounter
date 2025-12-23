@@ -34,6 +34,7 @@ var Tasks = []Task{
 	{"send email reports", EmailReports, 1 * time.Hour},
 	{"cycle sessions", sessions, 1 * time.Minute},
 	{"persist hits", persistAndStat, time.Duration(persistInterval.Load())},
+	{"vacuum filters", oldFilters, 1 * time.Hour},
 }
 
 var (

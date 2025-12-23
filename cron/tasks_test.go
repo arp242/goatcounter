@@ -50,7 +50,7 @@ func TestDataRetention(t *testing.T) {
 	var stats goatcounter.HitLists
 	display, more, err := stats.List(ctx,
 		ztime.NewRange(past.Add(-1*24*time.Hour)).To(now),
-		nil, nil, 10, goatcounter.GroupHourly)
+		goatcounter.PathFilter{}, nil, 10, goatcounter.GroupHourly)
 	if err != nil {
 		t.Fatal(err)
 	}

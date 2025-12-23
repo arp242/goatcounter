@@ -1098,7 +1098,7 @@ func (h api) countTotal(w http.ResponseWriter, r *http.Request) error {
 	)
 	wg.Go(func() {
 		defer log.Recover(r.Context())
-		tc, tcErr = goatcounter.GetTotalCount(r.Context(), rng, includeIDs, false)
+		tc, tcErr = goatcounter.GetTotalCount(r.Context(), rng, includeIDs)
 	})
 	wg.Go(func() {
 		defer log.Recover(r.Context())
@@ -1186,7 +1186,7 @@ func (h api) stats(w http.ResponseWriter, r *http.Request) error {
 
 	var (
 		stats goatcounter.HitStats
-		f     func(ctx context.Context, rng ztime.Range, pathFilter []goatcounter.PathID, limit, offset int) error
+		f     func(ctx context.Context, rng ztime.Range, pathFilter goatcounter.PathFilter, limit, offset int) error
 	)
 	switch page {
 	case "browsers":
@@ -1198,7 +1198,7 @@ func (h api) stats(w http.ResponseWriter, r *http.Request) error {
 	case "languages":
 		f = stats.ListLanguages
 	case "sizes":
-		f = func(ctx context.Context, rng ztime.Range, pathFilter []goatcounter.PathID, _, _ int) error {
+		f = func(ctx context.Context, rng ztime.Range, pathFilter goatcounter.PathFilter, _, _ int) error {
 			return stats.ListSizes(ctx, rng, pathFilter)
 		}
 	case "campaigns":
@@ -1268,7 +1268,7 @@ func (h api) statsDetail(w http.ResponseWriter, r *http.Request) error {
 
 	var (
 		stats goatcounter.HitStats
-		f     func(ctx context.Context, id string, rng ztime.Range, pathFilter []goatcounter.PathID, limit, offset int) error
+		f     func(ctx context.Context, id string, rng ztime.Range, pathFilter goatcounter.PathFilter, limit, offset int) error
 	)
 	switch page {
 	case "browsers":
@@ -1282,7 +1282,7 @@ func (h api) statsDetail(w http.ResponseWriter, r *http.Request) error {
 	case "toprefs":
 		f = stats.ListTopRef
 	case "campaigns":
-		f = func(ctx context.Context, id string, rng ztime.Range, pathFilter []goatcounter.PathID, limit, offset int) error {
+		f = func(ctx context.Context, id string, rng ztime.Range, pathFilter goatcounter.PathFilter, limit, offset int) error {
 			n, err := zstrconv.ParseInt[goatcounter.CampaignID](id, 0)
 			if err != nil {
 				return err
@@ -1306,7 +1306,7 @@ func (h api) statsDetail(w http.ResponseWriter, r *http.Request) error {
 	})
 }
 
-func findPaths(ctx context.Context, byName bool, includePaths, excludePaths goatcounter.Strings) ([]goatcounter.PathID, []goatcounter.PathID, error) {
+func findPaths(ctx context.Context, byName bool, includePaths, excludePaths goatcounter.Strings) (goatcounter.PathFilter, []goatcounter.PathID, error) {
 	var (
 		includeIDs = make([]goatcounter.PathID, 0, len(includePaths))
 		excludeIDs = make([]goatcounter.PathID, 0, len(excludePaths))
@@ -1316,7 +1316,7 @@ func findPaths(ctx context.Context, byName bool, includePaths, excludePaths goat
 		if len(includePaths) > 0 {
 			includeIDs, err = goatcounter.FindPathIDs(ctx, includePaths)
 			if err != nil {
-				return nil, nil, err
+				return goatcounter.PathFilter{}, nil, err
 			}
 			if len(includeIDs) == 0 {
 				includeIDs = append(includeIDs, -1)
@@ -1325,28 +1325,28 @@ func findPaths(ctx context.Context, byName bool, includePaths, excludePaths goat
 		if len(excludePaths) > 0 {
 			excludeIDs, err = goatcounter.FindPathIDs(ctx, excludePaths)
 			if err != nil {
-				return nil, nil, err
+				return goatcounter.PathFilter{}, nil, err
 			}
 			if len(excludeIDs) == 0 {
 				excludeIDs = append(excludeIDs, -1)
 			}
 		}
-		return includeIDs, excludeIDs, nil
+		return goatcounter.PathFilterFromIDs(includeIDs), excludeIDs, nil
 	}
 
 	for _, s := range includePaths {
 		n, err := zstrconv.ParseInt[goatcounter.PathID](s, 10)
 		if err != nil {
-			return nil, nil, guru.Errorf(400, "invalid number in include_paths: %w", err)
+			return goatcounter.PathFilter{}, nil, guru.Errorf(400, "invalid number in include_paths: %w", err)
 		}
 		includeIDs = append(includeIDs, n)
 	}
 	for _, s := range excludePaths {
 		n, err := zstrconv.ParseInt[goatcounter.PathID](s, 10)
 		if err != nil {
-			return nil, nil, guru.Errorf(400, "invalid number in exclude_paths: %w", err)
+			return goatcounter.PathFilter{}, nil, guru.Errorf(400, "invalid number in exclude_paths: %w", err)
 		}
 		excludeIDs = append(excludeIDs, n)
 	}
-	return includeIDs, excludeIDs, nil
+	return goatcounter.PathFilterFromIDs(includeIDs), excludeIDs, nil
 }
