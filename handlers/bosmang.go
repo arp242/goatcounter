@@ -6,12 +6,14 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 	"zgo.at/blackmail"
 	"zgo.at/goatcounter/v2"
 	"zgo.at/goatcounter/v2/cron"
 	"zgo.at/goatcounter/v2/pkg/bgrun"
+	"zgo.at/goatcounter/v2/pkg/geo"
 	"zgo.at/goatcounter/v2/pkg/log"
 	"zgo.at/goatcounter/v2/pkg/metrics"
 	"zgo.at/guru"
@@ -38,6 +40,7 @@ func (h bosmang) mount(r chi.Router, db zdb.DB) {
 	a.Get("/bosmang/bgrun", zhttp.Wrap(h.bgrun))
 	a.Get("/bosmang/email", zhttp.Wrap(h.email))
 	a.Post("/bosmang/email", zhttp.Wrap(h.sendEmail))
+	a.Get("/bosmang/geoip", zhttp.Wrap(h.geoip))
 	a.Post("/bosmang/bgrun/{task}", zhttp.Wrap(h.runTask))
 	a.Get("/bosmang/metrics", zhttp.Wrap(h.metrics))
 	a.Handle("/bosmang/profile*", zprof.NewHandler(zprof.Prefix("/bosmang/profile")))
@@ -164,4 +167,39 @@ func (h bosmang) sendEmail(w http.ResponseWriter, r *http.Request) error {
 		blackmail.HeadersAutoreply(),
 		blackmail.BodyText([]byte("Test email from GoatCounter")))
 	return h.emailTpl(w, r, email, err, dbg.String())
+}
+
+func (h bosmang) geoip(w http.ResponseWriter, r *http.Request) error {
+	var (
+		geodb = geo.Get(r.Context())
+		md    = geodb.DB().Metadata
+		l     goatcounter.Location
+	)
+	lookupErr := l.Lookup(r.Context(), r.RemoteAddr)
+
+	type GeoDB struct {
+		Path        string
+		Build       time.Time
+		Type        string
+		Description string
+		Nodes       uint
+	}
+	return zhttp.Template(w, "bosmang_geoip.gohtml", struct {
+		Globals
+		IP          string
+		Header      http.Header
+		Location    goatcounter.Location
+		Error       error
+		ShowHeaders []string
+		GeoDB       GeoDB
+	}{newGlobals(w, r), r.RemoteAddr, r.Header, l, lookupErr,
+		[]string{"Cf-Connecting-Ip", "Fly-Client-Ip", "X-Azure-Socketip", "X-Real-Ip", "X-Forwarded-For"},
+		GeoDB{
+			geodb.DB().Path,
+			time.Unix(int64(md.BuildEpoch), 0).UTC(),
+			md.DatabaseType,
+			md.Description["en"],
+			md.NodeCount,
+		},
+	})
 }

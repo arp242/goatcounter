@@ -10,6 +10,14 @@
 				<a href="#" class="logged-in configure-widget" aria-label="{{t $.Context "button/cfg-dashboard|Configure"}}">⚙&#xfe0f;</a>
 			{{end}}
 		</div>
+		{{if and (eq .Name "locations") .MostlyUnknown}}
+			<div class="not-collected">
+				Location lookups don't seem to work, and you probably need to configure your proxy.<br>
+				See <a href="/bosmang/geoip">Settings → Server Management → GeoIP</a>.<br>
+				This message is displayed when (unknown) is the top location,
+				and it may take a few days to clear.
+			</div>
+		{{end}}
 		{{template "_dashboard_warn_collect.gohtml" (map "IsCollected" .IsCollected "Context" .Context "Base" .Base)}}
 		{{if .Err}}
 			<em>{{t $.Context "p/error|Error: %(error-message)" .Err.Error}}</em>

@@ -4,6 +4,15 @@ This list is not comprehensive, and only lists new features and major changes,
 but not every minor bugfix. The goatcounter.com service generally runs the
 latest commit on the `main` branch.
 
+unreleased
+----------
+
+### Features
+
+- Add *Server Management → GeoIP* page to debug GeoIP lookups.
+
+### Fixes
+
 2025-12-15 v2.7.0
 -----------------
 

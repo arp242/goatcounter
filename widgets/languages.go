@@ -50,6 +50,7 @@ func (w Languages) RenderHTML(ctx context.Context, shared SharedData) (string, a
 	return "_dashboard_hchart.gohtml", struct {
 		Context      context.Context
 		Base         string
+		Name         string
 		ID           int
 		CanConfigure bool
 		RowsOnly     bool
@@ -60,7 +61,7 @@ func (w Languages) RenderHTML(ctx context.Context, shared SharedData) (string, a
 		Header       string
 		TotalUTC     int
 		Stats        goatcounter.HitStats
-	}{ctx, goatcounter.Config(ctx).BasePath, w.id, true, shared.RowsOnly, false, w.loaded, w.err,
+	}{ctx, goatcounter.Config(ctx).BasePath, w.Name(), w.id, true, shared.RowsOnly, false, w.loaded, w.err,
 		isCol(ctx, goatcounter.CollectLanguage),
 		header, shared.TotalUTC, w.Stats}
 }

@@ -6,6 +6,7 @@ import (
 
 	"zgo.at/goatcounter/v2"
 	"zgo.at/z18n"
+	"zgo.at/zstd/ztime"
 )
 
 type Locations struct {
@@ -15,9 +16,10 @@ type Locations struct {
 	html   template.HTML
 	s      goatcounter.WidgetSettings
 
-	Limit  int
-	Detail string
-	Stats  goatcounter.HitStats
+	Limit         int
+	Detail        string
+	Stats         goatcounter.HitStats
+	MostlyUnknown bool
 }
 
 func (w Locations) Name() string { return "locations" }
@@ -47,6 +49,9 @@ func (w *Locations) GetData(ctx context.Context, a Args) (more bool, err error) 
 		err = w.Stats.ListLocation(ctx, w.Detail, a.Rng, a.PathFilter, w.Limit, a.Offset)
 	} else {
 		err = w.Stats.ListLocations(ctx, a.Rng, a.PathFilter, w.Limit, a.Offset)
+		w.MostlyUnknown = !goatcounter.Config(ctx).GoatcounterCom && goatcounter.GetUser(ctx).ID > 0 &&
+			len(w.Stats.Stats) > 0 && w.Stats.Stats[0].ID == "" &&
+			ztime.StartOf(a.Rng.End, ztime.Day).Equal(ztime.StartOf(ztime.Now(ctx), ztime.Day))
 	}
 	w.loaded = true
 	return w.Stats.More, err
@@ -64,19 +69,21 @@ func (w Locations) RenderHTML(ctx context.Context, shared SharedData) (string, a
 	}
 
 	return "_dashboard_hchart.gohtml", struct {
-		Context      context.Context
-		Base         string
-		ID           int
-		CanConfigure bool
-		RowsOnly     bool
-		HasSubMenu   bool
-		Loaded       bool
-		Err          error
-		IsCollected  bool
-		Header       string
-		TotalUTC     int
-		Stats        goatcounter.HitStats
-		Detail       string
-	}{ctx, goatcounter.Config(ctx).BasePath, w.id, true, shared.RowsOnly, w.Detail == "", w.loaded, w.err,
-		isCol(ctx, goatcounter.CollectLocation), header, shared.TotalUTC, w.Stats, w.Detail}
+		Context       context.Context
+		Base          string
+		Name          string
+		ID            int
+		CanConfigure  bool
+		RowsOnly      bool
+		HasSubMenu    bool
+		Loaded        bool
+		Err           error
+		IsCollected   bool
+		Header        string
+		TotalUTC      int
+		Stats         goatcounter.HitStats
+		Detail        string
+		MostlyUnknown bool
+	}{ctx, goatcounter.Config(ctx).BasePath, w.Name(), w.id, true, shared.RowsOnly, w.Detail == "", w.loaded, w.err,
+		isCol(ctx, goatcounter.CollectLocation), header, shared.TotalUTC, w.Stats, w.Detail, w.MostlyUnknown}
 }

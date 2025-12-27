@@ -64,7 +64,8 @@ func TestMain(m *testing.M) {
 		// Don't need tests.
 		"", "bosmang.gohtml", "bosmang_site.gohtml", "bosmang_cache.gohtml",
 		"bosmang_bgrun.gohtml", "bosmang_metrics.gohtml", "bosmang_sites.gohtml",
-		"bosmang_email.gohtml", "i18n_list.gohtml", "i18n_show.gohtml", "i18n_manage.gohtml",
+		"bosmang_email.gohtml", "bosmang_geoip.gohtml", "i18n_list.gohtml", "i18n_show.gohtml",
+		"i18n_manage.gohtml",
 
 		// Tested in tpl_test.go
 		"email_export_done.gotxt", "email_forgot_site.gotxt",

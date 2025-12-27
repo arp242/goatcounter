@@ -1,0 +1,58 @@
+{{template "_backend_top.gohtml" .}}
+
+<style>
+	.page >table { max-width:unset; }
+	th           { white-space:nowrap; width:5em; padding-right:2em; }
+	ul           { padding-left:1em; }
+</style>
+
+<p>If you use a proxy in front of GoatCounter then you need to tell what the
+   "real" IP address is if you want location lookups work. This is usually done
+   by setting a header such as <code>X-Forwarded-For</code> or
+   <code>X-Real-IP</code>.</p>
+
+<p>This page shows your IP as seen by GoatCounter and the location lookup for
+	it. It also shows the headers GoatCounter looks at. They are used in the
+	order listed in table. It uses the first public IP (private IPs such as
+	127.0.0.0/8 and 192.168.0.0/16 are ignored). For
+	<code>X-Forwarded-For</code> it uses the right-most non-local IP
+	address.</p>
+
+<p>Also see <a href="https://github.com/arp242/zhttp/blob/main/mware/realip.go">the source code</a>.</p>
+
+<table>
+	<tr><th>Your IP, as seen by GoatCounter</th> <td>{{.IP}}</td></tr>
+	<tr><th>Location</th>                        <td><code>{{.Location}}</code></td></tr>
+	<tr><th>Error</th>                           <td>{{if .Error}}{{.Error}}{{else}}<em>(no error)</em>{{end}}</td></tr>
+</table>
+
+<h2>GeoDB info (see <code>-geodb</code> flag)</h2>
+<table>
+	<tr><th>Path</th>        <td>{{if .GeoDB.Path}}{{.GeoDB.Path}}{{else}}<em>(built-in)</em>{{end}}</td></tr>
+	<tr><th>Build</th>       <td>{{.GeoDB.Build}}</td></tr>
+	<tr><th>Type</th>        <td>{{.GeoDB.Type}}</td></tr>
+	<tr><th>Description</th> <td>{{.GeoDB.Description}}</td></tr>
+	<tr><th>Nodes</th>       <td>{{.GeoDB.Nodes}}</td></tr>
+</table>
+
+<h2>HTTP headers</h2>
+<table>
+	{{range $h := .ShowHeaders}}
+		{{$v := index $.Header $h}}
+		<tr>
+			<th>{{$h}}</th>
+			<td>
+				{{if eq (len $v) 0}}
+					<em>(not set)</em>
+				{{else if gt (len $v) 1}}
+					<b>(header set more than once; the first header is used)</b>
+					<ul>{{range $vv := $v}}<li><code>{{$vv}}</code></li>{{end}}</ul>
+				{{else}}
+					<code>{{index $v 0}}</code>
+				{{end}}
+			</td>
+		</tr>
+	{{end}}
+</table>
+
+{{template "_backend_bottom.gohtml" .}}

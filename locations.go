@@ -2,6 +2,7 @@ package goatcounter
 
 import (
 	"context"
+	"fmt"
 	"net"
 	"strings"
 
@@ -24,6 +25,10 @@ type Location struct {
 	// TODO: send patch to staticcheck to deal with this better. This shouldn't
 	// errror since "ISO" is an initialism.
 	ISO3166_2 string `db:"iso_3166_2"` //lint:ignore ST1003 staticcheck bug
+}
+
+func (l Location) String() string {
+	return fmt.Sprintf("location_id=%d; country=%q; country_name=%q; region=%q; region_name=%q", l.ID, l.Country, l.CountryName, l.Region, l.RegionName)
 }
 
 // ByCode gets a location by ISO-3166-2 code; e.g. "US" or "US-TX".

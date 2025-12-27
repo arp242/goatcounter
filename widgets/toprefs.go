@@ -54,6 +54,7 @@ func (w TopRefs) RenderHTML(ctx context.Context, shared SharedData) (string, any
 	return "_dashboard_toprefs.gohtml", struct {
 		Context      context.Context
 		Base         string
+		Name         string
 		ID           int
 		CanConfigure bool
 		RowsOnly     bool
@@ -64,6 +65,6 @@ func (w TopRefs) RenderHTML(ctx context.Context, shared SharedData) (string, any
 		Total        int
 		Stats        goatcounter.HitStats
 		Ref          string
-	}{ctx, goatcounter.Config(ctx).BasePath, w.id, true, shared.RowsOnly, w.Ref == "", w.loaded, w.err,
+	}{ctx, goatcounter.Config(ctx).BasePath, w.Name(), w.id, true, shared.RowsOnly, w.Ref == "", w.loaded, w.err,
 		isCol(ctx, goatcounter.CollectReferrer), shared.Total, w.TopRefs, w.Ref}
 }
