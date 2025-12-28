@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"runtime"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -26,7 +27,6 @@ import (
 	"zgo.at/zhttp/header"
 	"zgo.at/zstd/znet"
 	"zgo.at/zstd/zruntime"
-	"zgo.at/zstd/zslice"
 	"zgo.at/zstd/ztime"
 	"zgo.at/zvalidate"
 )
@@ -336,66 +336,86 @@ func addz18n() func(http.Handler) http.Handler {
 	}
 }
 
-var (
-	defaultFrameAncestors = []string{header.CSPSourceNone}
-	allFrameAncestors     = []string{header.CSPSourceStar}
-)
+func writeCSP(b *strings.Builder, k, v string) {
+	b.WriteString(k)
+	b.WriteByte(' ')
+	b.WriteString(v)
+	b.WriteByte(';')
+}
 
 func addcsp(domainStatic string) func(http.Handler) http.Handler {
+	// gc.zgo.at is needed because the help pages require it for examples.
+	// TODO: should perhaps use self-hosted version?
+	ds := []string{header.CSPSourceSelf, "https://gc.zgo.at"}
+	if domainStatic != "" {
+		ds = append(ds, domainStatic)
+	}
+
+	var (
+		defaultFrameAncestors = header.CSPSourceNone
+		allFrameAncestors     = header.CSPSourceStar
+		staticDomains         = strings.Join(ds, " ")
+		allowInline           = strings.Join(slices.Concat([]string{}, ds, []string{header.CSPSourceUnsafeInline}), " ")
+		api2                  = strings.Join(slices.Concat([]string{}, ds, []string{"https://unpkg.com/rapidoc/dist/rapidoc-min.js", "https://static.zgo.at"}), " ")
+		wss                   = header.CSPSourceSelf + " wss:"
+	)
+
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			ds := []string{header.CSPSourceSelf}
-			if domainStatic != "" {
-				ds = append(ds, domainStatic)
+			// Only really needs to run on HTML pages; but best to add it
+			// everywhere as a "better safe than sorry" approach. However, the
+			// /count gets called so often it makes sense to make an exception
+			// for it.
+			if r.URL.Path == "/count" {
+				next.ServeHTTP(w, r)
+				return
 			}
 
 			frame := defaultFrameAncestors
 			if s := goatcounter.GetSite(r.Context()); s != nil && len(s.Settings.AllowEmbed) > 0 {
-				frame = make([]string, 0, len(s.Settings.AllowEmbed))
-				for _, d := range s.Settings.AllowEmbed {
-					frame = append(frame, d)
+				var b strings.Builder
+				b.Grow(1024)
+				for i, d := range s.Settings.AllowEmbed {
+					if i > 0 {
+						b.WriteByte(' ')
+					}
+					b.WriteString(d)
 				}
+				frame = b.String()
 			}
 
+			static := staticDomains
 			switch {
+			case r.URL.Path == "/api.html" || r.URL.Path == "/bosmang/profile":
+				static = allowInline
 			case r.URL.Path == "/api2.html":
-				// Allow RapiDoc, and allow static.zgo.at because we don't have
-				// access to the {{.Static}} variable in here.
-				// TODO: can fix that, actually.
-				// TODO: maybe don't load from unpkg?
-				ds = append(ds, "https://unpkg.com/rapidoc/dist/rapidoc-min.js", "https://static.zgo.at")
-			case r.URL.Path == "/api.html":
-				ds = append(ds, header.CSPSourceUnsafeInline)
+				static = api2
 			case strings.HasPrefix(r.URL.Path, "/counter/"):
 				frame = allFrameAncestors
 			}
 
-			csp := header.CSPArgs{
-				header.CSPFrameAncestors: frame,
-				header.CSPFrameSrc:       {header.CSPSourceSelf},
-				header.CSPDefaultSrc:     {header.CSPSourceNone},
-				header.CSPImgSrc:         zslice.AppendCopy(ds, "data:"),
-				header.CSPScriptSrc:      ds,
-				header.CSPStyleSrc:       zslice.AppendCopy(ds, header.CSPSourceUnsafeInline),
-				header.CSPFontSrc:        ds,
-				header.CSPFormAction:     {header.CSPSourceSelf},
-				header.CSPManifestSrc:    ds,
+			b := new(strings.Builder)
+			b.Grow(1024)
+			writeCSP(b, header.CSPDefaultSrc, header.CSPSourceNone)
+			writeCSP(b, header.CSPFontSrc, static)
+			writeCSP(b, header.CSPFormAction, header.CSPSourceSelf)
+			writeCSP(b, header.CSPFrameAncestors, frame)
+			writeCSP(b, header.CSPManifestSrc, static)
+			writeCSP(b, header.CSPScriptSrc, static)
+			writeCSP(b, header.CSPStyleSrc, static+" 'unsafe-inline'")
 
-				// 'self' does not include websockets, and we need to use
-				// "wss://domain.com"; this is difficult because of custom
-				// domains and such, so just allow all websockets.
-				header.CSPConnectSrc: {header.CSPSourceSelf, "wss:"},
-			}
-
-			// Make the visitor counter examples work everywhere (e.g.
-			// somecode.goatcounter.com).
+			// Make the visitor counter examples work everywhere (e.g. somecode.goatcounter.com).
 			if strings.HasSuffix(r.URL.Path, "/help/visitor-counter") {
-				csp[header.CSPConnectSrc] = append(csp[header.CSPConnectSrc], "https://goatcounter.goatcounter.com")
-				csp[header.CSPImgSrc] = append(csp[header.CSPImgSrc], "https://goatcounter.goatcounter.com")
-				csp[header.CSPFrameSrc] = append(csp[header.CSPFrameSrc], "https://goatcounter.goatcounter.com")
+				writeCSP(b, header.CSPConnectSrc, wss+" https://goatcounter.goatcounter.com")
+				writeCSP(b, header.CSPImgSrc, static+" data: https://goatcounter.goatcounter.com")
+				writeCSP(b, header.CSPFrameSrc, "'self' https://goatcounter.goatcounter.com")
+			} else {
+				writeCSP(b, header.CSPConnectSrc, wss)
+				writeCSP(b, header.CSPImgSrc, static+" data:")
+				writeCSP(b, header.CSPFrameSrc, header.CSPSourceSelf)
 			}
 
-			header.SetCSP(w.Header(), csp)
+			w.Header()["Content-Security-Policy"] = []string{b.String()}
 			next.ServeHTTP(w, r)
 		})
 	}
