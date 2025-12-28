@@ -31,9 +31,7 @@ var Bundle = func() *z18n.Bundle {
 	return b
 }()
 
-func DefaultLocale() *z18n.Locale {
-	return Bundle.Locale("en")
-}
+var DefaultLocale = Bundle.Locale("en")
 
 func newBundle(fsys fs.FS) (*z18n.Bundle, error) {
 	b := z18n.NewBundle(language.MustParse("en-GB"))

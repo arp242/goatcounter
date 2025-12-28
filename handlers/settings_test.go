@@ -313,7 +313,7 @@ func TestSettingsMerge(t *testing.T) {
 		r, rr := newTest(ctx, "POST", "/settings/merge", strings.NewReader(form))
 		r.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 		login(t, r)
-		newBackend(zdb.MustGetDB(ctx)).ServeHTTP(rr, r)
+		newBackend(ctx).ServeHTTP(rr, r)
 		ztest.Code(t, rr, 303)
 		bgrun.Wait("")
 	}

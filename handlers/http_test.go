@@ -18,7 +18,6 @@ import (
 	"zgo.at/goatcounter/v2"
 	"zgo.at/goatcounter/v2/gctest"
 	"zgo.at/goatcounter/v2/pkg/log"
-	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zstd/zgo"
 	"zgo.at/zstd/zjson"
@@ -30,7 +29,7 @@ import (
 type handlerTest struct {
 	name         string
 	setup        func(context.Context, *testing.T)
-	router       func(zdb.DB) chi.Router
+	router       func(context.Context) chi.Router
 	path         string
 	method       string
 	auth         bool
@@ -117,7 +116,7 @@ func runTest(
 					login(t, r)
 				}
 
-				tt.router(zdb.MustGetDB(ctx)).ServeHTTP(rr, r)
+				tt.router(ctx).ServeHTTP(rr, r)
 				ztest.Code(t, rr, tt.wantCode)
 				if !strings.Contains(rr.Body.String(), tt.wantBody) {
 					t.Errorf("wrong body\nwant: %s\ngot:  %s", tt.wantBody, rr.Body.String())
@@ -149,7 +148,7 @@ func runTest(
 				login(t, r)
 			}
 
-			tt.router(zdb.MustGetDB(ctx)).ServeHTTP(rr, r)
+			tt.router(ctx).ServeHTTP(rr, r)
 			if f := zhttp.ReadFlash(rr, r); f != nil {
 				t.Logf("flash message (%s): %s", f.Level, f.Message)
 			}

@@ -62,7 +62,7 @@ func TestBackendTpl(t *testing.T) {
 			r.Host = site.Code + "." + goatcounter.Config(ctx).Domain
 			login(t, r)
 
-			newBackend(zdb.MustGetDB(ctx)).ServeHTTP(rr, r)
+			newBackend(ctx).ServeHTTP(rr, r)
 			ztest.Code(t, rr, 200)
 
 			if !strings.Contains(rr.Body.String(), tt.want) {
@@ -96,7 +96,7 @@ func TestBackendPagesMore(t *testing.T) {
 	r, rr := newTest(ctx, "GET", url, nil)
 	r.Host = site.Code + "." + goatcounter.Config(ctx).Domain
 	login(t, r)
-	newBackend(zdb.MustGetDB(ctx)).ServeHTTP(rr, r)
+	newBackend(ctx).ServeHTTP(rr, r)
 	ztest.Code(t, rr, 200)
 
 	var body map[string]any
@@ -143,7 +143,7 @@ func TestServeNewSite(t *testing.T) {
 		goatcounter.Config(ctx).GoatcounterCom = false
 
 		r, rr := newTest(ctx, "GET", "/", nil)
-		newBackend(zdb.MustGetDB(ctx)).ServeHTTP(rr, r)
+		newBackend(ctx).ServeHTTP(rr, r)
 		ztest.Code(t, rr, 200)
 
 		if !strings.Contains(rr.Body.String(), `Create your first site and user`) {
@@ -154,7 +154,7 @@ func TestServeNewSite(t *testing.T) {
 		ctx := emptySite(t)
 
 		r, rr := newTest(ctx, "GET", "/", nil)
-		newBackend(zdb.MustGetDB(ctx)).ServeHTTP(rr, r)
+		newBackend(ctx).ServeHTTP(rr, r)
 		ztest.Code(t, rr, 400)
 
 		if !strings.Contains(rr.Body.String(), `no site at this domain`) {
@@ -177,7 +177,7 @@ func TestServeNewSite(t *testing.T) {
 
 		r, rr := newTest(ctx, "POST", "/", body)
 		r.Header.Set("Content-Type", contentType)
-		newBackend(zdb.MustGetDB(ctx)).ServeHTTP(rr, r)
+		newBackend(ctx).ServeHTTP(rr, r)
 		ztest.Code(t, rr, 303)
 
 		have := zdb.DumpString(ctx, `select site_id, cname from sites`)
@@ -201,7 +201,7 @@ func TestServeNewSite(t *testing.T) {
 
 		r, rr := newTest(ctx, "POST", "/", body)
 		r.Header.Set("Content-Type", contentType)
-		newBackend(zdb.MustGetDB(ctx)).ServeHTTP(rr, r)
+		newBackend(ctx).ServeHTTP(rr, r)
 		ztest.Code(t, rr, 303)
 
 		have := zdb.DumpString(ctx, `select site_id, cname from sites`)
@@ -236,7 +236,7 @@ func BenchmarkCount(b *testing.B) {
 	r.Header.Set("User-Agent", "Mozilla/5.0 (X11; Linux x86_64; rv:72.0) Gecko/20100101 Firefox/72.0")
 	r.Header.Set("Referer", "https://example.com/foo")
 
-	handler := newBackend(zdb.MustGetDB(ctx)).ServeHTTP
+	handler := newBackend(ctx).ServeHTTP
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -244,6 +244,7 @@ func BenchmarkCount(b *testing.B) {
 	}
 }
 
-func newBackend(db zdb.DB) chi.Router {
-	return NewBackend(db, nil, true, true, "example.com", "", 10, 0, NewRatelimits())
+func newBackend(ctx context.Context) chi.Router {
+	return NewBackend(zdb.MustGetDB(ctx), nil, true, goatcounter.Config(ctx).GoatcounterCom,
+		"example.com", "", 10, 0, NewRatelimits())
 }

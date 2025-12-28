@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"zgo.at/goatcounter/v2"
+	"zgo.at/goatcounter/v2/gctest"
 	"zgo.at/zstd/zmap"
 	"zgo.at/zstd/ztest"
 )
@@ -121,4 +122,33 @@ func BenchmarkAddCSP(b *testing.B) {
 	for b.Loop() {
 		mw.ServeHTTP(rr, r)
 	}
+}
+
+func BenchmarkAddCtx(b *testing.B) {
+	b.Run("loadsite=false", func(b *testing.B) {
+		var (
+			ctx = goatcounter.WithSite(context.Background(), &goatcounter.Site{})
+			r   = ztest.NewRequest("GET", "/", nil).WithContext(ctx)
+			rr  = httptest.NewRecorder()
+			mw  = addctx(nil, false, true, false, 10)(http.NewServeMux())
+		)
+		b.ResetTimer()
+		for b.Loop() {
+			mw.ServeHTTP(rr, r)
+		}
+	})
+
+	b.Run("loadsite=true", func(b *testing.B) {
+		var (
+			ctx = gctest.DB(b)
+			r   = ztest.NewRequest("GET", "/", nil).WithContext(ctx)
+			rr  = httptest.NewRecorder()
+			mw  = addctx(nil, false, true, true, 10)(http.NewServeMux())
+		)
+		r.Host = "gctest.localhost"
+		b.ResetTimer()
+		for b.Loop() {
+			mw.ServeHTTP(rr, r)
+		}
+	})
 }

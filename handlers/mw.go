@@ -108,7 +108,7 @@ var (
 
 type statusWriter interface{ Status() int }
 
-func addctx(db zdb.DB, loadSite bool, dashTimeout int) func(http.Handler) http.Handler {
+func addctx(db zdb.DB, dev, saas, loadSite bool, dashTimeout int) func(http.Handler) http.Handler {
 	Started = time.Now()
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -116,11 +116,11 @@ func addctx(db zdb.DB, loadSite bool, dashTimeout int) func(http.Handler) http.H
 
 			// Intercept /status here so it works everywhere.
 			if r.URL.Path == "/status" {
-				info, _ := zdb.Info(ctx)
+				info, _ := zdb.Info(r.Context())
 				j, err := json.Marshal(map[string]any{
 					"uptime":   ztime.Now(r.Context()).Sub(Started).Round(time.Second).String(),
 					"version":  goatcounter.Version,
-					"database": zdb.SQLDialect(ctx).String() + " " + string(info.Version),
+					"database": zdb.SQLDialect(r.Context()).String() + " " + string(info.Version),
 					"go":       runtime.Version(),
 					"GOOS":     runtime.GOOS,
 					"GOARCH":   runtime.GOARCH,
@@ -135,7 +135,6 @@ func addctx(db zdb.DB, loadSite bool, dashTimeout int) func(http.Handler) http.H
 				w.Header().Set("Content-Type", "application/json")
 				w.Header().Set("Access-Control-Allow-Origin", "*")
 				w.WriteHeader(200)
-
 				w.Write(j)
 				return
 			}
@@ -146,7 +145,7 @@ func addctx(db zdb.DB, loadSite bool, dashTimeout int) func(http.Handler) http.H
 				t = dashTimeout + 1
 			}
 			var cancel context.CancelFunc
-			ctx, cancel = context.WithTimeout(r.Context(), time.Duration(t)*time.Second)
+			ctx, cancel = context.WithTimeout(ctx, time.Duration(t)*time.Second)
 			defer func() {
 				cancel()
 				if ctx.Err() == context.DeadlineExceeded {
@@ -158,7 +157,7 @@ func addctx(db zdb.DB, loadSite bool, dashTimeout int) func(http.Handler) http.H
 			}()
 
 			// Wrap in explainDB for testing.
-			if goatcounter.Config(r.Context()).Dev {
+			if dev {
 				if c, _ := r.Cookie("debug-explain"); c != nil {
 					*r = *r.WithContext(zdb.WithDB(ctx, zdb.NewLogDB(zdb.MustGetDB(ctx),
 						os.Stderr, zdb.DumpQuery|zdb.DumpExplain, c.Value)))
@@ -171,15 +170,15 @@ func addctx(db zdb.DB, loadSite bool, dashTimeout int) func(http.Handler) http.H
 
 			// Load site from domain.
 			if loadSite {
-				var s goatcounter.Site // code
-				err := s.ByHost(r.Context(), r.Host)
+				var s goatcounter.Site
+				err := s.ByHost(ctx, r.Host)
 
 				// If there's just one site then we can just serve that; most
 				// people probably have just one site so it's all grand. Do
 				// print a warning in the console though.
-				if err != nil && !goatcounter.Config(r.Context()).GoatcounterCom {
+				if zdb.ErrNoRows(err) && !saas {
 					var sites goatcounter.Sites
-					err2 := sites.UnscopedList(r.Context())
+					err2 := sites.UnscopedList(ctx)
 					if err2 == nil && len(sites) == 1 {
 						s = sites[0]
 						err = nil
@@ -195,7 +194,7 @@ func addctx(db zdb.DB, loadSite bool, dashTimeout int) func(http.Handler) http.H
 							} else {
 								txt = strings.ReplaceAll(txt, "\n\n", " ")
 							}
-							log.Warn(r.Context(), txt)
+							log.Warn(ctx, txt)
 						}
 					}
 					if err2 == nil && len(sites) == 0 {
@@ -203,7 +202,6 @@ func addctx(db zdb.DB, loadSite bool, dashTimeout int) func(http.Handler) http.H
 						return
 					}
 				}
-
 				if err != nil {
 					if zdb.ErrNoRows(err) {
 						err = guru.Errorf(400, "no site at this domain (%q)", r.Host)
@@ -212,14 +210,13 @@ func addctx(db zdb.DB, loadSite bool, dashTimeout int) func(http.Handler) http.H
 					return
 				}
 
-				*r = *r.WithContext(goatcounter.WithSite(r.Context(), &s))
+				ctx = goatcounter.WithSite(ctx, &s)
 			}
 
 			// Make sure there's always a z18n object; will get overriden by
 			// addz18n() later for endpoints where it matters.
-			*r = *r.WithContext(z18n.With(r.Context(), goatcounter.DefaultLocale()))
-
-			next.ServeHTTP(w, r)
+			ctx = z18n.With(ctx, goatcounter.DefaultLocale)
+			next.ServeHTTP(w, r.WithContext(ctx))
 		})
 	}
 }
@@ -329,9 +326,8 @@ func addz18n() func(http.Handler) http.Handler {
 			if u := goatcounter.GetUser(r.Context()); u != nil {
 				userLang = u.Settings.Language
 			}
-			*r = *r.WithContext(z18n.With(r.Context(), goatcounter.Bundle.
-				Locale(userLang, siteLang, r.Header.Get("Accept-Language"))))
-			next.ServeHTTP(w, r)
+			next.ServeHTTP(w, r.WithContext(z18n.With(r.Context(), goatcounter.Bundle.
+				Locale(userLang, siteLang, r.Header.Get("Accept-Language")))))
 		})
 	}
 }

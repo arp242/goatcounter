@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"context"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -9,7 +10,7 @@ import (
 	"zgo.at/zdb"
 )
 
-func newWebsite(db zdb.DB) chi.Router { return NewWebsite(db, true) }
+func newWebsite(ctx context.Context) chi.Router { return NewWebsite(zdb.MustGetDB(ctx), true) }
 
 func TestWebsiteTpl(t *testing.T) {
 	tests := []struct {

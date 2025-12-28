@@ -15,7 +15,7 @@ import (
 	"zgo.at/zstd/zfs"
 )
 
-func NewBackend(db zdb.DB, acmeh http.HandlerFunc, dev, goatcounterCom bool,
+func NewBackend(db zdb.DB, acmeh http.HandlerFunc, dev, saas bool,
 	domainStatic string, basePath string, dashTimeout, apiMax int, ratelimits Ratelimits,
 ) chi.Router {
 
@@ -26,14 +26,14 @@ func NewBackend(db zdb.DB, acmeh http.HandlerFunc, dev, goatcounterCom bool,
 		root.Mount(basePath, r)
 	}
 
-	backend{dashTimeout}.Mount(r, db, dev, domainStatic, dashTimeout, apiMax, ratelimits)
+	backend{dashTimeout}.Mount(r, db, dev, saas, domainStatic, dashTimeout, apiMax, ratelimits)
 
 	if acmeh != nil {
 		r.Get("/.well-known/acme-challenge/{key}", acmeh)
 	}
 
-	if !goatcounterCom {
-		NewStatic(r, dev, goatcounterCom, basePath)
+	if !saas {
+		NewStatic(r, dev, saas, basePath)
 	}
 
 	return root
@@ -43,7 +43,7 @@ type backend struct {
 	dashTimeout int
 }
 
-func (h backend) Mount(r chi.Router, db zdb.DB, dev bool, domainStatic string, dashTimeout, apiMax int, ratelimits Ratelimits) {
+func (h backend) Mount(r chi.Router, db zdb.DB, dev, saas bool, domainStatic string, dashTimeout, apiMax int, ratelimits Ratelimits) {
 	if dev {
 		r.Use(mware.Delay(0))
 	}
@@ -52,15 +52,13 @@ func (h backend) Mount(r chi.Router, db zdb.DB, dev bool, domainStatic string, d
 		mware.RealIP(),
 		mware.WrapWriter(),
 		mware.Unpanic("zgo.at/goatcounter/v2/handlers.add"),
-		addctx(db, true, dashTimeout),
+		addctx(db, dev, saas, true, dashTimeout),
 		addcsp(domainStatic),
 		middleware.RedirectSlashes,
-		mware.NoStore())
+		mware.NoStore(),
+		middleware.Compress(5))
 	if log.HasDebug("req") {
 		r.Use(mware.RequestLog(nil, nil, "/count"))
-	}
-	if true {
-		r.Use(middleware.NewCompressor(5).Handler)
 	}
 
 	fsys, err := zfs.EmbedOrDir(goatcounter.Templates, "", dev)

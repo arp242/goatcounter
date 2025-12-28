@@ -56,7 +56,7 @@ func TestAPIBasics(t *testing.T) {
 			r, rr := newAPITest(ctx, t, "GET", "/api/v0/test", nil, 0)
 
 			delete(r.Header, "Authorization")
-			newBackend(zdb.MustGetDB(ctx)).ServeHTTP(rr, r)
+			newBackend(ctx).ServeHTTP(rr, r)
 			ztest.Code(t, rr, 401)
 
 			want := `{"error":"no Authorization header"}`
@@ -70,7 +70,7 @@ func TestAPIBasics(t *testing.T) {
 			r, rr := newAPITest(ctx, t, "GET", "/api/v0/test", nil, 0)
 
 			r.Header.Set("Authorization", r.Header.Get("Authorization")+"x")
-			newBackend(zdb.MustGetDB(ctx)).ServeHTTP(rr, r)
+			newBackend(ctx).ServeHTTP(rr, r)
 			ztest.Code(t, rr, 401)
 
 			want := `{"error":"unknown token"}`
@@ -86,7 +86,7 @@ func TestAPIBasics(t *testing.T) {
 			ctx := gctest.DB(t)
 			r, rr := newAPITest(ctx, t, "POST", "/api/v0/test", body, 0)
 
-			newBackend(zdb.MustGetDB(ctx)).ServeHTTP(rr, r)
+			newBackend(ctx).ServeHTTP(rr, r)
 			ztest.Code(t, rr, 403)
 
 			want := `{"error":"requires 'count', 'export' permissions"}`
@@ -99,7 +99,7 @@ func TestAPIBasics(t *testing.T) {
 			ctx := gctest.DB(t)
 			r, rr := newAPITest(ctx, t, "POST", "/api/v0/doesnt-exist", nil, 0)
 
-			newBackend(zdb.MustGetDB(ctx)).ServeHTTP(rr, r)
+			newBackend(ctx).ServeHTTP(rr, r)
 			ztest.Code(t, rr, 404)
 
 			want := `{"error":"not found"}`
@@ -114,7 +114,7 @@ func TestAPIBasics(t *testing.T) {
 				strings.NewReader(`{"status":500}`),
 				0)
 
-			newBackend(zdb.MustGetDB(ctx)).ServeHTTP(rr, r)
+			newBackend(ctx).ServeHTTP(rr, r)
 			ztest.Code(t, rr, 500)
 
 			want := `{"error":"unexpected error code ‘`
@@ -129,7 +129,7 @@ func TestAPIBasics(t *testing.T) {
 				strings.NewReader(`{{{{`),
 				0)
 
-			newBackend(zdb.MustGetDB(ctx)).ServeHTTP(rr, r)
+			newBackend(ctx).ServeHTTP(rr, r)
 			ztest.Code(t, rr, 400)
 
 			want := `{"error":"invalid JSON:`
@@ -144,7 +144,7 @@ func TestAPIBasics(t *testing.T) {
 				strings.NewReader(`{"panic":true}`),
 				0)
 
-			newBackend(zdb.MustGetDB(ctx)).ServeHTTP(rr, r)
+			newBackend(ctx).ServeHTTP(rr, r)
 			ztest.Code(t, rr, 500)
 
 			want := `{"error":"unexpected error code ‘`
@@ -159,7 +159,7 @@ func TestAPIBasics(t *testing.T) {
 
 			r.Header.Set("Content-Type", "text/html")
 
-			newBackend(zdb.MustGetDB(ctx)).ServeHTTP(rr, r)
+			newBackend(ctx).ServeHTTP(rr, r)
 			ztest.Code(t, rr, 415)
 
 			want := `<!DOCTYPE html>`
@@ -180,7 +180,7 @@ func TestAPIBasics(t *testing.T) {
 				})),
 				0)
 
-			newBackend(zdb.MustGetDB(ctx)).ServeHTTP(rr, r)
+			newBackend(ctx).ServeHTTP(rr, r)
 			ztest.Code(t, rr, 400)
 
 			want := `{"errors":{"e":["must be a valid email address"],"r":["must be set"]}}`
@@ -194,7 +194,7 @@ func TestAPIBasics(t *testing.T) {
 			r, rr := newAPITest(ctx, t, "POST", "/api/v0/test",
 				strings.NewReader(`{"unknown":"aa"}`), 0)
 
-			newBackend(zdb.MustGetDB(ctx)).ServeHTTP(rr, r)
+			newBackend(ctx).ServeHTTP(rr, r)
 			ztest.Code(t, rr, 400)
 
 			want := `{"error":"unknown parameter: \"unknown\""}`
@@ -206,7 +206,7 @@ func TestAPIBasics(t *testing.T) {
 			ctx := gctest.DB(t)
 			r, rr := newAPITest(ctx, t, "GET", "/api/v0/test?unknown=1", nil, 0)
 
-			newBackend(zdb.MustGetDB(ctx)).ServeHTTP(rr, r)
+			newBackend(ctx).ServeHTTP(rr, r)
 			ztest.Code(t, rr, 400)
 
 			want := `{"error":"unknown parameter: \"unknown\""}`
@@ -224,7 +224,7 @@ func TestAPIBasics(t *testing.T) {
 			})),
 			0)
 
-		newBackend(zdb.MustGetDB(ctx)).ServeHTTP(rr, r)
+		newBackend(ctx).ServeHTTP(rr, r)
 		ztest.Code(t, rr, 200)
 	})
 
@@ -232,7 +232,7 @@ func TestAPIBasics(t *testing.T) {
 		ctx := gctest.DB(t)
 		r, rr := newAPITest(ctx, t, "POST", "/api/v0/test", nil, 0)
 
-		newBackend(zdb.MustGetDB(ctx)).ServeHTTP(rr, r)
+		newBackend(ctx).ServeHTTP(rr, r)
 		ztest.Code(t, rr, 200)
 	})
 
@@ -245,7 +245,7 @@ func TestAPIBasics(t *testing.T) {
 		r, rr := newAPITest(ctx, t, "POST", "/api/v0/test", body,
 			goatcounter.APIPermExport|goatcounter.APIPermCount)
 
-		newBackend(zdb.MustGetDB(ctx)).ServeHTTP(rr, r)
+		newBackend(ctx).ServeHTTP(rr, r)
 		ztest.Code(t, rr, 200)
 	})
 
@@ -447,7 +447,7 @@ func TestAPICount(t *testing.T) {
 			r, rr := newAPITest(ctx, t, "POST", "/api/v0/count",
 				bytes.NewReader(zjson.MustMarshal(tt.body)), perm)
 
-			newBackend(zdb.MustGetDB(ctx)).ServeHTTP(rr, r)
+			newBackend(ctx).ServeHTTP(rr, r)
 			ztest.Code(t, rr, tt.wantCode)
 			if d := ztest.Diff(rr.Body.String(), tt.wantRet, ztest.DiffJSON); d != "" {
 				t.Errorf("\nout:  %s\nwant: %s", rr.Body.String(), tt.wantRet)
@@ -531,7 +531,7 @@ func TestAPISitesCreate(t *testing.T) {
 			r, rr := newAPITest(ctx, t, "PUT", "/api/v0/sites",
 				strings.NewReader(tt.body), perm)
 
-			newBackend(zdb.MustGetDB(ctx)).ServeHTTP(rr, r)
+			newBackend(ctx).ServeHTTP(rr, r)
 			ztest.Code(t, rr, tt.wantCode)
 
 			var retSite goatcounter.Site
@@ -592,7 +592,7 @@ func TestAPISitesUpdate(t *testing.T) {
 			r, rr := newAPITest(ctx, t, tt.method, fmt.Sprintf("/api/v0/sites/%d", site.ID),
 				strings.NewReader(tt.body), perm)
 
-			newBackend(zdb.MustGetDB(ctx)).ServeHTTP(rr, r)
+			newBackend(ctx).ServeHTTP(rr, r)
 			ztest.Code(t, rr, tt.wantCode)
 
 			var retSite goatcounter.Site
@@ -739,7 +739,7 @@ func TestAPIPaths(t *testing.T) {
 			}
 
 			r, rr := newAPITest(ctx, t, "GET", "/api/v0/paths?"+tt.query, nil, perm)
-			newBackend(zdb.MustGetDB(ctx)).ServeHTTP(rr, r)
+			newBackend(ctx).ServeHTTP(rr, r)
 			ztest.Code(t, rr, tt.wantCode)
 
 			if d := ztest.Diff(rr.Body.String(), tt.want, ztest.DiffJSON); d != "" {
@@ -991,7 +991,7 @@ func TestAPIHits(t *testing.T) {
 			}
 
 			r, rr := newAPITest(ctx, t, "GET", "/api/v0/stats/hits?"+tt.query, nil, perm)
-			newBackend(zdb.MustGetDB(ctx)).ServeHTTP(rr, r)
+			newBackend(ctx).ServeHTTP(rr, r)
 			ztest.Code(t, rr, tt.wantCode)
 
 			if d := ztest.Diff(rr.Body.String(), tt.want, ztest.DiffJSON); d != "" {
@@ -1053,7 +1053,7 @@ func TestAPIStats(t *testing.T) {
 			}
 
 			r, rr := newAPITest(ctx, t, "GET", "/api/v0/stats/"+tt.page+"?"+tt.query, nil, perm)
-			newBackend(zdb.MustGetDB(ctx)).ServeHTTP(rr, r)
+			newBackend(ctx).ServeHTTP(rr, r)
 			ztest.Code(t, rr, tt.wantCode)
 
 			if d := ztest.Diff(rr.Body.String(), tt.want, ztest.DiffJSON); d != "" {
@@ -1116,7 +1116,7 @@ func TestAPIStatsDetail(t *testing.T) {
 			}
 
 			r, rr := newAPITest(ctx, t, "GET", "/api/v0/stats/"+tt.page+"?"+tt.query, nil, perm)
-			newBackend(zdb.MustGetDB(ctx)).ServeHTTP(rr, r)
+			newBackend(ctx).ServeHTTP(rr, r)
 			ztest.Code(t, rr, tt.wantCode)
 
 			if d := ztest.Diff(rr.Body.String(), tt.want, ztest.DiffJSON); d != "" {

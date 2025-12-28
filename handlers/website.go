@@ -52,7 +52,7 @@ func (h website) Mount(r chi.Router, db zdb.DB, dev bool) {
 		mware.RealIP(),
 		mware.Unpanic(),
 		middleware.RedirectSlashes,
-		addctx(db, false, 10),
+		addctx(db, dev, true, false, 10),
 		mware.WrapWriter(),
 		mware.Headers(nil))
 	if dev {

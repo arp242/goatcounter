@@ -11,7 +11,6 @@ import (
 
 	"zgo.at/goatcounter/v2"
 	"zgo.at/goatcounter/v2/gctest"
-	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zstd/ztest"
 	"zgo.at/zstd/ztime"
@@ -60,7 +59,7 @@ func TestUserLogin(t *testing.T) {
 	r.Body = io.NopCloser(body)
 
 	r.Host = Site(ctx).Code + "." + goatcounter.Config(ctx).Domain
-	newBackend(zdb.MustGetDB(ctx)).ServeHTTP(rr, r)
+	newBackend(ctx).ServeHTTP(rr, r)
 	ztest.Code(t, rr, 303)
 
 	if f := zhttp.ReadFlash(rr, r); f != nil {
@@ -80,7 +79,7 @@ func TestUserForgot(t *testing.T) {
 	{ // Load form.
 		r, rr := newTest(ctx, "GET", "/user/forgot", nil)
 		r.Host = Site(ctx).Code + "." + goatcounter.Config(ctx).Domain
-		newBackend(zdb.MustGetDB(ctx)).ServeHTTP(rr, r)
+		newBackend(ctx).ServeHTTP(rr, r)
 		ztest.Code(t, rr, 200)
 		if !strings.Contains(rr.Body.String(), "Forgot password") {
 			t.Error(rr.Body.String())
@@ -99,7 +98,7 @@ func TestUserForgot(t *testing.T) {
 		r.Body = io.NopCloser(body)
 
 		r.Host = Site(ctx).Code + "." + goatcounter.Config(ctx).Domain
-		newBackend(zdb.MustGetDB(ctx)).ServeHTTP(rr, r)
+		newBackend(ctx).ServeHTTP(rr, r)
 		ztest.Code(t, rr, 303)
 		f := zhttp.ReadFlash(rr, r)
 		if f == nil {
@@ -120,7 +119,7 @@ func TestUserForgot(t *testing.T) {
 
 		r, rr := newTest(ctx, "GET", "/user/reset/"+*User(ctx).LoginRequest, nil)
 		r.Host = Site(ctx).Code + "." + goatcounter.Config(ctx).Domain
-		newBackend(zdb.MustGetDB(ctx)).ServeHTTP(rr, r)
+		newBackend(ctx).ServeHTTP(rr, r)
 		ztest.Code(t, rr, 200)
 		if !strings.Contains(rr.Body.String(), "New password") {
 			t.Error(rr.Body.String())
@@ -140,7 +139,7 @@ func TestUserForgot(t *testing.T) {
 		r.Body = io.NopCloser(body)
 
 		r.Host = Site(ctx).Code + "." + goatcounter.Config(ctx).Domain
-		newBackend(zdb.MustGetDB(ctx)).ServeHTTP(rr, r)
+		newBackend(ctx).ServeHTTP(rr, r)
 		ztest.Code(t, rr, 303)
 		f := zhttp.ReadFlash(rr, r)
 		if f == nil {
@@ -173,7 +172,7 @@ func TestUserLoginMFA(t *testing.T) {
 	r.Body = io.NopCloser(body)
 
 	r.Host = Site(ctx).Code + "." + goatcounter.Config(ctx).Domain
-	newBackend(zdb.MustGetDB(ctx)).ServeHTTP(rr, r)
+	newBackend(ctx).ServeHTTP(rr, r)
 	ztest.Code(t, rr, 200)
 
 	var mac, logintoken string
@@ -216,7 +215,7 @@ func TestUserLoginMFA(t *testing.T) {
 	r.Body = io.NopCloser(body)
 
 	r.Host = Site(ctx).Code + "." + goatcounter.Config(ctx).Domain
-	newBackend(zdb.MustGetDB(ctx)).ServeHTTP(rr, r)
+	newBackend(ctx).ServeHTTP(rr, r)
 	ztest.Code(t, rr, 303)
 	if f := zhttp.ReadFlash(rr, r); f != nil {
 		t.Errorf("FLASH AHAAAAA! %#v\n", f)
