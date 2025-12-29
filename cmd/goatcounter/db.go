@@ -292,8 +292,8 @@ PostgreSQL notes:
         -db 'postgresql+user=pqgotest dbname=pqgotest sslmode=verify-full'
         -db 'postgresql+postgres://pqgotest:password@localhost/pqgotest?sslmode=verify-full'
 
-    See the pq documentation for a list of supported parameters:
-    https://pkg.go.dev/github.com/lib/pq?tab=doc#hdr-Connection_String_Parameters
+    See the pgx documentation for a list of supported parameters:
+    https://pkg.go.dev/github.com/jackc/pgx/v5/pgconn#ParseConfig
 
     You can also use the standard PG* environment variables:
 

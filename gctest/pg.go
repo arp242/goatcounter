@@ -3,7 +3,7 @@
 package gctest
 
 import (
-	_ "zgo.at/zdb-drivers/pq"
+	_ "zgo.at/zdb-drivers/pgx"
 )
 
 func init() {
