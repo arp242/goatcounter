@@ -20,14 +20,14 @@
 	})
 
 	// Set up error reporting.
-	var report_errors = function() {
+	let report_errors = function() {
 		window.onerror = on_error
 		$(document).on('ajaxError', function(e, xhr, settings, err) {
 			if (settings.url === BASE_PATH + '/jserr')  // Just in case, otherwise we'll be stuck.
 				return
 			if (settings.url === BASE_PATH + '/load-widget')
 				return
-			var msg = T("error/load-url", {url: settings.url, error: err})
+			let msg = T("error/load-url", {url: settings.url, error: err})
 			console.error(msg)
 			on_error(`ajaxError: ${msg}`, settings.url)
 			alert(msg)
@@ -35,7 +35,7 @@
 	}
 
 	// Report an error.
-	var on_error = function(msg, url, line, column, err) {
+	let on_error = function(msg, url, line, column, err) {
 		// Don't log useless errors in Safari: https://bugs.webkit.org/show_bug.cgi?id=132945
 		if (msg === 'Script error.')
 			return
@@ -43,7 +43,8 @@
 		// gotten a lot of these and I'm getting tired of it.
 		if (msg.indexOf("document.getElementsByTagName('video')[0].webkitExitFullScreen") !== -1 ||
 			msg.match(/Cannot redefine property: (googletag|ethereum)/) !== null ||
-			msg.indexOf('Exception invoking lineTo') !== -1 // Only from bot, never any details.
+			msg.indexOf('Exception invoking lineTo') !== -1 || // Only from bot, never any details.
+			msg.indexOf('ResizeObserver loop completed with undelivered notifications') !== -1 // Some extension? We don't use ResizeObserver.
 		)
 			return
 
