@@ -261,7 +261,11 @@ func (m *ms) processHit(ctx context.Context, h *Hit) bool {
 	var site Site
 	err := site.ByID(ctx, h.Site)
 	if err != nil {
-		memlog.Error(ctx, err, "hit", h)
+		// This happens if the site gets deleted before the persist runs. We
+		// don't really need to log that as an error.
+		if !zdb.ErrNoRows(err) {
+			memlog.Error(ctx, err, "hit", h)
+		}
 		return false
 	}
 	ctx = WithSite(ctx, &site)
