@@ -19,8 +19,6 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/teamwork/reload"
-	"golang.org/x/net/http2"
-	"golang.org/x/net/http2/h2c"
 	"golang.org/x/text/language"
 	"zgo.at/blackmail"
 	"zgo.at/errors"
@@ -320,11 +318,17 @@ func cmdServe(f zli.Flags, ready chan<- struct{}, stop chan struct{}, saas bool)
 	}
 
 	ch, err := zhttp.Serve(listenTLS, stop, &http.Server{
-		Addr: listen.String(),
-		// TODO: h2c no longer needed? https://github.com/golang/go/issues/72039
-		Handler:     h2c.NewHandler(zhttp.HostRoute(hosts), &http2.Server{}),
+		Addr:        listen.String(),
+		Handler:     zhttp.HostRoute(hosts),
 		TLSConfig:   tlsc,
 		BaseContext: func(net.Listener) context.Context { return ctx },
+		Protocols: func() *http.Protocols {
+			p := &http.Protocols{}
+			p.SetHTTP1(true)
+			p.SetHTTP2(true)
+			p.SetUnencryptedHTTP2(true)
+			return p
+		}(),
 	})
 	if err != nil {
 		return err
