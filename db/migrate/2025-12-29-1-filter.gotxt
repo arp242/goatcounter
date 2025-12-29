@@ -1,0 +1,16 @@
+create table filters (
+	filter_id     int        not null,
+	site_id       int        not null,
+	matches       int        not null,
+	invert        bool       not null default false,
+	query         text       not null,
+	created_at    timestamp  not null   {{check_timestamp "created_at"}},
+	last_used_at  timestamp  not null   {{check_timestamp "created_at"}}
+);
+create unique index "filters#filter_id" on filters(filter_id);
+
+create table filter_paths (
+	filter_id  int   not null,
+	path_id    int   not null
+);
+create index "filter_paths#filter_id" on filter_paths(filter_id);

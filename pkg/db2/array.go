@@ -15,6 +15,13 @@ func In(ctx context.Context) zdb.SQL {
 	return "in"
 }
 
+func NotIn(ctx context.Context, col string) zdb.SQL {
+	if zdb.SQLDialect(ctx) == zdb.DialectPostgreSQL {
+		return zdb.SQL("not " + col + " = any")
+	}
+	return zdb.SQL("not in " + col)
+}
+
 func Array[T ~int8 | ~int16 | ~int32 | ~int64](ctx context.Context, p []T) any {
 	if zdb.SQLDialect(ctx) == zdb.DialectSQLite {
 		return p

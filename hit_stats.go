@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"zgo.at/errors"
-	"zgo.at/goatcounter/v2/pkg/db2"
 	"zgo.at/zdb"
 	"zgo.at/zstd/zstrconv"
 	"zgo.at/zstd/ztime"
@@ -140,14 +139,16 @@ func asUTCDate(u *User, t time.Time) string {
 //
 // The returned count is the count without LinkDomain, and is different from the
 // total number of hits.
-func (h *HitStats) ListTopRefs(ctx context.Context, rng ztime.Range, pathFilter []PathID, limit, offset int) error {
-	site := MustGetSite(ctx)
-	err := zdb.Select(ctx, &h.Stats, "load:ref.ListTopRefs.sql", map[string]any{
+func (h *HitStats) ListTopRefs(ctx context.Context, rng ztime.Range, pathFilter PathFilter, limit, offset int) error {
+	var (
+		site                    = MustGetSite(ctx)
+		filterSQL, filterParams = pathFilter.SQL(ctx)
+	)
+	err := zdb.Select(ctx, &h.Stats, "load:ref.ListTopRefs.sql", filterParams, map[string]any{
 		"site":       site.ID,
 		"start":      rng.Start,
 		"end":        rng.End,
-		"filter":     db2.Array(ctx, pathFilter),
-		"in":         db2.In(ctx),
+		"filter":     filterSQL,
 		"ref":        site.LinkDomainURL(false) + "%",
 		"limit":      limit + 1,
 		"limit2":     limit + (limit * 3),
@@ -166,13 +167,15 @@ func (h *HitStats) ListTopRefs(ctx context.Context, rng ztime.Range, pathFilter 
 }
 
 // ListTopRef lists all paths by referrer.
-func (h *HitStats) ListTopRef(ctx context.Context, ref string, rng ztime.Range, pathFilter []PathID, limit, offset int) error {
-	err := zdb.Select(ctx, &h.Stats, "load:hit_stats.ByRef", map[string]any{
+func (h *HitStats) ListTopRef(ctx context.Context, ref string, rng ztime.Range, pathFilter PathFilter, limit, offset int) error {
+	var (
+		filterSQL, filterParams = pathFilter.SQL(ctx)
+	)
+	err := zdb.Select(ctx, &h.Stats, "load:hit_stats.ByRef", filterParams, map[string]any{
 		"site":   MustGetSite(ctx).ID,
 		"start":  rng.Start,
 		"end":    rng.End,
-		"filter": db2.Array(ctx, pathFilter),
-		"in":     db2.In(ctx),
+		"filter": filterSQL,
 		"ref":    ref,
 		"limit":  limit + 1,
 		"offset": offset,
@@ -185,14 +188,16 @@ func (h *HitStats) ListTopRef(ctx context.Context, ref string, rng ztime.Range, 
 }
 
 // ListBrowsers lists all browser statistics for the given time period.
-func (h *HitStats) ListBrowsers(ctx context.Context, rng ztime.Range, pathFilter []PathID, limit, offset int) error {
-	user := MustGetUser(ctx)
-	err := zdb.Select(ctx, &h.Stats, "load:hit_stats.ListBrowsers", map[string]any{
+func (h *HitStats) ListBrowsers(ctx context.Context, rng ztime.Range, pathFilter PathFilter, limit, offset int) error {
+	var (
+		user                    = MustGetUser(ctx)
+		filterSQL, filterParams = pathFilter.SQL(ctx)
+	)
+	err := zdb.Select(ctx, &h.Stats, "load:hit_stats.ListBrowsers", filterParams, map[string]any{
 		"site":   MustGetSite(ctx).ID,
 		"start":  asUTCDate(user, rng.Start),
 		"end":    asUTCDate(user, rng.End),
-		"filter": db2.Array(ctx, pathFilter),
-		"in":     db2.In(ctx),
+		"filter": filterSQL,
 		"limit":  limit + 1,
 		"offset": offset,
 	})
@@ -204,14 +209,16 @@ func (h *HitStats) ListBrowsers(ctx context.Context, rng ztime.Range, pathFilter
 }
 
 // ListBrowser lists all the versions for one browser.
-func (h *HitStats) ListBrowser(ctx context.Context, browser string, rng ztime.Range, pathFilter []PathID, limit, offset int) error {
-	user := MustGetUser(ctx)
-	err := zdb.Select(ctx, &h.Stats, "load:hit_stats.ListBrowser", map[string]any{
+func (h *HitStats) ListBrowser(ctx context.Context, browser string, rng ztime.Range, pathFilter PathFilter, limit, offset int) error {
+	var (
+		user                    = MustGetUser(ctx)
+		filterSQL, filterParams = pathFilter.SQL(ctx)
+	)
+	err := zdb.Select(ctx, &h.Stats, "load:hit_stats.ListBrowser", filterParams, map[string]any{
 		"site":    MustGetSite(ctx).ID,
 		"start":   asUTCDate(user, rng.Start),
 		"end":     asUTCDate(user, rng.End),
-		"filter":  db2.Array(ctx, pathFilter),
-		"in":      db2.In(ctx),
+		"filter":  filterSQL,
 		"browser": browser,
 		"limit":   limit + 1,
 		"offset":  offset,
@@ -224,14 +231,16 @@ func (h *HitStats) ListBrowser(ctx context.Context, browser string, rng ztime.Ra
 }
 
 // ListSystems lists OS statistics for the given time period.
-func (h *HitStats) ListSystems(ctx context.Context, rng ztime.Range, pathFilter []PathID, limit, offset int) error {
-	user := MustGetUser(ctx)
-	err := zdb.Select(ctx, &h.Stats, "load:hit_stats.ListSystems", map[string]any{
+func (h *HitStats) ListSystems(ctx context.Context, rng ztime.Range, pathFilter PathFilter, limit, offset int) error {
+	var (
+		user                    = MustGetUser(ctx)
+		filterSQL, filterParams = pathFilter.SQL(ctx)
+	)
+	err := zdb.Select(ctx, &h.Stats, "load:hit_stats.ListSystems", filterParams, map[string]any{
 		"site":   MustGetSite(ctx).ID,
 		"start":  asUTCDate(user, rng.Start),
 		"end":    asUTCDate(user, rng.End),
-		"filter": db2.Array(ctx, pathFilter),
-		"in":     db2.In(ctx),
+		"filter": filterSQL,
 		"limit":  limit + 1,
 		"offset": offset,
 	})
@@ -243,14 +252,16 @@ func (h *HitStats) ListSystems(ctx context.Context, rng ztime.Range, pathFilter 
 }
 
 // ListSystem lists all the versions for one system.
-func (h *HitStats) ListSystem(ctx context.Context, system string, rng ztime.Range, pathFilter []PathID, limit, offset int) error {
-	user := MustGetUser(ctx)
-	err := zdb.Select(ctx, &h.Stats, "load:hit_stats.ListSystem", map[string]any{
+func (h *HitStats) ListSystem(ctx context.Context, system string, rng ztime.Range, pathFilter PathFilter, limit, offset int) error {
+	var (
+		user                    = MustGetUser(ctx)
+		filterSQL, filterParams = pathFilter.SQL(ctx)
+	)
+	err := zdb.Select(ctx, &h.Stats, "load:hit_stats.ListSystem", filterParams, map[string]any{
 		"site":   MustGetSite(ctx).ID,
 		"start":  asUTCDate(user, rng.Start),
 		"end":    asUTCDate(user, rng.End),
-		"filter": db2.Array(ctx, pathFilter),
-		"in":     db2.In(ctx),
+		"filter": filterSQL,
 		"system": system,
 		"limit":  limit + 1,
 		"offset": offset,
@@ -271,14 +282,16 @@ const (
 )
 
 // ListSizes lists all device sizes.
-func (h *HitStats) ListSizes(ctx context.Context, rng ztime.Range, pathFilter []PathID) error {
-	user := MustGetUser(ctx)
-	err := zdb.Select(ctx, &h.Stats, "load:hit_stats.ListSizes", map[string]any{
+func (h *HitStats) ListSizes(ctx context.Context, rng ztime.Range, pathFilter PathFilter) error {
+	var (
+		user                    = MustGetUser(ctx)
+		filterSQL, filterParams = pathFilter.SQL(ctx)
+	)
+	err := zdb.Select(ctx, &h.Stats, "load:hit_stats.ListSizes", filterParams, map[string]any{
 		"site":   MustGetSite(ctx).ID,
 		"start":  asUTCDate(user, rng.Start),
 		"end":    asUTCDate(user, rng.End),
-		"filter": db2.Array(ctx, pathFilter),
-		"in":     db2.In(ctx),
+		"filter": filterSQL,
 	})
 	if err != nil {
 		return errors.Wrap(err, "HitStats.ListSize")
@@ -313,7 +326,7 @@ func (h *HitStats) ListSizes(ctx context.Context, rng ztime.Range, pathFilter []
 }
 
 // ListSize lists all sizes for one grouping.
-func (h *HitStats) ListSize(ctx context.Context, id string, rng ztime.Range, pathFilter []PathID, limit, offset int) error {
+func (h *HitStats) ListSize(ctx context.Context, id string, rng ztime.Range, pathFilter PathFilter, limit, offset int) error {
 	var (
 		minSize, maxSize int
 		empty            bool
@@ -333,13 +346,15 @@ func (h *HitStats) ListSize(ctx context.Context, id string, rng ztime.Range, pat
 		return errors.Errorf("HitStats.ListSizes: invalid value for name: %#v", id)
 	}
 
-	user := MustGetUser(ctx)
-	err := zdb.Select(ctx, &h.Stats, "load:hit_stats.ListSize", map[string]any{
+	var (
+		user                    = MustGetUser(ctx)
+		filterSQL, filterParams = pathFilter.SQL(ctx)
+	)
+	err := zdb.Select(ctx, &h.Stats, "load:hit_stats.ListSize", filterParams, map[string]any{
 		"site":     MustGetSite(ctx).ID,
 		"start":    asUTCDate(user, rng.Start),
 		"end":      asUTCDate(user, rng.End),
-		"filter":   db2.Array(ctx, pathFilter),
-		"in":       db2.In(ctx),
+		"filter":   filterSQL,
 		"min_size": minSize,
 		"max_size": maxSize,
 		"empty":    empty,
@@ -360,14 +375,16 @@ func (h *HitStats) ListSize(ctx context.Context, id string, rng ztime.Range, pat
 }
 
 // ListLocations lists all location statistics for the given time period.
-func (h *HitStats) ListLocations(ctx context.Context, rng ztime.Range, pathFilter []PathID, limit, offset int) error {
-	user := MustGetUser(ctx)
-	err := zdb.Select(ctx, &h.Stats, "load:hit_stats.ListLocations", map[string]any{
+func (h *HitStats) ListLocations(ctx context.Context, rng ztime.Range, pathFilter PathFilter, limit, offset int) error {
+	var (
+		user                    = MustGetUser(ctx)
+		filterSQL, filterParams = pathFilter.SQL(ctx)
+	)
+	err := zdb.Select(ctx, &h.Stats, "load:hit_stats.ListLocations", filterParams, map[string]any{
 		"site":   MustGetSite(ctx).ID,
 		"start":  asUTCDate(user, rng.Start),
 		"end":    asUTCDate(user, rng.End),
-		"filter": db2.Array(ctx, pathFilter),
-		"in":     db2.In(ctx),
+		"filter": filterSQL,
 		"limit":  limit + 1,
 		"offset": offset,
 	})
@@ -379,14 +396,16 @@ func (h *HitStats) ListLocations(ctx context.Context, rng ztime.Range, pathFilte
 }
 
 // ListLocation lists all divisions for a location
-func (h *HitStats) ListLocation(ctx context.Context, country string, rng ztime.Range, pathFilter []PathID, limit, offset int) error {
-	user := MustGetUser(ctx)
-	err := zdb.Select(ctx, &h.Stats, "load:hit_stats.ListLocation", map[string]any{
+func (h *HitStats) ListLocation(ctx context.Context, country string, rng ztime.Range, pathFilter PathFilter, limit, offset int) error {
+	var (
+		user                    = MustGetUser(ctx)
+		filterSQL, filterParams = pathFilter.SQL(ctx)
+	)
+	err := zdb.Select(ctx, &h.Stats, "load:hit_stats.ListLocation", filterParams, map[string]any{
 		"site":    MustGetSite(ctx).ID,
 		"start":   asUTCDate(user, rng.Start),
 		"end":     asUTCDate(user, rng.End),
-		"filter":  db2.Array(ctx, pathFilter),
-		"in":      db2.In(ctx),
+		"filter":  filterSQL,
 		"country": country,
 		"limit":   limit + 1,
 		"offset":  offset,
@@ -399,14 +418,16 @@ func (h *HitStats) ListLocation(ctx context.Context, country string, rng ztime.R
 }
 
 // ListLanguages lists all language statistics for the given time period.
-func (h *HitStats) ListLanguages(ctx context.Context, rng ztime.Range, pathFilter []PathID, limit, offset int) error {
-	user := MustGetUser(ctx)
-	err := zdb.Select(ctx, &h.Stats, "load:hit_stats.ListLanguages", map[string]any{
+func (h *HitStats) ListLanguages(ctx context.Context, rng ztime.Range, pathFilter PathFilter, limit, offset int) error {
+	var (
+		user                    = MustGetUser(ctx)
+		filterSQL, filterParams = pathFilter.SQL(ctx)
+	)
+	err := zdb.Select(ctx, &h.Stats, "load:hit_stats.ListLanguages", filterParams, map[string]any{
 		"site":   MustGetSite(ctx).ID,
 		"start":  asUTCDate(user, rng.Start),
 		"end":    asUTCDate(user, rng.End),
-		"filter": db2.Array(ctx, pathFilter),
-		"in":     db2.In(ctx),
+		"filter": filterSQL,
 		"limit":  limit + 1,
 		"offset": offset,
 	})
@@ -418,14 +439,16 @@ func (h *HitStats) ListLanguages(ctx context.Context, rng ztime.Range, pathFilte
 }
 
 // ListCampaigns lists all campaigns statistics for the given time period.
-func (h *HitStats) ListCampaigns(ctx context.Context, rng ztime.Range, pathFilter []PathID, limit, offset int) error {
-	user := MustGetUser(ctx)
-	err := zdb.Select(ctx, &h.Stats, "load:hit_stats.ListCampaigns", map[string]any{
+func (h *HitStats) ListCampaigns(ctx context.Context, rng ztime.Range, pathFilter PathFilter, limit, offset int) error {
+	var (
+		user                    = MustGetUser(ctx)
+		filterSQL, filterParams = pathFilter.SQL(ctx)
+	)
+	err := zdb.Select(ctx, &h.Stats, "load:hit_stats.ListCampaigns", filterParams, map[string]any{
 		"site":   MustGetSite(ctx).ID,
 		"start":  asUTCDate(user, rng.Start),
 		"end":    asUTCDate(user, rng.End),
-		"filter": db2.Array(ctx, pathFilter),
-		"in":     db2.In(ctx),
+		"filter": filterSQL,
 		"limit":  limit + 1,
 		"offset": offset,
 	})
@@ -437,14 +460,16 @@ func (h *HitStats) ListCampaigns(ctx context.Context, rng ztime.Range, pathFilte
 }
 
 // ListCampaign lists all statistics for a campaign.
-func (h *HitStats) ListCampaign(ctx context.Context, campaign CampaignID, rng ztime.Range, pathFilter []PathID, limit, offset int) error {
-	user := MustGetUser(ctx)
-	err := zdb.Select(ctx, &h.Stats, "load:hit_stats.ListCampaign", map[string]any{
+func (h *HitStats) ListCampaign(ctx context.Context, campaign CampaignID, rng ztime.Range, pathFilter PathFilter, limit, offset int) error {
+	var (
+		user                    = MustGetUser(ctx)
+		filterSQL, filterParams = pathFilter.SQL(ctx)
+	)
+	err := zdb.Select(ctx, &h.Stats, "load:hit_stats.ListCampaign", filterParams, map[string]any{
 		"site":     MustGetSite(ctx).ID,
 		"start":    asUTCDate(user, rng.Start),
 		"end":      asUTCDate(user, rng.End),
-		"filter":   db2.Array(ctx, pathFilter),
-		"in":       db2.In(ctx),
+		"filter":   filterSQL,
 		"campaign": campaign,
 		"limit":    limit + 1,
 		"offset":   offset,
