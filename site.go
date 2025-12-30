@@ -13,6 +13,7 @@ import (
 	"zgo.at/guru"
 	"zgo.at/json"
 	"zgo.at/zdb"
+	"zgo.at/zstd/zbool"
 	"zgo.at/zstd/zcrypto"
 	"zgo.at/zstd/znet"
 	"zgo.at/zstd/zslice"
@@ -98,8 +99,8 @@ func (s SiteIDs) List(ctx context.Context) Sites {
 }
 
 type Site struct {
-	ID     SiteID  `db:"site_id" json:"id,readonly"`
-	Parent *SiteID `db:"parent" json:"parent,readonly"`
+	ID     SiteID  `db:"site_id,id" json:"id,readonly"`
+	Parent *SiteID `db:"parent,readonly" json:"parent,readonly"`
 
 	// Custom domain, e.g. "stats.example.com".
 	//
@@ -111,7 +112,7 @@ type Site struct {
 
 	// Domain code (e.g. "arp242", which makes arp242.goatcounter.com). Only
 	// used for goatcounter.com and not when self-hosting.
-	Code string `db:"code" json:"code"`
+	Code string `db:"code,readonly" json:"code"`
 
 	// Site domain for linking (www.arp242.net). Note this can be a full URL and
 	// is a bit misnamed.
@@ -122,16 +123,15 @@ type Site struct {
 
 	// Whether this site has received any data; will be true after the first
 	// pageview.
-	ReceivedData bool `db:"received_data" json:"received_data"`
-
-	// {omitdoc}
-	Notes string `db:"notes" json:"-"`
+	ReceivedData zbool.Bool `db:"received_data" json:"received_data"`
 
 	State      string     `db:"state" json:"state"`
-	CreatedAt  time.Time  `db:"created_at" json:"created_at"`
+	CreatedAt  time.Time  `db:"created_at,readonly" json:"created_at"`
 	UpdatedAt  *time.Time `db:"updated_at" json:"updated_at"`
-	FirstHitAt time.Time  `db:"first_hit_at" json:"first_hit_at"`
+	FirstHitAt time.Time  `db:"first_hit_at,readonly" json:"first_hit_at"`
 }
+
+func (Site) Table() string { return "sites" }
 
 // ClearCache clears the cache for this site.
 func (s Site) ClearCache(ctx context.Context, full bool) {
@@ -144,7 +144,8 @@ func (s Site) ClearCache(ctx context.Context, full bool) {
 	}
 }
 
-// Defaults sets fields to default values, unless they're already set.
+var _ zdb.Defaulter = &Site{}
+
 func (s *Site) Defaults(ctx context.Context) {
 	if s.State == "" {
 		s.State = StateActive
@@ -175,7 +176,8 @@ func (s *Site) Defaults(ctx context.Context) {
 
 var noUnderscore = time.Date(2020, 03, 20, 0, 0, 0, 0, time.UTC)
 
-// Validate the object.
+var _ zdb.Validator = &Site{}
+
 func (s *Site) Validate(ctx context.Context) error {
 	v := NewValidate(ctx)
 
@@ -241,44 +243,20 @@ func (s *Site) Validate(ctx context.Context) error {
 	return v.ErrorOrNil()
 }
 
-// Insert a new row.
 func (s *Site) Insert(ctx context.Context) error {
-	if s.ID > 0 {
-		return errors.New("ID > 0")
-	}
-	s.Defaults(ctx)
-	err := s.Validate(ctx)
-	if err != nil {
-		return err
-	}
-
-	s.ID, err = zdb.InsertID[SiteID](ctx, "site_id", `insert into sites (
-		parent, code, cname, link_domain, settings, user_defaults, created_at, first_hit_at, cname_setup_at) values (?)`,
-		[]any{s.Parent, s.Code, s.Cname, s.LinkDomain, s.Settings, s.UserDefaults, s.CreatedAt, s.CreatedAt, s.CnameSetupAt})
-	if err != nil && zdb.ErrUnique(err) {
+	err := zdb.Insert(ctx, s)
+	if zdb.ErrUnique(err) {
 		return guru.New(400, "this site already exists: code or domain must be unique")
 	}
 	return errors.Wrap(err, "Site.Insert")
 }
 
-// Update existing site. Sets settings, cname, link_domain.
 func (s *Site) Update(ctx context.Context) error {
-	if s.ID == 0 {
-		return errors.New("ID == 0")
-	}
-	s.Defaults(ctx)
-	err := s.Validate(ctx)
-	if err != nil {
-		return err
-	}
-
 	if s.Cname == nil || *s.Cname == "" {
 		s.Cname, s.CnameSetupAt = nil, nil
 	}
 
-	err = zdb.Exec(ctx,
-		`update sites set settings=?, user_defaults=?, cname=?, link_domain=?, updated_at=?, cname_setup_at=? where site_id=?`,
-		s.Settings, s.UserDefaults, s.Cname, s.LinkDomain, s.UpdatedAt, s.CnameSetupAt, s.ID)
+	err := zdb.Update(ctx, s, zdb.UpdateAll)
 	if err != nil {
 		return errors.Wrap(err, "Site.Update")
 	}
@@ -315,9 +293,7 @@ func (s *Site) UpdateParent(ctx context.Context, newParent *SiteID) error {
 			}
 		}
 
-		return zdb.Exec(ctx,
-			`update sites set parent=?, updated_at=? where site_id=?`,
-			s.Parent, s.UpdatedAt, s.ID)
+		return zdb.Update(ctx, s, "parent", "updated_at")
 	})
 	if err != nil {
 		return errors.Wrap(err, "Site.UpdateParent")
@@ -330,62 +306,34 @@ func (s *Site) UpdateParent(ctx context.Context, newParent *SiteID) error {
 // UpdateCode changes the site's domain code (e.g. "test" in
 // "test.goatcounter.com").
 func (s *Site) UpdateCode(ctx context.Context, code string) error {
-	if s.ID == 0 {
-		return errors.New("ID == 0")
-	}
-
 	s.Code = code
-
-	s.Defaults(ctx)
-	err := s.Validate(ctx)
-	if err != nil {
-		return err
-	}
-
-	err = zdb.Exec(ctx,
-		`update sites set code=$1, updated_at=$2 where site_id=$3`,
-		s.Code, s.UpdatedAt, s.ID)
+	err := zdb.Update(ctx, s, "code", "updated_at")
 	if err != nil {
 		return errors.Wrap(err, "Site.UpdateCode")
 	}
-
 	cacheSites(ctx).Delete(s.ID)
 	cacheSitesHost(ctx).Reset()
 	return nil
 }
 
 func (s *Site) UpdateReceivedData(ctx context.Context) error {
-	err := zdb.Exec(ctx, `update sites set received_data=1 where site_id=$1`, s.ID)
-
+	err := zdb.Update(ctx, s, "received_data")
 	s.ClearCache(ctx, false)
 	return errors.Wrap(err, "Site.UpdateReceivedData")
 }
 
 func (s *Site) UpdateFirstHitAt(ctx context.Context, f time.Time) error {
-	f = f.UTC().Add(-12 * time.Hour)
-	s.FirstHitAt = f
-	err := zdb.Exec(ctx,
-		`update sites set first_hit_at=$1 where site_id=$2`,
-		s.FirstHitAt, s.ID)
-
+	s.FirstHitAt = f.UTC().Add(-12 * time.Hour)
+	err := zdb.Update(ctx, s, "first_hit_at")
 	s.ClearCache(ctx, false)
 	return errors.Wrap(err, "Site.UpdateFirstHitAt")
 }
 
 // UpdateCnameSetupAt confirms the custom domain was setup correct.
 func (s *Site) UpdateCnameSetupAt(ctx context.Context) error {
-	if s.ID == 0 {
-		return errors.New("ID == 0")
-	}
-
-	err := zdb.Exec(ctx,
-		`update sites set cname_setup_at=$1 where site_id=$2`,
-		s.CnameSetupAt, s.ID)
-	if err != nil {
-		return errors.Wrap(err, "Site.UpdateCnameSetupAt")
-	}
+	err := zdb.Update(ctx, s, "cname_setup_at")
 	s.ClearCache(ctx, false)
-	return nil
+	return errors.Wrap(err, "Site.UpdateCnameSetupAt")
 }
 
 // Delete a site and all child sites.
@@ -452,7 +400,8 @@ func (s Site) Undelete(ctx context.Context, id SiteID) error {
 	}
 
 	s.ClearCache(ctx, false)
-	return errors.Wrap(s.ByID(ctx, id), "Site.Undelete")
+	err = s.ByID(ctx, id)
+	return errors.Wrap(err, "Site.Undelete")
 }
 
 // Exists checks if this site already exists, based on either the Cname or Code
@@ -720,24 +669,25 @@ type Sites []Site
 
 // UnscopedList lists all sites, not scoped to the current user.
 func (s *Sites) UnscopedList(ctx context.Context) error {
-	return errors.Wrap(zdb.Select(ctx, s,
-		`/* Sites.List */ select * from sites where state=$1`,
-		StateActive), "Sites.List")
+	err := zdb.Select(ctx, s, `/* Sites.List */ select * from sites where state=$1`, StateActive)
+	return errors.Wrap(err, "Sites.List")
 }
 
 // UnscopedListCnames all sites that have CNAME set, not scoped to the current
 // user.
 func (s *Sites) UnscopedListCnames(ctx context.Context) error {
-	return errors.Wrap(zdb.Select(ctx, s, `/* Sites.ListCnames */
+	err := zdb.Select(ctx, s, `/* Sites.ListCnames */
 		select * from sites where state=$1 and cname is not null`,
-		StateActive), "Sites.List")
+		StateActive)
+	return errors.Wrap(err, "Sites.List")
 }
 
 // ListSubs lists all subsites for the current site.
 func (s *Sites) ListSubs(ctx context.Context) error {
-	return errors.Wrap(zdb.Select(ctx, s, `/* Sites.ListSubs */
+	err := zdb.Select(ctx, s, `/* Sites.ListSubs */
 		select * from sites where parent=$1 and state=$2 order by code`,
-		MustGetSite(ctx).ID, StateActive), "Sites.ListSubs")
+		MustGetSite(ctx).ID, StateActive)
+	return errors.Wrap(err, "Sites.ListSubs")
 }
 
 // ForAccount gets all sites associated with an account.

@@ -35,9 +35,9 @@ require (
 	zgo.at/tz v0.0.0-20251201071354-238b46ef6739
 	zgo.at/z18n v0.0.0-20251211202746-c7089c5c596e
 	zgo.at/zcache/v2 v2.4.1
-	zgo.at/zdb v0.0.0-20251214135817-c76f633481dc
-	zgo.at/zdb-drivers/go-sqlite3 v0.0.0-20251214132307-3b1fa0323e96
-	zgo.at/zdb-drivers/pq v0.0.0-20251214132307-3b1fa0323e96
+	zgo.at/zdb v0.0.0-20251231144927-8875464050e8
+	zgo.at/zdb-drivers/go-sqlite3 v0.0.0-20251231053748-dbefaf780698
+	zgo.at/zdb-drivers/pq v0.0.0-20251231053748-dbefaf780698
 	zgo.at/zhttp v0.0.0-20251201061952-9a43cabb6d05
 	zgo.at/zli v0.0.0-20250704045222-08cb210424f2
 	zgo.at/zprof v0.0.0-20251228192741-d31275fbf5af

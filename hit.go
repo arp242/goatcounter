@@ -17,7 +17,7 @@ import (
 type HitID int64
 
 type Hit struct {
-	ID         HitID        `db:"hit_id" json:"-"`
+	ID         HitID        `db:"hit_id,id" json:"-"`
 	Site       SiteID       `db:"site_id" json:"-"`
 	PathID     PathID       `db:"path_id" json:"-"`
 	RefID      RefID        `db:"ref_id" json:"-"`
@@ -52,6 +52,8 @@ type Hit struct {
 	NoStore   bool `db:"-" json:"-"` // Don't store in hits (still store in stats).
 	noProcess bool `db:"-" json:"-"` // Don't process in memstore; for merging paths.
 }
+
+func (Hit) Table() string { return "hits" }
 
 func (h *Hit) Ignore() bool {
 	// kproxy.com; not easy to get the original path, so just ignore it.
@@ -379,7 +381,6 @@ func (h *Hits) TestList(ctx context.Context, siteOnly bool) error {
 
 // Purge the given paths.
 func (h *Hits) Purge(ctx context.Context, pathIDs []PathID) error {
-
 	return zdb.TX(ctx, func(ctx context.Context) error {
 		siteID := MustGetSite(ctx).ID
 		for _, t := range append(statTables, "hit_counts", "ref_counts", "hits", "paths") {

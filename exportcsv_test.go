@@ -92,7 +92,7 @@ func TestCSVExport(t *testing.T) {
 			"last_hit_id": 4,
 			"path": "%(ANY)goatcounter-export-gctest2-%(YEAR)%(MONTH)%(DAY)T%(ANY)Z-0.csv.gz",
 			"created_at": "%(YEAR)-%(MONTH)-%(DAY)T%(ANY)Z",
-			"finished_at": null,
+			"finished_at": "%(YEAR)-%(MONTH)-%(DAY)T%(ANY)Z",
 			"num_rows": 4,
 			"size": "0.1",
 			"hash": "sha256-8a426c2bebfa343e2dc20e154b67297e981ac3399202369485d6ede82979205b",
