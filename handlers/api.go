@@ -209,7 +209,7 @@ func (h api) auth(r *http.Request, w http.ResponseWriter, require zint.Bitflag64
 
 	// Update once a day at the most.
 	if token.LastUsedAt == nil || token.LastUsedAt.Before(ztime.Now(r.Context()).Add(-24*time.Hour)) {
-		err := token.UpdateLastUsed(r.Context())
+		err := token.Touch(r.Context())
 		if err != nil {
 			log.Error(r.Context(), err)
 		}

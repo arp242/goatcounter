@@ -15,7 +15,7 @@ import (
 type LocationID int32
 
 type Location struct {
-	ID LocationID `db:"location_id"`
+	ID LocationID `db:"location_id,id"`
 
 	Country     string `db:"country"`
 	Region      string `db:"region"`
@@ -24,8 +24,10 @@ type Location struct {
 
 	// TODO: send patch to staticcheck to deal with this better. This shouldn't
 	// errror since "ISO" is an initialism.
-	ISO3166_2 string `db:"iso_3166_2"` //lint:ignore ST1003 staticcheck bug
+	ISO3166_2 string `db:"iso_3166_2,noinsert"` //lint:ignore ST1003 staticcheck bug
 }
+
+func (Location) Table() string { return "locations" }
 
 func (l Location) String() string {
 	return fmt.Sprintf("location_id=%d; country=%q; country_name=%q; region=%q; region_name=%q", l.ID, l.Country, l.CountryName, l.Region, l.RegionName)
@@ -105,9 +107,7 @@ func (l Location) LookupIP(ctx context.Context, ip string) string {
 }
 
 func (l *Location) insert(ctx context.Context) (err error) {
-	l.ID, err = zdb.InsertID[LocationID](ctx, "location_id",
-		`insert into locations (country, region, country_name, region_name) values (?, ?, ?, ?)`,
-		l.Country, l.Region, l.CountryName, l.RegionName)
+	err = zdb.Insert(ctx, l)
 	if err != nil {
 		return err
 	}

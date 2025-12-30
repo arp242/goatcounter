@@ -32,7 +32,7 @@ const (
 type APITokenID int32
 
 type APIToken struct {
-	ID     APITokenID `db:"api_token_id" json:"-"`
+	ID     APITokenID `db:"api_token_id,id" json:"-"`
 	SiteID SiteID     `db:"site_id" json:"-"`
 	UserID UserID     `db:"user_id" json:"-"`
 
@@ -44,6 +44,8 @@ type APIToken struct {
 	CreatedAt  time.Time  `db:"created_at" json:"-"`
 	LastUsedAt *time.Time `db:"last_used_at" json:"-"`
 }
+
+func (APIToken) Table() string { return "api_tokens" }
 
 type PermissionFlag struct {
 	Label, Help string
@@ -125,12 +127,16 @@ func (t APIToken) FormatPermissions() string {
 	return "'" + strings.Join(all, "', '") + "'"
 }
 
-// Defaults sets fields to default values, unless they're already set.
+var _ zdb.Defaulter = &APIToken{}
+
 func (t *APIToken) Defaults(ctx context.Context) {
 	t.SiteID = MustGetSite(ctx).IDOrParent()
+	t.UserID = MustGetUser(ctx).ID
 	t.Token = zcrypto.Secret256()
 	t.CreatedAt = ztime.Now(ctx)
 }
+
+var _ zdb.Validator = &APIToken{}
 
 func (t *APIToken) Validate(ctx context.Context) error {
 	v := NewValidate(ctx)
@@ -162,55 +168,21 @@ func (t *APIToken) Validate(ctx context.Context) error {
 
 // Insert a new row.
 func (t *APIToken) Insert(ctx context.Context) error {
-	if t.ID > 0 {
-		return errors.New("ID > 0")
-	}
-
-	t.Defaults(ctx)
-	err := t.Validate(ctx)
-	if err != nil {
-		return err
-	}
-
-	t.ID, err = zdb.InsertID[APITokenID](ctx, "api_token_id",
-		`insert into api_tokens (site_id, user_id, name, token, permissions, created_at, sites) values (?)`,
-		[]any{t.SiteID, GetUser(ctx).ID, t.Name, t.Token, t.Permissions, t.CreatedAt, t.Sites})
+	err := zdb.Insert(ctx, t)
 	return errors.Wrap(err, "APIToken.Insert")
 }
 
 // Update the name and permissions.
 func (t *APIToken) Update(ctx context.Context) error {
-	if t.ID == 0 {
-		return errors.New("ID == 0")
-	}
-
-	t.Defaults(ctx)
-	err := t.Validate(ctx)
-	if err != nil {
-		return err
-	}
-
-	err = zdb.Exec(ctx, `update api_tokens set name=?, permissions=? where api_token_id=?`,
-		t.Name, t.Permissions, t.ID)
+	err := zdb.Update(ctx, t, "name", "permissions")
 	return errors.Wrap(err, "APIToken.Update")
 }
 
-// UpdateLastUsed sets the last used time to the current time.
-func (t *APIToken) UpdateLastUsed(ctx context.Context) error {
-	if t.ID == 0 {
-		return errors.New("ID == 0")
-	}
-
-	t.Defaults(ctx)
-	err := t.Validate(ctx)
-	if err != nil {
-		return err
-	}
-
+// Touch sets the last used time to the current time.
+func (t *APIToken) Touch(ctx context.Context) error {
 	t.LastUsedAt = ztype.Ptr(ztime.Now(ctx))
-	err = zdb.Exec(ctx, `update api_tokens set last_used_at=? where api_token_id=?`,
-		t.LastUsedAt, t.ID)
-	return errors.Wrap(err, "APIToken.UpdateLastUsed")
+	err := zdb.Update(ctx, t, "last_used_at")
+	return errors.Wrap(err, "APIToken.Touch")
 }
 
 func (t *APIToken) ByID(ctx context.Context, id APITokenID) error {
@@ -222,7 +194,7 @@ func (t *APIToken) ByID(ctx context.Context, id APITokenID) error {
 
 func (t *APIToken) ByToken(ctx context.Context, token string) error {
 	err := zdb.Get(ctx, t,
-		`/* APIToken.ByID */ select * from api_tokens where token=$1 and site_id=$2`,
+		`/* APIToken.ByToken */ select * from api_tokens where token=$1 and site_id=$2`,
 		token, MustGetSite(ctx).IDOrParent())
 	if err != nil {
 		return errors.Wrapf(err, "APIToken.ByToken(%q)", token)

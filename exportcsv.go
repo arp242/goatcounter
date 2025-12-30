@@ -19,6 +19,7 @@ import (
 	"zgo.at/zstd/zcrypto"
 	"zgo.at/zstd/zint"
 	"zgo.at/zstd/ztime"
+	"zgo.at/zstd/ztype"
 )
 
 const ExportCSVVersion = "2"
@@ -37,10 +38,7 @@ func (e *Export) CreateCSV(ctx context.Context, startFrom HitID) (*os.File, erro
 		os.TempDir(), string(os.PathSeparator), site.Code,
 		e.CreatedAt.Format("20060102T150405Z"), startFrom)
 
-	var err error
-	e.ID, err = zdb.InsertID[ExportID](ctx, "export_id",
-		`insert into exports (site_id, path, created_at, start_from_hit_id) values (?, ?, ?, ?)`,
-		e.SiteID, e.Path, e.CreatedAt, e.StartFromHitID)
+	err := zdb.Insert(ctx, e)
 	if err != nil {
 		return nil, errors.Wrap(err, "Export.Create")
 	}
@@ -104,9 +102,8 @@ func (e *Export) RunCSV(ctx context.Context, fp *os.File, mailUser bool) {
 
 	if exportErr != nil {
 		l.Error(ctx, exportErr, "export", e)
-		err := zdb.Exec(ctx,
-			`update exports set error=$1 where export_id=$2`,
-			exportErr.Error(), e.ID)
+		e.Error = ztype.Ptr(exportErr.Error())
+		err := zdb.Update(ctx, e, "error")
 		if err != nil {
 			log.Error(ctx, err)
 		}
@@ -151,11 +148,8 @@ func (e *Export) RunCSV(ctx context.Context, fp *os.File, mailUser bool) {
 		return
 	}
 
-	now := ztime.Now(ctx)
-	err = zdb.Exec(ctx, `update exports set
-		finished_at=$1, num_rows=$2, size=$3, hash=$4, last_hit_id=$5
-		where export_id=$6`,
-		&now, e.NumRows, e.Size, e.Hash, e.LastHitID, e.ID)
+	e.FinishedAt = ztype.Ptr(ztime.Now(ctx))
+	zdb.Update(ctx, e, "finished_at", "num_rows", "size", "hash", "last_hit_id")
 	if err != nil {
 		log.Error(ctx, err)
 	}

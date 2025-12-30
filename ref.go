@@ -83,12 +83,18 @@ var hostAlias = map[string]string{
 type RefID int32
 
 type Ref struct {
-	ID        RefID  `db:"ref_id"`
+	ID        RefID  `db:"ref_id,id"`
 	Ref       string `db:"ref"`
 	RefScheme string `db:"ref_scheme"`
 }
 
+func (Ref) Table() string { return "refs" }
+
+var _ zdb.Defaulter = &Ref{}
+
 func (r *Ref) Defaults(ctx context.Context) {}
+
+var _ zdb.Validator = &Ref{}
 
 func (r *Ref) Validate(ctx context.Context) error {
 	v := NewValidate(ctx)
@@ -115,13 +121,7 @@ func (r *Ref) GetOrInsert(ctx context.Context) error {
 		return nil
 	}
 
-	r.Defaults(ctx)
-	err := r.Validate(ctx)
-	if err != nil {
-		return err
-	}
-
-	err = zdb.Get(ctx, r, `/* Ref.GetOrInsert */
+	err := zdb.Get(ctx, r, `/* Ref.GetOrInsert */
 		select * from refs
 		where lower(ref) = lower(?) and ref_scheme = ?
 		limit 1`, r.Ref, r.RefScheme)
@@ -133,9 +133,7 @@ func (r *Ref) GetOrInsert(ctx context.Context) error {
 		return errors.Wrapf(err, "Ref.GetOrInsert(%q, %q): %w", r.Ref, r.RefScheme, err)
 	}
 
-	r.ID, err = zdb.InsertID[RefID](ctx, "ref_id",
-		`insert into refs (ref, ref_scheme) values (?, ?)`,
-		r.Ref, r.RefScheme)
+	err = zdb.Insert(ctx, r)
 	if err != nil {
 		return errors.Wrapf(err, "Ref.GetOrInsert(%q, %q): %w", r.Ref, r.RefScheme, err)
 	}
