@@ -1,7 +1,7 @@
 /* List of languages:
 curl -s 'https://salsa.debian.org/iso-codes-team/iso-codes/-/raw/main/data/iso_639-3.json' |
 	jq -r '."639-3" | .[] | select(.type == "L" or .type == "C") | "(\"" + .alpha_3 + "\", \"" + .name + "\"),"' |
-	sed "s/^/\t/; s/'/''/g; s/\"/'/g; $s/,$//"
+	sed "s/^/\t/; s/'/''/g; s/\"/'/g; \$s/,$//"
 */
 insert into languages (iso_639_3, name) values
 	('aaa', 'Ghotuo'),
@@ -7091,4 +7091,4 @@ insert into languages (iso_639_3, name) values
 	('zza', 'Zaza'),
 	('zzj', 'Zuojiang Zhuang')
 
-on conflict (iso_639_3) do update set name = excluded.name;
+on conflict (iso_639_3) do nothing;
