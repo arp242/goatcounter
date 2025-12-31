@@ -86,7 +86,7 @@ func reportUsers(ctx context.Context) (goatcounter.Users, error) {
 		query = `
 			select users.* from users
 			join sites using(site_id)
-			where coalesce(users.settings->>'email_reports', '0')::int != ? and sites.state = ?`
+			where users.settings->>'email_reports'::text != ? and sites.state = ?`
 	}
 
 	var users goatcounter.Users

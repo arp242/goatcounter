@@ -7,10 +7,7 @@ require (
 	github.com/go-chi/chi/v5 v5.2.3
 	github.com/google/uuid v1.6.0
 	github.com/gorilla/websocket v1.5.3
-	github.com/jackc/pgpassfile v1.0.0 // indirect
-	github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761 // indirect
-	github.com/jackc/pgx/v5 v5.8.0 // indirect
-	github.com/jackc/puddle/v2 v2.2.2 // indirect
+	github.com/lib/pq v1.10.9 // indirect
 	github.com/mattn/go-sqlite3 v1.14.32
 	github.com/monoculum/formam/v3 v3.6.1-0.20221106124510-6a93f49ac1f8
 	github.com/rivo/uniseg v0.4.7 // indirect
@@ -20,7 +17,7 @@ require (
 
 // Things I maintain
 require (
-	github.com/BurntSushi/toml v1.6.0
+	github.com/BurntSushi/toml v1.5.0
 	github.com/fsnotify/fsnotify v1.9.0 // indirect
 	github.com/teamwork/reload v1.4.2
 	zgo.at/blackmail v0.0.0-20251210171630-f1b7a42e3f87
@@ -36,13 +33,13 @@ require (
 	zgo.at/slog_align v0.0.0-20251129094707-bf509eca6089
 	zgo.at/termtext v1.5.0
 	zgo.at/tz v0.0.0-20251201071354-238b46ef6739
-	zgo.at/z18n v0.0.0-20251227033109-2bd64ce1f42c
+	zgo.at/z18n v0.0.0-20251211202746-c7089c5c596e
 	zgo.at/zcache/v2 v2.4.1
-	zgo.at/zdb v0.0.0-20251229200430-f9358a291e07
-	zgo.at/zdb-drivers/go-sqlite3 v0.0.0-20251229203114-f21d1359c489
-	zgo.at/zdb-drivers/pgx v0.0.0-20251229203114-f21d1359c489
+	zgo.at/zdb v0.0.0-20251214135817-c76f633481dc
+	zgo.at/zdb-drivers/go-sqlite3 v0.0.0-20251214132307-3b1fa0323e96
+	zgo.at/zdb-drivers/pq v0.0.0-20251214132307-3b1fa0323e96
 	zgo.at/zhttp v0.0.0-20251201061952-9a43cabb6d05
-	zgo.at/zli v0.0.0-20251226224229-7bb9a5cf3265
+	zgo.at/zli v0.0.0-20250704045222-08cb210424f2
 	zgo.at/zprof v0.0.0-20251228192741-d31275fbf5af
 	zgo.at/zstd v0.0.0-20251128053228-ec259dea6715
 	zgo.at/ztpl v0.0.0-20250628022642-3b2c314e8e05

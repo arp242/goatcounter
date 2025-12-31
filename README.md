@@ -138,9 +138,10 @@ You can manually import the schema with:
 
     % goatcounter db schema-pgsql | psql --user=goatcounter --dbname=goatcounter
 
-See `goatcounter help db` and the [pgx docs] for more details.
+See `goatcounter help db` and the [pq docs][pq] for more details.
 
-[pgx docs]: https://pkg.go.dev/github.com/jackc/pgx/v5/pgconn#ParseConfig
+[pq]: https://pkg.go.dev/github.com/lib/pq#hdr-Connection_String_Parameters
+
 
 ### Running with Docker
 GoatCounter is available on DockerHub at [arp242/goatcounter].

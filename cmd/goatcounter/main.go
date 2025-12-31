@@ -21,7 +21,7 @@ import (
 	"zgo.at/slog_align"
 	"zgo.at/zdb"
 	"zgo.at/zdb-drivers/go-sqlite3"
-	_ "zgo.at/zdb-drivers/pgx"
+	_ "zgo.at/zdb-drivers/pq"
 	"zgo.at/zdb/drivers"
 	"zgo.at/zli"
 	"zgo.at/zstd/zfs"
