@@ -36,15 +36,19 @@
 
 	// Report an error.
 	let on_error = function(msg, url, line, column, err) {
-		// Don't log useless errors in Safari: https://bugs.webkit.org/show_bug.cgi?id=132945
-		if (msg === 'Script error.')
-			return
-		// I don't what kind of shitty thing is spamming me with this, but I've
-		// gotten a lot of these and I'm getting tired of it.
-		if (msg.indexOf("document.getElementsByTagName('video')[0].webkitExitFullScreen") !== -1 ||
+		if (
+			// Useless Safari error: https://bugs.webkit.org/show_bug.cgi?id=132945
+			msg === 'Script error.' ||
+
+			// Various crappy extensions or injected scripts keeps spamming
+			// these. I'm quite sure it's not GoatCounter.
+			msg.indexOf("document.getElementsByTagName('video')[0].webkitExitFullScreen") !== -1 ||
 			msg.match(/Cannot redefine property: (googletag|ethereum)/) !== null ||
-			msg.indexOf('Exception invoking lineTo') !== -1 || // Only from bot, never any details.
-			msg.indexOf('ResizeObserver loop completed with undelivered notifications') !== -1 // Some extension? We don't use ResizeObserver.
+			msg.indexOf('ResizeObserver loop completed with undelivered notifications') !== -1 ||
+			msg.indexOf("Can't find variable: requestIdleCallback") !== -1 ||
+
+			// Only from bot, never any details.
+			msg.indexOf('Exception invoking lineTo') !== -1
 		)
 			return
 
