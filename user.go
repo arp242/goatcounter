@@ -20,14 +20,14 @@ import (
 	"zgo.at/zstd/zstrconv"
 	"zgo.at/zstd/ztime"
 	"zgo.at/zstd/ztype"
+	"zgo.at/zvalidate"
 )
 
 type UserID int32
 
-// User entry.
 type User struct {
-	ID   UserID `db:"user_id" json:"id,readonly"`
-	Site SiteID `db:"site_id" json:"site,readonly"`
+	ID   UserID `db:"user_id,id" json:"id,readonly"`
+	Site SiteID `db:"site_id,readonly" json:"site,readonly"`
 
 	Email         string       `db:"email" json:"email"`
 	EmailVerified zbool.Bool   `db:"email_verified" json:"email_verified,readonly"`
@@ -47,11 +47,14 @@ type User struct {
 	// Keep track when the last email report was sent, so we don't double-send them.
 	LastReportAt time.Time `db:"last_report_at" json:"last_report_at"`
 
-	CreatedAt time.Time  `db:"created_at" json:"created_at,readonly"`
+	CreatedAt time.Time  `db:"created_at,readonly" json:"created_at,readonly"`
 	UpdatedAt *time.Time `db:"updated_at" json:"updated_at,readonly"`
 }
 
-// Defaults sets fields to default values, unless they're already set.
+func (User) Table() string { return "users" }
+
+var _ zdb.Defaulter = &User{}
+
 func (u *User) Defaults(ctx context.Context) {
 	if s := GetSite(ctx); s != nil && s.ID > 0 { // Not set in website.
 		u.Site = s.IDOrParent()
@@ -60,8 +63,7 @@ func (u *User) Defaults(ctx context.Context) {
 	if u.CreatedAt.IsZero() {
 		u.CreatedAt = ztime.Now(ctx)
 	} else {
-		t := ztime.Now(ctx)
-		u.UpdatedAt = &t
+		u.UpdatedAt = ztype.Ptr(ztime.Now(ctx))
 	}
 
 	if u.LastReportAt.IsZero() {
@@ -75,8 +77,9 @@ func (u *User) Defaults(ctx context.Context) {
 	u.Settings.Defaults(ctx)
 }
 
-// Validate the object.
-func (u *User) Validate(ctx context.Context, validatePassword bool) error {
+var _ zdb.Validator = &User{}
+
+func (u *User) Validate(ctx context.Context) error {
 	v := NewValidate(ctx)
 
 	v.Required("site", u.Site)
@@ -85,15 +88,6 @@ func (u *User) Validate(ctx context.Context, validatePassword bool) error {
 	v.Email("email", u.Email)
 	if len(u.Access) == 0 {
 		v.Append("access", "must be set")
-	}
-
-	if validatePassword {
-		sp := string(u.Password)
-		v.Required("password", u.Password)
-		v.UTF8("password", sp)
-		if len(sp) < 8 || len(sp) > 50 {
-			v.Append("password", "must be between 8 and 50 bytes")
-		}
 	}
 
 	v.Sub("settings", "", u.Settings.Validate(ctx))
@@ -106,6 +100,16 @@ func (u *User) hashPassword(ctx context.Context) error {
 	// Length is capped to 50 characters in Validate.
 	if len(u.Password) > 50 {
 		return errors.Errorf("User.hashPassword: already hashed")
+	}
+
+	v := zvalidate.New()
+	v.Required("password", u.Password)
+	v.UTF8("password", string(u.Password))
+	if len(u.Password) < 8 || len(u.Password) > 50 {
+		v.Append("password", "must be between 8 and 50 bytes")
+	}
+	if v.HasErrors() {
+		return v
 	}
 
 	cost := bcrypt.DefaultCost
@@ -122,46 +126,21 @@ func (u *User) hashPassword(ctx context.Context) error {
 
 // Insert a new row.
 func (u *User) Insert(ctx context.Context, allowBlankPassword bool) error {
-	if u.ID > 0 {
-		return errors.New("ID > 0")
-	}
+	u.TOTPEnabled = zbool.Bool(false)
+	u.TOTPSecret = otp.Secret()
 
-	hasPassword := !(u.Password == nil && allowBlankPassword)
-
-	u.Defaults(ctx)
-	err := u.Validate(ctx, hasPassword)
-	if err != nil {
-		return err
-	}
-
-	if hasPassword {
-		err = u.hashPassword(ctx)
+	if !(u.Password == nil && allowBlankPassword) {
+		err := u.hashPassword(ctx)
 		if err != nil {
 			return errors.Wrap(err, "User.Insert")
 		}
 	}
 
-	u.TOTPEnabled = zbool.Bool(false)
-	u.TOTPSecret = otp.Secret()
-
-	query := `insert into users `
-	args := []any{u.Site, u.Email, u.Password, u.TOTPSecret, u.Settings, u.Access, u.CreatedAt, u.LastReportAt}
-	if u.EmailVerified {
-		query += ` (site_id, email, password, totp_secret, settings, access, created_at, last_report_at, email_verified) values (?)`
-		args = append(args, 1)
-	} else {
-		query += ` (site_id, email, password, totp_secret, settings, access, created_at, last_report_at, email_token) values (?)`
-		args = append(args, u.EmailToken)
+	err := zdb.Insert(ctx, u)
+	if zdb.ErrUnique(err) {
+		return guru.New(400, "this user already exists")
 	}
-
-	u.ID, err = zdb.InsertID[UserID](ctx, "user_id", query, args)
-	if err != nil {
-		if zdb.ErrUnique(err) {
-			return guru.New(400, "this user already exists")
-		}
-		return errors.Wrap(err, "User.Insert")
-	}
-	return nil
+	return errors.Wrap(err, "User.Insert")
 }
 
 // Delete this user.
@@ -190,70 +169,28 @@ func (u *User) Delete(ctx context.Context, lastAdmin bool) error {
 
 // Update this user's name, email, settings, and access.
 func (u *User) Update(ctx context.Context, emailChanged bool) error {
-	if u.ID == 0 {
-		return errors.New("ID == 0")
-	}
-
-	u.Defaults(ctx)
-	err := u.Validate(ctx, false)
-	if err != nil {
-		return err
-	}
-
 	if emailChanged && Config(ctx).GoatcounterCom {
-		u.EmailVerified = false
-		u.EmailToken = ztype.Ptr(zcrypto.Secret192())
+		u.EmailVerified, u.EmailToken = false, ztype.Ptr(zcrypto.Secret192())
 	}
-
-	account, err := GetAccount(ctx)
-	if err != nil {
-		return errors.Wrap(err, "User.Update")
-	}
-
-	err = zdb.Exec(ctx, `update users
-		set email=?, settings=?, access=?, updated_at=?, email_verified=?, email_token=?, last_report_at=?
-		where user_id=? and site_id=?`,
-		u.Email, u.Settings, u.Access, u.UpdatedAt, u.EmailVerified, u.EmailToken, u.LastReportAt, u.ID, account.ID)
+	err := zdb.Update(ctx, u, zdb.UpdateAll)
 	return errors.Wrap(err, "User.Update")
 }
 
 // UpdateSite updates this user's siteID (i.e. moves it to another site).
 func (u *User) UpdateSite(ctx context.Context) error {
-	if u.ID == 0 {
-		return errors.New("ID == 0")
-	}
-
-	u.Defaults(ctx)
-	err := u.Validate(ctx, false)
-	if err != nil {
-		return err
-	}
-
-	err = zdb.Exec(ctx, `update users set site_id=? where user_id=?`, u.Site, u.ID)
+	err := zdb.Update(ctx, u, "site_id")
 	return errors.Wrap(err, "User.UpdateSite")
 }
 
 // UpdatePassword updates this user's password.
 func (u *User) UpdatePassword(ctx context.Context, pwd string) error {
-	if u.ID == 0 {
-		return errors.New("ID == 0")
-	}
-
 	u.Password = []byte(pwd)
-	u.Defaults(ctx)
-	err := u.Validate(ctx, true)
-	if err != nil {
-		return err
-	}
-
-	err = u.hashPassword(ctx)
+	err := u.hashPassword(ctx)
 	if err != nil {
 		return errors.Wrap(err, "User.UpdatePassword")
 	}
 
-	err = zdb.Exec(ctx,
-		`update users set password=$1, updated_at=$2 where user_id=$3`,
-		u.Password, u.UpdatedAt, u.ID)
+	err = zdb.Update(ctx, u, "password", "updated_at")
 	return errors.Wrap(err, "User.UpdatePassword")
 }
 
@@ -270,17 +207,17 @@ func (u User) CorrectPassword(pwd string) (bool, error) {
 }
 
 func (u *User) VerifyEmail(ctx context.Context) error {
-	err := zdb.Exec(ctx,
-		`update users set email_verified=1, email_token=null where user_id=$1`,
-		u.ID)
+	u.EmailVerified, u.EmailToken = true, nil
+	err := zdb.Update(ctx, u, "email_verified", "email_token")
 	return errors.Wrap(err, "User.VerifyEmail")
 }
 
 // ByEmailToken gets a user by email verification token.
 func (u *User) ByEmailToken(ctx context.Context, key string) error {
-	return errors.Wrap(zdb.Get(ctx, u,
+	err := zdb.Get(ctx, u,
 		`select * from users where site_id=$1 and email_token=$2`,
-		MustGetSite(ctx).IDOrParent(), key), "User.ByEmailToken")
+		MustGetSite(ctx).IDOrParent(), key)
+	return errors.Wrap(err, "User.ByEmailToken")
 }
 
 // ByID gets a user by id.
@@ -308,7 +245,8 @@ func (u *User) BySiteAndEmail(ctx context.Context, siteID SiteID, email string) 
 func (u *User) Find(ctx context.Context, ident string) error {
 	id, err := zstrconv.ParseInt[UserID](ident, 10)
 	if err == nil {
-		return errors.Wrap(u.ByID(ctx, id), "User.Find")
+		err := u.ByID(ctx, id)
+		return errors.Wrapf(err, "User.Find(%q)", ident)
 	}
 
 	s, email, _ := strings.Cut(ident, ",")
@@ -316,11 +254,11 @@ func (u *User) Find(ctx context.Context, ident string) error {
 	var site Site
 	err = site.Find(ctx, s)
 	if err != nil {
-		return errors.Wrap(err, "User.Find")
+		return errors.Wrapf(err, "User.Find(%q)", ident)
 	}
 
 	err = u.ByEmail(WithSite(ctx, &site), email)
-	return errors.Wrap(err, "User.Find")
+	return errors.Wrapf(err, "User.Find(%q)", ident)
 }
 
 // ByResetToken gets a user by login request key.
@@ -340,8 +278,8 @@ func (u *User) ByResetToken(ctx context.Context, key string) error {
 		query += fmt.Sprintf(`datetime(reset_at, '+%s') > datetime()`, timeout)
 	}
 
-	return errors.Wrap(zdb.Get(ctx, u, query,
-		key, MustGetSite(ctx).IDOrParent()), "User.ByResetToken")
+	err := zdb.Get(ctx, u, query, key, MustGetSite(ctx).IDOrParent())
+	return errors.Wrap(err, "User.ByResetToken")
 }
 
 // ByToken gets a user by login token.
@@ -383,28 +321,17 @@ func (u *User) InviteToken(ctx context.Context) error {
 }
 
 func (u *User) EnableTOTP(ctx context.Context) error {
-	err := zdb.Exec(ctx, `update users set totp_enabled=1 where user_id=$1 and site_id=$2`,
-		u.ID, MustGetSite(ctx).IDOrParent())
-	if err != nil {
-		return errors.Wrap(err, "User.EnableTOTP")
-	}
-	u.TOTPEnabled = zbool.Bool(true)
-	return nil
+	u.TOTPEnabled = true
+	err := zdb.Update(ctx, u, "totp_enabled")
+	return errors.Wrap(err, "User.EnableTOTP")
 }
 
 func (u *User) DisableTOTP(ctx context.Context) error {
-	// Reset the totp secret to something new so that we don't end up re-using the
-	// old secret by mistake and so that we're sure that it's invalidated.
-	u.TOTPSecret = otp.Secret()
-	u.TOTPEnabled = zbool.Bool(false)
-
-	err := zdb.Exec(ctx, `update users set
-		totp_enabled=0, totp_secret=$1 where user_id=$2 and site_id=$3`,
-		u.TOTPSecret, u.ID, MustGetSite(ctx).IDOrParent())
-	if err != nil {
-		return errors.Wrap(err, "User.DisableTOTP")
-	}
-	return nil
+	// Reset the totp secret to something new so that we don't end up re-using
+	// the old secret by mistake and so that we're sure that it's invalidated.
+	u.TOTPSecret, u.TOTPEnabled = otp.Secret(), false
+	err := zdb.Update(ctx, u, "totp_enabled", "totp_secret")
+	return errors.Wrap(err, "User.DisableTOTP")
 }
 
 // Login a user; create a new key, CSRF token, and reset the request date.
@@ -415,12 +342,11 @@ func (u *User) Login(ctx context.Context) error {
 
 	u.Token = ztype.Ptr(zcrypto.Secret256())
 	if u.LoginToken == nil || *u.LoginToken == "" {
-		s := ztime.Now(ctx).Format("20060102") + "-" + zcrypto.Secret256()
-		u.LoginToken = &s
+		u.LoginToken = ztype.Ptr(ztime.Now(ctx).Format("20060102") + "-" + zcrypto.Secret256())
 	}
 
 	u.LoginAt = ztype.Ptr(ztime.Now(ctx))
-	u.OpenAt = ztype.Ptr(ztime.Now(ctx))
+	u.OpenAt = u.LoginAt
 	err := zdb.Exec(ctx, `update users set
 			login_request=null, login_token=?, csrf_token=?, login_at=?, open_at=?
 			where user_id = ? and site_id = ?`,
@@ -430,33 +356,19 @@ func (u *User) Login(ctx context.Context) error {
 }
 
 func (u *User) UpdateOpenAt(ctx context.Context) error {
-	if u.ID == 0 {
-		return errors.New("u.ID == 0")
-	}
-
 	// Update once a day at the most.
 	if u.OpenAt != nil && u.OpenAt.After(ztime.Now(ctx).Add(-24*time.Hour)) {
 		return nil
 	}
-
 	u.OpenAt = ztype.Ptr(ztime.Now(ctx))
-	err := zdb.Exec(ctx, `update users set open_at = ? where user_id = ? and site_id = ?`,
-		u.OpenAt, u.ID, MustGetSite(ctx).IDOrParent())
+	err := zdb.Update(ctx, u, "open_at")
 	return errors.Wrap(err, "User.UpdateOpenAt")
 }
 
 // Logout a user.
 func (u *User) Logout(ctx context.Context) error {
-	if u.ID == 0 {
-		return errors.New("u.ID == 0")
-	}
-
-	u.LoginToken = nil
-	u.LoginRequest = nil
-	u.LoginAt = nil
-	err := zdb.Exec(ctx,
-		`update users set login_token=null, login_request=null where user_id=$1 and site_id=$2`,
-		u.ID, MustGetSite(ctx).IDOrParent())
+	u.LoginToken, u.LoginRequest, u.LoginAt = nil, nil, nil
+	err := zdb.Update(ctx, u, "login_token", "login_request")
 	return errors.Wrap(err, "User.Logout")
 }
 
@@ -541,8 +453,8 @@ func (u *Users) List(ctx context.Context, siteID SiteID) error {
 	if err != nil {
 		return err
 	}
-	return errors.Wrap(zdb.Select(ctx, u,
-		`select * from users where site_id=$1`, s.IDOrParent()), "Users.List")
+	err = zdb.Select(ctx, u, `select * from users where site_id=$1`, s.IDOrParent())
+	return errors.Wrap(err, "Users.List")
 }
 
 // Admins returns just the admins and superusers in this user list.

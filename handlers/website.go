@@ -339,7 +339,7 @@ func (h website) doSignup(w http.ResponseWriter, r *http.Request) error {
 		if !errors.As(err, &vErr) {
 			return err
 		}
-		v.Sub("site", "", err)
+		v.Sub("site", "", vErr)
 	}
 
 	// Create user.
@@ -351,7 +351,7 @@ func (h website) doSignup(w http.ResponseWriter, r *http.Request) error {
 		if !errors.As(err, &vErr) {
 			return err
 		}
-		v.Sub("user", "", err)
+		v.Sub("user", "", vErr)
 		delete(v.Errors, "user.site")
 	}
 

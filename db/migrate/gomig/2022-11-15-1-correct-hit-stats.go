@@ -60,7 +60,7 @@ func CorrectHitStats(ctx context.Context) error {
 var empty = []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 
 func updateHitStats(ctx context.Context, hits []Hit) error {
-	return errors.Wrap(zdb.TX(ctx, func(ctx context.Context) error {
+	err := zdb.TX(ctx, func(ctx context.Context) error {
 		type gt struct {
 			count  []int
 			day    string
@@ -128,7 +128,8 @@ func updateHitStats(ctx context.Context, hits []Hit) error {
 			ins.Values(siteID, v.day, v.pathID, zjson.MustMarshal(v.count))
 		}
 		return errors.Wrap(ins.Finish(), "updateHitStats hit_stats")
-	}), "cron.updateHitStats")
+	})
+	return errors.Wrap(err, "cron.updateHitStats")
 }
 
 func existingHitStats(ctx context.Context, siteID int64, day string, pathID int64) ([]int, error) {

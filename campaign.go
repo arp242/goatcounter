@@ -11,36 +11,33 @@ import (
 type CampaignID int32
 
 type Campaign struct {
-	ID     CampaignID `db:"campaign_id" json:"campaign_id"`
+	ID     CampaignID `db:"campaign_id,id" json:"campaign_id"`
 	SiteID SiteID     `db:"site_id" json:"site_id"`
 	Name   string     `db:"name" json:"name"`
 }
 
-func (c *Campaign) Defaults(ctx context.Context) {}
+func (Campaign) Table() string { return "campaigns" }
 
-func (c *Campaign) Validate() error {
+var _ zdb.Defaulter = &Campaign{}
+
+func (c *Campaign) Defaults(ctx context.Context) {
+	if c.SiteID == 0 {
+		c.SiteID = MustGetSite(ctx).ID
+	}
+}
+
+var _ zdb.Validator = &Campaign{}
+
+func (c *Campaign) Validate(ctx context.Context) error {
 	v := zvalidate.New()
 	v.Required("name", c.Name)
+	v.Required("site_id", c.SiteID)
 	return v.ErrorOrNil()
 }
 
 func (c *Campaign) Insert(ctx context.Context) error {
-	if c.ID > 0 {
-		return errors.Errorf("Campaign.Insert: c.ID>0: %d", c.ID)
-	}
-
-	c.Defaults(ctx)
-	err := c.Validate()
-	if err != nil {
-		return errors.Wrap(err, "Campaign.Insert")
-	}
-
-	c.ID, err = zdb.InsertID[CampaignID](ctx, "campaign_id",
-		`insert into campaigns (site_id, name) values (?, ?)`, MustGetSite(ctx).ID, c.Name)
-	if err != nil {
-		return errors.Wrap(err, "Campaign.Insert")
-	}
-	return nil
+	err := zdb.Insert(ctx, c)
+	return errors.Wrap(err, "Campaign.Insert")
 }
 
 func (c *Campaign) ByName(ctx context.Context, name string) error {

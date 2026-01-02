@@ -19,17 +19,28 @@ import (
 type PathID int32
 
 type Path struct {
-	ID    PathID     `db:"path_id" json:"id"` // Path ID
+	ID    PathID     `db:"path_id,id" json:"id"` // Path ID
 	Site  SiteID     `db:"site_id" json:"-"`
 	Path  string     `db:"path" json:"path"`   // Path name
 	Title string     `db:"title" json:"title"` // Page title
 	Event zbool.Bool `db:"event" json:"event"` // Is this an event?
 }
 
-func (p *Path) Defaults(ctx context.Context) {}
+func (Path) Table() string { return "paths" }
+
+var _ zdb.Defaulter = &Path{}
+
+func (p *Path) Defaults(ctx context.Context) {
+	if p.Site == 0 {
+		p.Site = MustGetSite(ctx).ID
+	}
+}
+
+var _ zdb.Validator = &Path{}
 
 func (p *Path) Validate(ctx context.Context) error {
 	v := NewValidate(ctx)
+	v.Required("site_id", p.Site)
 	v.UTF8("path", p.Path)
 	v.UTF8("title", p.Title)
 	v.Len("path", p.Path, 1, 2048)
@@ -90,9 +101,7 @@ func (p *Path) GetOrInsert(ctx context.Context) error {
 	}
 
 	// Insert new row.
-	p.ID, err = zdb.InsertID[PathID](ctx, "path_id",
-		`insert into paths (site_id, path, title, event) values (?, ?, ?, ?)`,
-		site.ID, p.Path, p.Title, p.Event)
+	err = zdb.Insert(ctx, p)
 	if err != nil {
 		return errors.Wrap(err, "Path.GetOrInsert insert")
 	}

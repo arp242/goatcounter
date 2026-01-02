@@ -52,10 +52,12 @@ func (p *UserAgent) GetOrInsert(ctx context.Context) error {
 type BrowserID int32
 
 type Browser struct {
-	ID      BrowserID `db:"browser_id"`
+	ID      BrowserID `db:"browser_id,id"`
 	Name    string    `db:"name"`
 	Version string    `db:"version"`
 }
+
+func (Browser) Table() string { return "browsers" }
 
 func (b *Browser) GetOrInsert(ctx context.Context, name, version string) error {
 	k := name + version
@@ -66,19 +68,14 @@ func (b *Browser) GetOrInsert(ctx context.Context, name, version string) error {
 		return nil
 	}
 
-	b.Name = name
-	b.Version = version
+	b.Name, b.Version = name, version
 
-	err := zdb.Get(ctx, &b.ID,
-		`select browser_id from browsers where name=$1 and version=$2`,
-		name, version)
+	err := zdb.Get(ctx, &b.ID, `select browser_id from browsers where name=$1 and version=$2`, name, version)
 	if zdb.ErrNoRows(err) {
-		b.ID, err = zdb.InsertID[BrowserID](ctx, "browser_id",
-			`insert into browsers (name, version) values ($1, $2)`,
-			name, version)
+		err = zdb.Insert(ctx, b)
 	}
 	if err != nil {
-		return errors.Wrapf(err, "Browser.GetOrInsert %q %q", name, version)
+		return errors.Wrapf(err, "Browser.GetOrInsert(%q, %q)", name, version)
 	}
 	cacheBrowsers(ctx).Set(k, *b)
 	return nil
@@ -87,10 +84,12 @@ func (b *Browser) GetOrInsert(ctx context.Context, name, version string) error {
 type SystemID int32
 
 type System struct {
-	ID      SystemID `db:"system_id"`
+	ID      SystemID `db:"system_id,id"`
 	Name    string   `db:"name"`
 	Version string   `db:"version"`
 }
+
+func (System) Table() string { return "systems" }
 
 func (s *System) GetOrInsert(ctx context.Context, name, version string) error {
 	k := name + version
@@ -101,19 +100,14 @@ func (s *System) GetOrInsert(ctx context.Context, name, version string) error {
 		return nil
 	}
 
-	s.Name = name
-	s.Version = version
+	s.Name, s.Version = name, version
 
-	err := zdb.Get(ctx, &s.ID,
-		`select system_id from systems where name=$1 and version=$2`,
-		name, version)
+	err := zdb.Get(ctx, &s.ID, `select system_id from systems where name=$1 and version=$2`, name, version)
 	if zdb.ErrNoRows(err) {
-		s.ID, err = zdb.InsertID[SystemID](ctx, "system_id",
-			`insert into systems (name, version) values ($1, $2)`,
-			name, version)
+		err = zdb.Insert(ctx, s)
 	}
 	if err != nil {
-		return errors.Wrapf(err, "System.GetOrInsert %q %q", name, version)
+		return errors.Wrapf(err, "System.GetOrInsert(%q, %q)", name, version)
 	}
 	cacheSystems(ctx).Set(k, *s)
 	return nil

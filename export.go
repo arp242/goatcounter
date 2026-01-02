@@ -7,12 +7,13 @@ import (
 
 	"zgo.at/errors"
 	"zgo.at/zdb"
+	"zgo.at/zvalidate"
 )
 
 type ExportID int32
 
 type Export struct {
-	ID     ExportID `db:"export_id" json:"id,readonly"`
+	ID     ExportID `db:"export_id,id" json:"id,readonly"`
 	SiteID SiteID   `db:"site_id" json:"site_id,readonly"`
 
 	// The hit ID this export was started from.
@@ -35,6 +36,24 @@ type Export struct {
 
 	// Any errors that may have occured.
 	Error *string `db:"error" json:"error,readonly"`
+}
+
+func (Export) Table() string { return "exports" }
+
+var _ zdb.Defaulter = &Export{}
+
+func (e *Export) Defaults(ctx context.Context) {
+	if e.SiteID == 0 {
+		e.SiteID = MustGetSite(ctx).ID
+	}
+}
+
+var _ zdb.Validator = &Export{}
+
+func (e *Export) Validate(ctx context.Context) error {
+	v := zvalidate.New()
+	v.Required("site_id", e.SiteID)
+	return v.ErrorOrNil()
 }
 
 func (e *Export) ByID(ctx context.Context, id ExportID) error {
