@@ -252,6 +252,8 @@
 ["error/login-wrong-pwd"]
   default = "Неправильний пароль для %(email)"
 
+["error/merge-self"]
+
 ["error/not-found"]
   default = "Не знайдено"
 
@@ -962,4 +964,3 @@
 
 ["y-scale"]
   default = "Y-axis шкала"
-

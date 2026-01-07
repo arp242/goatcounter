@@ -269,6 +269,8 @@ Martin
 
 ["error/login-wrong-pwd"]
 
+["error/merge-self"]
+
 ["error/not-found"]
 
 ["error/password-does-not-match"]
@@ -921,4 +923,3 @@ Martin
 ["widget-settings/text-chart"]
 
 ["y-scale"]
-

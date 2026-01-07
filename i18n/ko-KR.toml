@@ -278,6 +278,8 @@
 ["error/login-wrong-pwd"]
   default = "%(email)의 비밀번호가 잘못되었습니다."
 
+["error/merge-self"]
+
 ["error/not-found"]
   default = "찾을 수 없음"
 
@@ -1227,4 +1229,3 @@ GoatCounter는 제한된 API를 제공합니다. 현재 API를 통해 페이지�
 
 ["y-scale"]
   default = "Y축 스케일"
-

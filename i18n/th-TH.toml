@@ -228,6 +228,8 @@
 
 ["error/login-wrong-pwd"]
 
+["error/merge-self"]
+
 ["error/not-found"]
   default = "ไม่พบ"
 
@@ -938,4 +940,3 @@
 ["widget-settings/text-chart"]
 
 ["y-scale"]
-

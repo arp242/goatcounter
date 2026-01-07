@@ -274,6 +274,8 @@ Martin
 ["error/login-wrong-pwd"]
   default = "%(email) のパスワードが間違っています"
 
+["error/merge-self"]
+
 ["error/not-found"]
   default = "見つかりません"
 
@@ -1241,4 +1243,3 @@ Martin
 
 ["y-scale"]
   default = "Y 軸スケール"
-

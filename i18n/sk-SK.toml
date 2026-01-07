@@ -287,6 +287,8 @@ Martin
 ["error/login-wrong-pwd"]
   default = "Nesprávne heslo pre %(email)"
 
+["error/merge-self"]
+
 ["error/not-found"]
   default = "Nenájdené"
 
@@ -1263,4 +1265,3 @@ Pri hľadaní nezáleží na malých a veľkých písmenách. Podporuje <code>%<
 
 ["y-scale"]
   default = "Zväčšenie osi Y"
-

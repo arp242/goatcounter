@@ -264,6 +264,8 @@
 ["error/login-wrong-pwd"]
   default = "%(email) 的密碼錯誤"
 
+["error/merge-self"]
+
 ["error/not-found"]
   default = "找不到"
 
@@ -1047,4 +1049,3 @@
 
 ["y-scale"]
   default = "Y 軸尺寸"
-

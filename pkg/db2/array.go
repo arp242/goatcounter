@@ -28,8 +28,7 @@ func Array[T ~int8 | ~int16 | ~int32 | ~int64](ctx context.Context, p []T) any {
 	}
 
 	if len(p) == 0 {
-		var zero T
-		return zero
+		return `{}`
 	}
 
 	var b strings.Builder

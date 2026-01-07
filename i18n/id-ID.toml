@@ -286,6 +286,8 @@ Martin
 ["error/login-wrong-pwd"]
   default = "Kata sandi salah untuk %(email)"
 
+["error/merge-self"]
+
 ["error/not-found"]
   default = "Tidak Ditemukan"
 
@@ -1260,4 +1262,3 @@ Pencocokan tidak dipengaruhi oleh huruf besar/kecil. Mendukung <code>%</code> se
 
 ["y-scale"]
   default = "Skala axis Y"
-

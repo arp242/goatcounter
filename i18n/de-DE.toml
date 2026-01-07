@@ -283,6 +283,8 @@ Hier ist der entsprechende Link:
 ["error/login-wrong-pwd"]
   default = "Falsches Passwort für %(email)"
 
+["error/merge-self"]
+
 ["error/not-found"]
   default = "Nicht gefunden"
 
@@ -1258,4 +1260,3 @@ findet <code>_.html</code> die Treffer <code>a.html</code> und <code>b.html</cod
 
 ["y-scale"]
   default = "Skala der Y-Achse"
-

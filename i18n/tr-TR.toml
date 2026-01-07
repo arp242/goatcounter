@@ -276,6 +276,8 @@ Martin
 ["error/login-wrong-pwd"]
   default = "%(email) için yanlış şifre"
 
+["error/merge-self"]
+
 ["error/not-found"]
   default = "Bulunamadı"
 
@@ -1265,4 +1267,3 @@ eşleşmeleri için kullanın.
 
 ["y-scale"]
   default = "Y ekseni ölçeği"
-

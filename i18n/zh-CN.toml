@@ -288,6 +288,8 @@ Martin
 ["error/login-wrong-pwd"]
   default = "%(email) 的密码错误"
 
+["error/merge-self"]
+
 ["error/not-found"]
   default = "未找到"
 
@@ -1251,4 +1253,3 @@ Martin
 
 ["y-scale"]
   default = "Y 轴缩放"
-

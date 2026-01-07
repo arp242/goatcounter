@@ -1,6 +1,6 @@
 [__meta__]
-  modified = 2025-12-11T20:28:23Z
   language = "en-GB"
+  modified = 2025-12-11T20:28:23Z
   template = true
   [__meta__.options]
     fun = ["z18n.T", "z18n.Locale.T", "T"]
@@ -116,7 +116,7 @@
 ["button/save"]
   loc = [
     "tpl/_dashboard_configure_widget.gohtml:3",
-    "tpl/settings_main.gohtml:156",
+    "tpl/settings_main.gohtml:155",
     "tpl/user_dashboard.gohtml:24",
     "tpl/user_pref.gohtml:148",
   ]
@@ -182,7 +182,7 @@
   default = "%(n) months ago"
 
 ["dashboard/nothing-to-display"]
-  loc     = ["tpl.go:392"]
+  loc     = ["tpl.go:369"]
   default = "Nothing to display"
 
 ["dashboard/pages/change"]
@@ -370,15 +370,15 @@ Martin
 
 ["error/address-exists"]
   loc = [
-    "handlers/settings.go:297",
-    "handlers/settings.go:302",
+    "handlers/settings.go:304",
+    "handlers/settings.go:309",
   ]
   default = "%(addr) already exists"
 
 ["error/could-not-read"]
   loc = [
-    "handlers/settings.go:613",
-    "handlers/settings.go:678",
+    "handlers/settings.go:624",
+    "handlers/settings.go:689",
   ]
   default = "Could not read as gzip: %(err)"
 
@@ -395,7 +395,7 @@ Martin
   default = "That would be before the site’s creation"
 
 ["error/export-expired"]
-  loc     = ["handlers/settings.go:576"]
+  loc     = ["handlers/settings.go:587"]
   default = "It looks like there is no export yet or the export has expired."
 
 ["error/incorrect-password"]
@@ -434,11 +434,15 @@ Martin
   loc     = ["handlers/user.go:172"]
   default = "Wrong password for %(email)"
 
+["error/merge-self"]
+  loc     = ["handlers/settings.go:530"]
+  default = "Cannot merge a path with itself"
+
 ["error/not-found"]
   loc = [
-    "handlers/backend.go:80",
-    "handlers/settings.go:352",
-    "handlers/settings.go:1041",
+    "handlers/backend.go:78",
+    "handlers/settings.go:360",
+    "handlers/settings.go:1052",
   ]
   default = "Not Found"
 
@@ -495,7 +499,7 @@ Martin
   default = "API tokens"
 
 ["header/browsers"]
-  loc     = ["widgets/browsers.go:71"]
+  loc     = ["widgets/browsers.go:72"]
   default = "Browsers"
 
 ["header/change-code"]
@@ -523,7 +527,7 @@ Martin
   default = "Dashboard"
 
 ["header/data-collection"]
-  loc     = ["tpl/settings_main.gohtml:120"]
+  loc     = ["tpl/settings_main.gohtml:119"]
   default = "Data collection"
 
 ["header/delete-account"]
@@ -598,11 +602,11 @@ Martin
   default = "Last used"
 
 ["header/locations"]
-  loc     = ["widgets/locations.go:56"]
+  loc     = ["widgets/locations.go:61"]
   default = "Locations"
 
 ["header/locations-for"]
-  loc     = ["widgets/locations.go:63"]
+  loc     = ["widgets/locations.go:68"]
   default = "Locations for %(country)"
 
 ["header/manage-pageviews"]
@@ -685,7 +689,7 @@ Martin
   default = "Size"
 
 ["header/sizes"]
-  loc     = ["widgets/sizes.go:66"]
+  loc     = ["widgets/sizes.go:67"]
   default = "Sizes"
 
 ["header/start-pagination-cursor"]
@@ -697,7 +701,7 @@ Martin
   default = "Started"
 
 ["header/systems"]
-  loc     = ["widgets/systems.go:71"]
+  loc     = ["widgets/systems.go:72"]
   default = "Systems"
 
 ["header/title"]
@@ -713,7 +717,7 @@ Martin
   default = "Top referrers"
 
 ["header/tracking"]
-  loc     = ["tpl/settings_main.gohtml:99"]
+  loc     = ["tpl/settings_main.gohtml:98"]
   default = "Tracking"
 
 ["header/user-info"]
@@ -754,11 +758,11 @@ Martin
 Custom domain, e.g. <em>“stats.example.com”</em>.
 <strong>Note:</strong> This <em>won’t</em> prevent most
 adblockers from blocking GoatCounter, and is just intended
-as a nice “vanity domain”.
+as a convenient “vanity domain”.
 """
 
 ["help/custom-domain-cname"]
-  loc     = ["tpl/settings_main.gohtml:86"]
+  loc     = ["tpl/settings_main.gohtml:85"]
   default = "Set a CNAME record to <code>%(domain)</code> – %[%docs detailed instructions]."
 
 ["help/custom-domain-error"]
@@ -773,7 +777,7 @@ The verification runs every 2 hours.
   default = "Domain verified and set up (note: it may take up to an hour for the certificate to work)."
 
 ["help/data-retention"]
-  loc     = ["tpl/settings_main.gohtml:104"]
+  loc     = ["tpl/settings_main.gohtml:103"]
   default = "Pageviews and all associated data will be permanently removed after this many days. Set to <code>0</code> to never delete."
 
 ["help/datepicker"]
@@ -806,19 +810,19 @@ of visitors and stats.
   default = "You won’t be able to disable this setting for the given time period."
 
 ["help/for-the-following-countries"]
-  loc     = ["tpl/settings_main.gohtml:139"]
+  loc     = ["tpl/settings_main.gohtml:138"]
   default = "List of country codes (%[list]; use the alpha-2 code); leave blank to collect for all countries (if enabled)."
 
 ["help/goatcounter-domain"]
-  loc     = ["tpl/settings_main.gohtml:94"]
+  loc     = ["tpl/settings_main.gohtml:93"]
   default = "Your GoatCounter installation’s domain, e.g. <em>“stats.example.com”</em>."
 
 ["help/ignore-ips"]
-  loc     = ["tpl/settings_main.gohtml:109"]
+  loc     = ["tpl/settings_main.gohtml:108"]
   default = "Never count requests coming from these IP addresses. Comma-separated. Only supports exact matches. %[Add your current IP]."
 
 ["help/ignore-ips-2"]
-  loc     = ["tpl/settings_main.gohtml:113"]
+  loc     = ["tpl/settings_main.gohtml:112"]
   default = "Alternatively, %[disable for this browser] (click again to enable)."
 
 ["help/locked-until"]
@@ -826,7 +830,7 @@ of visitors and stats.
   default = "Locked until %(date)"
 
 ["help/need-cities"]
-  loc     = ["tpl/settings_main.gohtml:144"]
+  loc     = ["tpl/settings_main.gohtml:143"]
   default = """
 This option requires the “Cities” version of the
 GeoIP database. See the <tt>-geo</tt> flag in
@@ -941,7 +945,7 @@ GeoIP database. See the <tt>-geo</tt> flag in
   default = "Dashboard viewable by"
 
 ["label/data-retention"]
-  loc     = ["tpl/settings_main.gohtml:101"]
+  loc     = ["tpl/settings_main.gohtml:100"]
   default = "Data retention in days"
 
 ["label/date-fmt"]
@@ -980,15 +984,15 @@ GeoIP database. See the <tt>-geo</tt> flag in
   default = "Show fewer numbers"
 
 ["label/for-following-countries"]
-  loc     = ["tpl/settings_main.gohtml:137"]
+  loc     = ["tpl/settings_main.gohtml:136"]
   default = "For the following countries only:"
 
 ["label/goatcounter-domain"]
-  loc     = ["tpl/settings_main.gohtml:92"]
+  loc     = ["tpl/settings_main.gohtml:91"]
   default = "GoatCounter domain"
 
 ["label/ignore-ips"]
-  loc     = ["tpl/settings_main.gohtml:106"]
+  loc     = ["tpl/settings_main.gohtml:105"]
   default = "Ignore IPs"
 
 ["label/lang"]
@@ -1000,7 +1004,7 @@ GeoIP database. See the <tt>-geo</tt> flag in
   default = "Language stats"
 
 ["label/loc-stats"]
-  loc     = ["widgets/locations.go:26"]
+  loc     = ["widgets/locations.go:28"]
   default = "Location stats"
 
 ["label/lock-setting"]
@@ -1101,15 +1105,15 @@ GeoIP database. See the <tt>-geo</tt> flag in
   default = "Also set as default for new users and the public view (if enabled)."
 
 ["label/size-desktop"]
-  loc     = ["tpl.go:427"]
+  loc     = ["tpl.go:404"]
   default = "Computer monitors"
 
 ["label/size-desktophd"]
-  loc     = ["tpl.go:429"]
+  loc     = ["tpl.go:406"]
   default = "Computer monitors larger than HD"
 
 ["label/size-phones"]
-  loc     = ["tpl.go:423"]
+  loc     = ["tpl.go:400"]
   default = "Phones"
 
 ["label/size-stats"]
@@ -1117,7 +1121,7 @@ GeoIP database. See the <tt>-geo</tt> flag in
   default = "Size stats"
 
 ["label/size-tablets"]
-  loc     = ["tpl.go:425"]
+  loc     = ["tpl.go:402"]
   default = "Tablets and large phones"
 
 ["label/system-stats"]
@@ -1228,13 +1232,16 @@ GeoIP database. See the <tt>-geo</tt> flag in
   default = "settings"
 
 ["link/show-less"]
-  loc     = ["tpl/_dashboard_pages.gohtml:24"]
+  loc = [
+    "tpl/_dashboard_pages.gohtml:24",
+    "tpl/_dashboard_pages_text.gohtml:29",
+  ]
   default = "(show less)"
 
 ["link/show-more"]
   loc = [
     "tpl/_dashboard_pages.gohtml:23",
-    "tpl/_dashboard_pages_text.gohtml:29",
+    "tpl/_dashboard_pages_text.gohtml:28",
   ]
   default = "Show more"
 
@@ -1413,15 +1420,15 @@ GeoIP database. See the <tt>-geo</tt> flag in
   default = "%(email) is already verified."
 
 ["notify/export-started-in-background"]
-  loc     = ["handlers/settings.go:711"]
+  loc     = ["handlers/settings.go:722"]
   default = "Export started in the background; you’ll get an email with a download link when it’s done."
 
 ["notify/import-ga-okay"]
-  loc     = ["handlers/settings.go:688"]
+  loc     = ["handlers/settings.go:699"]
   default = "Data processed successfully."
 
 ["notify/import-started-in-background"]
-  loc     = ["handlers/settings.go:662"]
+  loc     = ["handlers/settings.go:673"]
   default = "Import started in the background; you’ll get an email when it’s done."
 
 ["notify/login-after-password-reset"]
@@ -1441,7 +1448,7 @@ GeoIP database. See the <tt>-geo</tt> flag in
   default = "could find the user for the given token; perhaps it's expired or has already been used?"
 
 ["notify/not-found"]
-  loc     = ["handlers/settings.go:996"]
+  loc     = ["handlers/settings.go:1007"]
   default = "Not Found"
 
 ["notify/password-changed"]
@@ -1457,14 +1464,14 @@ GeoIP database. See the <tt>-geo</tt> flag in
   default = "Email sent to %(email)"
 
 ["notify/restored-previously-deleted-site"]
-  loc     = ["handlers/settings.go:310"]
+  loc     = ["handlers/settings.go:317"]
   default = "Site ‘%(url)’ was previously deleted; restored site with all data."
 
 ["notify/saved"]
   loc = [
     "handlers/handlers.go:123",
-    "handlers/settings.go:220",
-    "handlers/settings.go:245",
+    "handlers/settings.go:227",
+    "handlers/settings.go:252",
     "handlers/settings_user.go:97",
   ]
   default = "Saved!"
@@ -1474,34 +1481,34 @@ GeoIP database. See the <tt>-geo</tt> flag in
   default = "Sent to %(email)."
 
 ["notify/settings-copied-to-site"]
-  loc     = ["handlers/settings.go:449"]
+  loc     = ["handlers/settings.go:457"]
   default = "Settings copied to the selected sites."
 
 ["notify/site-added"]
-  loc     = ["handlers/settings.go:334"]
+  loc     = ["handlers/settings.go:342"]
   default = "Site ‘%(url)’ added."
 
 ["notify/site-removed"]
-  loc     = ["handlers/settings.go:394"]
+  loc     = ["handlers/settings.go:402"]
   default = "Site ‘%(url)’ removed."
 
 ["notify/started-background-process"]
   loc = [
-    "handlers/settings.go:499",
-    "handlers/settings.go:537",
+    "handlers/settings.go:507",
+    "handlers/settings.go:548",
   ]
   default = "Started in the background; may take about 10-20 seconds to fully process."
 
 ["notify/user-added"]
-  loc     = ["handlers/settings.go:963"]
+  loc     = ["handlers/settings.go:974"]
   default = "User ‘%(email)’ added."
 
 ["notify/user-removed"]
-  loc     = ["handlers/settings.go:1049"]
+  loc     = ["handlers/settings.go:1060"]
   default = "User ‘%(email)’ removed."
 
 ["notify/users-edited"]
-  loc     = ["handlers/settings.go:1021"]
+  loc     = ["handlers/settings.go:1032"]
   default = "User ‘%(email)’ edited."
 
 ["p/add-goatcounter-to-multiple-websites"]
@@ -1526,7 +1533,7 @@ users or anything else. For example:
 ["p/additional-errors"]
   loc = [
     "tpl/_contact.gohtml:42",
-    "tpl/settings_main.gohtml:162",
+    "tpl/settings_main.gohtml:161",
     "tpl/settings_users_form.gohtml:81",
     "tpl/signup.gohtml:63",
     "tpl/user_dashboard.gohtml:38",
@@ -1588,7 +1595,7 @@ codes (with the old and new code) to prevent the loss of any pageviews.</p>
 
 ["p/error"]
   loc = [
-    "tpl/_dashboard_hchart.gohtml:15",
+    "tpl/_dashboard_hchart.gohtml:23",
     "tpl/_dashboard_pages.gohtml:17",
     "tpl/_dashboard_toprefs.gohtml:14",
     "tpl/_dashboard_totals.gohtml:22",
@@ -1720,7 +1727,7 @@ meaning.
   default = "The following paths match %(query):"
 
 ["p/setting-recovery-disabled-information"]
-  loc     = ["tpl/settings_main.gohtml:121"]
+  loc     = ["tpl/settings_main.gohtml:120"]
   default = "If a setting is disabled then there is no way to recover this information after a pageview is recorded, as this won’t be stored."
 
 ["p/settings-all-sites"]
@@ -1813,94 +1820,94 @@ meaning.
   default = "Sites:"
 
 ["unknown"]
-  loc     = ["tpl.go:435"]
+  loc     = ["tpl.go:412"]
   default = "(unknown)"
 
 ["validate/bool"]
-  loc     = ["helper.go:168"]
+  loc     = ["helper.go:138"]
   default = "must be a boolean"
 
 ["validate/color"]
-  loc     = ["helper.go:162"]
+  loc     = ["helper.go:132"]
   default = "must be a valid color code"
 
 ["validate/contains"]
-  loc     = ["helper.go:174"]
+  loc     = ["helper.go:144"]
   default = "cannot contain the characters %s"
 
 ["validate/date"]
-  loc     = ["helper.go:169"]
+  loc     = ["helper.go:139"]
   default = "must be a date as ‘%s’"
 
 ["validate/domain"]
-  loc     = ["helper.go:156"]
+  loc     = ["helper.go:126"]
   default = "must be a valid domain"
 
 ["validate/email"]
-  loc     = ["helper.go:159"]
+  loc     = ["helper.go:129"]
   default = "must be a valid email address"
 
 ["validate/exclude"]
-  loc     = ["helper.go:165"]
+  loc     = ["helper.go:135"]
   default = "cannot be ‘%s’"
 
 ["validate/hostname"]
-  loc     = ["helper.go:157"]
+  loc     = ["helper.go:127"]
   default = "must be a valid hostname"
 
 ["validate/include"]
-  loc     = ["helper.go:166"]
+  loc     = ["helper.go:136"]
   default = "must be one of ‘%s’"
 
 ["validate/int"]
-  loc     = ["helper.go:167"]
+  loc     = ["helper.go:137"]
   default = "must be a whole number"
 
 ["validate/ip"]
-  loc     = ["helper.go:161"]
+  loc     = ["helper.go:131"]
   default = "must be a valid IPv4 or IPv6 address"
 
 ["validate/ipv4"]
-  loc     = ["helper.go:160"]
+  loc     = ["helper.go:130"]
   default = "must be a valid IPv4 address"
 
 ["validate/len-longer"]
-  loc     = ["helper.go:163"]
+  loc     = ["helper.go:133"]
   default = "must be longer than %d characters"
 
 ["validate/len-shorter"]
-  loc     = ["helper.go:164"]
+  loc     = ["helper.go:134"]
   default = "must be shorter than %d characters"
 
 ["validate/need-one"]
   loc = [
-    "api_token.go:142",
-    "api_token.go:145",
+    "api_token.go:148",
+    "api_token.go:151",
   ]
   default = "must select at least one"
 
 ["validate/phone"]
-  loc     = ["helper.go:170"]
+  loc     = ["helper.go:140"]
   default = "must be a valid phone number"
 
 ["validate/range-higher"]
-  loc     = ["helper.go:171"]
+  loc     = ["helper.go:141"]
   default = "must be %d or higher"
 
 ["validate/range-lower"]
-  loc     = ["helper.go:172"]
+  loc     = ["helper.go:142"]
   default = "must be %d or lower"
 
 ["validate/required"]
-  loc     = ["helper.go:155"]
+  loc     = ["helper.go:125"]
   default = "must be set"
 
 ["validate/url"]
-  loc     = ["helper.go:158"]
+  loc     = ["helper.go:128"]
   default = "must be a valid url"
 
 ["validate/utf8"]
-  loc     = ["helper.go:173"]
+  loc     = ["helper.go:143"]
   default = "must be UTF-8"
 
 ["view not set"]
@@ -1997,4 +2004,3 @@ meaning.
 ["y-scale"]
   loc     = ["tpl/_dashboard_pages_rows.gohtml:51"]
   default = "Y-axis scale"
-

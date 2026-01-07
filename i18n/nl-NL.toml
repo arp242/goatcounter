@@ -292,6 +292,8 @@ Martin
 ["error/login-wrong-pwd"]
   default = "Verkeerd wachtwoord voor %(email)"
 
+["error/merge-self"]
+
 ["error/not-found"]
   default = "Niet gevonden"
 

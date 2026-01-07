@@ -286,6 +286,8 @@ Martin
 ["error/login-wrong-pwd"]
   default = "Senha incorreta para %(email)"
 
+["error/merge-self"]
+
 ["error/not-found"]
   default = "Não encontrado"
 
@@ -1202,4 +1204,3 @@ A verificação é executada a cada 2 horas.
 
 ["y-scale"]
   default = "Escala do eixo Y"
-

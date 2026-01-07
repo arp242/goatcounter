@@ -273,6 +273,8 @@
 ["error/login-wrong-pwd"]
   default = "%(email) के लिए पासवर्ड गलत है"
 
+["error/merge-self"]
+
 ["error/not-found"]
   default = "नहीं मिला"
 
@@ -962,4 +964,3 @@
 ["widget-settings/text-chart"]
 
 ["y-scale"]
-

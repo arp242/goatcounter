@@ -288,6 +288,8 @@ Martin
 ["error/login-wrong-pwd"]
   default = "Password errata per %(email)"
 
+["error/merge-self"]
+
 ["error/not-found"]
   default = "Non trovato"
 
@@ -1268,4 +1270,3 @@ Per favore verifica la tua email cliccando sul link inviato a %(email).
 
 ["y-scale"]
   default = "Scala asse delle Y"
-

@@ -289,6 +289,8 @@ Martin
 ["error/login-wrong-pwd"]
   default = "Contraseña incorrecta para %(email)"
 
+["error/merge-self"]
+
 ["error/not-found"]
   default = "No encontrado"
 
@@ -1248,4 +1250,3 @@ Comenzar es fácil, sólo añade el siguiente JavaScript en cualquier parte de l
 
 ["y-scale"]
   default = "Escala del eje Y"
-

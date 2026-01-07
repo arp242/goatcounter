@@ -526,6 +526,9 @@ func (h settings) merge(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 	mergeIDs = slices.DeleteFunc(mergeIDs, func(p goatcounter.PathID) bool { return p == pathID })
+	if len(mergeIDs) == 0 {
+		return guru.New(400, T(r.Context(), "error/merge-self|Cannot merge a path with itself"))
+	}
 	merge := make(goatcounter.Paths, len(mergeIDs))
 	for i := range mergeIDs {
 		err := merge[i].ByID(r.Context(), mergeIDs[i])

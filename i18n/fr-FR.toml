@@ -289,6 +289,8 @@ Martin
 ["error/login-wrong-pwd"]
   default = "Mot de passe incorrect pour %(email)"
 
+["error/merge-self"]
+
 ["error/not-found"]
   default = "Non trouvé"
 
@@ -1238,4 +1240,3 @@ Le domaine de votre site, par exemple <em>\\\"www.example.com\\\"</em>, utilisé
 
 ["y-scale"]
   default = "Échelle de l'axe Y"
-
