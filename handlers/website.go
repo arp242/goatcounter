@@ -296,6 +296,11 @@ func (h website) doSignup(w http.ResponseWriter, r *http.Request) error {
 	v := zvalidate.New()
 	if strings.TrimSpace(args.TuringTest) != "9" {
 		v.Append("turing_test", "must fill in correct value")
+	}
+	if len(user.Password) < 8 || len(user.Password) > 50 {
+		v.Append("user.password", "must be between 8 and 50 bytes")
+	}
+	if v.HasErrors() {
 		// Quick exit to prevent spurious errors/DB load from spambots.
 		return zhttp.Template(w, "signup.gohtml", struct {
 			Globals

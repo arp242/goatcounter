@@ -397,6 +397,10 @@ func (h user) changePassword(w http.ResponseWriter, r *http.Request) error {
 		zhttp.FlashError(w, r, T(r.Context(), "error/password-does-not-match|Password confirmation doesn’t match."))
 		return zhttp.SeeOther(w, "/user/auth")
 	}
+	if len(args.Password) < 8 || len(args.Password) > 50 {
+		zhttp.FlashError(w, r, "Password must be between 8 and 50 bytes")
+		return zhttp.SeeOther(w, "/user/auth")
+	}
 
 	err = u.UpdatePassword(r.Context(), args.Password)
 	if err != nil {
