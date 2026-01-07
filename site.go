@@ -317,6 +317,7 @@ func (s *Site) UpdateCode(ctx context.Context, code string) error {
 }
 
 func (s *Site) UpdateReceivedData(ctx context.Context) error {
+	s.ReceivedData = true
 	err := zdb.Update(ctx, s, "received_data")
 	s.ClearCache(ctx, false)
 	return errors.Wrap(err, "Site.UpdateReceivedData")
