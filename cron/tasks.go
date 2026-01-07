@@ -259,10 +259,13 @@ func oldFilters(ctx context.Context) error {
 			return err
 		}
 
-		return zdb.Exec(ctx, `delete from filter_paths where filter_id :in (:ids)`, map[string]any{
-			"in":  db2.In(ctx),
-			"ids": db2.Array(ctx, ids),
-		})
+		if len(ids) > 0 {
+			return zdb.Exec(ctx, `delete from filter_paths where filter_id :in (:ids)`, map[string]any{
+				"in":  db2.In(ctx),
+				"ids": db2.Array(ctx, ids),
+			})
+		}
+		return nil
 	})
 }
 

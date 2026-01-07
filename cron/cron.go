@@ -40,10 +40,10 @@ var Tasks = []Task{
 var (
 	stopped         = zsync.NewAtomicInt(0)
 	started         = zsync.NewAtomicInt(0)
-	persistInterval = func() atomic.Int64 {
+	persistInterval = func() *atomic.Int64 {
 		var d atomic.Int64
 		d.Store(int64(10 * time.Second))
-		return d
+		return &d
 	}()
 )
 
@@ -66,7 +66,7 @@ func Start(ctx context.Context) {
 		bgrun.NewTask("cron:"+f, 1, func(context.Context) error {
 			err := t.Fun(ctx)
 			if err != nil {
-				l.Error(ctx, err)
+				l.Error(ctx, err, "task", f)
 			}
 			return nil
 		})
