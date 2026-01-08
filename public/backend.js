@@ -9,6 +9,7 @@
 		window.TZ_OFFSET         = parseInt($('#js-settings').attr('data-offset'), 10) || 0
 		window.SITE_FIRST_HIT_AT = $('#js-settings').attr('data-first-hit-at') * 1000
 		window.GOATCOUNTER_COM   = $('#js-settings').attr('data-goatcounter-com') === 'true'
+		window.DEV               = $('#js-settings').attr('data-dev') === 'true'
 		window.USE_WEBSOCKET     = $('#js-settings').attr('data-websocket') === 'true'
 		window.WEBSOCKET         = undefined
 		if (!USER_SETTINGS.language)
@@ -21,6 +22,8 @@
 
 	// Set up error reporting.
 	let report_errors = function() {
+		if (window.DEV)
+			return
 		window.onerror = on_error
 		$(document).on('ajaxError', function(e, xhr, settings, err) {
 			if (settings.url === BASE_PATH + '/jserr')  // Just in case, otherwise we'll be stuck.

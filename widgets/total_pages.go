@@ -6,6 +6,7 @@ import (
 
 	"zgo.at/goatcounter/v2"
 	"zgo.at/z18n"
+	"zgo.at/zstd/ztime"
 )
 
 type TotalPages struct {
@@ -53,6 +54,22 @@ func (w *TotalPages) GetData(ctx context.Context, a Args) (more bool, err error)
 }
 
 func (w TotalPages) RenderHTML(ctx context.Context, shared SharedData) (string, any) {
+	// Set days in the future to -1; we filter this in the JS when rendering the
+	// chart. It's easier to do this here because JavaScript Date() has
+	// piss-poor support for timezones.
+	//
+	// Only remove them if the last day is today: for everything else we want to
+	// display the future as "greyed out".
+	var (
+		now   = ztime.Now(ctx).In(goatcounter.MustGetUser(ctx).Settings.Timezone.Loc())
+		today = now.Format("2006-01-02")
+		hour  = now.Hour()
+	)
+	if len(w.Total.Stats) > 0 && w.Total.Stats[len(w.Total.Stats)-1].Day == today {
+		j := len(w.Total.Stats) - 1
+		w.Total.Stats[j].Hourly = w.Total.Stats[j].Hourly[:hour+1]
+	}
+
 	return "_dashboard_totals.gohtml", struct {
 		Context context.Context
 		Site    *goatcounter.Site
