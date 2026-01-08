@@ -112,7 +112,7 @@ type (
 		Name   string `json:"name"`
 		Filter string `json:"filter"`
 		Group  Group  `json:"group"`
-		Period string `json:"period"` // "week", "week-cur", or n days: "8"
+		Period string `json:"period"` // "week", "month", etc., or n days: "8"
 	}
 	Views []View
 )

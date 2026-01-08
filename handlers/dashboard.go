@@ -44,6 +44,7 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 
 	// Load view, but override this from query.
 	view, _ := user.Settings.Views.Get("default")
+	view.Period = strings.TrimSuffix(view.Period, "-cur")
 
 	rng, err := getPeriod(w, r, site, user)
 	if err != nil {
@@ -55,11 +56,7 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 			return err
 		}
 	} else {
-		view.Period = q.Get("hl-period")
-	}
-	// Record how often people use the "Current [..]" buttons
-	if strings.HasSuffix(view.Period, "-cur") {
-		metrics.Start(view.Period).Done()
+		view.Period = strings.TrimSuffix(q.Get("hl-period"), "-cur")
 	}
 
 	showRefs, _ := zstrconv.ParseInt[goatcounter.PathID](q.Get("showrefs"), 10)
@@ -358,21 +355,12 @@ func (h backend) loadWidget(w http.ResponseWriter, r *http.Request) error {
 //	   The start date is set to exactly this period ago. The end date is set to
 //	   the end of the current day.
 //
-//	week-cur, month-cur, year-cur
-//	   The current week or month; both the start and return are modified.
-//
 //	Any digit
 //	   Last n days.
 func timeRange(ctx context.Context, r string, tz *time.Location, sundayStartsWeek bool) ztime.Range {
 	rng := ztime.NewRange(ztime.Now(ctx).In(tz)).Current(ztime.Day)
 	switch r {
 	case "0", "day":
-	case "week-cur":
-		rng = rng.Current(ztime.Week(sundayStartsWeek))
-	case "month-cur":
-		rng = rng.Current(ztime.Month)
-	case "year-cur":
-		rng = rng.Current(ztime.Year)
 	case "week":
 		rng = rng.Last(ztime.Week(sundayStartsWeek))
 	case "month":
@@ -420,6 +408,10 @@ func getPeriod(w http.ResponseWriter, r *http.Request, site *goatcounter.Site, u
 	if rng.Start.Before(c) {
 		y, m, d := c.In(user.Settings.Timezone.Loc()).Date()
 		rng.Start = time.Date(y, m, d, 0, 0, 0, 0, user.Settings.Timezone.Loc())
+	}
+	n := ztime.EndOf(ztime.Now(r.Context()), ztime.Hour)
+	if rng.End.After(n) {
+		rng.End = n
 	}
 
 	return rng.From(rng.Start).To(rng.End).UTC(), nil
