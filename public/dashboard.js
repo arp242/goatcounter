@@ -232,21 +232,6 @@
 				case 'quarter':   start.setMonth(start.getMonth() - 3); break;
 				case 'half-year': start.setMonth(start.getMonth() - 6); break;
 				case 'year':      start.setFullYear(start.getFullYear() - 1); break;
-				case 'week-cur':
-					if (USER_SETTINGS.sunday_starts_week)
-						start.setDate(start.getDate() - start.getDay())
-					else
-						start.setDate(start.getDate() - start.getDay() + (start.getDay() ? 1 : -6))
-					end = new Date(start.getFullYear(), start.getMonth(), start.getDate() + 6)
-					break;
-				case 'month-cur':
-					start.setDate(1)
-					end = new Date(end.getFullYear(), end.getMonth() + 1, 0)
-					break
-				case 'year-cur':
-					start = new Date(start.getFullYear(), 0, 1)
-					end = new Date(end.getFullYear(), 12, 0)
-					break
 			}
 
 			$('#hl-period').val(this.value).attr('disabled', false)
@@ -601,7 +586,6 @@
 		else
 			data = stats.map((s) => s.hourly).reduce((a, b) => a.concat(b))
 
-		let futureFrom = 0
 		var chart = charty(ctx, data, {
 			mode: isBar ? 'bar' : 'line',
 			max:  max,
@@ -611,20 +595,6 @@
 				width: daily || ndays <= 14 ? 1.5 : 1
 			},
 			bar:  {color: style('chart-line')},
-			done: (chart) => {
-				// Show future as greyed out.
-				let last   = stats[stats.length - 1].day + (daily ? '' : ' 23:59:59'),
-					future = last > format_date_ymd(new Date()) + (daily ? '' : ' 23:59:59')
-				if (future) {
-					let dpr   = Math.max(1, window.devicePixelRatio || 1),
-						width = chart.barWidth() * ((get_date(last) - new Date()) / ((daily ? 86400 : 3600) * 1000))
-					futureFrom = canvas.width/dpr - width - chart.pad()
-
-					ctx.fillStyle = '#ddd'
-					ctx.beginPath()
-					ctx.fillRect(futureFrom, (chart.pad()-1), width, canvas.height/dpr - chart.pad()*2 + 2)
-				}
-			},
 		})
 		charts.push(chart)
 
@@ -648,15 +618,12 @@
 				visits = daily ? day.daily : day.hourly[i%24],
 				views  = daily ? day.daily : day.hourly[i%24]
 
-			let title = '',
-				future = futureFrom && x >= futureFrom - 1
+			let title = ''
 			if (daily)
 				title = `${format_date(day.day, true)}`
 			else
 				title = `${format_date(day.day, true)} ${un24(start)} – ${un24(end)}`
-			if (future)
-				title += '; ' + T('dashboard/future')
-			if (!future && !USER_SETTINGS.fewer_numbers) {
+			if (!USER_SETTINGS.fewer_numbers) {
 				if (isEvent) {
 					title += '; ' + T('dashboard/tooltip-event', {
 						unique: format_int(visits),
