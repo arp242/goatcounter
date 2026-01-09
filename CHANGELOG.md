@@ -11,6 +11,9 @@ unreleased
 
 - Add *Server Management → GeoIP* page to debug GeoIP lookups.
 
+- Password for a new user can now be read from stdin when using `goatcounter db
+  create site` or `goatcounter db create user`.
+
 ### Fixes
 
 - Improve performance of filter with a large amount (100,000s) of paths.

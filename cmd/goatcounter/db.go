@@ -3,6 +3,8 @@ package main
 import (
 	"context"
 	"fmt"
+	"io"
+	"os"
 	"slices"
 	"strings"
 
@@ -121,7 +123,7 @@ create and update commands:
                               site).
 
             -user.password*   Password to log in; will be asked interactively
-                              if omitted.
+                              if omitted. Read from stdin if it's "-".
 
     Flags for "user":
 
@@ -138,7 +140,8 @@ create and update commands:
                         superuser   Full access, including the "server
                                     management" page.
 
-        -password   Password; will be asked interactively if omitted.
+        -password   Password; will be asked interactively if omitted. Read from
+                    stdin if it's "-".
 
     Flags for "apitoken":
 
@@ -715,11 +718,17 @@ func cmdDBSiteCreate(ctx context.Context, vhost, email, link, pwd string) error 
 	if link != "" {
 		account, err = findParent(ctx, link)
 		if err != nil {
-			return nil
+			return err
 		}
 	}
 
-	if link == "" && pwd == "" {
+	if pwd == "-" {
+		p, err := io.ReadAll(os.Stdin)
+		if err != nil {
+			return fmt.Errorf("reading password: %w", err)
+		}
+		pwd = string(p)
+	} else if link == "" && pwd == "" {
 		pwd, err = zli.AskPassword(8)
 		if err != nil {
 			return err
@@ -854,7 +863,13 @@ func cmdDBUserCreate(ctx context.Context,
 		return err
 	}
 
-	if pwd == "" {
+	if pwd == "-" {
+		p, err := io.ReadAll(os.Stdin)
+		if err != nil {
+			return fmt.Errorf("reading password: %w", err)
+		}
+		pwd = string(p)
+	} else if pwd == "" {
 		pwd, err = zli.AskPassword(8)
 		if err != nil {
 			return err
