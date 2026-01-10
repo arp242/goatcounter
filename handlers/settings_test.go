@@ -14,7 +14,6 @@ import (
 	"zgo.at/zdb"
 	"zgo.at/zstd/ztest"
 	"zgo.at/zstd/ztime"
-	"zgo.at/zstd/ztype"
 )
 
 func TestSettingsTpl(t *testing.T) {
@@ -39,7 +38,7 @@ func TestSettingsTpl(t *testing.T) {
 			setup: func(ctx context.Context, t *testing.T) {
 				ss := goatcounter.Site{
 					Code:   "subsite",
-					Parent: ztype.Ptr(goatcounter.SiteID(1)),
+					Parent: new(goatcounter.SiteID(1)),
 				}
 				err := ss.Insert(ctx)
 				if err != nil {
@@ -119,8 +118,8 @@ func TestSettingsSitesAdd(t *testing.T) {
 			name: "already exists for this account",
 			setup: func(ctx context.Context, t *testing.T) {
 				s := goatcounter.Site{
-					Parent: ztype.Ptr(goatcounter.SiteID(1)),
-					Cname:  ztype.Ptr("add.example.com"),
+					Parent: new(goatcounter.SiteID(1)),
+					Cname:  new("add.example.com"),
 					Code:   "add",
 				}
 				err := s.Insert(ctx)
@@ -144,7 +143,7 @@ func TestSettingsSitesAdd(t *testing.T) {
 			name: "already exists on other account",
 			setup: func(ctx context.Context, t *testing.T) {
 				s := goatcounter.Site{
-					Cname: ztype.Ptr("add.example.com"),
+					Cname: new("add.example.com"),
 					Code:  "add",
 				}
 				err := s.Insert(ctx)
@@ -168,8 +167,8 @@ func TestSettingsSitesAdd(t *testing.T) {
 			name: "undelete",
 			setup: func(ctx context.Context, t *testing.T) {
 				s := goatcounter.Site{
-					Parent: ztype.Ptr(goatcounter.SiteID(1)),
-					Cname:  ztype.Ptr("add.example.com"),
+					Parent: new(goatcounter.SiteID(1)),
+					Cname:  new("add.example.com"),
 					Code:   "add",
 				}
 				err := s.Insert(ctx)
@@ -196,7 +195,7 @@ func TestSettingsSitesAdd(t *testing.T) {
 			name: "undelete other account",
 			setup: func(ctx context.Context, t *testing.T) {
 				s := goatcounter.Site{
-					Cname: ztype.Ptr("add.example.com"),
+					Cname: new("add.example.com"),
 					Code:  "add",
 				}
 				err := s.Insert(ctx)
@@ -240,8 +239,8 @@ func TestSettingsSitesRemove(t *testing.T) {
 			name: "remove",
 			setup: func(ctx context.Context, t *testing.T) {
 				err := (&goatcounter.Site{
-					Parent: ztype.Ptr(goatcounter.SiteID(1)),
-					Cname:  ztype.Ptr("add.example.com"),
+					Parent: new(goatcounter.SiteID(1)),
+					Cname:  new("add.example.com"),
 					Code:   "add",
 				}).Insert(ctx)
 				if err != nil {
@@ -276,7 +275,7 @@ func TestSettingsSitesRemove(t *testing.T) {
 			name: "remove other account",
 			setup: func(ctx context.Context, t *testing.T) {
 				s := goatcounter.Site{
-					Cname: ztype.Ptr("add.example.com"),
+					Cname: new("add.example.com"),
 					Code:  "add",
 				}
 				err := s.Insert(ctx)

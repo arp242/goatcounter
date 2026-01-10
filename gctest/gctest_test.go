@@ -7,7 +7,6 @@ import (
 	"zgo.at/goatcounter/v2"
 	"zgo.at/goatcounter/v2/pkg/log"
 	"zgo.at/zdb"
-	"zgo.at/zstd/ztype"
 )
 
 func TestDB(t *testing.T) {
@@ -60,7 +59,7 @@ func TestSite(t *testing.T) {
 	}
 
 	{
-		s := goatcounter.Site{Cname: ztype.Ptr("AAA.AAA")}
+		s := goatcounter.Site{Cname: new("AAA.AAA")}
 		u := goatcounter.User{Email: "AAA@AAA.AAA"}
 		Site(ctx, t, &s, &u)
 

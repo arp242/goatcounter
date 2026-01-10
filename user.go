@@ -20,7 +20,6 @@ import (
 	"zgo.at/zstd/zcrypto"
 	"zgo.at/zstd/zstrconv"
 	"zgo.at/zstd/ztime"
-	"zgo.at/zstd/ztype"
 	"zgo.at/zvalidate"
 )
 
@@ -64,7 +63,7 @@ func (u *User) Defaults(ctx context.Context) {
 	if u.CreatedAt.IsZero() {
 		u.CreatedAt = ztime.Now(ctx)
 	} else {
-		u.UpdatedAt = ztype.Ptr(ztime.Now(ctx))
+		u.UpdatedAt = new(ztime.Now(ctx))
 	}
 
 	if u.LastReportAt.IsZero() {
@@ -72,7 +71,7 @@ func (u *User) Defaults(ctx context.Context) {
 	}
 
 	if !u.EmailVerified {
-		u.EmailToken = ztype.Ptr[string](zcrypto.Secret192())
+		u.EmailToken = new(zcrypto.Secret192())
 	}
 
 	u.Settings.Defaults(ctx)
@@ -172,7 +171,7 @@ func (u *User) Delete(ctx context.Context, lastAdmin bool) error {
 // Update this user's name, email, settings, and access.
 func (u *User) Update(ctx context.Context, emailChanged bool) error {
 	if emailChanged && Config(ctx).GoatcounterCom {
-		u.EmailVerified, u.EmailToken = false, ztype.Ptr(zcrypto.Secret192())
+		u.EmailVerified, u.EmailToken = false, new(zcrypto.Secret192())
 	}
 	err := zdb.Update(ctx, u, zdb.UpdateAll)
 	if zdb.ErrUnique(err) {
@@ -312,7 +311,7 @@ func (u *User) ByTokenAndSite(ctx context.Context, token string) error {
 // RequestReset generates a new password reset key.
 func (u *User) RequestReset(ctx context.Context) error {
 	// TODO: rename this, as it's now used for password resets.
-	u.LoginRequest = ztype.Ptr(zcrypto.Secret128())
+	u.LoginRequest = new(zcrypto.Secret128())
 	err := zdb.Exec(ctx, `update users set
 		login_request=$1, reset_at=current_timestamp where user_id=$2 and site_id=$3`,
 		*u.LoginRequest, u.ID, MustGetSite(ctx).IDOrParent())
@@ -320,7 +319,7 @@ func (u *User) RequestReset(ctx context.Context) error {
 }
 
 func (u *User) InviteToken(ctx context.Context) error {
-	u.LoginRequest = ztype.Ptr("invite-" + zcrypto.Secret128())
+	u.LoginRequest = new("invite-" + zcrypto.Secret128())
 	err := zdb.Exec(ctx, `update users set
 		login_request=$1, reset_at=current_timestamp where user_id=$2 and site_id=$3`,
 		*u.LoginRequest, u.ID, MustGetSite(ctx).IDOrParent())
@@ -347,12 +346,12 @@ func (u *User) Login(ctx context.Context) error {
 		return errors.New("u.ID == 0")
 	}
 
-	u.Token = ztype.Ptr(zcrypto.Secret256())
+	u.Token = new(zcrypto.Secret256())
 	if u.LoginToken == nil || *u.LoginToken == "" {
-		u.LoginToken = ztype.Ptr(ztime.Now(ctx).Format("20060102") + "-" + zcrypto.Secret256())
+		u.LoginToken = new(ztime.Now(ctx).Format("20060102") + "-" + zcrypto.Secret256())
 	}
 
-	u.LoginAt = ztype.Ptr(ztime.Now(ctx))
+	u.LoginAt = new(ztime.Now(ctx))
 	u.OpenAt = u.LoginAt
 	err := zdb.Exec(ctx, `update users set
 			login_request=null, login_token=?, csrf_token=?, login_at=?, open_at=?
@@ -367,7 +366,7 @@ func (u *User) UpdateOpenAt(ctx context.Context) error {
 	if u.OpenAt != nil && u.OpenAt.After(ztime.Now(ctx).Add(-24*time.Hour)) {
 		return nil
 	}
-	u.OpenAt = ztype.Ptr(ztime.Now(ctx))
+	u.OpenAt = new(ztime.Now(ctx))
 	err := zdb.Update(ctx, u, "open_at")
 	return errors.Wrap(err, "User.UpdateOpenAt")
 }

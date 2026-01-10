@@ -22,7 +22,6 @@ import (
 	"zgo.at/zhttp/mware"
 	"zgo.at/zprof"
 	"zgo.at/zstd/ztime"
-	"zgo.at/zstd/ztype"
 	"zgo.at/zvalidate"
 )
 
@@ -64,7 +63,7 @@ func (h bosmang) bgrun(w http.ResponseWriter, r *http.Request) error {
 	for _, h := range hist {
 		x, ok := metrics[h.Task]
 		if !ok {
-			x = ztype.Ptr(ztime.NewDurations(0))
+			x = new(ztime.NewDurations(0))
 			x.Grow(32)
 		}
 		x.Append(h.Took)

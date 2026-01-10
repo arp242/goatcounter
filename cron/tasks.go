@@ -15,7 +15,6 @@ import (
 	"zgo.at/goatcounter/v2/pkg/log"
 	"zgo.at/zdb"
 	"zgo.at/zstd/ztime"
-	"zgo.at/zstd/ztype"
 )
 
 func oldExports(ctx context.Context) error {
@@ -188,7 +187,7 @@ func renewACME(ctx context.Context) error {
 		}
 
 		if ok && s.CnameSetupAt == nil {
-			s.CnameSetupAt = ztype.Ptr(ztime.Now(ctx))
+			s.CnameSetupAt = new(ztime.Now(ctx))
 			err = s.UpdateCnameSetupAt(ctx)
 		} else if !ok && s.CnameSetupAt != nil {
 			s.CnameSetupAt = nil

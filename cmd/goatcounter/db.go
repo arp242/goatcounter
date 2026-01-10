@@ -21,7 +21,6 @@ import (
 	"zgo.at/zstd/zint"
 	"zgo.at/zstd/zstrconv"
 	"zgo.at/zstd/zstring"
-	"zgo.at/zstd/ztype"
 	"zgo.at/zvalidate"
 )
 
@@ -797,7 +796,7 @@ func cmdDBSiteUpdate(ctx context.Context, find []string,
 			}
 
 			if vhost.Set() {
-				s.Cname = ztype.Ptr(vhost.String())
+				s.Cname = new(vhost.String())
 				err := s.Update(ctx)
 				if err != nil {
 					return err

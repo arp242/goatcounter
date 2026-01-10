@@ -22,7 +22,6 @@ import (
 	"zgo.at/zstd/zjson"
 	"zgo.at/zstd/ztest"
 	"zgo.at/zstd/ztime"
-	"zgo.at/zstd/ztype"
 	"zgo.at/zvalidate"
 )
 
@@ -500,23 +499,23 @@ func TestAPISitesCreate(t *testing.T) {
 	}{
 		{false, `{"code":"apitest"}`, 200, func(ctx context.Context, s *goatcounter.Site) {
 			s.Code = "apitest"
-			s.Parent = ztype.Ptr(goatcounter.SiteID(1))
+			s.Parent = new(goatcounter.SiteID(1))
 		}},
 		{true, `{"cname":"apitest.localhost"}`, 200, func(ctx context.Context, s *goatcounter.Site) {
-			s.Cname = ztype.Ptr("apitest.localhost")
-			s.Parent = ztype.Ptr(goatcounter.SiteID(1))
-			s.CnameSetupAt = ztype.Ptr(ztime.Now(ctx))
+			s.Cname = new("apitest.localhost")
+			s.Parent = new(goatcounter.SiteID(1))
+			s.CnameSetupAt = new(ztime.Now(ctx))
 		}},
 
 		// Ignore plan.
 		{false, `{"code":"apitest"}`, 200, func(ctx context.Context, s *goatcounter.Site) {
 			s.Code = "apitest"
-			s.Parent = ztype.Ptr(goatcounter.SiteID(1))
+			s.Parent = new(goatcounter.SiteID(1))
 		}},
 		{true, `{"cname":"apitest.localhost"}`, 200, func(ctx context.Context, s *goatcounter.Site) {
-			s.Cname = ztype.Ptr("apitest.localhost")
-			s.Parent = ztype.Ptr(goatcounter.SiteID(1))
-			s.CnameSetupAt = ztype.Ptr(ztime.Now(ctx))
+			s.Cname = new("apitest.localhost")
+			s.Parent = new(goatcounter.SiteID(1))
+			s.CnameSetupAt = new(ztime.Now(ctx))
 		}},
 	}
 
@@ -572,11 +571,11 @@ func TestAPISitesUpdate(t *testing.T) {
 	}{
 		{false, "PATCH", `{}`, 200, func(s *goatcounter.Site) {
 			s.Code = "gctest"
-			s.Cname = ztype.Ptr("gctest.localhost")
+			s.Cname = new("gctest.localhost")
 		}},
 		{false, "POST", `{}`, 200, func(s *goatcounter.Site) {
 			s.Code = "gctest"
-			//s.Cname = ztype.Ptr("gctest.localhost")
+			//s.Cname = new("gctest.localhost")
 		}},
 	}
 

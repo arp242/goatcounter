@@ -19,7 +19,6 @@ import (
 	"zgo.at/zstd/zcrypto"
 	"zgo.at/zstd/zint"
 	"zgo.at/zstd/ztime"
-	"zgo.at/zstd/ztype"
 )
 
 const ExportCSVVersion = "2"
@@ -102,7 +101,7 @@ func (e *Export) RunCSV(ctx context.Context, fp *os.File, mailUser bool) {
 
 	if exportErr != nil {
 		l.Error(ctx, exportErr, "export", e)
-		e.Error = ztype.Ptr(exportErr.Error())
+		e.Error = new(exportErr.Error())
 		err := zdb.Update(ctx, e, "error")
 		if err != nil {
 			log.Error(ctx, err)
@@ -148,7 +147,7 @@ func (e *Export) RunCSV(ctx context.Context, fp *os.File, mailUser bool) {
 		return
 	}
 
-	e.FinishedAt = ztype.Ptr(ztime.Now(ctx))
+	e.FinishedAt = new(ztime.Now(ctx))
 	zdb.Update(ctx, e, "finished_at", "num_rows", "size", "hash", "last_hit_id")
 	if err != nil {
 		log.Error(ctx, err)

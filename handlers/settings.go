@@ -31,7 +31,6 @@ import (
 	"zgo.at/zstd/zint"
 	"zgo.at/zstd/zruntime"
 	"zgo.at/zstd/ztime"
-	"zgo.at/zstd/ztype"
 	"zgo.at/zvalidate"
 )
 
@@ -212,7 +211,7 @@ func (h settings) mainSave(w http.ResponseWriter, r *http.Request) error {
 			}
 
 			if ok && site.CnameSetupAt == nil {
-				site.CnameSetupAt = ztype.Ptr(ztime.Now(ctx))
+				site.CnameSetupAt = new(ztime.Now(ctx))
 				err = site.UpdateCnameSetupAt(ctx)
 			} else if !ok && site.CnameSetupAt != nil {
 				site.CnameSetupAt = nil
@@ -329,7 +328,7 @@ func (h settings) sitesAdd(w http.ResponseWriter, r *http.Request) error {
 			return err
 		}
 		if !goatcounter.Config(r.Context()).GoatcounterCom {
-			newSite.CnameSetupAt = ztype.Ptr(ztime.Now(ctx))
+			newSite.CnameSetupAt = new(ztime.Now(ctx))
 			return newSite.UpdateCnameSetupAt(ctx)
 		}
 		return nil

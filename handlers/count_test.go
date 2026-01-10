@@ -19,7 +19,6 @@ import (
 	"zgo.at/zstd/zjson"
 	"zgo.at/zstd/ztest"
 	"zgo.at/zstd/ztime"
-	"zgo.at/zstd/ztype"
 )
 
 func TestBackendCount(t *testing.T) {
@@ -73,7 +72,7 @@ func TestBackendCount(t *testing.T) {
 			Title:     "XX",
 			Ref:       "example.com",
 			RefScheme: "h",
-			Width:     ztype.Ptr(int16(40)),
+			Width:     new(int16(40)),
 		}},
 
 		{"campaign", url.Values{"p": {"/foo.html"}, "q": {"ref=AAA"}}, nil, 200, goatcounter.Hit{
@@ -89,15 +88,15 @@ func TestBackendCount(t *testing.T) {
 
 		{"width,height,dpr", url.Values{"p": {"/a"}, "s": {"1920,1080,2"}}, nil, 200, goatcounter.Hit{
 			Path:  "/a",
-			Width: ztype.Ptr(int16(1920)),
+			Width: new(int16(1920)),
 		}},
 		{"width,height", url.Values{"p": {"/a"}, "s": {"1920,1080"}}, nil, 200, goatcounter.Hit{
 			Path:  "/a",
-			Width: ztype.Ptr(int16(1920)),
+			Width: new(int16(1920)),
 		}},
 		{"width", url.Values{"p": {"/a"}, "s": {"1920"}}, nil, 200, goatcounter.Hit{
 			Path:  "/a",
-			Width: ztype.Ptr(int16(1920)),
+			Width: new(int16(1920)),
 		}},
 
 		{"bot", url.Values{"p": {"/a"}, "b": {"150"}}, nil, 200, goatcounter.Hit{

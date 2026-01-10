@@ -22,7 +22,6 @@ import (
 	"zgo.at/zdb-drivers/go-sqlite3"
 	"zgo.at/zstd/zcrypto"
 	"zgo.at/zstd/zgo"
-	"zgo.at/zstd/ztype"
 )
 
 var pgSQL = false
@@ -141,7 +140,7 @@ func db(t testing.TB, storeFile bool) context.Context {
 }
 
 func initData(ctx context.Context, db zdb.DB, t testing.TB) context.Context {
-	site := goatcounter.Site{Code: "gctest", Cname: ztype.Ptr("gctest.localhost")}
+	site := goatcounter.Site{Code: "gctest", Cname: new("gctest.localhost")}
 	err := site.Insert(ctx)
 	if err != nil {
 		t.Fatalf("create site: %s", err)

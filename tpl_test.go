@@ -10,14 +10,13 @@ import (
 	. "zgo.at/goatcounter/v2"
 	"zgo.at/goatcounter/v2/gctest"
 	"zgo.at/zstd/zgo"
-	"zgo.at/zstd/ztype"
 	"zgo.at/ztpl"
 )
 
 func TestTpl(t *testing.T) {
 	ctx := gctest.Context(nil)
 	site := Site{Code: "example"}
-	user := User{Email: "a@example.com", EmailToken: ztype.Ptr("T-EMAIL"), LoginRequest: ztype.Ptr("T-LOGIN-REQ")}
+	user := User{Email: "a@example.com", EmailToken: new("T-EMAIL"), LoginRequest: new("T-LOGIN-REQ")}
 
 	files, _ := fs.Sub(os.DirFS(zgo.ModuleRoot()), "tpl")
 	err := ztpl.Init(files)
@@ -47,10 +46,10 @@ func TestTpl(t *testing.T) {
 
 		{TplEmailExportDone{ctx, site, user, Export{
 			ID:        2,
-			NumRows:   ztype.Ptr(42),
-			Size:      ztype.Ptr("42"),
-			LastHitID: ztype.Ptr(HitID(642051)),
-			Hash:      ztype.Ptr("sha256-AAA"),
+			NumRows:   new(42),
+			Size:      new("42"),
+			LastHitID: new(HitID(642051)),
+			Hash:      new("sha256-AAA"),
 		}}},
 	}
 

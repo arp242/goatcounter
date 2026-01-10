@@ -16,7 +16,6 @@ import (
 	"zgo.at/zstd/zbool"
 	"zgo.at/zstd/zint"
 	"zgo.at/zstd/ztime"
-	"zgo.at/zstd/ztype"
 	"zgo.at/zvalidate"
 )
 
@@ -284,7 +283,7 @@ func (m *ms) processHit(ctx context.Context, h *Hit) bool {
 
 	err = h.Defaults(ctx, false)
 	if err != nil {
-		if errors.As(err, ztype.Ptr(&zvalidate.Validator{})) {
+		if errors.As(err, new(&zvalidate.Validator{})) {
 			memlog.Debug(ctx, err.Error(), "hit", h)
 		} else {
 			memlog.Error(ctx, err, "hit", h)

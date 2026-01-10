@@ -13,7 +13,6 @@ import (
 	"zgo.at/zstd/zcrypto"
 	"zgo.at/zstd/zint"
 	"zgo.at/zstd/ztime"
-	"zgo.at/zstd/ztype"
 )
 
 // APIToken permissions.
@@ -180,7 +179,7 @@ func (t *APIToken) Update(ctx context.Context) error {
 
 // Touch sets the last used time to the current time.
 func (t *APIToken) Touch(ctx context.Context) error {
-	t.LastUsedAt = ztype.Ptr(ztime.Now(ctx))
+	t.LastUsedAt = new(ztime.Now(ctx))
 	err := zdb.Update(ctx, t, "last_used_at")
 	return errors.Wrap(err, "APIToken.Touch")
 }

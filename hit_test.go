@@ -6,7 +6,6 @@ import (
 
 	. "zgo.at/goatcounter/v2"
 	"zgo.at/goatcounter/v2/gctest"
-	"zgo.at/zstd/ztype"
 )
 
 func dayStat(days map[int]int) []int {
@@ -19,7 +18,7 @@ func dayStat(days map[int]int) []int {
 
 func TestHitDefaultsRef(t *testing.T) {
 	a := "arp242.net"
-	set := ztype.Ptr("_")
+	set := new("_")
 
 	tests := []struct {
 		in           string
@@ -34,14 +33,14 @@ func TestHitDefaultsRef(t *testing.T) {
 
 		// Split out query parameters.
 		{"https://arp242.net", a, nil, nil, "h"},
-		{"https://arp242.net?a=b", a, ztype.Ptr("a=b"), nil, "h"},
-		{"https://arp242.net?a=b&c=d", a, ztype.Ptr("a=b&c=d"), nil, "h"},
+		{"https://arp242.net?a=b", a, new("a=b"), nil, "h"},
+		{"https://arp242.net?a=b&c=d", a, new("a=b&c=d"), nil, "h"},
 
 		// Clean up query parameters.
 		{"https://t.co/asd", "twitter.com/search?q=https%3A%2F%2Ft.co%2Fasd", nil, nil, "h"},
 		{"https://t.co/asd?amp=1", "twitter.com/search?q=https%3A%2F%2Ft.co%2Fasd", nil, nil, "h"},
 		{"https://arp242.net?utm_source=asd", a, nil, set, "h"},
-		{"https://arp242.net?utm_source=asd&a=b", a, ztype.Ptr("a=b"), set, "h"},
+		{"https://arp242.net?utm_source=asd&a=b", a, new("a=b"), set, "h"},
 
 		// Groups
 		{"https://mail.google.com?a=b&c=d", "Email", nil, set, "g"},
@@ -49,7 +48,7 @@ func TestHitDefaultsRef(t *testing.T) {
 
 		// Host aliases.
 		{"https://en.m.wikipedia.org/wiki/Foo", "en.wikipedia.org/wiki/Foo", nil, set, "h"},
-		{"https://en.m.wikipedia.org/wiki/Foo?a=b", "en.wikipedia.org/wiki/Foo", ztype.Ptr("a=b"), set, "h"},
+		{"https://en.m.wikipedia.org/wiki/Foo?a=b", "en.wikipedia.org/wiki/Foo", new("a=b"), set, "h"},
 
 		// Reddit Cleaning.
 		{"https://www.reddit.com/r/programming/top", "www.reddit.com/r/programming", nil, set, "h"},
