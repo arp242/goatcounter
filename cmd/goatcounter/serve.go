@@ -470,7 +470,7 @@ func flagErrors(v *zvalidate.Validator, errors string, mailer blackmail.Mailer) 
 
 		v.Email("-errors", from)
 		v.Email("-errors", to)
-		slog.SetDefault(slog.New(log.NewChain(
+		slog.SetDefault(slog.New(slog.NewMultiHandler(
 			slog.Default().Handler(),
 			email_log.New(mailer, slog.LevelWarn, from, to),
 		)))
