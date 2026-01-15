@@ -99,9 +99,6 @@
   few     = "%(n) дней назад"
   many    = "%(n) дней назад"
 
-["dashboard/future"]
-  default = "будущее"
-
 ["dashboard/loading"]
 
 ["dashboard/month-ago"]
@@ -802,9 +799,6 @@
 
 ["nav-dash/back"]
   default = "назад"
-
-["nav-dash/current"]
-  default = "Текущая"
 
 ["nav-dash/day"]
   default = "день"

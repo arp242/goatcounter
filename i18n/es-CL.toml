@@ -100,9 +100,6 @@
   few     = "Hace %(n) días"
   many    = "Hace %(n) días"
 
-["dashboard/future"]
-  default = "futuro"
-
 ["dashboard/loading"]
 
 ["dashboard/month-ago"]
@@ -819,9 +816,6 @@ Martin
 
 ["nav-dash/back"]
   default = "previo"
-
-["nav-dash/current"]
-  default = "Actual"
 
 ["nav-dash/day"]
   default = "día"

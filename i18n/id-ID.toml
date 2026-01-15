@@ -99,9 +99,6 @@
   few     = "%(n) hari yang lalu"
   many    = "%(n) hari yang lalu"
 
-["dashboard/future"]
-  default = "masa depan"
-
 ["dashboard/loading"]
 
 ["dashboard/month-ago"]
@@ -822,9 +819,6 @@ Verifikasi akan dijalankan setiap 2 jam.
 
 ["nav-dash/back"]
   default = "sebelumnya"
-
-["nav-dash/current"]
-  default = "Saat ini"
 
 ["nav-dash/day"]
   default = "hari"

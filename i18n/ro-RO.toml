@@ -99,9 +99,6 @@
   few     = "Acum cateva zile"
   many    = "Acum multe zile"
 
-["dashboard/future"]
-  default = "viitor"
-
 ["dashboard/loading"]
 
 ["dashboard/month-ago"]
@@ -732,9 +729,6 @@ Verificarile ruleaza la fiecare doua ore.
 ["nav-bot/src"]
 
 ["nav-dash/back"]
-
-["nav-dash/current"]
-  default = "Curent(a)"
 
 ["nav-dash/day"]
   default = "zi"

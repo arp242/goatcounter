@@ -99,9 +99,6 @@
   few     = "%(n)일 전"
   many    = "%(n)일 전"
 
-["dashboard/future"]
-  default = "미래"
-
 ["dashboard/loading"]
 
 ["dashboard/month-ago"]
@@ -812,9 +809,6 @@
 
 ["nav-dash/back"]
   default = "뒤로"
-
-["nav-dash/current"]
-  default = "현재"
 
 ["nav-dash/day"]
   default = "일"

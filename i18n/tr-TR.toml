@@ -95,9 +95,6 @@
   default = "%(n) gün önce"
   one     = "%(n) gün önce"
 
-["dashboard/future"]
-  default = "gelecek"
-
 ["dashboard/loading"]
 
 ["dashboard/month-ago"]
@@ -812,9 +809,6 @@ Doğrulama her 2 saatte bir çalışır.
 
 ["nav-dash/back"]
   default = "geri"
-
-["nav-dash/current"]
-  default = "Şimdiki"
 
 ["nav-dash/day"]
   default = "gün"

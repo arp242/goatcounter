@@ -94,9 +94,6 @@
 ["dashboard/day-ago"]
   default = "%(n) दिन पहले"
 
-["dashboard/future"]
-  default = "भविष्य"
-
 ["dashboard/loading"]
 
 ["dashboard/month-ago"]
@@ -686,8 +683,6 @@
 ["nav-bot/src"]
 
 ["nav-dash/back"]
-
-["nav-dash/current"]
 
 ["nav-dash/day"]
 

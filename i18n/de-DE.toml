@@ -99,9 +99,6 @@
   few     = "Vor einigen Tagen"
   many    = "Vor vielen Tagen"
 
-["dashboard/future"]
-  default = "Zukunft"
-
 ["dashboard/loading"]
 
 ["dashboard/month-ago"]
@@ -817,9 +814,6 @@ Eigene Domain, z.B. <em>„stats.example.com“</em>.
 
 ["nav-dash/back"]
   default = "Zurück"
-
-["nav-dash/current"]
-  default = "Aktuell"
 
 ["nav-dash/day"]
   default = "Tag"

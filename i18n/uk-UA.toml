@@ -93,8 +93,6 @@
 
 ["dashboard/day-ago"]
 
-["dashboard/future"]
-
 ["dashboard/loading"]
 
 ["dashboard/month-ago"]
@@ -673,8 +671,6 @@
 ["nav-bot/src"]
 
 ["nav-dash/back"]
-
-["nav-dash/current"]
 
 ["nav-dash/day"]
 

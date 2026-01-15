@@ -100,9 +100,6 @@
   default = "%(n) dagen geleden"
   one     = "1 dag geleden"
 
-["dashboard/future"]
-  default = "toekomst"
-
 ["dashboard/loading"]
   default = "Laden…"
 
@@ -858,9 +855,6 @@ De verificatie checkt elke 2 uur.
 
 ["nav-dash/back"]
   default = "eerder"
-
-["nav-dash/current"]
-  default = "Huidige"
 
 ["nav-dash/day"]
   default = "dag"

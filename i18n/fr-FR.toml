@@ -99,9 +99,6 @@
   few     = "Quelques"
   many    = "Plusieurs"
 
-["dashboard/future"]
-  default = "futur"
-
 ["dashboard/loading"]
 
 ["dashboard/month-ago"]
@@ -818,9 +815,6 @@ Domaine personnalisé, par exemple <em>“stats.example.com”</em>.<br>
 
 ["nav-dash/back"]
   default = "reculer"
-
-["nav-dash/current"]
-  default = "Période en cours"
 
 ["nav-dash/day"]
   default = "jour"

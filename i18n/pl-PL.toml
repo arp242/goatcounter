@@ -99,9 +99,6 @@
   few     = "%(n) dni temu"
   many    = "%(n) dni temu"
 
-["dashboard/future"]
-  default = "przyszłość"
-
 ["dashboard/loading"]
 
 ["dashboard/month-ago"]
@@ -827,9 +824,6 @@ Weryfikacja odbywa się co 2 godziny.
 
 ["nav-dash/back"]
   default = "wstecz"
-
-["nav-dash/current"]
-  default = "Aktualny"
 
 ["nav-dash/day"]
   default = "dzień"

@@ -99,9 +99,6 @@
   few     = "%(n) dager"
   many    = "%(n) dager"
 
-["dashboard/future"]
-  default = "Fremtidige"
-
 ["dashboard/loading"]
 
 ["dashboard/month-ago"]
@@ -677,8 +674,6 @@ Hilsen Martin
 ["nav-bot/src"]
 
 ["nav-dash/back"]
-
-["nav-dash/current"]
 
 ["nav-dash/day"]
 

@@ -93,9 +93,6 @@
 
 ["dashboard/day-ago"]
 
-["dashboard/future"]
-  default = "อนาคต"
-
 ["dashboard/loading"]
 
 ["dashboard/month-ago"]
@@ -638,9 +635,6 @@
 
 ["nav-dash/back"]
   default = "กลับ"
-
-["nav-dash/current"]
-  default = "ปัจจุบัน"
 
 ["nav-dash/day"]
   default = "วัน"

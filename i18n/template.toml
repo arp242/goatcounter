@@ -166,19 +166,15 @@
   default = "Delete %(email)?"
 
 ["dashboard/day-ago"]
-  loc     = ["handlers/dashboard.go:227"]
+  loc     = ["handlers/dashboard.go:224"]
   default = "%(n) days ago"
-
-["dashboard/future"]
-  loc     = ["handlers/handlers.go:124"]
-  default = "future"
 
 ["dashboard/loading"]
   loc     = ["tpl/_dashboard_totals_row.gohtml:11"]
   default = "Loading…"
 
 ["dashboard/month-ago"]
-  loc     = ["handlers/dashboard.go:229"]
+  loc     = ["handlers/dashboard.go:226"]
   default = "%(n) months ago"
 
 ["dashboard/nothing-to-display"]
@@ -216,11 +212,11 @@
   default = "Visits"
 
 ["dashboard/today"]
-  loc     = ["handlers/dashboard.go:225"]
+  loc     = ["handlers/dashboard.go:222"]
   default = "Today"
 
 ["dashboard/tooltip-event"]
-  loc     = ["handlers/handlers.go:125"]
+  loc     = ["handlers/handlers.go:124"]
   default = "%(unique) clicks; %(clicks) total clicks"
 
 ["dashboard/totals/header"]
@@ -235,11 +231,11 @@
   default = "%(num-visits) visits"
 
 ["dashboard/week-ago"]
-  loc     = ["handlers/dashboard.go:228"]
+  loc     = ["handlers/dashboard.go:225"]
   default = "%(n) weeks ago"
 
 ["dashboard/yesterday"]
-  loc     = ["handlers/dashboard.go:226"]
+  loc     = ["handlers/dashboard.go:223"]
   default = "Yesterday"
 
 ["data-collect/help/country"]
@@ -307,15 +303,15 @@
   default = "User-Agent"
 
 ["datepicker/keyboard"]
-  loc     = ["handlers/handlers.go:127"]
+  loc     = ["handlers/handlers.go:126"]
   default = "Use the arrow keys to pick a date"
 
 ["datepicker/month-next"]
-  loc     = ["handlers/handlers.go:129"]
+  loc     = ["handlers/handlers.go:128"]
   default = "Next month"
 
 ["datepicker/month-prev"]
-  loc     = ["handlers/handlers.go:128"]
+  loc     = ["handlers/handlers.go:127"]
   default = "Previous month"
 
 ["dont-lock"]
@@ -403,11 +399,11 @@ Martin
   default = "Current password is incorrect."
 
 ["error/invalid-end-date"]
-  loc     = ["handlers/dashboard.go:414"]
+  loc     = ["handlers/dashboard.go:402"]
   default = "Invalid end date: %(date)"
 
 ["error/invalid-start-date"]
-  loc     = ["handlers/dashboard.go:407"]
+  loc     = ["handlers/dashboard.go:395"]
   default = "Invalid start date: %(date)"
 
 ["error/load-url"]
@@ -458,7 +454,7 @@ Martin
   default = "Not an account on this site: %(email)"
 
 ["error/unknown-activation-token"]
-  loc     = ["handlers/user.go:457"]
+  loc     = ["handlers/user.go:461"]
   default = "Unknown activation token"
 
 ["event"]
@@ -1274,19 +1270,15 @@ GeoIP database. See the <tt>-geo</tt> flag in
   default = "Source code"
 
 ["nav-dash/back"]
-  loc     = ["tpl/dashboard.gohtml:161"]
+  loc     = ["tpl/dashboard.gohtml:154"]
   default = "back"
-
-["nav-dash/current"]
-  loc     = ["tpl/dashboard.gohtml:104"]
-  default = "Current"
 
 ["nav-dash/day"]
   loc = [
     "tpl/dashboard.gohtml:95",
-    "tpl/dashboard.gohtml:148",
-    "tpl/dashboard.gohtml:163",
-    "tpl/dashboard.gohtml:172",
+    "tpl/dashboard.gohtml:141",
+    "tpl/dashboard.gohtml:156",
+    "tpl/dashboard.gohtml:165",
   ]
   default = "day"
 
@@ -1295,15 +1287,15 @@ GeoIP database. See the <tt>-geo</tt> flag in
   default = "Last day to display"
 
 ["nav-dash/filter"]
-  loc     = ["tpl/dashboard.gohtml:118"]
+  loc     = ["tpl/dashboard.gohtml:111"]
   default = "Filter paths"
 
 ["nav-dash/filter-more-help"]
-  loc     = ["handlers/handlers.go:130"]
+  loc     = ["handlers/handlers.go:129"]
   default = "More help"
 
 ["nav-dash/filter-tooltip"]
-  loc     = ["tpl/dashboard.gohtml:121"]
+  loc     = ["tpl/dashboard.gohtml:114"]
   default = """
 <p>Filter the list of paths; matched case-insensitive on path and title. %[%more More help]</p>
 
@@ -1319,15 +1311,15 @@ GeoIP database. See the <tt>-geo</tt> flag in
 """
 
 ["nav-dash/forced-daily"]
-  loc     = ["tpl/dashboard.gohtml:141"]
+  loc     = ["tpl/dashboard.gohtml:134"]
   default = "Cannot use the hourly view for a time range of more than 90 days"
 
 ["nav-dash/forced-hourly"]
-  loc     = ["tpl/dashboard.gohtml:146"]
+  loc     = ["tpl/dashboard.gohtml:139"]
   default = "Cannot use the daily view for a time range of less than 7 days"
 
 ["nav-dash/forward"]
-  loc     = ["tpl/dashboard.gohtml:177"]
+  loc     = ["tpl/dashboard.gohtml:170"]
   default = "forward"
 
 ["nav-dash/half-year"]
@@ -1335,7 +1327,7 @@ GeoIP database. See the <tt>-geo</tt> flag in
   default = "half year"
 
 ["nav-dash/hour"]
-  loc     = ["tpl/dashboard.gohtml:143"]
+  loc     = ["tpl/dashboard.gohtml:136"]
   default = "hour"
 
 ["nav-dash/last"]
@@ -1345,9 +1337,8 @@ GeoIP database. See the <tt>-geo</tt> flag in
 ["nav-dash/month"]
   loc = [
     "tpl/dashboard.gohtml:97",
-    "tpl/dashboard.gohtml:106",
-    "tpl/dashboard.gohtml:165",
-    "tpl/dashboard.gohtml:174",
+    "tpl/dashboard.gohtml:158",
+    "tpl/dashboard.gohtml:167",
   ]
   default = "month"
 
@@ -1360,29 +1351,27 @@ GeoIP database. See the <tt>-geo</tt> flag in
   default = "First day to display"
 
 ["nav-dash/view-by"]
-  loc     = ["tpl/dashboard.gohtml:138"]
+  loc     = ["tpl/dashboard.gohtml:131"]
   default = "View by:"
 
 ["nav-dash/week"]
   loc = [
     "tpl/dashboard.gohtml:96",
-    "tpl/dashboard.gohtml:105",
-    "tpl/dashboard.gohtml:164",
-    "tpl/dashboard.gohtml:173",
+    "tpl/dashboard.gohtml:157",
+    "tpl/dashboard.gohtml:166",
   ]
   default = "week"
 
 ["nav-dash/year"]
   loc = [
     "tpl/dashboard.gohtml:100",
-    "tpl/dashboard.gohtml:107",
-    "tpl/dashboard.gohtml:166",
-    "tpl/dashboard.gohtml:175",
+    "tpl/dashboard.gohtml:159",
+    "tpl/dashboard.gohtml:168",
   ]
   default = "year"
 
 ["nav-fash/filter-less-help"]
-  loc     = ["handlers/handlers.go:131"]
+  loc     = ["handlers/handlers.go:130"]
   default = "Less help"
 
 ["new-paren"]
@@ -1416,7 +1405,7 @@ GeoIP database. See the <tt>-geo</tt> flag in
   default = "Multi-factor authentication disabled."
 
 ["notify/email-already-verified"]
-  loc     = ["handlers/user.go:418"]
+  loc     = ["handlers/user.go:422"]
   default = "%(email) is already verified."
 
 ["notify/export-started-in-background"]
@@ -1452,7 +1441,7 @@ GeoIP database. See the <tt>-geo</tt> flag in
   default = "Not Found"
 
 ["notify/password-changed"]
-  loc     = ["handlers/user.go:411"]
+  loc     = ["handlers/user.go:415"]
   default = "Password changed."
 
 ["notify/reset-to-default"]
@@ -1477,7 +1466,7 @@ GeoIP database. See the <tt>-geo</tt> flag in
   default = "Saved!"
 
 ["notify/sent-to-email"]
-  loc     = ["handlers/user.go:423"]
+  loc     = ["handlers/user.go:427"]
   default = "Sent to %(email)."
 
 ["notify/settings-copied-to-site"]

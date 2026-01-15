@@ -1,7 +1,7 @@
 [__meta__]
   language = "cs"
   maintainers = []
-  modified = 2024-09-02
+  modified = 2026-01-15
 
 ["button/add-new"]
   default = "Přidat nový"
@@ -31,6 +31,7 @@
   default = "Ano, smazat vše"
 
 ["button/delete-pageviews"]
+  default = "Smazat zobrazení"
 
 ["button/disable-mfa"]
   default = "Vypnout MFA"
@@ -45,6 +46,7 @@
   default = "Zapomenuté heslo?"
 
 ["button/merge"]
+  default = "Sloučit"
 
 ["button/remove"]
   default = "Odebrat"
@@ -56,6 +58,7 @@
   default = "Odeslat email znovu"
 
 ["button/reset-defaults"]
+  default = "Obnovit původní"
 
 ["button/reset-password"]
   default = "Reset hesla"
@@ -67,6 +70,7 @@
   default = "Uložit výchozí zobrazení"
 
 ["button/search"]
+  default = "Hledat"
 
 ["button/send-login-url"]
   default = "Odeslat přihlašovací URL"
@@ -86,6 +90,7 @@
   default = "Potvrdit"
 
 ["button/upload-ga-import"]
+  default = "Nahrát"
 
 ["confirm/delete-user"]
   default = "Smazat %(email)?"
@@ -98,10 +103,8 @@
   few     = "Pár dní zpět"
   many    = "Mnoho dní zpět"
 
-["dashboard/future"]
-  default = "budoucnost"
-
 ["dashboard/loading"]
+  default = "Načítání..."
 
 ["dashboard/month-ago"]
   default = "Výchozí"
@@ -115,6 +118,7 @@
   default = "Nic k zobrazení"
 
 ["dashboard/pages/change"]
+  default = "Změnit"
 
 ["dashboard/pages/header"]
   default = "Stránky"
@@ -186,6 +190,7 @@
   default = "Referer"
 
 ["data-collect/label/region"]
+  default = "Oblast"
 
 ["data-collect/label/sessions"]
   default = "Sezení"
@@ -208,14 +213,19 @@
 ["dont-lock"]
 
 ["email-report/daily"]
+  default = "Denně"
 
 ["email-report/monthly"]
+  default = "Měsíčně"
 
 ["email-report/never"]
+  default = "Nikdy"
 
 ["email-report/two-weeks"]
+  default = "Každý druhý týden"
 
 ["email-report/weekly"]
+  default = "Týdně"
 
 ["email/header"]
   default = "Ahoj,"
@@ -272,58 +282,78 @@ Martin
 ["error/merge-self"]
 
 ["error/not-found"]
+  default = "Nenalezeno"
 
 ["error/password-does-not-match"]
+  default = "Hesla se neshodují."
 
 ["error/reset-user-no-account"]
 
 ["error/unknown-activation-token"]
+  default = "Neznámý aktivační token"
 
 ["event"]
+  default = "událost"
 
 ["forgot-domain-help"]
 
 ["header/access"]
+  default = "Přístup"
 
 ["header/add-api-token"]
+  default = "Přidat nový API token"
 
 ["header/add-new-user"]
+  default = "Přidat nového uživatele"
 
 ["header/allow-access"]
+  default = "Povolit přístup"
 
 ["header/api"]
+  default = "API"
 
 ["header/api-tokens"]
+  default = "API tokeny"
 
 ["header/browsers"]
+  default = "Prohlížeče"
 
 ["header/change-code"]
 
 ["header/change-passwd"]
+  default = "Změnit heslo"
 
 ["header/code"]
 
 ["header/copy-settings"]
+  default = "Zkopírovat nastavení"
 
 ["header/created-at"]
 
 ["header/dashboard"]
+  default = "Ovládací panel"
 
 ["header/data-collection"]
 
 ["header/delete-account"]
+  default = "Odstranit účet"
 
 ["header/domain"]
+  default = "Doména"
 
 ["header/domain-settings"]
+  default = "Nastavení domény"
 
 ["header/edit-user"]
 
 ["header/email"]
+  default = "Email"
 
 ["header/export"]
+  default = "Exportovat do CSV"
 
 ["header/export-or-import"]
+  default = "Export/Import"
 
 ["header/fewer-number"]
 
@@ -344,6 +374,7 @@ Martin
   default = "Jazyky"
 
 ["header/last-10-exports"]
+  default = "Posledních 10 exportů"
 
 ["header/last-used-at"]
 
@@ -361,12 +392,14 @@ Martin
 ["header/n-hits"]
 
 ["header/name"]
+  default = "Jméno"
 
 ["header/pagination-cursor"]
 
 ["header/passwd-mfa"]
 
 ["header/path"]
+  default = "Cesta"
 
 ["header/permissions"]
 
@@ -375,6 +408,7 @@ Martin
 ["header/reset-password"]
 
 ["header/settings"]
+  default = "Nastavení"
 
 ["header/sign-in-at"]
 
@@ -383,8 +417,10 @@ Martin
 ["header/sites"]
 
 ["header/size"]
+  default = "Velikost"
 
 ["header/sizes"]
+  default = "Velikosti"
 
 ["header/start-pagination-cursor"]
 
@@ -405,6 +441,7 @@ Martin
 ["header/user-information"]
 
 ["header/users"]
+  default = "Uživatelé"
 
 ["help/allow-embed"]
 
@@ -415,6 +452,7 @@ Martin
 ["help/code-access"]
 
 ["help/configure-dashboard"]
+  default = "Přizpůsobit Ovládací panel"
 
 ["help/custom-domain"]
 
@@ -465,14 +503,18 @@ Martin
 ["help/save-default-view"]
 
 ["help/turing-test"]
+  default = "Jen malá pojistka, že jsi člověk :-)"
 
 ["help/your-email"]
+  default = "Novou emailovou adresu budeš muset znovu ověřit."
 
 ["label/24-hour-clock"]
+  default = "24-hodinový formát (13:00)"
 
 ["label/access-to-sites"]
 
 ["label/add-new"]
+  default = "Přidat nový"
 
 ["label/all-sites"]
 
@@ -491,8 +533,10 @@ Martin
 ["label/csv-compress-format"]
 
 ["label/current-passwd"]
+  default = "Současné heslo"
 
 ["label/custom-domain"]
+  default = "Vlastní doména"
 
 ["label/dashboard-allow-embed"]
 
@@ -501,14 +545,17 @@ Martin
 ["label/data-retention"]
 
 ["label/date-fmt"]
+  default = "Formát datumu"
 
 ["label/datepicker"]
 
 ["label/delete-account-confirmation"]
 
 ["label/email"]
+  default = "Email"
 
 ["label/email-address"]
+  default = "Emailové adresy"
 
 ["label/email-reports"]
 
@@ -543,12 +590,15 @@ Martin
 ["label/new-code"]
 
 ["label/new-password"]
+  default = "Nové heslo"
 
 ["label/new-password-confirm"]
+  default = "Nové heslo (potvrď)"
 
 ["label/pagination-cursor"]
 
 ["label/password"]
+  default = "Heslo"
 
 ["label/paths"]
 
@@ -579,76 +629,95 @@ Martin
 ["label/system-stats"]
 
 ["label/theme"]
+  default = "Šablona"
 
 ["label/thousand-separator"]
 
 ["label/timezone"]
+  default = "Časové pásmo"
 
 ["label/topref"]
 
 ["label/total-pageviews"]
 
 ["label/turing-test"]
+  default = "Napiš 9"
 
 ["label/verifictation-token"]
 
 ["label/week-start"]
+  default = "Týden začíná nedělí"
 
 ["label/your-email"]
+  default = "Tvůj email"
 
 ["label/your-site"]
+  default = "Tvůj web"
 
 ["link/add-translation"]
+  default = "Přidat nebo upravit překlady"
 
 ["link/api"]
+  default = "API"
 
 ["link/api-docs"]
+  default = "API dokumentace"
 
 ["link/dashboard"]
+  default = "Ovládací panel"
 
 ["link/generate-random"]
 
 ["link/goto-path"]
 
 ["link/import"]
+  default = "Import/Export"
 
 ["link/manage-pageviews"]
 
 ["link/merge-account"]
 
 ["link/passwd-mfa"]
+  default = "Heslo & MFA"
 
 ["link/preferences"]
 
 ["link/rm-account"]
+  default = "Odstranit účet"
 
 ["link/set-from-browser"]
 
 ["link/settings"]
+  default = "nastavení"
 
 ["link/show-less"]
+  default = "(zobrazit méně)"
 
 ["link/show-more"]
+  default = "Zobrazit více"
 
 ["link/sites"]
 
 ["link/users"]
 
 ["nav-bot/contact"]
+  default = "Kontakt"
 
 ["nav-bot/contribute"]
 
 ["nav-bot/docs"]
+  default = "Dokumentace"
 
 ["nav-bot/home"]
+  default = "Domů"
 
 ["nav-bot/src"]
+  default = "Zdrojový kód"
 
 ["nav-dash/back"]
 
-["nav-dash/current"]
-
 ["nav-dash/day"]
+  default = "den"
 
 ["nav-dash/end-date"]
 
@@ -665,34 +734,43 @@ Martin
 ["nav-dash/forward"]
 
 ["nav-dash/half-year"]
+  default = "Pololetí"
 
 ["nav-dash/hour"]
+  default = "hodina"
 
 ["nav-dash/last"]
 
 ["nav-dash/month"]
+  default = "měsíc"
 
 ["nav-dash/quarter"]
+  default = "čtvrtletí"
 
 ["nav-dash/start-date"]
 
 ["nav-dash/view-by"]
 
 ["nav-dash/week"]
+  default = "týden"
 
 ["nav-dash/year"]
+  default = "rok"
 
 ["nav-fash/filter-less-help"]
 
 ["new-paren"]
+  default = "(nový)"
 
 ["no-title"]
 
 ["notify/add-one-thing"]
 
 ["notify/api-token-created"]
+  default = "API token vytvořen."
 
 ["notify/api-token-removed"]
+  default = "API token odstraněn."
 
 ["notify/disabled-multi-factor-auth"]
 
@@ -723,6 +801,7 @@ Martin
 ["notify/restored-previously-deleted-site"]
 
 ["notify/saved"]
+  default = "Uloženo!"
 
 ["notify/sent-to-email"]
 
@@ -819,10 +898,13 @@ Martin
 ["scale-y"]
 
 ["theme/dark"]
+  default = "Tmavý"
 
 ["theme/light"]
+  default = "Světlý"
 
 ["theme/system"]
+  default = "Dle systému"
 
 ["tooltip/change-period"]
 
@@ -841,12 +923,15 @@ Martin
 ["top-nav/settings"]
 
 ["top-nav/sign-in"]
+  default = "Přihlásit se"
 
 ["top-nav/sign-out"]
+  default = "Odhlásit se"
 
 ["top-nav/sites"]
 
 ["unknown"]
+  default = "(neznámá)"
 
 ["validate/bool"]
 

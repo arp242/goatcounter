@@ -99,9 +99,6 @@
   few     = "几天前"
   many    = "许多天前"
 
-["dashboard/future"]
-  default = "将来"
-
 ["dashboard/loading"]
 
 ["dashboard/month-ago"]
@@ -824,9 +821,6 @@ Martin
 
 ["nav-dash/back"]
   default = "后退"
-
-["nav-dash/current"]
-  default = "当前"
 
 ["nav-dash/day"]
   default = "日"

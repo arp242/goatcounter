@@ -94,9 +94,6 @@
 ["dashboard/day-ago"]
   default = "%(n) 日前"
 
-["dashboard/future"]
-  default = "未来"
-
 ["dashboard/loading"]
 
 ["dashboard/month-ago"]
@@ -807,9 +804,6 @@ Martin
 
 ["nav-dash/back"]
   default = "戻る"
-
-["nav-dash/current"]
-  default = "この"
 
 ["nav-dash/day"]
   default = "1 日"

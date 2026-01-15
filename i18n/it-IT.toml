@@ -100,9 +100,6 @@
   few     = "Alcuni"
   many    = "Molti"
 
-["dashboard/future"]
-  default = "futuro"
-
 ["dashboard/loading"]
 
 ["dashboard/month-ago"]
@@ -824,9 +821,6 @@ La verifica è effettuata ogni 2 ore.
 
 ["nav-dash/back"]
   default = "indietro"
-
-["nav-dash/current"]
-  default = "Questo/a"
 
 ["nav-dash/day"]
   default = "Giorno"

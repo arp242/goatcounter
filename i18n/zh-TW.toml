@@ -98,9 +98,6 @@
   few     = "幾天前"
   many    = "好幾天前"
 
-["dashboard/future"]
-  default = "未來"
-
 ["dashboard/loading"]
 
 ["dashboard/month-ago"]
@@ -737,9 +734,6 @@
 
 ["nav-dash/back"]
   default = "較舊"
-
-["nav-dash/current"]
-  default = "目前"
 
 ["nav-dash/day"]
   default = "日"

@@ -99,9 +99,6 @@
   few     = "Pred zopár dňami"
   many    = "Pred mnoho dňami"
 
-["dashboard/future"]
-  default = "budúce"
-
 ["dashboard/loading"]
 
 ["dashboard/month-ago"]
@@ -818,9 +815,6 @@ Martin
 
 ["nav-dash/back"]
   default = "späť"
-
-["nav-dash/current"]
-  default = "Aktuálne"
 
 ["nav-dash/day"]
   default = "deň"
