@@ -2034,6 +2034,7 @@ var refspam = map[string]struct{}{
 	"track-rankings.online":                {},
 	"tracker24-gps.ru":                     {},
 	"trade365.org":                         {},
+	"traderzplanet.co.in":                  {},
 	"trafers.com":                          {},
 	"traffic-cash.xyz":                     {},
 	"traffic2cash.org":                     {},

@@ -1,14 +1,14 @@
 module zgo.at/goatcounter/v2
 
-go 1.25.5
+go 1.25.6
 
 require (
-	github.com/bmatcuk/doublestar/v4 v4.9.1
-	github.com/go-chi/chi/v5 v5.2.3
+	github.com/bmatcuk/doublestar/v4 v4.10.0
+	github.com/go-chi/chi/v5 v5.2.4
 	github.com/google/uuid v1.6.0
 	github.com/gorilla/websocket v1.5.3
-	github.com/lib/pq v1.10.9 // indirect
-	github.com/mattn/go-sqlite3 v1.14.32
+	github.com/lib/pq v1.11.0 // indirect
+	github.com/mattn/go-sqlite3 v1.14.33
 	github.com/monoculum/formam/v3 v3.6.1-0.20221106124510-6a93f49ac1f8
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0
@@ -17,7 +17,7 @@ require (
 
 // Things I maintain
 require (
-	github.com/BurntSushi/toml v1.5.0
+	github.com/BurntSushi/toml v1.6.0
 	github.com/fsnotify/fsnotify v1.9.0 // indirect
 	github.com/teamwork/reload v1.4.2
 	zgo.at/blackmail v0.0.0-20251210171630-f1b7a42e3f87
@@ -33,27 +33,27 @@ require (
 	zgo.at/slog_align v0.0.0-20251129094707-bf509eca6089
 	zgo.at/termtext v1.5.0
 	zgo.at/tz v0.0.0-20251201071354-238b46ef6739
-	zgo.at/z18n v0.0.0-20251212122341-2d38215f80a8
+	zgo.at/z18n v0.0.0-20251230011627-ee972741a754
 	zgo.at/zcache/v2 v2.4.1
-	zgo.at/zdb v0.0.0-20251231144927-8875464050e8
-	zgo.at/zdb-drivers/go-sqlite3 v0.0.0-20251231053748-dbefaf780698
-	zgo.at/zdb-drivers/pq v0.0.0-20251231053748-dbefaf780698
+	zgo.at/zdb v0.0.0-20260128223910-0a74a42f21dd
+	zgo.at/zdb-drivers/go-sqlite3 v0.0.0-20260128223546-f57a31acff7a
+	zgo.at/zdb-drivers/pq v0.0.0-20260128223546-f57a31acff7a
 	zgo.at/zhttp v0.0.0-20251201061952-9a43cabb6d05
-	zgo.at/zli v0.0.0-20250704045222-08cb210424f2
+	zgo.at/zli v0.0.0-20251226224229-7bb9a5cf3265
 	zgo.at/zprof v0.0.0-20251228192741-d31275fbf5af
-	zgo.at/zstd v0.0.0-20251128053228-ec259dea6715
+	zgo.at/zstd v0.0.0-20260108115308-04b7db162be2
 	zgo.at/ztpl v0.0.0-20250628022642-3b2c314e8e05
 	zgo.at/zvalidate v0.0.0-20250622183046-6812c1c79e1a
 )
 
 // golang.org/x
 require (
-	golang.org/x/crypto v0.46.0
-	golang.org/x/image v0.34.0
+	golang.org/x/crypto v0.47.0
+	golang.org/x/image v0.35.0
 	golang.org/x/mod v0.31.0 // indirect
-	golang.org/x/net v0.48.0
+	golang.org/x/net v0.49.0
 	golang.org/x/sync v0.19.0 // indirect
-	golang.org/x/sys v0.39.0
-	golang.org/x/text v0.32.0
+	golang.org/x/sys v0.40.0
+	golang.org/x/text v0.33.0
 	golang.org/x/tools v0.40.0 // indirect
 )
