@@ -97,7 +97,7 @@ func (h settings) mount(r chi.Router, ratelimits Ratelimits) {
 		admin.Post("/user/api-token/remove/{id}", zhttp.Wrap(h.deleteAPIToken))
 
 		admin.Get("/settings/sites", zhttp.Wrap(func(w http.ResponseWriter, r *http.Request) error {
-			return h.sites(nil)(w, r)
+			return h.sites(nil, goatcounter.Site{})(w, r)
 		}))
 		admin.Post("/settings/sites/add", zhttp.Wrap(h.sitesAdd))
 		admin.Get("/settings/sites/remove/{id}", zhttp.Wrap(h.sitesRemoveConfirm))
@@ -253,7 +253,7 @@ func (h settings) changeCode(w http.ResponseWriter, r *http.Request) error {
 	return zhttp.SeeOther(w, site.URL(r.Context())+"/settings/main")
 }
 
-func (h settings) sites(verr *zvalidate.Validator) zhttp.HandlerFunc {
+func (h settings) sites(verr *zvalidate.Validator, newSite goatcounter.Site) zhttp.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) error {
 		var sites goatcounter.Sites
 		err := sites.ForThisAccount(r.Context(), false)
@@ -264,8 +264,9 @@ func (h settings) sites(verr *zvalidate.Validator) zhttp.HandlerFunc {
 		return zhttp.Template(w, "settings_sites.gohtml", struct {
 			Globals
 			SubSites goatcounter.Sites
+			NewSite  goatcounter.Site
 			Validate *zvalidate.Validator
-		}{newGlobals(w, r), sites, verr})
+		}{newGlobals(w, r), sites, newSite, verr})
 	}
 }
 
@@ -279,11 +280,10 @@ func (h settings) sitesAdd(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	account := Account(r.Context())
-
 	var (
-		newSite goatcounter.Site
+		account = Account(r.Context())
 		addr    = args.Code
+		newSite goatcounter.Site
 	)
 	if goatcounter.Config(r.Context()).GoatcounterCom {
 		newSite.Code = args.Code
@@ -334,6 +334,12 @@ func (h settings) sitesAdd(w http.ResponseWriter, r *http.Request) error {
 		}
 		return nil
 	})
+	var vErr *zvalidate.Validator
+	if errors.As(err, &vErr) {
+		v := goatcounter.NewValidate(r.Context())
+		v.Errors = vErr.Errors
+		return h.sites(&v, newSite)(w, r)
+	}
 	if err != nil {
 		zhttp.FlashError(w, r, err.Error())
 		return zhttp.SeeOther(w, "/settings/sites")
