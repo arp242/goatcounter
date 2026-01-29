@@ -186,10 +186,10 @@ func TestHitListsList(t *testing.T) {
 	t.Run("70k", func(t *testing.T) {
 		// Directly insert because it's much faster.
 		var (
-			ctx     = gctest.DB(t)
-			bPaths  = zdb.NewBulkInsert(ctx, "paths", []string{"site_id", "path"})
-			bCounts = zdb.NewBulkInsert(ctx, "hit_counts", []string{"site_id", "path_id", "hour", "total"})
-			bStats  = zdb.NewBulkInsert(ctx, "hit_stats", []string{"site_id", "path_id", "day", "stats"})
+			ctx        = gctest.DB(t)
+			bPaths, _  = zdb.NewBulkInsert(ctx, "paths", []string{"site_id", "path"})
+			bCounts, _ = zdb.NewBulkInsert(ctx, "hit_counts", []string{"site_id", "path_id", "hour", "total"})
+			bStats, _  = zdb.NewBulkInsert(ctx, "hit_stats", []string{"site_id", "path_id", "day", "stats"})
 		)
 		x := make([]int, 24)
 		x[1] = 10

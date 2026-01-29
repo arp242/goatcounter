@@ -42,10 +42,13 @@ func updateSizeStats(ctx context.Context, hits []goatcounter.Hit) error {
 			}
 			grouped[k] = v
 		}
-		var (
-			siteID = goatcounter.MustGetSite(ctx).ID
-			ins    = goatcounter.Tables.SizeStats.Bulk(ctx)
-		)
+
+		ins, err := goatcounter.Tables.SizeStats.Bulk(ctx)
+		if err != nil {
+			return err
+		}
+
+		siteID := goatcounter.MustGetSite(ctx).ID
 		for _, v := range grouped {
 			if v.count > 0 {
 				ins.Values(siteID, v.pathID, v.day, v.width, v.count)

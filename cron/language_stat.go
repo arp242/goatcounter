@@ -39,10 +39,12 @@ func updateLanguageStats(ctx context.Context, hits []goatcounter.Hit) error {
 			grouped[k] = v
 		}
 
-		var (
-			siteID = goatcounter.MustGetSite(ctx).ID
-			ins    = goatcounter.Tables.LanguageStats.Bulk(ctx)
-		)
+		ins, err := goatcounter.Tables.LanguageStats.Bulk(ctx)
+		if err != nil {
+			return err
+		}
+
+		siteID := goatcounter.MustGetSite(ctx).ID
 		for _, v := range grouped {
 			if v.count > 0 {
 				ins.Values(siteID, v.pathID, v.day, v.language, v.count)

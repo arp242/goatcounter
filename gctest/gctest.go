@@ -3,12 +3,14 @@ package gctest
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"os"
 	"os/exec"
 	"testing"
 
+	"github.com/lib/pq"
 	"golang.org/x/text/language"
 	"zgo.at/blackmail"
 	"zgo.at/goatcounter/v2"
@@ -186,6 +188,10 @@ func StoreHits(ctx context.Context, t *testing.T, wantFail bool, hits ...goatcou
 	goatcounter.Memstore.Append(hits...)
 	hits, err := goatcounter.Memstore.Persist(ctx)
 	if !wantFail && err != nil {
+		pqErr := new(pq.Error)
+		if errors.As(err, &pqErr) {
+			t.Log("error detail\n", pqErr.ErrorWithDetail())
+		}
 		t.Fatalf("gctest.StoreHits failed: %s", err)
 	}
 	if wantFail && err == nil {

@@ -53,20 +53,29 @@ func updateHitStats(ctx context.Context, hits []goatcounter.Hit) error {
 			grouped[k] = v
 		}
 
-		var (
-			siteID = goatcounter.MustGetSite(ctx).ID
-			ins    = goatcounter.Tables.HitStats.Bulk(ctx)
-		)
+		ins, err := goatcounter.Tables.HitStats.Bulk(ctx)
+		if err != nil {
+			return err
+		}
+
 		if zdb.SQLDialect(ctx) == zdb.DialectSQLite {
 			// TODO: merge the arrays here and get rid of existingHitStats();
 			// it's kinda tricky with SQLite :-/
-			ins = zdb.NewBulkInsert(ctx, "hit_stats", []string{"site_id", "path_id", "day", "stats"})
+			ins, err = zdb.NewBulkInsert(ctx, "hit_stats", []string{"site_id", "path_id", "day", "stats"})
+			if err != nil {
+				return err
+			}
 		}
+		siteID := goatcounter.MustGetSite(ctx).ID
 		for _, v := range grouped {
 			if slices.Equal(v.count, empty) {
 				continue
 			}
-			ins.Values(siteID, v.pathID, v.day, zjson.MustMarshal(v.count))
+			if zdb.SQLDialect(ctx) == zdb.DialectSQLite {
+				ins.Values(siteID, v.pathID, v.day, zjson.MustMarshal(v.count))
+			} else {
+				ins.Values(siteID, v.pathID, v.day, string(zjson.MustMarshal(v.count)))
+			}
 		}
 		return errors.Wrap(ins.Finish(), "updateHitStats hit_stats")
 	})

@@ -257,12 +257,18 @@ func (p Path) Merge(ctx context.Context, paths Paths) error {
 			return err
 		}
 
-		ins := Tables.HitStats.Bulk(ctx)
+		ins, err := Tables.HitStats.Bulk(ctx)
+		if err != nil {
+			return err
+		}
 		if zdb.SQLDialect(ctx) == zdb.DialectSQLite {
 			// Reset the "on conflict", which SQLite doesn't support for
 			// hit_stats. We deleted and fetched the target (for SQLite) before,
 			// so that's okay.
-			ins = zdb.NewBulkInsert(ctx, "hit_stats", []string{"site_id", "path_id", "day", "stats"})
+			ins, err = zdb.NewBulkInsert(ctx, "hit_stats", []string{"site_id", "path_id", "day", "stats"})
+			if err != nil {
+				return err
+			}
 		}
 		for _, d := range hitStats {
 			var ru [][]int
@@ -272,7 +278,12 @@ func (p Path) Merge(ctx context.Context, paths Paths) error {
 					ru[0][i] += s[i]
 				}
 			}
-			ins.Values(siteID, p.ID, d.Day[:10], zjson.MustMarshal(ru[0]))
+
+			if zdb.SQLDialect(ctx) == zdb.DialectSQLite {
+				ins.Values(siteID, p.ID, d.Day[:10], zjson.MustMarshal(ru[0]))
+			} else {
+				ins.Values(siteID, p.ID, d.Day[:10], string(zjson.MustMarshal(ru[0])))
+			}
 		}
 		if err := ins.Finish(); err != nil {
 			return err

@@ -76,7 +76,10 @@ func (f *Filter) Insert(ctx context.Context, paths []PathID) error {
 			return err
 		}
 
-		b := zdb.NewBulkInsert(ctx, "filter_paths", []string{"filter_id", "path_id"})
+		b, err := zdb.NewBulkInsert(ctx, "filter_paths", []string{"filter_id", "path_id"})
+		if err != nil {
+			return err
+		}
 		for _, p := range paths {
 			b.Values(f.FilterID, p)
 		}

@@ -208,12 +208,17 @@ func (m *ms) Persist(ctx context.Context) ([]Hit, error) {
 	m.hits = make([]Hit, 0, 16)
 	m.hitMu.Unlock()
 
-	var (
-		newHits = make([]Hit, 0, len(hits))
-		bot     = zdb.NewBulkInsert(ctx, "bots", []string{"site_id", "path", "bot", "user_agent", "created_at"})
-		ins     = zdb.NewBulkInsert(ctx, "hits", []string{"site_id", "path_id", "ref_id", "browser_id", "system_id",
-			"width", "location", "language", "created_at", "session", "first_visit", "campaign"})
-	)
+	bot, err := zdb.NewBulkInsert(ctx, "bots", []string{"site_id", "path", "bot", "user_agent", "created_at"})
+	if err != nil {
+		return nil, err
+	}
+	ins, err := zdb.NewBulkInsert(ctx, "hits", []string{"site_id", "path_id", "ref_id", "browser_id", "system_id",
+		"width", "location", "language", "created_at", "session", "first_visit", "campaign"})
+	if err != nil {
+		return nil, err
+	}
+
+	newHits := make([]Hit, 0, len(hits))
 	for _, h := range hits {
 		if h.Bot > 0 {
 			bot.Values(h.Site, h.Path, h.Bot, h.UserAgentHeader, h.CreatedAt)

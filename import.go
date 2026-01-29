@@ -90,7 +90,10 @@ func ImportGA(ctx context.Context, fp io.Reader) error {
 		paths[p] = pp.ID
 	}
 
-	ins := Tables.HitCounts.Bulk(ctx)
+	ins, err := Tables.HitCounts.Bulk(ctx)
+	if err != nil {
+		return err
+	}
 	for k, v := range pages {
 		ins.Values(siteID, paths[k], "1980-01-01 00:00:00", v)
 	}

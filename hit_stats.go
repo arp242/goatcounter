@@ -34,10 +34,13 @@ func (t tbl) OnConflict(ctx context.Context) string {
 	return t.onConflict
 }
 
-func (t tbl) Bulk(ctx context.Context) zdb.BulkInsert {
-	ins := zdb.NewBulkInsert(ctx, t.Table, t.Columns)
+func (t tbl) Bulk(ctx context.Context) (zdb.BulkInsert, error) {
+	ins, err := zdb.NewBulkInsert(ctx, t.Table, t.Columns)
+	if err != nil {
+		return zdb.BulkInsert{}, err
+	}
 	ins.OnConflict(t.OnConflict(ctx))
-	return ins
+	return ins, nil
 }
 
 var Tables = struct {
