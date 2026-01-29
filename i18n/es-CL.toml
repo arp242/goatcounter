@@ -256,6 +256,8 @@ Martin
 ["error/date-past"]
   default = "Esa fecha sería antes de la creación del sitio; GoatCounter no es *tan* bueno ;-)"
 
+["error/email-exists"]
+
 ["error/export-expired"]
   default = "Parece que no hay ningún archivo exportado o quizás expiraron."
 

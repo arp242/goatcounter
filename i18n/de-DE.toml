@@ -250,6 +250,8 @@ Hier ist der entsprechende Link:
 ["error/date-past"]
   default = "Das wäre, bevor die Website angelegt wurde. Goatcounter ist nicht *so* fortschrittlich :-)"
 
+["error/email-exists"]
+
 ["error/export-expired"]
   default = "Es scheint kein Export vorhanden zu sein, oder der Export ist abgelaufen."
 

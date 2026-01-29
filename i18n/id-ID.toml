@@ -253,6 +253,8 @@ Martin
 ["error/date-past"]
   default = "Itu seharusnya sebelum pembuatan situsnya; GoatCounter *belum* sebaik itu ;-)"
 
+["error/email-exists"]
+
 ["error/export-expired"]
   default = "Sepertinya belum ada pengeksporan atau eksporan telah kedaluwarsa."
 

@@ -241,6 +241,8 @@ Martin
 ["error/date-past"]
   default = "これはサイトの作成前です"
 
+["error/email-exists"]
+
 ["error/export-expired"]
   default = "まだエクスポートが行われていないか、エクスポートの有効期限が切れているようです。"
 

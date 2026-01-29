@@ -259,6 +259,8 @@ Martin
 ["error/date-past"]
   default = "Dat zou voor de aanmaakdatum van de site zijn; GoatCounter is nou ook weer niet *zo* goed ;-)"
 
+["error/email-exists"]
+
 ["error/export-expired"]
   default = "Deze export is nog niet klaar of is verlopen."
 

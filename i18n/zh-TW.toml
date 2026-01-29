@@ -237,6 +237,8 @@
 ["error/date-past"]
   default = "那是在網站架設之前；GoatCounter 還沒「那麼」神呢 ;-)"
 
+["error/email-exists"]
+
 ["error/export-expired"]
 
 ["error/incorrect-password"]

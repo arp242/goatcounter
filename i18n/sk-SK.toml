@@ -254,6 +254,8 @@ Martin
 ["error/date-past"]
   default = "To by bolo pred vytvorením stránky"
 
+["error/email-exists"]
+
 ["error/export-expired"]
   default = "Vyzerá to, že ste ešte neexportovali alebo export uz vypršal."
 

@@ -243,6 +243,8 @@ Martin
 ["error/date-past"]
   default = "Bu, sitenin oluşturulmasından öncesi olurdu; GoatCounter *o kadar* iyi değil ;-)"
 
+["error/email-exists"]
+
 ["error/export-expired"]
   default = "Henüz dışa aktarma yapılmamış veya dışa aktarmanın süresi dolmuş gibi görünüyor."
 

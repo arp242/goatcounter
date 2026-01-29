@@ -14,6 +14,7 @@ import (
 	"zgo.at/guru"
 	"zgo.at/json"
 	"zgo.at/otp"
+	"zgo.at/z18n"
 	"zgo.at/zdb"
 	"zgo.at/zstd/zbool"
 	"zgo.at/zstd/zcrypto"
@@ -138,7 +139,8 @@ func (u *User) Insert(ctx context.Context, allowBlankPassword bool) error {
 
 	err := zdb.Insert(ctx, u)
 	if zdb.ErrUnique(err) {
-		return guru.New(400, "this user already exists")
+		err = guru.New(400, z18n.T(ctx, `error/email-exists|
+			The email address “%(email)” is already used by another user for this site`, u.Email))
 	}
 	return errors.Wrap(err, "User.Insert")
 }
@@ -173,6 +175,10 @@ func (u *User) Update(ctx context.Context, emailChanged bool) error {
 		u.EmailVerified, u.EmailToken = false, ztype.Ptr(zcrypto.Secret192())
 	}
 	err := zdb.Update(ctx, u, zdb.UpdateAll)
+	if zdb.ErrUnique(err) {
+		err = guru.New(400, z18n.T(ctx, `error/email-exists|
+			The email address “%(email)” is already used by another user for this site`, u.Email))
+	}
 	return errors.Wrap(err, "User.Update")
 }
 

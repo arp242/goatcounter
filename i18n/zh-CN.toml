@@ -255,6 +255,8 @@ Martin
 ["error/date-past"]
   default = "那将回到站点开始记录之前；GoatCounter 还没那么厉害。;-)"
 
+["error/email-exists"]
+
 ["error/export-expired"]
   default = "暂无导出或导出已过期。"
 

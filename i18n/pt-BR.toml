@@ -253,6 +253,8 @@ Martin
 ["error/date-past"]
   default = "Isso seria antes de criação do site; GoarCount não é *tão* bom ;-)"
 
+["error/email-exists"]
+
 ["error/export-expired"]
   default = "Parece que ainda não há nenhuma exportação ou a exportação está expirada."
 

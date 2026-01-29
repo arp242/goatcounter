@@ -259,6 +259,8 @@ Martin
 
 ["error/date-past"]
 
+["error/email-exists"]
+
 ["error/export-expired"]
 
 ["error/incorrect-password"]

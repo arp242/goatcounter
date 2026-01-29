@@ -11,7 +11,7 @@
 
 ["button/add-new"]
   loc = [
-    "tpl/settings_sites.gohtml:53",
+    "tpl/settings_sites.gohtml:54",
     "tpl/settings_users_form.gohtml:84",
     "tpl/user_api.gohtml:106",
   ]
@@ -41,7 +41,7 @@
   default = "Change password"
 
 ["button/copy"]
-  loc     = ["tpl/settings_sites.gohtml:73"]
+  loc     = ["tpl/settings_sites.gohtml:74"]
   default = "Copy"
 
 ["button/delete"]
@@ -373,8 +373,8 @@ Martin
 
 ["error/could-not-read"]
   loc = [
-    "handlers/settings.go:624",
-    "handlers/settings.go:689",
+    "handlers/settings.go:630",
+    "handlers/settings.go:695",
   ]
   default = "Could not read as gzip: %(err)"
 
@@ -390,8 +390,15 @@ Martin
   loc     = ["handlers/handlers.go:120"]
   default = "That would be before the site’s creation"
 
+["error/email-exists"]
+  loc = [
+    "user.go:142",
+    "user.go:179",
+  ]
+  default = "The email address “%(email)” is already used by another user for this site"
+
 ["error/export-expired"]
-  loc     = ["handlers/settings.go:587"]
+  loc     = ["handlers/settings.go:593"]
   default = "It looks like there is no export yet or the export has expired."
 
 ["error/incorrect-password"]
@@ -431,14 +438,14 @@ Martin
   default = "Wrong password for %(email)"
 
 ["error/merge-self"]
-  loc     = ["handlers/settings.go:530"]
+  loc     = ["handlers/settings.go:536"]
   default = "Cannot merge a path with itself"
 
 ["error/not-found"]
   loc = [
     "handlers/backend.go:78",
-    "handlers/settings.go:360",
-    "handlers/settings.go:1052",
+    "handlers/settings.go:366",
+    "handlers/settings.go:1058",
   ]
   default = "Not Found"
 
@@ -511,7 +518,7 @@ Martin
   default = "Code"
 
 ["header/copy-settings"]
-  loc     = ["tpl/settings_sites.gohtml:58"]
+  loc     = ["tpl/settings_sites.gohtml:59"]
   default = "Copy settings"
 
 ["header/created-at"]
@@ -741,7 +748,7 @@ Martin
   default = "Change what to display on the dashboard and in what order."
 
 ["help/code-access"]
-  loc     = ["tpl/settings_sites.gohtml:46"]
+  loc     = ["tpl/settings_sites.gohtml:47"]
   default = "You will access your site at https://<em>[my-code]</em>.%(domain)."
 
 ["help/configure-dashboard"]
@@ -781,7 +788,7 @@ The verification runs every 2 hours.
   default = "GoatCounter uses a custom JavaScript datepicker on desktop systems as that often gives a better experience. You can disable it to use the native datepicker. On mobile systems it will always use the native datepicker."
 
 ["help/domain-access"]
-  loc     = ["tpl/settings_sites.gohtml:50"]
+  loc     = ["tpl/settings_sites.gohtml:51"]
   default = "Domain to access GoatCounter from."
 
 ["help/drag-reorder"]
@@ -888,7 +895,7 @@ GeoIP database. See the <tt>-geo</tt> flag in
 
 ["label/all-sites"]
   loc = [
-    "tpl/settings_sites.gohtml:72",
+    "tpl/settings_sites.gohtml:73",
     "tpl/user_api.gohtml:43",
   ]
   default = "All sites"
@@ -914,7 +921,10 @@ GeoIP database. See the <tt>-geo</tt> flag in
   default = "Clear all existing pageviews."
 
 ["label/code"]
-  loc     = ["tpl/settings_main.gohtml:53"]
+  loc = [
+    "tpl/settings_main.gohtml:53",
+    "tpl/settings_sites.gohtml:45",
+  ]
   default = "Code"
 
 ["label/csv-compress-format"]
@@ -1409,15 +1419,15 @@ GeoIP database. See the <tt>-geo</tt> flag in
   default = "%(email) is already verified."
 
 ["notify/export-started-in-background"]
-  loc     = ["handlers/settings.go:722"]
+  loc     = ["handlers/settings.go:728"]
   default = "Export started in the background; you’ll get an email with a download link when it’s done."
 
 ["notify/import-ga-okay"]
-  loc     = ["handlers/settings.go:699"]
+  loc     = ["handlers/settings.go:705"]
   default = "Data processed successfully."
 
 ["notify/import-started-in-background"]
-  loc     = ["handlers/settings.go:673"]
+  loc     = ["handlers/settings.go:679"]
   default = "Import started in the background; you’ll get an email when it’s done."
 
 ["notify/login-after-password-reset"]
@@ -1437,7 +1447,7 @@ GeoIP database. See the <tt>-geo</tt> flag in
   default = "could find the user for the given token; perhaps it's expired or has already been used?"
 
 ["notify/not-found"]
-  loc     = ["handlers/settings.go:1007"]
+  loc     = ["handlers/settings.go:1013"]
   default = "Not Found"
 
 ["notify/password-changed"]
@@ -1470,34 +1480,34 @@ GeoIP database. See the <tt>-geo</tt> flag in
   default = "Sent to %(email)."
 
 ["notify/settings-copied-to-site"]
-  loc     = ["handlers/settings.go:457"]
+  loc     = ["handlers/settings.go:463"]
   default = "Settings copied to the selected sites."
 
 ["notify/site-added"]
-  loc     = ["handlers/settings.go:342"]
+  loc     = ["handlers/settings.go:348"]
   default = "Site ‘%(url)’ added."
 
 ["notify/site-removed"]
-  loc     = ["handlers/settings.go:402"]
+  loc     = ["handlers/settings.go:408"]
   default = "Site ‘%(url)’ removed."
 
 ["notify/started-background-process"]
   loc = [
-    "handlers/settings.go:507",
-    "handlers/settings.go:548",
+    "handlers/settings.go:513",
+    "handlers/settings.go:554",
   ]
   default = "Started in the background; may take about 10-20 seconds to fully process."
 
 ["notify/user-added"]
-  loc     = ["handlers/settings.go:974"]
+  loc     = ["handlers/settings.go:980"]
   default = "User ‘%(email)’ added."
 
 ["notify/user-removed"]
-  loc     = ["handlers/settings.go:1060"]
+  loc     = ["handlers/settings.go:1066"]
   default = "User ‘%(email)’ removed."
 
 ["notify/users-edited"]
-  loc     = ["handlers/settings.go:1032"]
+  loc     = ["handlers/settings.go:1038"]
   default = "User ‘%(email)’ edited."
 
 ["p/add-goatcounter-to-multiple-websites"]
@@ -1563,7 +1573,7 @@ codes (with the old and new code) to prevent the loss of any pageviews.</p>
   default = "Collecting this information is currently %[disabled in settings]."
 
 ["p/copy-settings-from-current-site"]
-  loc     = ["tpl/settings_sites.gohtml:59"]
+  loc     = ["tpl/settings_sites.gohtml:60"]
   default = "Copy all settings from the current site except the domain name."
 
 ["p/csv-file-format"]
@@ -1728,7 +1738,7 @@ meaning.
   default = "Your site’s domain, e.g. <em>“www.example.com”</em>, used for linking to the page in the overview."
 
 ["p/text-data-retention"]
-  loc     = ["tpl/settings_sites.gohtml:61"]
+  loc     = ["tpl/settings_sites.gohtml:62"]
   default = "This includes the data retention and collection settings!"
 
 ["p/verify-email"]

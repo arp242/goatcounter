@@ -245,6 +245,8 @@
 ["error/date-past"]
   default = "해당 날짜는 사이트가 생성되기 전입니다. GoatCounter가 그렇게까지 뛰어나진 않습니다 ;-)"
 
+["error/email-exists"]
+
 ["error/export-expired"]
   default = "내보내기가 아직 수행되지 않았거나 만료되었습니다."
 

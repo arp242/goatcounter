@@ -256,6 +256,8 @@
 ["error/date-past"]
   default = "Это раньше момента создания сайта; GoatCounter не *настолько* хорош  ;-)"
 
+["error/email-exists"]
+
 ["error/export-expired"]
   default = "Похоже, экспорт ещё не осуществлялся либо просрочился."
 
