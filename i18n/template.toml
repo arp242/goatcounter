@@ -118,7 +118,7 @@
     "tpl/_dashboard_configure_widget.gohtml:3",
     "tpl/settings_main.gohtml:155",
     "tpl/user_dashboard.gohtml:24",
-    "tpl/user_pref.gohtml:148",
+    "tpl/user_pref.gohtml:149",
   ]
   default = "Save"
 
@@ -315,27 +315,27 @@
   default = "Previous month"
 
 ["dont-lock"]
-  loc     = ["tpl/user_pref.gohtml:112"]
+  loc     = ["tpl/user_pref.gohtml:113"]
   default = "Don’t lock"
 
 ["email-report/daily"]
-  loc     = ["tpl/user_pref.gohtml:134"]
+  loc     = ["tpl/user_pref.gohtml:135"]
   default = "Daily"
 
 ["email-report/monthly"]
-  loc     = ["tpl/user_pref.gohtml:137"]
+  loc     = ["tpl/user_pref.gohtml:138"]
   default = "Monthly"
 
 ["email-report/never"]
-  loc     = ["tpl/user_pref.gohtml:133"]
+  loc     = ["tpl/user_pref.gohtml:134"]
   default = "Never"
 
 ["email-report/two-weeks"]
-  loc     = ["tpl/user_pref.gohtml:136"]
+  loc     = ["tpl/user_pref.gohtml:137"]
   default = "Every two weeks"
 
 ["email-report/weekly"]
-  loc     = ["tpl/user_pref.gohtml:135"]
+  loc     = ["tpl/user_pref.gohtml:136"]
   default = "Weekly"
 
 ["email/header"]
@@ -562,7 +562,7 @@ Martin
   default = "Export/Import"
 
 ["header/fewer-number"]
-  loc     = ["tpl/user_pref.gohtml:87"]
+  loc     = ["tpl/user_pref.gohtml:88"]
   default = "Show fewer numbers"
 
 ["header/finished"]
@@ -660,7 +660,7 @@ Martin
 ["header/preferences"]
   loc = [
     "tpl/user_pref.gohtml:4",
-    "tpl/user_pref.gohtml:122",
+    "tpl/user_pref.gohtml:123",
   ]
   default = "Preferences"
 
@@ -784,7 +784,7 @@ The verification runs every 2 hours.
   default = "Pageviews and all associated data will be permanently removed after this many days. Set to <code>0</code> to never delete."
 
 ["help/datepicker"]
-  loc     = ["tpl/user_pref.gohtml:143"]
+  loc     = ["tpl/user_pref.gohtml:144"]
   default = "GoatCounter uses a custom JavaScript datepicker on desktop systems as that often gives a better experience. You can disable it to use the native datepicker. On mobile systems it will always use the native datepicker."
 
 ["help/domain-access"]
@@ -796,11 +796,11 @@ The verification runs every 2 hours.
   default = "Drag to reorder"
 
 ["help/email-reports"]
-  loc     = ["tpl/user_pref.gohtml:139"]
+  loc     = ["tpl/user_pref.gohtml:140"]
   default = "Reports are sent on the first day of the new period (e.g. first day of the month)."
 
 ["help/fewer-numbers"]
-  loc     = ["tpl/user_pref.gohtml:97"]
+  loc     = ["tpl/user_pref.gohtml:98"]
   default = """
 Don’t show numbers on the dashboard. This is intended to
 still give a reasonably useful overview of what happens on
@@ -809,7 +809,7 @@ of visitors and stats.
 """
 
 ["help/fewer-numbers-lock"]
-  loc     = ["tpl/user_pref.gohtml:116"]
+  loc     = ["tpl/user_pref.gohtml:117"]
   default = "You won’t be able to disable this setting for the given time period."
 
 ["help/for-the-following-countries"]
@@ -829,7 +829,7 @@ of visitors and stats.
   default = "Alternatively, %[disable for this browser] (click again to enable)."
 
 ["help/locked-until"]
-  loc     = ["tpl/user_pref.gohtml:107"]
+  loc     = ["tpl/user_pref.gohtml:108"]
   default = "Locked until %(date)"
 
 ["help/need-cities"]
@@ -882,7 +882,7 @@ GeoIP database. See the <tt>-geo</tt> flag in
   default = "You will need to re-verify the new address if you change it."
 
 ["label/24-hour-clock"]
-  loc     = ["tpl/user_pref.gohtml:60"]
+  loc     = ["tpl/user_pref.gohtml:61"]
   default = "24-hour clock (13:00)"
 
 ["label/access-to-sites"]
@@ -955,11 +955,11 @@ GeoIP database. See the <tt>-geo</tt> flag in
   default = "Data retention in days"
 
 ["label/date-fmt"]
-  loc     = ["tpl/user_pref.gohtml:50"]
+  loc     = ["tpl/user_pref.gohtml:51"]
   default = "Date format"
 
 ["label/datepicker"]
-  loc     = ["tpl/user_pref.gohtml:142"]
+  loc     = ["tpl/user_pref.gohtml:143"]
   default = "Enable custom datepicker"
 
 ["label/delete-account-confirmation"]
@@ -982,11 +982,11 @@ GeoIP database. See the <tt>-geo</tt> flag in
   default = "Email address"
 
 ["label/email-reports"]
-  loc     = ["tpl/user_pref.gohtml:131"]
+  loc     = ["tpl/user_pref.gohtml:132"]
   default = "Send email reports"
 
 ["label/fewer-numbers"]
-  loc     = ["tpl/user_pref.gohtml:95"]
+  loc     = ["tpl/user_pref.gohtml:96"]
   default = "Show fewer numbers"
 
 ["label/for-following-countries"]
@@ -1014,7 +1014,7 @@ GeoIP database. See the <tt>-geo</tt> flag in
   default = "Location stats"
 
 ["label/lock-setting"]
-  loc     = ["tpl/user_pref.gohtml:110"]
+  loc     = ["tpl/user_pref.gohtml:111"]
   default = "Lock setting"
 
 ["label/mark-current"]
@@ -1106,7 +1106,7 @@ GeoIP database. See the <tt>-geo</tt> flag in
 ["label/set-default"]
   loc = [
     "tpl/user_dashboard.gohtml:27",
-    "tpl/user_pref.gohtml:151",
+    "tpl/user_pref.gohtml:152",
   ]
   default = "Also set as default for new users and the public view (if enabled)."
 
@@ -1135,15 +1135,15 @@ GeoIP database. See the <tt>-geo</tt> flag in
   default = "System stats"
 
 ["label/theme"]
-  loc     = ["tpl/user_pref.gohtml:124"]
+  loc     = ["tpl/user_pref.gohtml:125"]
   default = "Theme"
 
 ["label/thousand-separator"]
-  loc     = ["tpl/user_pref.gohtml:65"]
+  loc     = ["tpl/user_pref.gohtml:66"]
   default = "Thousands separator"
 
 ["label/timezone"]
-  loc     = ["tpl/user_pref.gohtml:76"]
+  loc     = ["tpl/user_pref.gohtml:77"]
   default = "Timezone"
 
 ["label/topref"]
@@ -1163,7 +1163,7 @@ GeoIP database. See the <tt>-geo</tt> flag in
   default = "Verification token"
 
 ["label/week-start"]
-  loc     = ["tpl/user_pref.gohtml:63"]
+  loc     = ["tpl/user_pref.gohtml:64"]
   default = "Week starts on Sunday"
 
 ["label/your-email"]
@@ -1175,7 +1175,7 @@ GeoIP database. See the <tt>-geo</tt> flag in
   default = "Your site"
 
 ["link/add-translation"]
-  loc     = ["tpl/user_pref.gohtml:48"]
+  loc     = ["tpl/user_pref.gohtml:49"]
   default = "Add or update translations"
 
 ["link/api"]
@@ -1227,7 +1227,7 @@ GeoIP database. See the <tt>-geo</tt> flag in
   default = "Delete account"
 
 ["link/set-from-browser"]
-  loc     = ["tpl/user_pref.gohtml:83"]
+  loc     = ["tpl/user_pref.gohtml:84"]
   default = "Set from browser"
 
 ["link/settings"]
@@ -1536,7 +1536,7 @@ users or anything else. For example:
     "tpl/settings_users_form.gohtml:81",
     "tpl/signup.gohtml:63",
     "tpl/user_dashboard.gohtml:38",
-    "tpl/user_pref.gohtml:158",
+    "tpl/user_pref.gohtml:159",
   ]
   default = "Additional errors"
 
@@ -1757,15 +1757,15 @@ meaning.
   default = "Scale the Y-axis of all charts the to highest value in this chart (%(n))"
 
 ["theme/dark"]
-  loc     = ["tpl/user_pref.gohtml:128"]
+  loc     = ["tpl/user_pref.gohtml:129"]
   default = "Dark"
 
 ["theme/light"]
-  loc     = ["tpl/user_pref.gohtml:127"]
+  loc     = ["tpl/user_pref.gohtml:128"]
   default = "Light"
 
 ["theme/system"]
-  loc     = ["tpl/user_pref.gohtml:126"]
+  loc     = ["tpl/user_pref.gohtml:127"]
   default = "Use system setting"
 
 ["tooltip/change-period"]

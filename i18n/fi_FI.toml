@@ -1,0 +1,1039 @@
+[__meta__]
+  language = "fi-FI"
+  maintainers = ["<juha@saimiri.fi>"]
+  modified = 2026-01-29T17:39:23Z
+
+["button/add-new"]
+  default = "Lisää uusi"
+
+["button/add-user"]
+  default = "Lisää uusi käyttäjä"
+
+["button/cfg-dashboard"]
+  default = "Muokkaa ohjauspaneelin ulkoasua"
+
+["button/change"]
+  default = "Vaihda"
+
+["button/change-passwd"]
+  default = "Vaihda salasanaa"
+
+["button/copy"]
+  default = "Kopioi"
+
+["button/delete"]
+  default = "Poista"
+
+["button/delete-account"]
+  default = "Poista tili, kaikki sivustot ja kaikki data"
+
+["button/delete-everything"]
+  default = "Kyllä, poista kaikki"
+
+["button/delete-pageviews"]
+  default = "Poista katselukerrat"
+
+["button/disable-mfa"]
+  default = "Ota monivaiheinen tunnistautuminen pois käytöstä"
+
+["button/edit"]
+  default = "Muokkaa"
+
+["button/enable-mfa"]
+  default = "Ota monivaiheinen tunnistautuminen käyttöön"
+
+["button/forgot-password"]
+  default = "Salasana unohtunut?"
+
+["button/merge"]
+  default = "Yhdistä"
+
+["button/remove"]
+  default = "Poista"
+
+["button/request-reset"]
+  default = "Pyydä salasanan nollausta"
+
+["button/resend-email"]
+  default = "Lähetä sähköposti uudestaan"
+
+["button/reset-defaults"]
+  default = "Palauta oletukset"
+
+["button/reset-password"]
+  default = "Nollaa salasana"
+
+["button/save"]
+  default = "Tallenna"
+
+["button/save-default-view"]
+  default = "Tallenna oletusnäkymä"
+
+["button/search"]
+  default = "Etsi"
+
+["button/send-login-url"]
+  default = "Lähetä kirjautumisosoite"
+
+["button/show"]
+  default = "näytä"
+
+["button/sign-in"]
+  default = "Kirjaudu sisään"
+
+["button/start-export"]
+  default = "Aloita vienti"
+
+["button/start-import"]
+  default = "Aloita tuonti"
+
+["button/submit"]
+  default = "Lähetä"
+
+["button/upload-ga-import"]
+  default = "Lataa"
+
+["confirm/delete-user"]
+  default = "Poista %(email)?"
+
+["dashboard/day-ago"]
+  default = "%(n) päivää sitten"
+
+["dashboard/loading"]
+  default = "Ladataan..."
+
+["dashboard/month-ago"]
+  default = "%(n) kuukautta sitten"
+
+["dashboard/nothing-to-display"]
+  default = "Ei mitään näytettävää"
+
+["dashboard/pages/change"]
+  default = "Muuta"
+
+["dashboard/pages/header"]
+  default = "Sivut"
+
+["dashboard/pages/num-visits"]
+
+["dashboard/pages/path"]
+  default = "Polku"
+
+["dashboard/pages/title"]
+  default = "Otsikko"
+
+["dashboard/pages/visits"]
+  default = "Vierailut"
+
+["dashboard/today"]
+  default = "Tänään"
+
+["dashboard/tooltip-event"]
+
+["dashboard/totals/header"]
+  default = "Yhteensä"
+
+["dashboard/totals/num-visits"]
+
+["dashboard/week-ago"]
+  default = "%(n) viikkoa sitten"
+
+["dashboard/yesterday"]
+  default = "Eilen"
+
+["data-collect/help/country"]
+  default = "Maan nimi, esimerkiksi Belgia, Indonesia jne."
+
+["data-collect/help/hits"]
+  default = "Tallenna yksittäiset sivun katselukerrat vientiä varten. Tämä ei vaikuta mihinkään muuhun. API:a voidaan edelleen käyttää aggregoitujen tietojen viemiseen."
+
+["data-collect/help/language"]
+  default = "Tuetut kielet Accept-Language-otsakkeesta"
+
+["data-collect/help/referrer"]
+  default = "Referer-otsake ja kampanjaparametrit"
+
+["data-collect/help/region"]
+  default = "Alue, esimerkiksi Texas, Bali jne. Yksityiskohdat vaihtelevat maittain."
+
+["data-collect/help/sessions"]
+  default = "%[Seuraa yksilöityjä kävijöitä] enintään 8 tunnin ajan; jos poistat tämän käytöstä, joku, joka painaa esimerkiksi F5-näppäintä sivun uudelleenlataamiseksi, näkyy vain 2 sivun katseluna 1 sijaan."
+
+["data-collect/help/size"]
+  default = "Ruudun koko."
+
+["data-collect/help/user-agent"]
+  default = "Selaimen ja järjestelmän nimi johdettuna User-Agent-otsakkeesta (otsaketta itseään ei tallenneta)."
+
+["data-collect/label/country"]
+  default = "Maa"
+
+["data-collect/label/hits"]
+  default = "Sivun katselukerrat"
+
+["data-collect/label/language"]
+  default = "Kieli"
+
+["data-collect/label/referrer"]
+
+["data-collect/label/region"]
+  default = "Alue"
+
+["data-collect/label/sessions"]
+  default = "Istunnot"
+
+["data-collect/label/size"]
+  default = "Koko"
+
+["data-collect/label/user-agent"]
+  default = "User-Agent"
+
+["datepicker/keyboard"]
+  default = "Käytä nuolinäppäimiä valitaksesi päiväyksen"
+
+["datepicker/month-next"]
+  default = "Seuraava kuukausi"
+
+["datepicker/month-prev"]
+  default = "Edellinen kuukausi"
+
+["dont-lock"]
+  default = "Älä lukitse"
+
+["email-report/daily"]
+  default = "Päivittäin"
+
+["email-report/monthly"]
+  default = "Kuukausittain"
+
+["email-report/never"]
+  default = "Ei koskaan"
+
+["email-report/two-weeks"]
+  default = "Joka toinen viikko"
+
+["email-report/weekly"]
+  default = "Viikoittain"
+
+["email/header"]
+  default = "Hei!"
+
+["email/password-reset"]
+  default = """
+Joku (toivottavasti sinä) on pyytänyt nollaamaan GoatCounter-tilisi salasanan.
+
+Voit tehdä sen täällä:
+%(link)
+"""
+
+["email/reset-user-email-subject"]
+  default = "Salasanan nollaus %(domain)-verkkotunnukselle"
+
+["email/signature"]
+  default = """
+Onko sinulla ongelmia, kysymyksiä, kommentteja, tai jotain muuta kerrottavaa? Vastaa tähän sähköpostiin.
+
+Terveisin
+Martin
+"""
+
+["error/address-exists"]
+  default = "%(addr) on jo olemassa"
+
+["error/could-not-read"]
+
+["error/date-future"]
+
+["error/date-mismatch"]
+
+["error/date-past"]
+
+["error/email-exists"]
+
+["error/export-expired"]
+
+["error/incorrect-password"]
+
+["error/invalid-end-date"]
+
+["error/invalid-start-date"]
+
+["error/load-url"]
+
+["error/login-invalid"]
+
+["error/login-no-password"]
+
+["error/login-not-found"]
+
+["error/login-token-expired"]
+
+["error/login-wrong-pwd"]
+
+["error/merge-self"]
+
+["error/not-found"]
+  default = "Ei löytynyt"
+
+["error/password-does-not-match"]
+
+["error/reset-user-no-account"]
+
+["error/unknown-activation-token"]
+
+["event"]
+
+["forgot-domain-help"]
+
+["header/access"]
+
+["header/add-api-token"]
+  default = "Lisää uusi API-tunnus"
+
+["header/add-new-user"]
+
+["header/allow-access"]
+
+["header/api"]
+
+["header/api-tokens"]
+
+["header/browsers"]
+  default = "Selaimet"
+
+["header/change-code"]
+
+["header/change-passwd"]
+
+["header/code"]
+
+["header/copy-settings"]
+
+["header/created-at"]
+
+["header/dashboard"]
+
+["header/data-collection"]
+
+["header/delete-account"]
+
+["header/domain"]
+  default = "Verkkotunnus"
+
+["header/domain-settings"]
+  default = "Verkkotunnuksen asetukset"
+
+["header/edit-user"]
+  default = "Muokkaa käyttäjää %(email)"
+
+["header/email"]
+  default = "Sähköpostiosoite"
+
+["header/export"]
+  default = "Vie CSV-muodossa"
+
+["header/export-or-import"]
+  default = "Vie/Tuo"
+
+["header/fewer-number"]
+  default = "Näytä vähemmän numeroita"
+
+["header/finished"]
+  default = "Valmis"
+
+["header/forgot-domain"]
+  default = "Verkkotunnus unohtunut"
+
+["header/forgot-password"]
+  default = "Salasana unohtunut"
+
+["header/hash"]
+  default = "Tarkiste"
+
+["header/import"]
+  default = "Tuo CSV-muodosta"
+
+["header/l10n"]
+  default = "Lokalisaatio"
+
+["header/languages"]
+  default = "Kielet"
+
+["header/last-10-exports"]
+  default = "10 viimeisintä vientiä"
+
+["header/last-used-at"]
+  default = "Viimeksi käytetty"
+
+["header/locations"]
+  default = "Sijainnit"
+
+["header/locations-for"]
+  default = "Sijainnit maalle %(country)"
+
+["header/manage-pageviews"]
+  default = "Hallinnoi katselukertoja"
+
+["header/merge-account"]
+  default = "Yhdistä tili"
+
+["header/mfa"]
+  default = "Monivaiheinen tunnistautuminen"
+
+["header/n-hits"]
+  default = "osumia"
+
+["header/name"]
+  default = "Nimi"
+
+["header/pagination-cursor"]
+
+["header/passwd-mfa"]
+
+["header/path"]
+  default = "Polku"
+
+["header/permissions"]
+  default = "Oikeudet"
+
+["header/preferences"]
+
+["header/reset-password"]
+
+["header/settings"]
+  default = "Asetukset"
+
+["header/sign-in-at"]
+
+["header/site-settings"]
+  default = "Sivuston asetukset"
+
+["header/sites"]
+  default = "Sivustot"
+
+["header/size"]
+  default = "Koko"
+
+["header/sizes"]
+  default = "Koot"
+
+["header/start-pagination-cursor"]
+
+["header/started"]
+
+["header/systems"]
+  default = "Järjestelmät"
+
+["header/title"]
+  default = "Otsikko"
+
+["header/token"]
+  default = "Tunniste"
+
+["header/toprefs"]
+
+["header/tracking"]
+  default = "Seuranta"
+
+["header/user-info"]
+
+["header/user-information"]
+
+["header/users"]
+  default = "Käyttäjät"
+
+["help/allow-embed"]
+
+["help/allow-visitor-counts"]
+
+["help/cfg-dashboard"]
+
+["help/code-access"]
+
+["help/configure-dashboard"]
+
+["help/custom-domain"]
+
+["help/custom-domain-cname"]
+
+["help/custom-domain-error"]
+
+["help/custom-domain-verified"]
+
+["help/data-retention"]
+
+["help/datepicker"]
+
+["help/domain-access"]
+
+["help/drag-reorder"]
+
+["help/email-reports"]
+
+["help/fewer-numbers"]
+
+["help/fewer-numbers-lock"]
+
+["help/for-the-following-countries"]
+
+["help/goatcounter-domain"]
+
+["help/ignore-ips"]
+
+["help/ignore-ips-2"]
+
+["help/locked-until"]
+
+["help/need-cities"]
+
+["help/new-user-email"]
+
+["help/new-user-email-confirm"]
+
+["help/no-undo"]
+
+["help/password-edit"]
+
+["help/password-new-user"]
+
+["help/public"]
+
+["help/save-default-view"]
+
+["help/turing-test"]
+
+["help/your-email"]
+
+["label/24-hour-clock"]
+
+["label/access-to-sites"]
+
+["label/add-new"]
+
+["label/all-sites"]
+
+["label/allow-visitor-counts"]
+
+["label/browser-stats"]
+
+["label/campaigns"]
+
+["label/change-code"]
+
+["label/clear-pageviews"]
+  default = "Poista kaikki olemassa olevat katselukerrat"
+
+["label/code"]
+  default = "Koodi"
+
+["label/csv-compress-format"]
+  default = "CSV-tiedosto; saa olla gzip-pakattu"
+
+["label/current-passwd"]
+  default = "Nykyinen salasana"
+
+["label/custom-domain"]
+  default = "Räätälöity verkkotunnus"
+
+["label/dashboard-allow-embed"]
+  default = "Sivustot, jotka saavat upottaa GoatCounterin"
+
+["label/dashboard-public"]
+
+["label/data-retention"]
+
+["label/date-fmt"]
+  default = "Päiväyksen muoto"
+
+["label/datepicker"]
+
+["label/delete-account-confirmation"]
+
+["label/email"]
+  default = "Sähköpostiosoite"
+
+["label/email-address"]
+  default = "Sähköpostiosoite"
+
+["label/email-reports"]
+
+["label/fewer-numbers"]
+
+["label/for-following-countries"]
+
+["label/goatcounter-domain"]
+
+["label/ignore-ips"]
+
+["label/lang"]
+  default = "Kieli"
+
+["label/language-stats"]
+  default = "Kielitilastot"
+
+["label/loc-stats"]
+  default = "Sijaintitilastot"
+
+["label/lock-setting"]
+  default = "Lukitusasetukset"
+
+["label/mark-current"]
+  default = "(nykyinen)"
+
+["label/match-case"]
+
+["label/match-title"]
+
+["label/merge-account-confirmation"]
+
+["label/merge-to"]
+
+["label/mfa-token"]
+
+["label/new-code"]
+  default = "Uusi koodi"
+
+["label/new-password"]
+  default = "Uusi salasana"
+
+["label/new-password-confirm"]
+  default = "Uusi salasana (uudestaan)"
+
+["label/pagination-cursor"]
+
+["label/password"]
+  default = "Salasana"
+
+["label/paths"]
+
+["label/public-anyone"]
+  default = "Kuka tahansa"
+
+["label/public-private"]
+  default = "Vain kirjautuneet käyttäjät"
+
+["label/public-token"]
+
+["label/secret"]
+  default = "Salaisuus"
+
+["label/secret-access"]
+
+["label/secret-token"]
+  default = "Salainen tunniste"
+
+["label/set-default"]
+
+["label/size-desktop"]
+  default = "Tietokonenäytöt"
+
+["label/size-desktophd"]
+  default = "HD:tä suuremmat tietokonenäytöt"
+
+["label/size-phones"]
+  default = "Puhelimet"
+
+["label/size-stats"]
+  default = "Kokotilastot"
+
+["label/size-tablets"]
+  default = "Tabletit ja isot puhelimet"
+
+["label/system-stats"]
+  default = "Järjestelmätilastot"
+
+["label/theme"]
+  default = "Teema"
+
+["label/thousand-separator"]
+  default = "Tuhansien erotin"
+
+["label/timezone"]
+  default = "Aikavyöhyke"
+
+["label/topref"]
+
+["label/total-pageviews"]
+  default = "Sivuston katselukerrat yhteensä"
+
+["label/turing-test"]
+  default = "Kirjoita tähän numero 9"
+
+["label/verifictation-token"]
+
+["label/week-start"]
+  default = "Viikko alkaa sunnuntaista"
+
+["label/your-email"]
+  default = "Sähköpostiosoitteesi"
+
+["label/your-site"]
+  default = "Sivustosi"
+
+["link/add-translation"]
+  default = "Lisää tai muokkaa käännöksiä"
+
+["link/api"]
+  default = "API"
+
+["link/api-docs"]
+  default = "API-dokumentaatio"
+
+["link/dashboard"]
+  default = "Ohjauspaneeli"
+
+["link/generate-random"]
+  default = "Luo satunnainen salaisuus"
+
+["link/goto-path"]
+  default = "Siirry polkuun %(path)"
+
+["link/import"]
+  default = "Tuo/Vie"
+
+["link/manage-pageviews"]
+  default = "Hallinnoi katselukertoja"
+
+["link/merge-account"]
+  default = "Yhdistä tili"
+
+["link/passwd-mfa"]
+  default = "Salasana & MFA"
+
+["link/preferences"]
+
+["link/rm-account"]
+  default = "Poista tili"
+
+["link/set-from-browser"]
+
+["link/settings"]
+  default = "asetukset"
+
+["link/show-less"]
+  default = "(näytä vähemmän)"
+
+["link/show-more"]
+  default = "Näytä enemmän"
+
+["link/sites"]
+  default = "Sivustot"
+
+["link/users"]
+  default = "Käyttäjät"
+
+["nav-bot/contact"]
+  default = "Ota yhteyttä"
+
+["nav-bot/contribute"]
+  default = "Osallistu"
+
+["nav-bot/docs"]
+  default = "Dokumentaatio"
+
+["nav-bot/home"]
+  default = "Koti"
+
+["nav-bot/src"]
+  default = "Lähdekoodi"
+
+["nav-dash/back"]
+  default = "takaisin"
+
+["nav-dash/day"]
+  default = "päivä"
+
+["nav-dash/end-date"]
+  default = "Viimeinen näytettävä päivä"
+
+["nav-dash/filter"]
+  default = "Suodata polkuja"
+
+["nav-dash/filter-more-help"]
+  default = "Lisää ohjeita"
+
+["nav-dash/filter-tooltip"]
+
+["nav-dash/forced-daily"]
+
+["nav-dash/forced-hourly"]
+
+["nav-dash/forward"]
+
+["nav-dash/half-year"]
+  default = "puoli vuotta"
+
+["nav-dash/hour"]
+  default = "tunti"
+
+["nav-dash/last"]
+  default = "Viimeinen"
+
+["nav-dash/month"]
+  default = "kuukausi"
+
+["nav-dash/quarter"]
+  default = "vuosineljännes"
+
+["nav-dash/start-date"]
+  default = "Ensimmäinen näytettävä päivä"
+
+["nav-dash/view-by"]
+
+["nav-dash/week"]
+  default = "viikko"
+
+["nav-dash/year"]
+  default = "vuosi"
+
+["nav-fash/filter-less-help"]
+  default = "Vähemmän ohjeita"
+
+["new-paren"]
+  default = "(uusi)"
+
+["no-title"]
+  default = "ei otsikkoa"
+
+["notify/add-one-thing"]
+
+["notify/api-token-created"]
+  default = "API-tunniste luotu"
+
+["notify/api-token-removed"]
+  default = "API-tunniste poistettu"
+
+["notify/disabled-multi-factor-auth"]
+  default = "Monivaiheinen tunnistautuminen otettu pois käytöstä"
+
+["notify/email-already-verified"]
+  default = "%(email) on jo vahvistettu"
+
+["notify/export-started-in-background"]
+  default = "Vienti on alkanut tausta-ajona. Kun se on valmis, saat latauslinkin sähköpostiviestissä."
+
+["notify/import-ga-okay"]
+  default = "Tiedot käsitelty onnistuneesti"
+
+["notify/import-started-in-background"]
+  default = "Tuonti on alkanut tausta-ajona. Kun se on valmis, saat latauslinkin sähköpostiviestissä."
+
+["notify/login-after-password-reset"]
+
+["notify/multi-factor-auth-enabled"]
+
+["notify/need-email-verification-for-api"]
+
+["notify/no-user-for-token"]
+
+["notify/not-found"]
+
+["notify/password-changed"]
+
+["notify/reset-to-default"]
+
+["notify/reset-user-sent"]
+
+["notify/restored-previously-deleted-site"]
+
+["notify/saved"]
+
+["notify/sent-to-email"]
+
+["notify/settings-copied-to-site"]
+
+["notify/site-added"]
+
+["notify/site-removed"]
+
+["notify/started-background-process"]
+
+["notify/user-added"]
+
+["notify/user-removed"]
+
+["notify/users-edited"]
+
+["p/add-goatcounter-to-multiple-websites"]
+
+["p/add-multiple-accounts"]
+
+["p/additional-errors"]
+
+["p/all-sites"]
+
+["p/api-intro"]
+
+["p/change-code-request"]
+
+["p/change-email"]
+
+["p/collect-disabled"]
+
+["p/copy-settings-from-current-site"]
+
+["p/csv-file-format"]
+
+["p/delete-account"]
+
+["p/disable-mfa"]
+
+["p/enable-mfa"]
+
+["p/error"]
+
+["p/export-csv"]
+
+["p/export-process"]
+
+["p/have-mfa"]
+
+["p/import-ga"]
+
+["p/last-user"]
+
+["p/manage-hits"]
+
+["p/merge-account"]
+
+["p/no-data"]
+
+["p/no-matches"]
+
+["p/notify-immediate-change"]
+
+["p/notify-pagination-cursor"]
+
+["p/notify-site-deletion"]
+
+["p/num-accounts"]
+
+["p/remove-site-confirm"]
+
+["p/remove-site-confirm-contact"]
+
+["p/remove-site-confirm-current"]
+
+["p/rm-hits-help"]
+
+["p/rm-pageview-match"]
+
+["p/setting-recovery-disabled-information"]
+
+["p/settings-all-sites"]
+
+["p/site-domain-link-to-page"]
+
+["p/text-data-retention"]
+
+["p/verify-email"]
+
+["page-ranking"]
+
+["scale-y"]
+
+["theme/dark"]
+
+["theme/light"]
+
+["theme/system"]
+
+["tooltip/change-period"]
+
+["top-nav/back"]
+
+["top-nav/dashboard"]
+
+["top-nav/documentation"]
+
+["top-nav/need-js"]
+
+["top-nav/public-link"]
+
+["top-nav/public-time"]
+
+["top-nav/settings"]
+
+["top-nav/sign-in"]
+
+["top-nav/sign-out"]
+
+["top-nav/sites"]
+
+["unknown"]
+
+["validate/bool"]
+
+["validate/color"]
+
+["validate/contains"]
+
+["validate/date"]
+
+["validate/domain"]
+
+["validate/email"]
+
+["validate/exclude"]
+
+["validate/hostname"]
+
+["validate/include"]
+
+["validate/int"]
+
+["validate/ip"]
+
+["validate/ipv4"]
+
+["validate/len-longer"]
+
+["validate/len-shorter"]
+
+["validate/need-one"]
+
+["validate/phone"]
+
+["validate/range-higher"]
+
+["validate/range-lower"]
+
+["validate/required"]
+
+["validate/url"]
+
+["validate/utf8"]
+
+["view not set"]
+
+["widget-setting/help/align"]
+
+["widget-setting/help/chart-style"]
+
+["widget-setting/help/no-events"]
+
+["widget-setting/help/page-size"]
+
+["widget-setting/help/ref-page-size"]
+
+["widget-setting/help/regions"]
+
+["widget-setting/label/align"]
+
+["widget-setting/label/chart-style"]
+
+["widget-setting/label/no-events"]
+
+["widget-setting/label/page-size"]
+
+["widget-setting/label/ref-page-size"]
+
+["widget-setting/label/regions"]
+
+["widget-settings/bar-chart"]
+
+["widget-settings/line-chart"]
+
+["widget-settings/text-chart"]
+
+["y-scale"]
