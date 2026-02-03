@@ -191,6 +191,7 @@ func (u *User) UpdateSite(ctx context.Context) error {
 // UpdatePassword updates this user's password.
 func (u *User) UpdatePassword(ctx context.Context, pwd string) error {
 	u.Password = []byte(pwd)
+
 	err := u.hashPassword(ctx)
 	if err != nil {
 		return errors.Wrap(err, "User.UpdatePassword")
