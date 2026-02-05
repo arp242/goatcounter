@@ -31,7 +31,7 @@ func (w *TotalCount) SetSettings(s goatcounter.WidgetSettings)            { w.s 
 func (w TotalCount) RenderHTML(context.Context, SharedData) (string, any) { return "", nil }
 
 func (w *TotalCount) GetData(ctx context.Context, a Args) (more bool, err error) {
-	w.TotalCount, err = goatcounter.GetTotalCount(ctx, a.Rng, a.PathFilter)
+	w.TotalCount, err = goatcounter.GetTotalCount(ctx, a.Rng, a.PathFilter, w.NoEvents)
 	w.loaded = true
 	return false, err
 }

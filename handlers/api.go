@@ -1098,7 +1098,9 @@ func (h api) countTotal(w http.ResponseWriter, r *http.Request) error {
 	)
 	wg.Go(func() {
 		defer log.Recover(r.Context())
-		tc, tcErr = goatcounter.GetTotalCount(r.Context(), rng, includeIDs)
+		// TODO(apiv2): don't have this totalEevents set to "true"; need to add
+		// parameter for it.
+		tc, tcErr = goatcounter.GetTotalCount(r.Context(), rng, includeIDs, true)
 	})
 	wg.Go(func() {
 		defer log.Recover(r.Context())

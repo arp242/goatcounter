@@ -466,20 +466,24 @@ type TotalCount struct {
 // UTC. This is needed since the _stats tables are per day, rather than
 // per-hour, so we need to use the correct totals to make sure the percentage
 // calculations are accurate.
-func GetTotalCount(ctx context.Context, rng ztime.Range, pathFilter PathFilter) (TotalCount, error) {
+//
+// TotalCounter.TotalEvents is only populated if "Exclude events" is set on
+// totals chart, because it's not used for anything else.
+func GetTotalCount(ctx context.Context, rng ztime.Range, pathFilter PathFilter, totalEvents bool) (TotalCount, error) {
 	var (
 		user                    = MustGetUser(ctx)
 		filterSQL, filterParams = pathFilter.SQL(ctx)
 		t                       TotalCount
 	)
 	err := zdb.Get(ctx, &t, "load:hit_list.GetTotalCount", filterParams, map[string]any{
-		"site":      MustGetSite(ctx).ID,
-		"start":     rng.Start,
-		"end":       rng.End,
-		"start_utc": rng.Start.In(user.Settings.Timezone.Location),
-		"end_utc":   rng.End.In(user.Settings.Timezone.Location),
-		"filter":    filterSQL,
-		"tz":        user.Settings.Timezone.Offset(),
+		"site":         MustGetSite(ctx).ID,
+		"start":        rng.Start,
+		"end":          rng.End,
+		"start_utc":    rng.Start.In(user.Settings.Timezone.Location),
+		"end_utc":      rng.End.In(user.Settings.Timezone.Location),
+		"filter":       filterSQL,
+		"tz":           user.Settings.Timezone.Offset(),
+		"total_events": totalEvents,
 	})
 	return t, errors.Wrap(err, "GetTotalCount")
 }

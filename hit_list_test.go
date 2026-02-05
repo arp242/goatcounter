@@ -217,7 +217,7 @@ func TestHitListsList(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		tc, err := GetTotalCount(ctx, rng, paths)
+		tc, err := GetTotalCount(ctx, rng, paths, true)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -245,7 +245,7 @@ func TestGetTotalCount(t *testing.T) {
 		Hit{Path: "ev", FirstVisit: false, Event: true})
 
 	{
-		have, err := GetTotalCount(ctx, rng, PathFilter{})
+		have, err := GetTotalCount(ctx, rng, PathFilter{}, true)
 		if err != nil {
 			t.Fatal(err)
 		}
