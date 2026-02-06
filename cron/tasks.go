@@ -138,7 +138,6 @@ func UpdateStats(ctx context.Context, site *goatcounter.Site, siteID goatcounter
 	funs := []func(context.Context, []goatcounter.Hit) error{
 		updateHitCounts,
 		updateRefCounts,
-		updateHitStats,
 		updateBrowserStats,
 		updateSystemStats,
 		updateLocationStats,
@@ -215,7 +214,7 @@ func vacuumDeleted(ctx context.Context) error {
 		err := zdb.TX(ctx, func(ctx context.Context) error {
 			for _, t := range []string{"hits", "paths",
 				"hit_counts", "ref_counts",
-				"browser_stats", "system_stats", "hit_stats", "location_stats", "language_stats", "size_stats",
+				"browser_stats", "system_stats", "location_stats", "language_stats", "size_stats",
 				"campaign_stats", "exports", "api_tokens", "users", "sites"} {
 
 				err := zdb.Exec(ctx, fmt.Sprintf(`delete from %s where site_id=%d`, t, s.ID))
@@ -243,8 +242,7 @@ func vacuumRefs(ctx context.Context) error {
 			select ref_id from ref_counts group by ref_id
 			union
 			select ref_id from hits group by ref_id
-		)
-	`)
+		)`)
 }
 
 func oldFilters(ctx context.Context) error {

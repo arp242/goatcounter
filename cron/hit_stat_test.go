@@ -13,25 +13,18 @@ import (
 )
 
 func TestHitStats(t *testing.T) {
-	ctx := gctest.DB(t)
-
-	site := goatcounter.MustGetSite(ctx)
-	now := time.Date(2019, 8, 31, 14, 42, 0, 0, time.UTC)
-
-	// Store 3 pageviews for one session: two for "/asd" and one for "/zxc", all
-	// on the same time.
-	gctest.StoreHits(ctx, t, false, []goatcounter.Hit{
-		{Site: site.ID, CreatedAt: now, Path: "/asd", Title: "aSd", FirstVisit: true},
-		{Site: site.ID, CreatedAt: now, Path: "/asd/"}, // Trailing / should be sanitized and treated identical as /asd
-		{Site: site.ID, CreatedAt: now, Path: "/zxc"},
-	}...)
+	var (
+		ctx  = gctest.DB(t)
+		site = goatcounter.MustGetSite(ctx)
+		now  = time.Date(2019, 8, 31, 14, 42, 0, 0, time.UTC)
+	)
 
 	check := func(wantT, want0 string) {
 		t.Helper()
 
 		var stats goatcounter.HitLists
 		display, more, err := stats.List(ctx,
-			ztime.NewRange(now.Add(-1*time.Hour)).To(now.Add(1*time.Hour)),
+			ztime.NewRange(now.Add(-1*time.Hour)).To(now.Add(2*time.Hour)),
 			goatcounter.PathFilter{}, nil, 10, goatcounter.GroupHourly)
 		if err != nil {
 			t.Fatal(err)
@@ -50,6 +43,14 @@ func TestHitStats(t *testing.T) {
 		}
 	}
 
+	// Store 3 pageviews for one session: two for "/asd" and one for "/zxc", all
+	// on the same time.
+	gctest.StoreHits(ctx, t, false, []goatcounter.Hit{
+		{Site: site.ID, CreatedAt: now, Path: "/asd", Title: "aSd", FirstVisit: true},
+		{Site: site.ID, CreatedAt: now, Path: "/asd/"}, // Trailing / should be sanitized and treated identical as /asd
+		{Site: site.ID, CreatedAt: now, Path: "/zxc"},
+	}...)
+
 	check("1 false", `{
 			"count": 1,
 			"path_id":      1,
@@ -58,7 +59,7 @@ func TestHitStats(t *testing.T) {
 			"title":        "aSd",
 			"max":          1,
 			"stats": [{
-				"day":           "2019-08-31",
+				"day":    "2019-08-31",
 				"hourly": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0],
 				"daily":  1
 			}]}
@@ -69,6 +70,17 @@ func TestHitStats(t *testing.T) {
 		{Site: site.ID, CreatedAt: now.Add(2 * time.Hour), Path: "/asd", Title: "aSd"},
 	}...)
 
+	// Second hit is excluded because it's stored as:
+	//
+	// 1        1        2019-08-31 14:00:00  1
+	// 1        1        2019-08-31 16:00:00  1
+	//
+	// And the select has:
+	// hour>='2019-08-31 13:42:00' and hour<='2019-08-31 15:42:00'
+	//
+	// So the second is stored after the end.
+	// "now" is 14:42
+	// zdb.Dump(ctx, os.Stdout, `select * from hit_counts`)
 	check("2 false", `{
 			"count":  2,
 			"path_id":       1,
@@ -77,7 +89,7 @@ func TestHitStats(t *testing.T) {
 			"title":         "aSd",
 			"max":           1,
 			"stats":[{
-				"day":            "2019-08-31",
+				"day":     "2019-08-31",
 				"hourly":  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0],
 				"daily":   2
 		}]}`)

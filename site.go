@@ -31,8 +31,7 @@ var reserved = []string{
 	"stat", "stats",
 }
 
-var statTables = []string{"hit_stats", "system_stats", "browser_stats",
-	"location_stats", "language_stats", "size_stats"}
+var statTables = []string{"system_stats", "browser_stats", "location_stats", "language_stats", "size_stats"}
 
 type (
 	SiteID  int32

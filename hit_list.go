@@ -2,15 +2,16 @@ package goatcounter
 
 import (
 	"context"
+	"fmt"
 	"sort"
 	"time"
 
 	"zgo.at/errors"
 	"zgo.at/goatcounter/v2/pkg/db2"
+	"zgo.at/json"
 	"zgo.at/tz"
 	"zgo.at/zdb"
 	"zgo.at/zstd/zbool"
-	"zgo.at/zstd/zjson"
 	"zgo.at/zstd/zstrconv"
 	"zgo.at/zstd/ztime"
 )
@@ -82,6 +83,24 @@ type HitList struct {
 	//  c   Campaign (via query parameter)
 	//  o   Other
 	RefScheme *string `db:"ref_scheme" json:"ref_scheme,omitempty"`
+
+	// {nodoc}
+	Stats2 Stats2 `db:"stats2" json:"-"`
+}
+
+type Stats2 map[string]int
+
+func (s *Stats2) Scan(src any) error {
+	var data []byte
+	switch v := src.(type) {
+	default:
+		return fmt.Errorf("unknown type: %T", src)
+	case []byte:
+		data = v
+	case string:
+		data = []byte(v)
+	}
+	return json.Unmarshal(data, s)
 }
 
 type HitListStat struct {
@@ -138,7 +157,6 @@ func (h *HitLists) List(
 	ctx context.Context, rng ztime.Range, pathFilter PathFilter, exclude []PathID, limit int, group Group,
 ) (int, bool, error) {
 
-	// List the pages for this time period; this gets the path_id, path, title.
 	var (
 		site                    = MustGetSite(ctx)
 		user                    = MustGetUser(ctx)
@@ -146,7 +164,7 @@ func (h *HitLists) List(
 		more                    bool
 	)
 	{
-		err := zdb.Select(ctx, h, "load:hit_list.List-counts", filterParams, map[string]any{
+		err := zdb.Select(ctx, h, "load:hit_list.List", filterParams, map[string]any{
 			"site":    site.ID,
 			"start":   rng.Start,
 			"end":     rng.End,
@@ -154,9 +172,12 @@ func (h *HitLists) List(
 			"exclude": db2.Array(ctx, exclude),
 			"in":      db2.In(ctx),
 			"limit":   limit + 1,
+			"offset":  user.Settings.Timezone.Offset(),
+			"offset2": fmt.Sprintf("%d minutes", user.Settings.Timezone.Offset()),
+			"sqlite":  zdb.SQLDialect(ctx) == zdb.DialectSQLite,
 		})
 		if err != nil {
-			return 0, false, errors.Wrap(err, "HitLists.List hit_counts")
+			return 0, false, errors.Wrap(err, "HitLists.List")
 		}
 
 		// Check if there are more entries.
@@ -168,57 +189,58 @@ func (h *HitLists) List(
 		}
 	}
 
-	if len(*h) == 0 { // No data yet.
+	if len(*h) == 0 { // No data (yet).
+		return 0, false, nil
+	}
+	hh := *h
+
+	// Should Never Happen™ but if it does the below loop will never break, so
+	// be safe.
+	if rng.Start.After(rng.End) {
 		return 0, false, nil
 	}
 
-	// Get stats for every page.
-	hh := *h
-	var st []struct {
-		PathID PathID    `db:"path_id"`
-		Day    time.Time `db:"day"`
-		Stats  []byte    `db:"stats"`
-	}
-	{
-		paths := make([]PathID, len(hh))
-		for i := range hh {
-			paths[i] = hh[i].PathID
-		}
-
-		err := zdb.Select(ctx, &st, "load:hit_list.List-stats", map[string]any{
-			"site":  site.ID,
-			"start": rng.Start.Format("2006-01-02"),
-			"end":   rng.End.Format("2006-01-02"),
-			"paths": db2.Array(ctx, paths),
-			"in":    db2.In(ctx),
-		})
-		if err != nil {
-			return 0, false, errors.Wrap(err, "HitLists.List hit_stats")
-		}
-	}
-
-	// Add the hit_stats.
-	{
-		for i := range hh {
-			for _, s := range st {
-				if s.PathID == hh[i].PathID {
-					var y []int
-					zjson.MustUnmarshal(s.Stats, &y)
-					hh[i].Stats = append(hh[i].Stats, HitListStat{
-						Day:    s.Day.Format("2006-01-02"),
-						Hourly: y,
-					})
-				}
+	var totalDisplay int
+	for i := range hh {
+		// TODO: add iterator or something to ztime.Range
+		var (
+			off    = time.Duration(user.Settings.Timezone.Offset()) * time.Minute
+			days   = make([]string, 0, 32)
+			day    = rng.Start.Add(off).Add(-24 * time.Hour)
+			endFmt = rng.End.Add(off).Format("2006-01-02")
+		)
+		for {
+			day = day.Add(24 * time.Hour)
+			dayFmt := day.Format("2006-01-02")
+			days = append(days, dayFmt)
+			if dayFmt == endFmt {
+				break
 			}
 		}
+
+		// Fill in Stats, including hours/days where there are no hits.
+		hh[i].Stats = make([]HitListStat, 0, len(days))
+		for _, day := range days {
+			st := HitListStat{Day: day, Hourly: make([]int, 24)}
+			for hour := range 24 {
+				k := fmt.Sprintf("%s %02d", day, hour)
+				n, ok := hh[i].Stats2[k]
+				if ok {
+					st.Hourly[hour] = n
+					st.Daily += n
+					if !group.Daily() && st.Hourly[hour] > hh[i].Max {
+						hh[i].Max = st.Hourly[hour]
+					}
+				}
+			}
+			if group.Daily() && st.Daily > hh[i].Max {
+				hh[i].Max = st.Daily
+			}
+			totalDisplay += st.Daily
+			hh[i].Stats = append(hh[i].Stats, st)
+		}
+		hh[i].Stats2 = nil
 	}
-
-	fillBlankDays(hh, rng)
-	applyOffset(hh, user.Settings.Timezone)
-
-	// Add total and max.
-	var totalDisplay int
-	addTotals(hh, group, &totalDisplay)
 
 	return totalDisplay, more, nil
 }
@@ -249,10 +271,7 @@ func (h *HitList) Totals(ctx context.Context, rng ztime.Range, pathFilter PathFi
 		return 0, errors.Wrap(err, "HitList.Totals")
 	}
 
-	totalst := HitList{
-		Path:  PathTotals,
-		Title: "",
-	}
+	totalst := HitList{Path: PathTotals, Title: ""}
 	stats := make(map[string]HitListStat)
 	for _, t := range tc {
 		d := t.Hour.Format("2006-01-02")
@@ -415,38 +434,6 @@ func fillBlankDays(hh HitLists, rng ztime.Range) {
 
 		hh[i].Stats = newStat
 	}
-}
-
-func addTotals(hh HitLists, group Group, totalDisplay *int) {
-	for i := range hh {
-		for j := range hh[i].Stats {
-			for k := range hh[i].Stats[j].Hourly {
-				hh[i].Stats[j].Daily += hh[i].Stats[j].Hourly[k]
-				if !group.Daily() && hh[i].Stats[j].Hourly[k] > hh[i].Max {
-					hh[i].Max = hh[i].Stats[j].Hourly[k]
-				}
-			}
-
-			hh[i].Count += hh[i].Stats[j].Daily
-			if group.Daily() && hh[i].Stats[j].Daily > hh[i].Max {
-				hh[i].Max = hh[i].Stats[j].Daily
-			}
-		}
-
-		*totalDisplay += hh[i].Count
-	}
-
-	// We sort in SQL, but this is not always 100% correct after applying
-	// the TZ offset, so order here as well.
-	//
-	// TODO: this is still not 100% correct, as the "first 10" after
-	// applying the TZ offset may be different than the first 10 being
-	// fetched in the SQL query. There is no easy fix for that in the
-	// current design. I considered storing everything in the DB as the
-	// configured TZ, but that would make changing the TZ expensive, I'm not
-	// 100% sure yet what a good solution here is. For now, this is "good
-	// enough".
-	sort.Slice(hh, func(i, j int) bool { return hh[i].Count > hh[j].Count })
 }
 
 type TotalCount struct {

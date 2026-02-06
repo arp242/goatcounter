@@ -171,7 +171,6 @@ func TestHitListsList(t *testing.T) {
 				t.Errorf("wrong return\nhave: %s\nwant: %s\n", have, tt.wantReturn)
 				zdb.Dump(ctx, os.Stdout, "select * from paths")
 				zdb.Dump(ctx, os.Stdout, "select * from hit_counts")
-				zdb.Dump(ctx, os.Stdout, "select * from hit_stats")
 			}
 
 			out := strings.ReplaceAll(", ", ",\n", fmt.Sprintf("%+v", stats))
@@ -189,25 +188,16 @@ func TestHitListsList(t *testing.T) {
 			ctx        = gctest.DB(t)
 			bPaths, _  = zdb.NewBulkInsert(ctx, "paths", []string{"site_id", "path"})
 			bCounts, _ = zdb.NewBulkInsert(ctx, "hit_counts", []string{"site_id", "path_id", "hour", "total"})
-			bStats, _  = zdb.NewBulkInsert(ctx, "hit_stats", []string{"site_id", "path_id", "day", "stats"})
 		)
-		x := make([]int, 24)
-		x[1] = 10
-		hs := zjson.MustMarshal(x)
 		for i := range 70_000 {
 			bPaths.Values(1, fmt.Sprintf("/x-%d", i+1))
 			bCounts.Values(1, i+1, "2019-08-11 01:00:00", 10)
-			bStats.Values(1, i+1, "2019-08-11", hs)
 		}
 		err := bPaths.Finish()
 		if err != nil {
 			t.Fatal(err)
 		}
 		err = bCounts.Finish()
-		if err != nil {
-			t.Fatal(err)
-		}
-		err = bStats.Finish()
 		if err != nil {
 			t.Fatal(err)
 		}

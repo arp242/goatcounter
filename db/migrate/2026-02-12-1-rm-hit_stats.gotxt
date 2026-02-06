@@ -1,0 +1,5 @@
+drop table hit_stats;
+
+drop index "hit_counts#site_id#hour";
+create index "hit_counts#hour" on hit_counts {{psql "using brin"}}(hour);
+create index "hit_counts#site_id" on hit_counts(site_id);

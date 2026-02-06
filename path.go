@@ -12,7 +12,6 @@ import (
 	"zgo.at/goatcounter/v2/pkg/log"
 	"zgo.at/zdb"
 	"zgo.at/zstd/zbool"
-	"zgo.at/zstd/zjson"
 	"zgo.at/zstd/zreflect"
 )
 
@@ -179,7 +178,7 @@ func (p Path) Merge(ctx context.Context, paths Paths) error {
 
 	siteID := MustGetSite(ctx).ID
 	err := zdb.TX(ctx, func(ctx context.Context) error {
-		// Update stats and counts tables, except hit_stats
+		// Update stats and counts tables
 		for _, tt := range zreflect.Values(Tables, "", "") {
 			var (
 				t      = tt.(tbl)
@@ -188,9 +187,6 @@ func (p Path) Merge(ctx context.Context, paths Paths) error {
 				selCTE = append([]string{}, t.Columns...)
 				group  = append([]string{}, t.Columns...)
 			)
-			if t.Table == "hit_stats" {
-				continue
-			}
 
 			sel[i] = ":path_id"
 			selCTE = slices.Delete(selCTE, i, i+1)
@@ -228,69 +224,8 @@ func (p Path) Merge(ctx context.Context, paths Paths) error {
 			}
 		}
 
-		// Update hit_stats; for PostgreSQL we can update inline, for SQLite we
-		// need to also select and delete the merge target and re-insert it.
-		loadPathIDs := append([]PathID{}, pathIDs...)
-		if zdb.SQLDialect(ctx) == zdb.DialectSQLite {
-			loadPathIDs = append(loadPathIDs, p.ID)
-		}
-		var hitStats []struct {
-			Day   string `db:"day"`
-			Stats []byte `db:"stats"`
-		}
-		err := zdb.Select(ctx, &hitStats, `load:paths.Merge-hit_stats`, map[string]any{
-			"site_id": siteID,
-			"paths":   db2.Array(ctx, loadPathIDs),
-			"in":      db2.In(ctx),
-		})
-		if err != nil {
-			return err
-		}
-		err = zdb.Exec(ctx, `/* Path.Merge */
-			delete from hit_stats where site_id=:site_id and path_id :in (:paths)`,
-			map[string]any{
-				"site_id": siteID,
-				"paths":   db2.Array(ctx, pathIDs),
-				"in":      db2.In(ctx),
-			})
-		if err != nil {
-			return err
-		}
-
-		ins, err := Tables.HitStats.Bulk(ctx)
-		if err != nil {
-			return err
-		}
-		if zdb.SQLDialect(ctx) == zdb.DialectSQLite {
-			// Reset the "on conflict", which SQLite doesn't support for
-			// hit_stats. We deleted and fetched the target (for SQLite) before,
-			// so that's okay.
-			ins, err = zdb.NewBulkInsert(ctx, "hit_stats", []string{"site_id", "path_id", "day", "stats"})
-			if err != nil {
-				return err
-			}
-		}
-		for _, d := range hitStats {
-			var ru [][]int
-			zjson.MustUnmarshal(d.Stats, &ru)
-			for _, s := range ru[1:] {
-				for i := range s {
-					ru[0][i] += s[i]
-				}
-			}
-
-			if zdb.SQLDialect(ctx) == zdb.DialectSQLite {
-				ins.Values(siteID, p.ID, d.Day[:10], zjson.MustMarshal(ru[0]))
-			} else {
-				ins.Values(siteID, p.ID, d.Day[:10], string(zjson.MustMarshal(ru[0])))
-			}
-		}
-		if err := ins.Finish(); err != nil {
-			return err
-		}
-
 		// Update hits and delete old paths.
-		err = zdb.Exec(ctx, `/* Path.Merge */
+		err := zdb.Exec(ctx, `/* Path.Merge */
 			update hits set path_id=:path_id where site_id=:site_id and path_id :in (:paths)`,
 			map[string]any{
 				"site_id": siteID,
