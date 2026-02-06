@@ -1,7 +1,7 @@
 [__meta__]
   language = "pl-PL"
-  maintainers = []
-  modified = 2024-04-09
+  maintainers = ['team@sopot.guide']
+  modified = 2026-02-05
 
 ["button/add-new"]
   default = "Dodaj"
@@ -31,6 +31,7 @@
   default = "Tak, usuń wszystko"
 
 ["button/delete-pageviews"]
+  default = "Usuń statystyki odsłon"
 
 ["button/disable-mfa"]
   default = "Wyłącz MFA"
@@ -45,6 +46,7 @@
   default = "Zapomniałeś hasła?"
 
 ["button/merge"]
+  default = "Scal"
 
 ["button/remove"]
   default = "Usuń"
@@ -68,11 +70,13 @@
   default = "Zapisz domyślny widok"
 
 ["button/search"]
+  default = "Szukaj"
 
 ["button/send-login-url"]
   default = "Wyślij URL logowania"
 
 ["button/show"]
+  default = "pokaż"
 
 ["button/sign-in"]
   default = "Zaloguj się"
@@ -87,6 +91,7 @@
   default = "Zatwierdź"
 
 ["button/upload-ga-import"]
+  default = "Załaduj"
 
 ["confirm/delete-user"]
   default = "Usunąć %(email)?"
@@ -100,6 +105,7 @@
   many    = "%(n) dni temu"
 
 ["dashboard/loading"]
+  default = "Ładuję..."
 
 ["dashboard/month-ago"]
   default = "%(n) miesięcy temu"
@@ -113,6 +119,7 @@
   default = "Nic do wyświetlenia"
 
 ["dashboard/pages/change"]
+  default = "Zmień"
 
 ["dashboard/pages/header"]
   default = "Strony"
@@ -156,6 +163,7 @@
   default = "Nazwa kraju, na przykład Belgia, Indonezja, itd."
 
 ["data-collect/help/hits"]
+  default = "Zapisuj pojedyncze odsłony do eksportu. Nie wpływa na pozostałe ustawienia. Do eksportu zagregowanych danych wciąż można użyć API."
 
 ["data-collect/help/language"]
   default = "Obsługiwane języki z Accept-Language"
@@ -179,6 +187,7 @@
   default = "Kraj"
 
 ["data-collect/label/hits"]
+  default = "Pojedyńcze odsłony"
 
 ["data-collect/label/language"]
   default = "Język"
@@ -289,6 +298,7 @@ Martin
   default = "Niepoprawne hasło dla %(email)"
 
 ["error/merge-self"]
+  default = "Nie można połączyć ścieżki z nią samą"
 
 ["error/not-found"]
   default = "Nie znaleziono"
@@ -300,9 +310,10 @@ Martin
   default = "Konto nie istnieje w tej witrynie: %(email)"
 
 ["error/unknown-activation-token"]
+  default = "Nieznany token aktywacyjny"
 
 ["event"]
-  default = "wydarzenie"
+  default = "zdarzenie"
 
 ["forgot-domain-help"]
   default = "Wyślij e-mailem listę wszystkich domen powiązanych z adresem e-mail."
