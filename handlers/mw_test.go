@@ -16,7 +16,7 @@ import (
 
 func fmtCSP(h string) string {
 	csp := make(map[string][]string)
-	for _, f := range strings.Split(h, ";") {
+	for f := range strings.SplitSeq(h, ";") {
 		s := strings.Fields(f)
 		if len(s) > 1 {
 			csp[s[0]] = s[1:]

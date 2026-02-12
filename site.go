@@ -5,6 +5,7 @@ import (
 	"database/sql/driver"
 	"fmt"
 	"path"
+	"slices"
 	"strings"
 	"time"
 
@@ -80,12 +81,7 @@ func (s SiteIDs) Has(siteID SiteID) bool {
 	if s.All() {
 		return true
 	}
-	for _, ss := range s {
-		if ss == siteID {
-			return true
-		}
-	}
-	return false
+	return slices.Contains(s, siteID)
 }
 func (s SiteIDs) List(ctx context.Context) Sites {
 	var sites Sites
@@ -480,14 +476,14 @@ func (s *Site) ByHost(ctx context.Context, host string) error {
 	}
 
 	// Get from code (e.g. "arp242" in "arp242.goatcounter.com").
-	p := strings.Index(host, ".")
-	if p == -1 {
+	code, _, ok := strings.Cut(host, ".")
+	if !ok {
 		return errors.Errorf("Site.ByHost: no subdomain in host %q", host)
 	}
 
 	err := zdb.Get(ctx, s,
 		`/* Site.ByHost */ select * from sites where lower(code)=lower($1) and state=$2`,
-		host[:p], StateActive)
+		code, StateActive)
 	if err != nil {
 		return errors.Wrap(err, "site.ByHost: from code")
 	}

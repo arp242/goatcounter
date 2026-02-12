@@ -223,7 +223,6 @@ func (r *Runner) Wait(name string) {
 		var wg sync.WaitGroup
 		wg.Add(len(r.jobs))
 		for _, j := range r.jobs {
-			j := j
 			go func() {
 				defer wg.Done()
 				j.wg.Wait()

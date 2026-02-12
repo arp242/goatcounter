@@ -3,6 +3,7 @@ package logscan
 import (
 	"context"
 	"io"
+	"maps"
 	"os"
 	"os/exec"
 	"reflect"
@@ -126,9 +127,7 @@ func TestNew(t *testing.T) {
 				}
 
 				w := make(RegexLine)
-				for k, v := range want[i] {
-					w[k] = v
-				}
+				maps.Copy(w, want[i])
 				switch f.Name() { // This is not in the file
 				case "combined":
 					delete(w, "host")

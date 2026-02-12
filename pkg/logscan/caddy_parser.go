@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/url"
+	"slices"
 	"time"
 )
 
@@ -52,10 +53,8 @@ func (p CaddyParser) Parse(line string) (Line, bool, error) {
 		return nil, false, err
 	}
 
-	for _, e := range p.excludePatterns {
-		if logEntry.matchesPattern(e) {
-			return nil, true, nil
-		}
+	if slices.ContainsFunc(p.excludePatterns, logEntry.matchesPattern) {
+		return nil, true, nil
 	}
 	return logEntry, false, nil
 }

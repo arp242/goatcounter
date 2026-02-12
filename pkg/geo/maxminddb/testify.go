@@ -49,7 +49,7 @@ func inEpsilon(t *testing.T, want, have any, epsilon float64) {
 		t.Errorf("relative error too high\nwant: %#v\nhave: %#v", epsilon, actualEpsilon)
 	}
 }
-func calcRelativeError(expected, actual interface{}) (float64, error) {
+func calcRelativeError(expected, actual any) (float64, error) {
 	af, aok := toFloat(expected)
 	bf, bok := toFloat(actual)
 	if !aok || !bok {
@@ -70,7 +70,7 @@ func calcRelativeError(expected, actual interface{}) (float64, error) {
 
 	return math.Abs(af-bf) / math.Abs(af), nil
 }
-func toFloat(x interface{}) (float64, bool) {
+func toFloat(x any) (float64, bool) {
 	var xf float64
 	xok := true
 

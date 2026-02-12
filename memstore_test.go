@@ -19,7 +19,7 @@ func TestMemstore(t *testing.T) {
 	ctx = gctest.Site(ctx, t, &site, nil)
 	ctx = WithSite(ctx, &site)
 
-	for i := 0; i < 2000; i++ {
+	for range 2000 {
 		Memstore.Append(gen(ctx))
 	}
 

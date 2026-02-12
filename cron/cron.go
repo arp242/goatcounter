@@ -61,7 +61,6 @@ func Start(ctx context.Context) {
 	l := log.Module("cron")
 
 	for _, t := range Tasks {
-		t := t
 		f := t.ID()
 		bgrun.NewTask("cron:"+f, 1, func(context.Context) error {
 			err := t.Fun(ctx)

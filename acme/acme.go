@@ -107,8 +107,8 @@ func Setup(db zdb.DB, flag string, dev bool) (*tls.Config, http.HandlerFunc, uin
 				dir      = "goatcounter-data/acme-secrets"
 				cacheSet bool
 			)
-			if c := strings.Index(f, ":"); c > -1 {
-				dir, cacheSet = f[c+1:], true
+			if _, after, ok := strings.Cut(f, ":"); ok {
+				dir, cacheSet = after, true
 			}
 			if !cacheSet {
 				if _, err := os.Stat("acme-secrets"); err == nil {

@@ -223,7 +223,7 @@ func (h website) openAPI(w http.ResponseWriter, r *http.Request) error {
 		if s := goatcounter.GetSite(r.Context()); s != nil {
 			url = s.URL(r.Context())
 		}
-		d = bytes.ReplaceAll(d, []byte(`spec-url=""`), []byte(fmt.Sprintf(`spec-url="%s/api.json"`, url)))
+		d = bytes.ReplaceAll(d, []byte(`spec-url=""`), fmt.Appendf(nil, `spec-url="%s/api.json"`, url))
 	}
 	return zhttp.Bytes(w, d)
 }

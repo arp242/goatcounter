@@ -29,7 +29,7 @@ func (l *Ints) Scan(v any) error {
 
 func (l Ints) MarshalText() ([]byte, error) {
 	v, err := l.Value()
-	return []byte(fmt.Sprintf("%s", v)), err
+	return fmt.Appendf(nil, "%s", v), err
 }
 
 // Floats stores a slice of []float64 as a comma-separated string.
@@ -51,7 +51,7 @@ func (l *Floats) Scan(v any) error {
 
 func (l Floats) MarshalText() ([]byte, error) {
 	v, err := l.Value()
-	return []byte(fmt.Sprintf("%s", v)), err
+	return fmt.Appendf(nil, "%s", v), err
 }
 
 // Strings stores a slice of []string as a comma-separated string.
@@ -107,5 +107,5 @@ func (l *Strings) Scan(v any) error {
 
 func (l Strings) MarshalText() ([]byte, error) {
 	v, err := l.Value()
-	return []byte(fmt.Sprintf("%s", v)), err
+	return fmt.Appendf(nil, "%s", v), err
 }

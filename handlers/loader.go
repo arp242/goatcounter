@@ -84,7 +84,7 @@ func (l *loaderT) sendJSON(r *http.Request, id zint.Uint128, data any) {
 	if c == nil {
 		// Wait for connection in cases where we send data before the frontend
 		// established a connection.
-		for i := 0; i < 1500; i++ {
+		for range 1500 {
 			time.Sleep(10 * time.Millisecond)
 			c, _ = l.conns.Get(id)
 			if c != nil {

@@ -36,7 +36,7 @@ func (r Result) Decode(v any) error {
 		return nil
 	}
 	rv := reflect.ValueOf(v)
-	if rv.Kind() != reflect.Ptr || rv.IsNil() {
+	if rv.Kind() != reflect.Pointer || rv.IsNil() {
 		return errors.New("result param must be a pointer")
 	}
 
@@ -90,7 +90,7 @@ func (r Result) DecodePath(v any, path ...any) error {
 		return nil
 	}
 	rv := reflect.ValueOf(v)
-	if rv.Kind() != reflect.Ptr || rv.IsNil() {
+	if rv.Kind() != reflect.Pointer || rv.IsNil() {
 		return errors.New("result param must be a pointer")
 	}
 	return r.decoder.decodePath(r.offset, path, rv)

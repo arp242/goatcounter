@@ -3,6 +3,7 @@ package logscan
 import (
 	"fmt"
 	"regexp"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -31,10 +32,8 @@ func (p RegexParser) Parse(line string) (Line, bool, error) {
 			parsed[p.names[i/2]] = v
 		}
 	}
-	for _, e := range p.exclude {
-		if parsed.matchesPattern(e) {
-			return nil, true, nil
-		}
+	if slices.ContainsFunc(p.exclude, parsed.matchesPattern) {
+		return nil, true, nil
 	}
 	// Normalize url/path
 	if u, ok := parsed["url"]; ok {

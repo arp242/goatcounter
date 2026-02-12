@@ -227,8 +227,7 @@ func cleanRefURL(ref string, refURL *url.URL) (string, bool) {
 	}
 
 	// Clean query parameters.
-	i := strings.Index(ref, "?")
-	if i == -1 {
+	if !strings.Contains(ref, "?") {
 		// No parameters so no work.
 		return strings.TrimLeft(refURL.String(), "/"), false
 	}

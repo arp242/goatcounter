@@ -321,7 +321,7 @@ func (row *ExportCSVRow) Read(line []string) error {
 		case reflect.Array:
 			zi, _ := zint.ParseUint128(v, 16)
 			f.Set(reflect.ValueOf(zi))
-		case reflect.Ptr:
+		case reflect.Pointer:
 			f.Set(reflect.New(f.Type().Elem()))
 			f.Elem().SetString(v)
 		case reflect.String:

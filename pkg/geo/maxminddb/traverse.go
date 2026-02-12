@@ -255,7 +255,7 @@ func (d *Data) Err() error {
 // v should be a pointer.
 func (d *Data) Data(v any) error {
 	rv := reflect.ValueOf(v)
-	if rv.Kind() != reflect.Ptr || rv.IsNil() {
+	if rv.Kind() != reflect.Pointer || rv.IsNil() {
 		return errors.New("result param must be a pointer")
 	}
 

@@ -34,11 +34,11 @@ func TestHitStats(t *testing.T) {
 	cmp := func(t *testing.T, want string, stats ...HitStats) {
 		t.Helper()
 
-		var got string
+		var got strings.Builder
 		for _, s := range stats {
-			got += string(zjson.MustMarshalIndent(s, "\t\t\t", "\t"))
+			got.WriteString(string(zjson.MustMarshalIndent(s, "\t\t\t", "\t")))
 		}
-		if d := ztest.Diff(got, want); d != "" {
+		if d := ztest.Diff(got.String(), want); d != "" {
 			t.Error(d)
 		}
 	}
@@ -308,7 +308,7 @@ func TestListSizes(t *testing.T) {
 	})
 
 	t.Run("ListSize", func(t *testing.T) {
-		var got string
+		var got strings.Builder
 		for _, w := range widths {
 			var s HitStats
 			err := s.ListSize(ctx, w.id, ztime.NewRange(now).To(now), PathFilter{}, 10, 0)
@@ -316,7 +316,7 @@ func TestListSizes(t *testing.T) {
 				t.Fatal(err)
 			}
 
-			got += string(zjson.MustMarshalIndent(s, "\t\t", "\t"))
+			got.WriteString(string(zjson.MustMarshalIndent(s, "\t\t", "\t")))
 		}
 
 		want := strings.ReplaceAll(`{
@@ -368,7 +368,7 @@ func TestListSizes(t *testing.T) {
 				}
 			]
 		}`, `\ufe0e`, "\ufe0e")
-		if d := ztest.Diff(got, want); d != "" {
+		if d := ztest.Diff(got.String(), want); d != "" {
 			t.Error(d)
 		}
 	})

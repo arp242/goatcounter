@@ -347,13 +347,13 @@ func indirect(result reflect.Value) reflect.Value {
 		// usefully addressable.
 		if result.Kind() == reflect.Interface && !result.IsNil() {
 			e := result.Elem()
-			if e.Kind() == reflect.Ptr && !e.IsNil() {
+			if e.Kind() == reflect.Pointer && !e.IsNil() {
 				result = e
 				continue
 			}
 		}
 
-		if result.Kind() != reflect.Ptr {
+		if result.Kind() != reflect.Pointer {
 			break
 		}
 
@@ -366,7 +366,7 @@ func indirect(result reflect.Value) reflect.Value {
 	return result
 }
 
-var sliceType = reflect.TypeOf([]byte{})
+var sliceType = reflect.TypeFor[[]byte]()
 
 func (d *decoder) unmarshalBytes(size, offset uint, result reflect.Value) (uint, error) {
 	value, newOffset := d.decodeBytes(size, offset)
@@ -585,7 +585,7 @@ func (d *decoder) unmarshalUint(
 	return newOffset, newUnmarshalTypeError(value, result.Type())
 }
 
-var bigIntType = reflect.TypeOf(big.Int{})
+var bigIntType = reflect.TypeFor[big.Int]()
 
 func (d *decoder) unmarshalUint128(size, offset uint, result reflect.Value) (uint, error) {
 	if size > 16 {

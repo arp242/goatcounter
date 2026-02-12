@@ -524,7 +524,7 @@ func setupGeo(v *zvalidate.Validator, geodbFlag string) *geoip2.Reader {
 func setupRatelimits(v *zvalidate.Validator, ratelimit string) handlers.Ratelimits {
 	h := handlers.NewRatelimits()
 	if ratelimit != "" {
-		for _, r := range strings.Split(ratelimit, ",") {
+		for r := range strings.SplitSeq(ratelimit, ",") {
 			name, spec, _ := strings.Cut(r, ":")
 			reqs, secs, _ := strings.Cut(spec, "/")
 
@@ -637,8 +637,8 @@ func flagDomain(v *zvalidate.Validator, domain string) (string, string, string, 
 	case 2, 3:
 		for i, d := range l {
 			d = strings.TrimSpace(d)
-			if p := strings.Index(d, ":"); p > -1 {
-				v.Domain("-domain", d[:p])
+			if before, _, ok := strings.Cut(d, ":"); ok {
+				v.Domain("-domain", before)
 			} else {
 				v.Domain("-domain", d)
 			}

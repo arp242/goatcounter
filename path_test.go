@@ -30,7 +30,7 @@ func TestPathsUpdateTitle(t *testing.T) {
 	}
 	wantTitle("original")
 
-	for i := 0; i < 10; i++ {
+	for range 10 {
 		p2 := Path{Path: "/x", Title: "new"}
 		err := p2.GetOrInsert(ctx)
 		if err != nil {

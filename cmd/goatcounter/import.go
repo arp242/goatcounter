@@ -433,7 +433,7 @@ func persistLog(hits <-chan handlers.APICountRequestHit, url, key string, silent
 		return
 	}
 	collect := make([]handlers.APICountRequestHit, l)
-	for i := 0; i < l; i++ {
+	for i := range l {
 		collect[i] = <-hits
 	}
 
