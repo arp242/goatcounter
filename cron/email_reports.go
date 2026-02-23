@@ -172,7 +172,7 @@ func reportTextSite(ctx context.Context, site goatcounter.Site, user goatcounter
 			return args, nil
 		}
 
-		_, err = args.Total.Totals(ctx, rng, goatcounter.PathFilter{}, goatcounter.GroupDaily, true)
+		err = args.Total.Totals(ctx, rng, goatcounter.PathFilter{}, goatcounter.GroupDaily, true)
 		if err != nil {
 			return args, err
 		}

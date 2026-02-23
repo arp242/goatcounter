@@ -1104,7 +1104,7 @@ func (h api) countTotal(w http.ResponseWriter, r *http.Request) error {
 	})
 	wg.Go(func() {
 		defer log.Recover(r.Context())
-		_, oErr = total.Totals(r.Context(), rng, includeIDs, goatcounter.GroupDaily, false)
+		oErr = total.Totals(r.Context(), rng, includeIDs, goatcounter.GroupDaily, false)
 	})
 	wg.Wait()
 	if tcErr != nil {

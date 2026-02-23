@@ -3,14 +3,11 @@ package goatcounter
 import (
 	"context"
 	"fmt"
-	"sort"
-	"time"
 
 	"github.com/lib/pq"
 	"zgo.at/errors"
 	"zgo.at/goatcounter/v2/pkg/db2"
 	"zgo.at/json"
-	"zgo.at/tz"
 	"zgo.at/zdb"
 	"zgo.at/zstd/zbool"
 	"zgo.at/zstd/zstrconv"
@@ -234,176 +231,47 @@ func (h *HitLists) List(
 const PathTotals = "TOTAL "
 
 // Totals gets the data for the "Totals" chart/widget.
-func (h *HitList) Totals(ctx context.Context, rng ztime.Range, pathFilter PathFilter, group Group, noEvents bool) (int, error) {
+func (h *HitList) Totals(ctx context.Context, rng ztime.Range, pathFilter PathFilter, group Group, noEvents bool) error {
 	var (
 		user                    = MustGetUser(ctx)
 		filterSQL, filterParams = pathFilter.SQL(ctx)
-		tc                      []struct {
-			Hour  time.Time `db:"hour"`
-			Total int       `db:"total"`
-		}
 	)
-	err := zdb.Select(ctx, &tc, "load:hit_list.Totals", filterParams, map[string]any{
+	err := zdb.Get(ctx, &h.Stats2, "load:hit_list.Totals", filterParams, map[string]any{
 		"site":      MustGetSite(ctx).ID,
 		"start":     rng.Start,
 		"end":       rng.End,
 		"filter":    filterSQL,
 		"no_events": noEvents,
+		"offset":    user.Settings.Timezone.Offset(),
+		"offset2":   fmt.Sprintf("%d minutes", user.Settings.Timezone.Offset()),
+		"sqlite":    zdb.SQLDialect(ctx) == zdb.DialectSQLite,
 	})
 	if err != nil {
-		return 0, errors.Wrap(err, "HitList.Totals")
+		return errors.Wrap(err, "HitList.Totals")
 	}
 
-	totalst := HitList{Path: PathTotals, Title: ""}
-	stats := make(map[string]HitListStat)
-	for _, t := range tc {
-		d := t.Hour.Format("2006-01-02")
-		hour, _ := zstrconv.ParseInt[int32](t.Hour.Format("15"), 10)
-		s, ok := stats[d]
-		if !ok {
-			s = HitListStat{
-				Day:    d,
-				Hourly: make([]int, 24),
-			}
-		}
-
-		s.Hourly[hour] += t.Total
-		totalst.Count += t.Total
-
-		stats[d] = s
-	}
-
-	max := 0
-	for _, v := range stats {
-		totalst.Stats = append(totalst.Stats, v)
-		if group.Hourly() {
-			for _, x := range v.Hourly {
-				if x > max {
-					max = x
+	for d := range rng.Add(user.Settings.Timezone.OffsetDuration()).Iter(ztime.Day) {
+		day := d.Format("2006-01-02")
+		st := HitListStat{Day: day, Hourly: make([]int, 24)}
+		for hour := range 24 {
+			k := fmt.Sprintf("%s %02d", day, hour)
+			n, ok := h.Stats2[k]
+			if ok {
+				st.Hourly[hour] = n
+				st.Daily += n
+				if !group.Daily() && st.Hourly[hour] > h.Max {
+					h.Max = st.Hourly[hour]
 				}
 			}
 		}
-	}
-
-	sort.Slice(totalst.Stats, func(i, j int) bool {
-		return totalst.Stats[i].Day < totalst.Stats[j].Day
-	})
-
-	hh := []HitList{totalst}
-	fillBlankDays(hh, rng)
-	applyOffset(hh, user.Settings.Timezone)
-
-	if group.Daily() {
-		for i := range hh[0].Stats {
-			for _, n := range hh[0].Stats[i].Hourly {
-				hh[0].Stats[i].Daily += n
-			}
-			if hh[0].Stats[i].Daily > max {
-				max = hh[0].Stats[i].Daily
-			}
+		if group.Daily() && st.Daily > h.Max {
+			h.Max = st.Daily
 		}
+		h.Count += st.Daily
+		h.Stats = append(h.Stats, st)
 	}
-
-	if max < 10 {
-		max = 10
-	}
-
-	*h = hh[0]
-	return max, nil
-}
-
-// The database stores everything in UTC, so we need to apply
-// the offset for HitLists.List()
-//
-// Let's say we have two days with an offset of UTC+2, this means we
-// need to transform this:
-//
-//	2019-12-05 → [0,0,0,0,0,0,0,0,0,0,0,4,7,0,0,0,0,0,0,0,0,0,1,0]
-//	2019-12-06 → [0,0,0,0,0,0,0,0,0,0,0,4,7,0,0,0,0,0,0,0,0,0,1,0]
-//	2019-12-07 → [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
-//
-// To:
-//
-//	2019-12-05 → [0,0,0,0,0,0,0,0,0,0,0,0,0,4,7,0,0,0,0,0,0,0,0,0]
-//	2019-12-06 → [1,0,0,0,0,0,0,0,0,0,0,0,0,4,7,0,0,0,0,0,0,0,0,0]
-//	2019-12-07 → [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
-//
-// And skip the first 2 hours of the first day.
-//
-// Or, for UTC-2:
-//
-//	2019-12-04 → [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
-//	2019-12-05 → [0,0,0,0,0,0,0,0,0,4,7,0,0,0,0,0,0,0,0,0,1,0,0,0]
-//	2019-12-06 → [0,0,0,0,0,0,0,0,0,4,7,0,0,0,0,0,0,0,0,0,1,0,0,0]
-//
-// And skip the last 2 hours of the last day.
-//
-// Offsets that are not whole hours (e.g. 6:30) are treated like 7:00. I don't
-// know how to do that otherwise.
-func applyOffset(hh HitLists, tz *tz.Zone) {
-	if len(hh) == 0 {
-		return
-	}
-
-	offset := tz.Offset()
-	if offset%60 != 0 {
-		offset += 30
-	}
-	offset /= 60
-
-	switch {
-	case offset > 0:
-		for i := range hh {
-			stats := hh[i].Stats
-
-			popped := make([]int, offset)
-			for i := range stats {
-				stats[i].Hourly = append(popped, stats[i].Hourly...)
-				o := len(stats[i].Hourly) - offset
-				popped = stats[i].Hourly[o:]
-				stats[i].Hourly = stats[i].Hourly[:o]
-			}
-			if len(hh[i].Stats) > 1 {
-				hh[i].Stats = stats[1:] // Overselect a day to get the stats for it, remove it.
-			}
-		}
-
-	case offset < 0:
-		offset = -offset
-
-		for i := range hh {
-			stats := hh[i].Stats
-
-			popped := make([]int, offset)
-			for i := len(stats) - 1; i >= 0; i-- {
-				stats[i].Hourly = append(stats[i].Hourly, popped...)
-				popped = stats[i].Hourly[:offset]
-				stats[i].Hourly = stats[i].Hourly[offset:]
-			}
-			hh[i].Stats = stats[:len(stats)-1] // Overselect a day to get the stats for it, remove it.
-		}
-	}
-}
-
-func fillBlankDays(hh HitLists, rng ztime.Range) {
-	for i := range hh {
-		var (
-			newStat []HitListStat
-			j       int
-		)
-		for day := range rng.Iter(ztime.Day) {
-			dayFmt := day.Format("2006-01-02")
-
-			if len(hh[i].Stats)-1 >= j && dayFmt == hh[i].Stats[j].Day {
-				newStat = append(newStat, hh[i].Stats[j])
-				j++
-			} else {
-				newStat = append(newStat, HitListStat{Day: dayFmt, Hourly: allDays})
-			}
-		}
-
-		hh[i].Stats = newStat
-	}
+	h.Stats2, h.Max, h.Path = nil, max(h.Max, 10), PathTotals
+	return nil
 }
 
 type TotalCount struct {

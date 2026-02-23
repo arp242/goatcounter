@@ -18,7 +18,6 @@ type TotalPages struct {
 
 	Align, NoEvents bool
 	Style           string
-	Max             int
 	Total           goatcounter.HitList
 }
 
@@ -48,7 +47,7 @@ func (w *TotalPages) SetSettings(s goatcounter.WidgetSettings) {
 }
 
 func (w *TotalPages) GetData(ctx context.Context, a Args) (more bool, err error) {
-	w.Max, err = w.Total.Totals(ctx, a.Rng, a.PathFilter, a.Group, w.NoEvents)
+	err = w.Total.Totals(ctx, a.Rng, a.PathFilter, a.Group, w.NoEvents)
 	w.loaded = true
 	return false, err
 }
@@ -90,7 +89,7 @@ func (w TotalPages) RenderHTML(ctx context.Context, shared SharedData) (string, 
 		Style string
 	}{ctx, shared.Site, shared.User, w.id, w.loaded, w.err,
 		w.Align, w.NoEvents,
-		w.Total, shared.Args.Group, w.Max,
+		w.Total, shared.Args.Group, w.Total.Max,
 		shared.Total, shared.TotalEvents,
 		w.Style}
 }
