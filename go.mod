@@ -32,7 +32,7 @@ require (
 	zgo.at/runewidth v0.1.0 // indirect
 	zgo.at/slog_align v0.0.0-20251129094707-bf509eca6089
 	zgo.at/termtext v1.5.0
-	zgo.at/tz v0.0.0-20251201071354-238b46ef6739
+	zgo.at/tz v0.0.0-20260223142357-2896be26bea0
 	zgo.at/z18n v0.0.0-20251230011627-ee972741a754
 	zgo.at/zcache/v2 v2.4.1
 	zgo.at/zdb v0.0.0-20260203050226-1be9d14840b1
@@ -41,7 +41,7 @@ require (
 	zgo.at/zhttp v0.0.0-20251201061952-9a43cabb6d05
 	zgo.at/zli v0.0.0-20251226224229-7bb9a5cf3265
 	zgo.at/zprof v0.0.0-20251228192741-d31275fbf5af
-	zgo.at/zstd v0.0.0-20260108115308-04b7db162be2
+	zgo.at/zstd v0.0.0-20260223143114-826b370d029b
 	zgo.at/ztpl v0.0.0-20250628022642-3b2c314e8e05
 	zgo.at/zvalidate v0.0.0-20250622183046-6812c1c79e1a
 )

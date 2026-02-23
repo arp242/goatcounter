@@ -194,33 +194,11 @@ func (h *HitLists) List(
 	}
 	hh := *h
 
-	// Should Never Happen™ but if it does the below loop will never break, so
-	// be safe.
-	if rng.Start.After(rng.End) {
-		return 0, false, nil
-	}
-
 	var totalDisplay int
 	for i := range hh {
-		// TODO: add iterator or something to ztime.Range
-		var (
-			off    = time.Duration(user.Settings.Timezone.Offset()) * time.Minute
-			days   = make([]string, 0, 32)
-			day    = rng.Start.Add(off).Add(-24 * time.Hour)
-			endFmt = rng.End.Add(off).Format("2006-01-02")
-		)
-		for {
-			day = day.Add(24 * time.Hour)
-			dayFmt := day.Format("2006-01-02")
-			days = append(days, dayFmt)
-			if dayFmt == endFmt {
-				break
-			}
-		}
-
-		// Fill in Stats, including hours/days where there are no hits.
-		hh[i].Stats = make([]HitListStat, 0, len(days))
-		for _, day := range days {
+		hh[i].Stats = make([]HitListStat, 0, 7)
+		for d := range rng.Add(user.Settings.Timezone.OffsetDuration()).Iter(ztime.Day) {
+			day := d.Format("2006-01-02")
 			st := HitListStat{Day: day, Hourly: make([]int, 24)}
 			for hour := range 24 {
 				k := fmt.Sprintf("%s %02d", day, hour)
@@ -403,22 +381,12 @@ func applyOffset(hh HitLists, tz *tz.Zone) {
 }
 
 func fillBlankDays(hh HitLists, rng ztime.Range) {
-	// Should Never Happen™ but if it does the below loop will never break, so
-	// be safe.
-	if rng.Start.After(rng.End) {
-		return
-	}
-
-	endFmt := rng.End.Format("2006-01-02")
 	for i := range hh {
 		var (
-			day     = rng.Start.Add(-24 * time.Hour)
 			newStat []HitListStat
 			j       int
 		)
-
-		for {
-			day = day.Add(24 * time.Hour)
+		for day := range rng.Iter(ztime.Day) {
 			dayFmt := day.Format("2006-01-02")
 
 			if len(hh[i].Stats)-1 >= j && dayFmt == hh[i].Stats[j].Day {
@@ -426,9 +394,6 @@ func fillBlankDays(hh HitLists, rng ztime.Range) {
 				j++
 			} else {
 				newStat = append(newStat, HitListStat{Day: dayFmt, Hourly: allDays})
-			}
-			if dayFmt == endFmt {
-				break
 			}
 		}
 

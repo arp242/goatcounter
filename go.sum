@@ -69,8 +69,8 @@ zgo.at/slog_align v0.0.0-20251129094707-bf509eca6089 h1:RQKpOPqhiheg/xI3Srn8UtTH
 zgo.at/slog_align v0.0.0-20251129094707-bf509eca6089/go.mod h1:EUS70SYZRKBqYL2iWwlNWYWJIzDRduUrJ0n/Kh3QQH8=
 zgo.at/termtext v1.5.0 h1:4p9GVUDYUR8oWvpxOZsO5ZrNSkA99bp8gXNKxKj+Kl0=
 zgo.at/termtext v1.5.0/go.mod h1:AcdAAiydkqSFadljJaEj9jv7bpyJxfQqGtPWyZCLenQ=
-zgo.at/tz v0.0.0-20251201071354-238b46ef6739 h1:2HCgNQgRC+478OHl8XE76p8hmEoEzOI2DE9qunYRWg4=
-zgo.at/tz v0.0.0-20251201071354-238b46ef6739/go.mod h1:UMT8M059Fm0DBlbdu68P5oBkhKeAZDAxTqHcsJ+Qd80=
+zgo.at/tz v0.0.0-20260223142357-2896be26bea0 h1:MdEWMPYLH2f85nV8kb5VL6+Xb/BaT/wQtgyKgzwpKZI=
+zgo.at/tz v0.0.0-20260223142357-2896be26bea0/go.mod h1:AFua0GUgfi3prdr/wUbDslcPLMzX1HHrSMxEV82xAtU=
 zgo.at/z18n v0.0.0-20251230011627-ee972741a754 h1:/FDLHMOx/9HAp/AwwXmdKQ6Iy1kSu/eOcJppYXP3hY4=
 zgo.at/z18n v0.0.0-20251230011627-ee972741a754/go.mod h1:8hDha9m0vUNJycmdcZDuHjMaI4meSeny2K/BMYcYPnk=
 zgo.at/zcache/v2 v2.4.1 h1:Dfjoi8yI0Uq7NCc4lo2kaQJJmp9Mijo21gef+oJstbY=
@@ -87,8 +87,8 @@ zgo.at/zli v0.0.0-20251226224229-7bb9a5cf3265 h1:lF6LBMPq3zp1y84toTcZNkeRHx1ioK3
 zgo.at/zli v0.0.0-20251226224229-7bb9a5cf3265/go.mod h1:0jjx+AGEkWOOQ0NtzbMnpko+H2G+aTg8mfCKqoc/BuA=
 zgo.at/zprof v0.0.0-20251228192741-d31275fbf5af h1:rpvocjI02RjW24xZn4cvrnJxt5DxEhthc57L8iBFArI=
 zgo.at/zprof v0.0.0-20251228192741-d31275fbf5af/go.mod h1:KQiiqOlPp29Hyj3RmiIzydTHhSo0GyNZx3qSzHKZZWg=
-zgo.at/zstd v0.0.0-20260108115308-04b7db162be2 h1:kRY2rUH4QnUy7W+Ns/VYE8VxwMTsH8sLdN7XRvswc9A=
-zgo.at/zstd v0.0.0-20260108115308-04b7db162be2/go.mod h1:dyNG54iOA/2VkhABg0GsVOZImH35iLeJ0OpVjHUKbyA=
+zgo.at/zstd v0.0.0-20260223143114-826b370d029b h1:FtG55RY9FOrx1TYX4+b2dn5A8S4ayrBkCirGaQtLbaI=
+zgo.at/zstd v0.0.0-20260223143114-826b370d029b/go.mod h1:5vR5jYems3c7xfd8nHny5qMh67gbZwl8IockSF4pDSI=
 zgo.at/ztpl v0.0.0-20250628022642-3b2c314e8e05 h1:g+A+rxlz0GrA3nXtLkwjR6i+eUJoczurAQCfKjSeG6k=
 zgo.at/ztpl v0.0.0-20250628022642-3b2c314e8e05/go.mod h1:p1QiGvNPY5YJ3DAXzZtgAga+SG+19Ycr+TLzvGo2xZo=
 zgo.at/zvalidate v0.0.0-20250622183046-6812c1c79e1a h1:FZp1uH/MXWApT9dQ09x8d2dAnITcyJ9bgbxYVzEjgyU=
