@@ -49,6 +49,7 @@
 			msg.match(/Cannot redefine property: (googletag|ethereum)/) !== null ||
 			msg.indexOf('ResizeObserver loop completed with undelivered notifications') !== -1 ||
 			msg.indexOf("Can't find variable: requestIdleCallback") !== -1 ||
+			msg.indexOf('Permission denied to access property "apply"') !== 1 ||
 
 			// Only from bot, never any details.
 			msg.indexOf('Exception invoking lineTo') !== -1
