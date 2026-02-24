@@ -1072,7 +1072,6 @@ Martin
   default = "你确定要删除站点 %(sitename)？<br>这将<strong>删除所有关联数据</strong>，并且它是<strong>当前站点</strong>。"
 
 ["p/rm-hits-help"]
-  default = "匹配是忽略大小写的。以 <code>%</code> 作为通配符；例如 <code>/page%.html</code> 匹配以 <code>/page</code> 开头并且以 <code>.html</code> 结尾的所有路径。<code>_</code> 匹配任意字符；例如 <code>_.html</code> 匹配 <code>a.html</code> 和 <code>b.html</code>。以 <code>\\%</code> 和 <code>\\_</code> 的形式使用这两个字符的字面意。"
 
 ["p/rm-pageview-match"]
   default = "以下路径匹配 %(query)："

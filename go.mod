@@ -21,7 +21,7 @@ require (
 	github.com/lib/pq v1.11.1
 	github.com/teamwork/reload v1.4.2
 	zgo.at/blackmail v0.0.0-20251210171630-f1b7a42e3f87
-	zgo.at/errors v1.4.0
+	zgo.at/errors v1.5.0
 	zgo.at/follow v0.0.0-20250412000721-fecf5127a123
 	zgo.at/gadget v1.0.0
 	zgo.at/guru v1.2.0
@@ -35,7 +35,7 @@ require (
 	zgo.at/tz v0.0.0-20260223142357-2896be26bea0
 	zgo.at/z18n v0.0.0-20251230011627-ee972741a754
 	zgo.at/zcache/v2 v2.4.1
-	zgo.at/zdb v0.0.0-20260203050226-1be9d14840b1
+	zgo.at/zdb v0.0.0-20260224134437-9b2b27f2fb77
 	zgo.at/zdb-drivers/go-sqlite3 v0.0.0-20260129135936-fde4e384e5ae
 	zgo.at/zdb-drivers/pq v0.0.0-20260129135936-fde4e384e5ae
 	zgo.at/zhttp v0.0.0-20251201061952-9a43cabb6d05

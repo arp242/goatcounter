@@ -1086,12 +1086,6 @@ Questa azione <strong>cancellerà tutti i dati assocuati</strong> ed è il <stro
 """
 
 ["p/rm-hits-help"]
-  default = """
-Le corrispondenze sono case insensitive. Supporta <code>%</code> come wildcard; es.
-<code>/page%.html</code> corrisponde a tutto ciò che inizia con <code>/page</code> e
-termina in <code>.html</code>. <code>_</code> corrisponde ad un qualunque carattere; es.
-<code>_.html</code> corrisponde a <code>a.html</code> e <code>b.html</code>. Usa <code>\\%</code> e <code>\\_</code> per utilizzare i caratteri senza semantiche particolari.
-"""
 
 ["p/rm-pageview-match"]
   default = "I path seguenti corrispondono a %(query):"

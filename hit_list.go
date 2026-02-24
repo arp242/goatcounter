@@ -6,6 +6,7 @@ import (
 	"sort"
 	"time"
 
+	"github.com/lib/pq"
 	"zgo.at/errors"
 	"zgo.at/goatcounter/v2/pkg/db2"
 	"zgo.at/json"
@@ -147,6 +148,10 @@ func (h *HitLists) ListPathsLike(ctx context.Context, search string, matchTitle,
 		"match_title": matchTitle,
 		"match_case":  matchCase,
 	})
+	// pq: LIKE pattern must not end with escape character (22025)
+	if pqErr, ok := errors.AsType[*pq.Error](err); ok && pqErr.Code == "22025" {
+		err = nil
+	}
 	return errors.Wrap(err, "Hits.ListPathsLike")
 }
 

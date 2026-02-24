@@ -1069,7 +1069,6 @@ Comenzar es fácil, sólo añade el siguiente JavaScript en cualquier parte de l
   default = "¿Estás seguro de que quieres remover el sitio %(sitename)?<br>Esto va a <strong>eliminar todos los datos</strong> y es el <strong>sitio actual</strong>."
 
 ["p/rm-hits-help"]
-  default = "Las coincidencias son sensibles a mayúsculas y minúsculas. Se puede usar <code>%</code> como un comodín; por ej. <code>/pagina%.html</code> coincide con todo lo que comienza con <code>/pagina</code> y termina con <code>.html</code>, <code>_</code> coincide sólo un caracter, por ej. <code>_.html</code> sólo coincide con <code>a.html</code>, <code>b.html</code>, etc. Usa <code>\\%</code> y <code>\\_</code> para los caracteres literales sin significado especial."
 
 ["p/rm-pageview-match"]
   default = "Las siguientes rutas coinciden con %(query):"

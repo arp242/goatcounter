@@ -1075,11 +1075,6 @@ Dadurch werden <strong>alle mit der Website verknüpften Daten</strong> gelösch
 """
 
 ["p/rm-hits-help"]
-  default = """
-Treffer sind unäbhangig von Groß-/Kleinschreibung. Das Zeichen <code>%</code> wird als Wildcard verwendet, z.B. <code>/page%.html</code> findet alle Einträge, die mit <code>/page</code> anfangen und mit <code>.html</code> enden. <code>_</code> findet genau ein beliebiges Zeichen, z.B. 
-findet <code>_.html</code> die Treffer <code>a.html</code> und <code>b.html</code>. Mit
-<code>\\%</code> und <code>\\_</code> können Sie diese Zeichen ohne diese Bedeutungen suchen.
-"""
 
 ["p/rm-pageview-match"]
   default = "Diese Pfade werden von %(query) geprüft:"

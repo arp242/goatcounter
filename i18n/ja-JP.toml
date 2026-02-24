@@ -1062,7 +1062,6 @@ Martin
 """
 
 ["p/rm-hits-help"]
-  default = "大文字と小文字は区別されません。ワイルドカードとして <code>%</code> に対応しています (例: <code>/page%.html</code> は <code>/page</code> で始まり <code>.html</code> で終わるものすべてに一致します)。<code>_</code> は任意の文字に一致します (例: <code>_.html</code> は <code>a.html</code> や <code>b.html</code> に一致します)。特別な意味を持たない文字列としては <code>\\%</code> や <code>\\_</code> を使用できます。"
 
 ["p/rm-pageview-match"]
   default = "以下のパスが %(query) に一致します:"

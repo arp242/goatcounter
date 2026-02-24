@@ -1079,14 +1079,6 @@ Bu, <strong>şu anki geçerli site</strong> ve <strong>bu siteyle ilişkili tüm
 """
 
 ["p/rm-hits-help"]
-  default = """
-Eşleşmeler büyük/küçük harfe duyarsızdır. <code>%</code> karakterini joker karakter olarak destekler, örn.;
-<code>/page%.html</code> satırı <code>/page</code> ile başlayan ve <code>.html</code> ile biten
-her şeyle eşleşir. <code>_</code> karakteri herhangi bir karakterle eşleşir, örn.;
-<code>_.html</code> satırı <code>a.html</code> ve <code>b.html</code> ile eşleşir.
-<code>\\%</code> ve <code>\\_</code> kodlarını özel anlamı olmayan tam karakter
-eşleşmeleri için kullanın.
-"""
 
 ["p/rm-pageview-match"]
   default = "Aşağıdaki yollar %(query) ile eşleşiyor:"

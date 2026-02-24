@@ -541,3 +541,69 @@ func TestHitListSiteTotalUnique(t *testing.T) {
 		}
 	}
 }
+
+// func (h *HitLists) ListPathsLike(ctx context.Context, search string, matchTitle, matchCase bool) error {
+func TestHitListsListPathsLike(t *testing.T) {
+	str := func(h HitLists) string {
+		var b strings.Builder
+		for i, hh := range h {
+			if i > 0 {
+				b.WriteString(", ")
+			}
+			b.WriteString(hh.Path)
+		}
+		return b.String()
+	}
+
+	ctx := gctest.DB(t)
+	gctest.StoreHits(ctx, t, false,
+		Hit{FirstVisit: true, Path: "/"},
+		Hit{FirstVisit: true, Path: "/hello"},
+		Hit{FirstVisit: true, Path: "/hello\\"},
+		Hit{FirstVisit: true, Path: "/hey_there"},
+		Hit{FirstVisit: true, Path: "/per%cent"},
+		Hit{FirstVisit: true, Path: "/back\\slash"},
+	)
+
+	tests := []struct {
+		search        string
+		title, casing bool
+		want          string
+	}{
+		// Exact matches
+		{``, false, false, ``},
+		{`/`, false, false, `/`},
+
+		// Wildcards
+		{`/h%`, false, false, `/hello, /hello\, /hey_there`},
+		{`/heythere%`, false, false, ``},
+		{`/hey_there`, false, false, `/hey_there`},
+		{`/he__there`, false, false, `/hey_there`},
+
+		// Allow escaping _ and % with \
+		{`/hey\_there`, false, false, `/hey_there`},
+		{`/%%%`, false, false, `/, /hello, /hello\, /hey_there, /per%cent, /back\slash`},
+		{`/%\%%`, false, false, `/per%cent`},
+
+		// Backslash that doesn't escape
+		{`/back\slash`, false, false, ``},
+		{`/back\\slash`, false, false, `/back\slash`},
+		{`/hello\`, false, false, ``},
+		{`/hello\\`, false, false, `/hello\`},
+	}
+
+	t.Parallel()
+	for _, tt := range tests {
+		t.Run("", func(t *testing.T) {
+			var list HitLists
+			err := list.ListPathsLike(ctx, tt.search, tt.title, tt.casing)
+			if err != nil {
+				t.Fatal(err)
+			}
+			have := str(list)
+			if have != tt.want {
+				t.Errorf("\nhave: %s\nwant: %s", have, tt.want)
+			}
+		})
+	}
+}

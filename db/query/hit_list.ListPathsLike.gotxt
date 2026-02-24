@@ -2,11 +2,11 @@ with x as (
 	select path_id, path, title from paths
 	where site_id = :site and (
 		{{if .match_case}}
-			path like :search
-			{{if .match_title}}or title like :search{{end}}
+			path like :search escape '\'
+			{{if .match_title}}or title like :search escape '\'{{end}}
 		{{else}}
-			lower(path) like lower(:search)
-			{{if .match_title}}or lower(title) like lower(:search){{end}}
+			lower(path) like lower(:search) escape '\'
+			{{if .match_title}}or lower(title) like lower(:search) escape '\'{{end}}
 		{{end}}
 	)
 )

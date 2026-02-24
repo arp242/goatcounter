@@ -1140,14 +1140,6 @@ site</strong>.
 """
 
 ["p/rm-hits-help"]
-  default = """
-Zoeken is hoofdletterongevoelig. Gebruik <code>%</code> als een wildcard; b.v.
-<code>/page%.html</code> matched alles dat met <code>/page</code> begint en op
-<code>.html</code> eindigt. <code>_</code> matched elk karakter; b.v.
-<code>_.html</code> matched <code>a.html</code> en <code>b.html</code>. Gebruik
-<code>\\%</code> en <code>\\_</code> om deze tekens te gebruiken zonder speciale
-betekenis.
-"""
 
 ["p/rm-pageview-match"]
   default = "De volgende paden werden gevonden voor %(query):"

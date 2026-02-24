@@ -1078,10 +1078,6 @@ Ini akan <strong>menghapus semua data terkait</strong> dan <strong>ini adalah si
 """
 
 ["p/rm-hits-help"]
-  default = """
-Pencocokan tidak dipengaruhi oleh huruf besar/kecil. Mendukung <code>%</code> sebagai kartu liar; misalnya
-<code>/page%.html</code> mencocokkan semuanya yang mulai dengan <code>/page</code> dan berakhir dengan <code>.html</code>. <code>_</code> mencocokkan dengan karakter apa pun; misalnya <code>_.html</code> mencocokkan <code>a.html</code> dan <code>b.html</code>. Gunakan <code>\\%</code> dan <code>\\_</code> untuk karakter harfiah tanpa arti yang khusus.
-"""
 
 ["p/rm-pageview-match"]
   default = "Jalur berikut ini cocok dengan %(query):"

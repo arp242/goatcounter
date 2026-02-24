@@ -1713,12 +1713,14 @@ This will <strong>remove all associated data</strong> and is the <strong>current
 ["p/rm-hits-help"]
   loc     = ["tpl/settings_purge.gohtml:8"]
   default = """
-Matches are case insensitive. Supports <code>%</code> as a wildcard; e.g.
-<code>/page%.html</code> matches everything starting with <code>/page</code> and
-ending with <code>.html</code>. <code>_</code> matches any character; e.g.
-<code>_.html</code> matches <code>a.html</code> and <code>b.html</code>. Use
-<code>\\%</code> and <code>\\_</code> for the literal characters without special
-meaning.
+Matches are case insensitive. Supports the following special characters:
+
+<ul>
+<li><code>%</code> is a wildcard; e.g. <code>/page%.html</code> matches everything starting with <code>/page</code> and ending with <code>.html</code>.</li>
+<li><code>_</code> matches any character; e.g. <code>_.html</code> matches <code>a.html</code> and <code>b.html</code>.</li>
+<li>Use <code>\\%</code> and <code>\\_</code> for the literal characters without special meaning.</li>
+<li>Use two backslahes (<code>\\\\</code>) to match a single backslash.</li>
+</ul>
 """
 
 ["p/rm-pageview-match"]

@@ -1081,10 +1081,6 @@ Toto <strong>vymaže všetky pridružené údaje</strong> a je to <strong>aktuá
 """
 
 ["p/rm-hits-help"]
-  default = """
-Pri hľadaní nezáleží na malých a veľkých písmenách. Podporuje <code>%</code> ako wildcard; napr.
-<code>/page%.html</code> nájde všetko začínajúce na <code>/page</code> a končiace na <code>.html</code>. <code>_</code> nájde zhodu s akýmkoľvek znakom; napr. <code>_.html</code> nájde <code>a.html</code> a <code>b.html</code>. Použite <code>\\%</code> a <code>\\_</code> pre znaky bez špeciálneho významu.
-"""
 
 ["p/rm-pageview-match"]
   default = "Tieto cesty sa zhodujú s %(query):"
