@@ -78,18 +78,19 @@ jobs:
           run:     'GOTOOLCHAIN=auto go test -timeout=3m ./...'
 
   # NetBSD SQlite
-  netbsd:
-    runs-on: 'ubuntu-latest'
-    name:    'test / netbsd / sqlite'
-    timeout-minutes: 20
-    steps:
-      - uses: 'actions/checkout@v6'
-      - name: 'test / netbsd / sqlite'
-        id:   'netbsd'
-        uses: 'vmactions/netbsd-vm@v1'
-        with:
-          prepare: 'pkg_add go'
-          run:     '/usr/pkg/bin/go??? test -race -timeout=3m ./...'
+  # Disabled because it frequently times out?
+  #netbsd:
+  #  runs-on: 'ubuntu-latest'
+  #  name:    'test / netbsd / sqlite'
+  #  timeout-minutes: 20
+  #  steps:
+  #    - uses: 'actions/checkout@v6'
+  #    - name: 'test / netbsd / sqlite'
+  #      id:   'netbsd'
+  #      uses: 'vmactions/netbsd-vm@v1'
+  #      with:
+  #        prepare: 'pkg_add go'
+  #        run:     '/usr/pkg/bin/go??? test -race -timeout=3m ./...'
 
   # illumos SQLite
   illumos:
