@@ -486,7 +486,7 @@ func (h website) help(w http.ResponseWriter, r *http.Request) error {
 		dc = Site(r.Context()).SchemelessURL(r.Context())
 	}
 
-	cp := chi.URLParam(r, "*")
+	cp := strings.TrimLeft(chi.URLParam(r, "*"), "/")
 	if cp == "" {
 		return zhttp.MovedPermanently(w, "/help/start")
 	}
