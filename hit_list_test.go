@@ -592,7 +592,6 @@ func TestHitListsListPathsLike(t *testing.T) {
 		{`/hello\\`, false, false, `/hello\`},
 	}
 
-	t.Parallel()
 	for _, tt := range tests {
 		t.Run("", func(t *testing.T) {
 			var list HitLists
