@@ -6,9 +6,6 @@ There are two ways to run this: as hosted service on [goatcounter.com][www], or
 run it on your own server. The source code is completely Open Source/Free
 Software, and it can be self-hosted without restrictions.
 
-See [docs/rationale.md](docs/rationale.md) for some more details on the *"why?"*
-of this project.
-
 There's a live demo at [https://stats.arp242.net](https://stats.arp242.net).
 
 Please consider [contributing financially][sponsor].
@@ -96,8 +93,10 @@ yet.
 
 Both SQLite and PostgreSQL are supported. SQLite should work well for most
 smaller sites, but PostgreSQL gives better performance especially for larger
-sites. There are [some benchmarks over here][bench] to give some indication of
-what performance to expect from SQLite and PostgreSQL.
+sites. The main bottleneck is not so much the number of pageviews, but how
+spread out they are over different pages (10 million pageviews spread out over 5
+pages is quite fast even on SQLite, but spread out over 1 million different
+pages is much slower).
 
 To create the first site, use the wizard on http://localhost:8080 or the CLI
 with:
@@ -114,8 +113,6 @@ production you probably want something like:
     % goatcounter serve -listen=:443 -tls=tls,rdr,acme
 
 See `goatcounter help serve` for details.
-
-[bench]: https://github.com/arp242/goatcounter/blob/main/docs/benchmark.md
 
 ### PostgreSQL
 To use PostgreSQL, run GoatCounter with a custom `-db` flag. For example:
