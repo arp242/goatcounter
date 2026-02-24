@@ -33,7 +33,7 @@ type (
 		Offset      int
 		PathFilter  goatcounter.PathFilter
 		Group       goatcounter.Group
-		ForcedGroup bool
+		AllowGroups goatcounter.Groups
 		ShowRefs    goatcounter.PathID
 	}
 

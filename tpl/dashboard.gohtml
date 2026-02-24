@@ -129,23 +129,25 @@
 
 			<span id="dash-select-group" class="group-{{.View.Group}}">
 				{{.T `nav-dash/view-by|View by:`}}
-				  <button class="link" name="group" value="hour"
-					{{if and .ForcedGroup (gt .View.Group 0)}}disabled
-						title="{{.T "nav-dash/forced-daily|Cannot use the hourly view for a time range of more than 90 days"}}"
-					{{end}}
-				  >{{.T "nav-dash/hour|hour"}}</button>
-				· <button class="link" name="group" value="day"
-					{{if and .ForcedGroup (lt .View.Group 1)}}disabled
-						title="{{.T "nav-dash/forced-hourly|Cannot use the daily view for a time range of less than 7 days"}}"
-					{{end}}
-				  >{{.T "nav-dash/day|day"}}</button>
-				{{/*
-				· <button class="link" name="group" value="week"
-					{{if and .ForcedGroup (lt .View.Group 1)}}disabled
-						title="disabled"
-					{{end}}
-				  >{{.T "nav-dash/day|day"}}</button>
-				*/}}
+               {{$dot := ""}}
+               {{if .AllowGroups.Hourly}}
+                   <button class="link" name="group" value="hour">{{.T "nav-dash/hour|hour"}}</button>
+                   {{$dot = "· "}}
+               {{end}}
+               {{if .AllowGroups.Daily}}
+                   {{$dot}}<button class="link" name="group" value="day">{{.T "nav-dash/day|day"}}</button>
+                   {{$dot = "· "}}
+               {{end}}
+			   {{/*
+               {{if .AllowGroups.Weekly}}
+                   {{$dot}}<button class="link" name="group" value="week">{{.T "nav-dash/week|week"}}</button>
+                   {{$dot = "· "}}
+               {{end}}
+               {{if .AllowGroups.Monthly}}
+                   {{$dot}}<button class="link" name="group" value="month">{{.T "nav-dash/month|month"}}</button>
+               {{end}}
+			   */}}
+               <input type="hidden" name="group" value="{{.View.Group}}">
 			</span>
 		</div>
 	</div>

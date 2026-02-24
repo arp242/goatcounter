@@ -3,6 +3,7 @@ package goatcounter
 import (
 	"context"
 	"fmt"
+	"slices"
 
 	"github.com/lib/pq"
 	"zgo.at/errors"
@@ -44,12 +45,15 @@ func (g Group) String() string {
 	return "hour"
 }
 
+type Groups []Group
+
+func (g Groups) Hourly() bool { return slices.Contains(g, GroupHourly) }
+func (g Groups) Daily() bool  { return slices.Contains(g, GroupDaily) }
+
 const (
 	GroupHourly = Group(iota)
 	GroupDaily
 )
-
-var Groups = []Group{GroupHourly, GroupDaily}
 
 type HitList struct {
 	// Number of visitors for the selected date range.
@@ -151,8 +155,6 @@ func (h *HitLists) ListPathsLike(ctx context.Context, search string, matchTitle,
 	}
 	return errors.Wrap(err, "Hits.ListPathsLike")
 }
-
-var allDays = []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 
 // List the top paths for this site in the given time period.
 func (h *HitLists) List(
