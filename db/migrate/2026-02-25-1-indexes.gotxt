@@ -1,0 +1,34 @@
+create index "ref_counts#hour"            on ref_counts {{psql "using brin"}}(hour);
+create index "ref_counts#site_id"         on ref_counts(site_id);
+
+create index "browser_stats#day"          on browser_stats {{psql "using brin"}}(day);
+create index "browser_stats#site_id"      on browser_stats(site_id);
+create index "browser_stats#browser_id"   on browser_stats(browser_id);
+
+create index "system_stats#day"           on system_stats {{psql "using brin"}}(day);
+create index "system_stats#site_id"       on system_stats(site_id);
+create index "system_stats#system_id"     on system_stats(system_id);
+
+create index "location_stats#day"         on location_stats {{psql "using brin"}}(day);
+create index "location_stats#site_id"     on location_stats(site_id);
+create index "location_stats#location"    on location_stats(location);
+
+create index "size_stats#day"             on size_stats {{psql "using brin"}}(day);
+create index "size_stats#site_id"         on size_stats(site_id);
+create index "size_stats#width"           on size_stats(width);
+
+create index "language_stats#day"         on language_stats {{psql "using brin"}}(day);
+create index "language_stats#site_id"     on language_stats(site_id);
+create index "language_stats#language"    on language_stats(language);
+
+create index "campaign_stats#day"         on campaign_stats {{psql "using brin"}}(day);
+create index "campaign_stats#site_id"     on campaign_stats(site_id);
+create index "campaign_stats#campaign_id" on campaign_stats(campaign_id);
+
+drop index "ref_counts#site_id#hour";
+drop index "browser_stats#site_id#browser_id#day";
+drop index "system_stats#site_id#system_id#day";
+drop index "location_stats#site_id#day";
+drop index "size_stats#site_id#day";
+drop index "language_stats#site_id#day";
+drop index "campaign_stats#site_id#day";
