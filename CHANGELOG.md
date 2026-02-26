@@ -6,6 +6,8 @@ latest commit on the `main` branch.
 
 unreleased
 ----------
+The default PostgreSQL container in compose.yaml was upgraded from PostgreSQL 17
+to 18, which means you'll have to do a dump/restore or use pg_upgrade.
 
 ### Features
 
@@ -17,6 +19,9 @@ unreleased
 ### Fixes
 
 - Improve performance of filter with a large amount (100,000s) of paths.
+
+- Optimise some indexes to speed up (very) large instances (such as
+  goatcounter.com).
 
 2025-12-15 v2.7.0
 -----------------

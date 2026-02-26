@@ -7,9 +7,9 @@ volumes:
 services:
   # PostgreSQL, suitable for running the tests or GoatCounter.
   postgres:
-    image:    'postgres:17-alpine'
+    image:    'postgres:18-alpine'
     ports:    ['127.0.0.1:5432:5432']
-    volumes:  ['postgres-data:/var/lib/postgresql/data']
+    volumes:  ['postgres-data:/var/lib/postgresql']
     shm_size: '1gb'
     environment:
       'POSTGRES_USER':     'goatcounter'
