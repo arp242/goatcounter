@@ -845,11 +845,6 @@ Martin
   </div>
 """
 
-["nav-dash/forced-daily"]
-  default = "No se puede usar la vista de cada hora para un rango de tiempo de más de 90 días"
-
-["nav-dash/forced-hourly"]
-
 ["nav-dash/forward"]
   default = "siguiente"
 

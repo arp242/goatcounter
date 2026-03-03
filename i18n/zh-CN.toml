@@ -850,11 +850,6 @@ Martin
   </div>
 """
 
-["nav-dash/forced-daily"]
-  default = "无法对 90 天以上的时间范围应用小时视图"
-
-["nav-dash/forced-hourly"]
-
 ["nav-dash/forward"]
   default = "前进"
 

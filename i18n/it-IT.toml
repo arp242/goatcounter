@@ -850,11 +850,6 @@ La verifica è effettuata ogni 2 ore.
   </div>
 """
 
-["nav-dash/forced-daily"]
-  default = "Non è possibile utilizzare viste orarie per un range superiore a 90 giorni"
-
-["nav-dash/forced-hourly"]
-
 ["nav-dash/forward"]
   default = "avanti"
 

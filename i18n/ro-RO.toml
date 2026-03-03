@@ -743,10 +743,6 @@ Verificarile ruleaza la fiecare doua ore.
 
 ["nav-dash/filter-tooltip"]
 
-["nav-dash/forced-daily"]
-
-["nav-dash/forced-hourly"]
-
 ["nav-dash/forward"]
   default = "inainte"
 

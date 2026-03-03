@@ -748,10 +748,6 @@
 
 ["nav-dash/filter-tooltip"]
 
-["nav-dash/forced-daily"]
-
-["nav-dash/forced-hourly"]
-
 ["nav-dash/forward"]
   default = "較新"
 

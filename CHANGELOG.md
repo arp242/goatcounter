@@ -11,6 +11,8 @@ to 18, which means you'll have to do a dump/restore or use pg_upgrade.
 
 ### Features
 
+- Allow grouping charts by week and month, instead of just hour and day.
+
 - Add *Server Management → GeoIP* page to debug GeoIP lookups.
 
 - Password for a new user can now be read from stdin when using `goatcounter db

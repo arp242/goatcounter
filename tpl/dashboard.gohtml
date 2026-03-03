@@ -138,7 +138,6 @@
                    {{$dot}}<button class="link" name="group" value="day">{{.T "nav-dash/day|day"}}</button>
                    {{$dot = "· "}}
                {{end}}
-			   {{/*
                {{if .AllowGroups.Weekly}}
                    {{$dot}}<button class="link" name="group" value="week">{{.T "nav-dash/week|week"}}</button>
                    {{$dot = "· "}}
@@ -146,7 +145,6 @@
                {{if .AllowGroups.Monthly}}
                    {{$dot}}<button class="link" name="group" value="month">{{.T "nav-dash/month|month"}}</button>
                {{end}}
-			   */}}
                <input type="hidden" name="group" value="{{.View.Group}}">
 			</span>
 		</div>

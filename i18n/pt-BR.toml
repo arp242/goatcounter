@@ -842,11 +842,6 @@ A verificação é executada a cada 2 horas.
   </div>
 """
 
-["nav-dash/forced-daily"]
-  default = "A visualização por hora não pode ser usada em um período de tempo superior a 90 dias."
-
-["nav-dash/forced-hourly"]
-
 ["nav-dash/forward"]
   default = "adiante"
 

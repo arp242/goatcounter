@@ -14,6 +14,7 @@ import (
 
 	"zgo.at/goatcounter/v2"
 	"zgo.at/goatcounter/v2/gctest"
+	"zgo.at/jfmt"
 	"zgo.at/json"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
@@ -767,217 +768,16 @@ func TestAPIHits(t *testing.T) {
 		query    string
 		wantCode int
 		setup    func(context.Context, *testing.T)
-		want     string
 	}{
-		{"no hits", "", 200, nil, `{"more": false, "total": 0, "hits": []}`},
-
+		{"no hits", "", 200, nil},
 		{"works", "limit=3", 200,
-			func(ctx context.Context, t *testing.T) { many(ctx, t) }, `{
-			"more": true,
-			"total": 3,
-			"hits": [{
-				"count":  1,
-				"event":         false,
-				"max":           1,
-				"path":          "/50",
-				"path_id":       50,
-				"title":         "title - 50",
-				"stats": [{
-					"daily":   0,
-					"day":            "2020-06-11",
-					"hourly":  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-				}, {
-					"daily": 0,
-					"day": "2020-06-12",
-					"hourly": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-				}, {
-					"daily": 0,
-					"day": "2020-06-13",
-					"hourly": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-				}, {
-					"daily": 0,
-					"day": "2020-06-14",
-					"hourly": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-				}, {
-					"daily": 0,
-					"day": "2020-06-15",
-					"hourly": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-				}, {
-					"daily": 0,
-					"day": "2020-06-16",
-					"hourly": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-				}, {
-					"daily": 0,
-					"day": "2020-06-17",
-					"hourly": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-				}, {
-					"daily": 1,
-					"day": "2020-06-18",
-					"hourly": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-				}]
-			}, {
-				"count": 1,
-				"event": false,
-				"max": 1,
-				"path": "/49",
-				"path_id": 49,
-				"title": "title - 49",
-				"stats": [{
-					"daily": 0,
-					"day": "2020-06-11",
-					"hourly": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-				}, {
-					"daily": 0,
-					"day": "2020-06-12",
-					"hourly": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-				}, {
-					"daily": 0,
-					"day": "2020-06-13",
-					"hourly": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-				}, {
-					"daily": 0,
-					"day": "2020-06-14",
-					"hourly": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-				}, {
-					"daily": 0,
-					"day": "2020-06-15",
-					"hourly": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-				}, {
-					"daily": 0,
-					"day": "2020-06-16",
-					"hourly": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-				}, {
-					"daily": 0,
-					"day": "2020-06-17",
-					"hourly": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-				}, {
-					"daily": 1,
-					"day": "2020-06-18",
-					"hourly": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-				}]
-			}, {
-				"count": 1,
-				"event": false,
-				"max": 1,
-				"path": "/48",
-				"path_id": 48,
-				"title": "title - 48",
-				"stats": [{
-					"daily": 0,
-					"day": "2020-06-11",
-					"hourly": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-				}, {
-					"daily": 0,
-					"day": "2020-06-12",
-					"hourly": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-				}, {
-					"daily": 0,
-					"day": "2020-06-13",
-					"hourly": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-				}, {
-					"daily": 0,
-					"day": "2020-06-14",
-					"hourly": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-				}, {
-					"daily": 0,
-					"day": "2020-06-15",
-					"hourly": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-				}, {
-					"daily": 0,
-					"day": "2020-06-16",
-					"hourly": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-				}, {
-					"daily": 0,
-					"day": "2020-06-17",
-					"hourly": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-				}, {
-					"daily": 1,
-					"day": "2020-06-18",
-					"hourly": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-				}]
-			}]
-		}`},
-
+			func(ctx context.Context, t *testing.T) { many(ctx, t) }},
 		{"exclude", "limit=1&exclude_paths=50,49&daily=true&start=2020-06-17&end=2020-06-19", 200,
-			func(ctx context.Context, t *testing.T) { many(ctx, t) }, `{
-			"more": true,
-			"total": 1,
-			"hits": [{
-				"count": 1,
-				"event": false,
-				"max": 1,
-				"path": "/48",
-				"path_id": 48,
-				"title": "title - 48",
-				"stats": [{
-					"daily": 0,
-					"day": "2020-06-17",
-					"hourly": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-				}, {
-					"daily": 1,
-					"day": "2020-06-18",
-					"hourly": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-				}, {
-					"daily": 0,
-					"day": "2020-06-19",
-					"hourly": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-				}]
-			}]
-		}`},
-
+			func(ctx context.Context, t *testing.T) { many(ctx, t) }},
 		{"include", "limit=1&exclude_paths=&include_paths=10&daily=true&start=2020-06-17&end=2020-06-19", 200,
-			func(ctx context.Context, t *testing.T) { many(ctx, t) }, `{
-			"more": false,
-			"total": 1,
-			"hits": [{
-				"count": 1,
-				"event": false,
-				"max": 1,
-				"path": "/10",
-				"path_id": 10,
-				"title": "title - 10",
-				"stats": [{
-					"daily": 0,
-					"day": "2020-06-17",
-					"hourly": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-				}, {
-					"daily": 1,
-					"day": "2020-06-18",
-					"hourly": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-				}, {
-					"daily": 0,
-					"day": "2020-06-19",
-					"hourly": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-				}]
-			}]
-		}`},
-
+			func(ctx context.Context, t *testing.T) { many(ctx, t) }},
 		{"include by name", "path_by_name=true&limit=1&exclude_paths=&include_paths=/10&daily=true&start=2020-06-17&end=2020-06-19", 200,
-			func(ctx context.Context, t *testing.T) { many(ctx, t) }, `{
-			"more": false,
-			"total": 1,
-			"hits": [{
-				"count": 1,
-				"event": false,
-				"max": 1,
-				"path": "/10",
-				"path_id": 10,
-				"title": "title - 10",
-				"stats": [{
-					"daily": 0,
-					"day": "2020-06-17",
-					"hourly": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-				}, {
-					"daily": 1,
-					"day": "2020-06-18",
-					"hourly": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-				}, {
-					"daily": 0,
-					"day": "2020-06-19",
-					"hourly": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-				}]
-			}]
-		}`},
+			func(ctx context.Context, t *testing.T) { many(ctx, t) }},
 	}
 
 	perm := goatcounter.APIPermStats
@@ -993,8 +793,11 @@ func TestAPIHits(t *testing.T) {
 			newBackend(ctx).ServeHTTP(rr, r)
 			ztest.Code(t, rr, tt.wantCode)
 
-			if d := ztest.Diff(rr.Body.String(), tt.want, ztest.DiffJSON); d != "" {
+			want := string(ztest.Read(t, "testdata/api-hits-"+strings.ReplaceAll(tt.name, " ", "-")+".json"))
+			if d := ztest.Diff(rr.Body.String(), want, ztest.DiffJSON); d != "" {
 				t.Error(d)
+				j, _ := jfmt.NewFormatter(100, "", "   ").FormatString(rr.Body.String())
+				t.Log("\nhave:\n" + j)
 			}
 		})
 	}

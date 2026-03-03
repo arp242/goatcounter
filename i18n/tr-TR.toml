@@ -838,11 +838,6 @@ Doğrulama her 2 saatte bir çalışır.
   </div>
 """
 
-["nav-dash/forced-daily"]
-  default = "90 günden uzun bir zaman aralığı için saatlik görünüm kullanılamaz"
-
-["nav-dash/forced-hourly"]
-
 ["nav-dash/forward"]
   default = "ileri"
 

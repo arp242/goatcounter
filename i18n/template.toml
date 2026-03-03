@@ -61,7 +61,7 @@
   default = "Yes, delete everything"
 
 ["button/delete-pageviews"]
-  loc     = ["tpl/settings_purge.gohtml:71"]
+  loc     = ["tpl/settings_purge.gohtml:73"]
   default = "Delete pageviews"
 
 ["button/disable-mfa"]
@@ -86,7 +86,7 @@
 ["button/merge"]
   loc = [
     "tpl/settings_merge.gohtml:37",
-    "tpl/settings_purge.gohtml:61",
+    "tpl/settings_purge.gohtml:63",
   ]
   default = "Merge"
 
@@ -127,7 +127,7 @@
   default = "Save default view"
 
 ["button/search"]
-  loc     = ["tpl/settings_purge.gohtml:19"]
+  loc     = ["tpl/settings_purge.gohtml:21"]
   default = "Search"
 
 ["button/send-login-url"]
@@ -166,7 +166,7 @@
   default = "Delete %(email)?"
 
 ["dashboard/day-ago"]
-  loc     = ["handlers/dashboard.go:224"]
+  loc     = ["handlers/dashboard.go:220"]
   default = "%(n) days ago"
 
 ["dashboard/loading"]
@@ -174,7 +174,7 @@
   default = "Loading…"
 
 ["dashboard/month-ago"]
-  loc     = ["handlers/dashboard.go:226"]
+  loc     = ["handlers/dashboard.go:222"]
   default = "%(n) months ago"
 
 ["dashboard/nothing-to-display"]
@@ -212,7 +212,7 @@
   default = "Visits"
 
 ["dashboard/today"]
-  loc     = ["handlers/dashboard.go:222"]
+  loc     = ["handlers/dashboard.go:218"]
   default = "Today"
 
 ["dashboard/tooltip-event"]
@@ -231,11 +231,11 @@
   default = "%(num-visits) visits"
 
 ["dashboard/week-ago"]
-  loc     = ["handlers/dashboard.go:225"]
+  loc     = ["handlers/dashboard.go:221"]
   default = "%(n) weeks ago"
 
 ["dashboard/yesterday"]
-  loc     = ["handlers/dashboard.go:223"]
+  loc     = ["handlers/dashboard.go:219"]
   default = "Yesterday"
 
 ["data-collect/help/country"]
@@ -366,15 +366,15 @@ Martin
 
 ["error/address-exists"]
   loc = [
-    "handlers/settings.go:304",
-    "handlers/settings.go:309",
+    "handlers/settings.go:303",
+    "handlers/settings.go:308",
   ]
   default = "%(addr) already exists"
 
 ["error/could-not-read"]
   loc = [
-    "handlers/settings.go:630",
-    "handlers/settings.go:695",
+    "handlers/settings.go:629",
+    "handlers/settings.go:694",
   ]
   default = "Could not read as gzip: %(err)"
 
@@ -392,25 +392,25 @@ Martin
 
 ["error/email-exists"]
   loc = [
-    "user.go:142",
-    "user.go:179",
+    "user.go:141",
+    "user.go:178",
   ]
   default = "The email address “%(email)” is already used by another user for this site"
 
 ["error/export-expired"]
-  loc     = ["handlers/settings.go:593"]
+  loc     = ["handlers/settings.go:592"]
   default = "It looks like there is no export yet or the export has expired."
 
 ["error/incorrect-password"]
-  loc     = ["handlers/user.go:391"]
+  loc     = ["handlers/user.go:395"]
   default = "Current password is incorrect."
 
 ["error/invalid-end-date"]
-  loc     = ["handlers/dashboard.go:402"]
+  loc     = ["handlers/dashboard.go:398"]
   default = "Invalid end date: %(date)"
 
 ["error/invalid-start-date"]
-  loc     = ["handlers/dashboard.go:395"]
+  loc     = ["handlers/dashboard.go:391"]
   default = "Invalid start date: %(date)"
 
 ["error/load-url"]
@@ -438,21 +438,21 @@ Martin
   default = "Wrong password for %(email)"
 
 ["error/merge-self"]
-  loc     = ["handlers/settings.go:536"]
+  loc     = ["handlers/settings.go:535"]
   default = "Cannot merge a path with itself"
 
 ["error/not-found"]
   loc = [
     "handlers/backend.go:78",
-    "handlers/settings.go:366",
-    "handlers/settings.go:1058",
+    "handlers/settings.go:365",
+    "handlers/settings.go:1057",
   ]
   default = "Not Found"
 
 ["error/password-does-not-match"]
   loc = [
     "handlers/user.go:282",
-    "handlers/user.go:397",
+    "handlers/user.go:401",
   ]
   default = "Password confirmation doesn’t match."
 
@@ -461,7 +461,7 @@ Martin
   default = "Not an account on this site: %(email)"
 
 ["error/unknown-activation-token"]
-  loc     = ["handlers/user.go:461"]
+  loc     = ["handlers/user.go:465"]
   default = "Unknown activation token"
 
 ["event"]
@@ -469,7 +469,7 @@ Martin
     "tpl/_dashboard_pages_rows.gohtml:25",
     "tpl/_dashboard_pages_rows.gohtml:35",
     "tpl/_dashboard_pages_text_rows.gohtml:33",
-    "tpl/settings_purge.gohtml:58",
+    "tpl/settings_purge.gohtml:60",
   ]
   default = "event"
 
@@ -628,7 +628,7 @@ Martin
   default = "Multi-factor authentication"
 
 ["header/n-hits"]
-  loc     = ["tpl/settings_purge.gohtml:32"]
+  loc     = ["tpl/settings_purge.gohtml:34"]
   default = "# of hits"
 
 ["header/name"]
@@ -647,7 +647,7 @@ Martin
   default = "Password & MFA"
 
 ["header/path"]
-  loc     = ["tpl/settings_purge.gohtml:33"]
+  loc     = ["tpl/settings_purge.gohtml:35"]
   default = "Path"
 
 ["header/permissions"]
@@ -708,7 +708,7 @@ Martin
   default = "Systems"
 
 ["header/title"]
-  loc     = ["tpl/settings_purge.gohtml:34"]
+  loc     = ["tpl/settings_purge.gohtml:36"]
   default = "Title"
 
 ["header/token"]
@@ -850,10 +850,10 @@ GeoIP database. See the <tt>-geo</tt> flag in
 
 ["help/no-undo"]
   loc = [
-    "tpl/settings_purge.gohtml:50",
-    "tpl/settings_purge.gohtml:63",
-    "tpl/settings_purge.gohtml:66",
-    "tpl/settings_purge.gohtml:72",
+    "tpl/settings_purge.gohtml:52",
+    "tpl/settings_purge.gohtml:65",
+    "tpl/settings_purge.gohtml:68",
+    "tpl/settings_purge.gohtml:74",
   ]
   default = "This cannot be undone!"
 
@@ -1025,11 +1025,11 @@ GeoIP database. See the <tt>-geo</tt> flag in
   default = "(current)"
 
 ["label/match-case"]
-  loc     = ["tpl/settings_purge.gohtml:21"]
+  loc     = ["tpl/settings_purge.gohtml:23"]
   default = "Match case-sensitive"
 
 ["label/match-title"]
-  loc     = ["tpl/settings_purge.gohtml:20"]
+  loc     = ["tpl/settings_purge.gohtml:22"]
   default = "Match title as well"
 
 ["label/merge-account-confirmation"]
@@ -1037,7 +1037,7 @@ GeoIP database. See the <tt>-geo</tt> flag in
   default = "Are you sure you want to merge this account?"
 
 ["label/merge-to"]
-  loc     = ["tpl/settings_purge.gohtml:55"]
+  loc     = ["tpl/settings_purge.gohtml:57"]
   default = "Merge all the paths to"
 
 ["label/mfa-token"]
@@ -1151,7 +1151,7 @@ GeoIP database. See the <tt>-geo</tt> flag in
   default = "Top referrals"
 
 ["label/total-pageviews"]
-  loc     = ["widgets/total_pages.go:28"]
+  loc     = ["widgets/total_pages.go:27"]
   default = "Total site pageviews"
 
 ["label/turing-test"]
@@ -1286,7 +1286,7 @@ GeoIP database. See the <tt>-geo</tt> flag in
 ["nav-dash/day"]
   loc = [
     "tpl/dashboard.gohtml:95",
-    "tpl/dashboard.gohtml:141",
+    "tpl/dashboard.gohtml:138",
     "tpl/dashboard.gohtml:156",
     "tpl/dashboard.gohtml:165",
   ]
@@ -1320,14 +1320,6 @@ GeoIP database. See the <tt>-geo</tt> flag in
 </div>
 """
 
-["nav-dash/forced-daily"]
-  loc     = ["tpl/dashboard.gohtml:134"]
-  default = "Cannot use the hourly view for a time range of more than 90 days"
-
-["nav-dash/forced-hourly"]
-  loc     = ["tpl/dashboard.gohtml:139"]
-  default = "Cannot use the daily view for a time range of less than 7 days"
-
 ["nav-dash/forward"]
   loc     = ["tpl/dashboard.gohtml:170"]
   default = "forward"
@@ -1337,7 +1329,7 @@ GeoIP database. See the <tt>-geo</tt> flag in
   default = "half year"
 
 ["nav-dash/hour"]
-  loc     = ["tpl/dashboard.gohtml:136"]
+  loc     = ["tpl/dashboard.gohtml:134"]
   default = "hour"
 
 ["nav-dash/last"]
@@ -1347,6 +1339,7 @@ GeoIP database. See the <tt>-geo</tt> flag in
 ["nav-dash/month"]
   loc = [
     "tpl/dashboard.gohtml:97",
+    "tpl/dashboard.gohtml:146",
     "tpl/dashboard.gohtml:158",
     "tpl/dashboard.gohtml:167",
   ]
@@ -1367,6 +1360,7 @@ GeoIP database. See the <tt>-geo</tt> flag in
 ["nav-dash/week"]
   loc = [
     "tpl/dashboard.gohtml:96",
+    "tpl/dashboard.gohtml:142",
     "tpl/dashboard.gohtml:157",
     "tpl/dashboard.gohtml:166",
   ]
@@ -1411,31 +1405,31 @@ GeoIP database. See the <tt>-geo</tt> flag in
   default = "API token removed."
 
 ["notify/disabled-multi-factor-auth"]
-  loc     = ["handlers/user.go:344"]
+  loc     = ["handlers/user.go:348"]
   default = "Multi-factor authentication disabled."
 
 ["notify/email-already-verified"]
-  loc     = ["handlers/user.go:422"]
+  loc     = ["handlers/user.go:426"]
   default = "%(email) is already verified."
 
 ["notify/export-started-in-background"]
-  loc     = ["handlers/settings.go:728"]
+  loc     = ["handlers/settings.go:727"]
   default = "Export started in the background; you’ll get an email with a download link when it’s done."
 
 ["notify/import-ga-okay"]
-  loc     = ["handlers/settings.go:705"]
+  loc     = ["handlers/settings.go:704"]
   default = "Data processed successfully."
 
 ["notify/import-started-in-background"]
-  loc     = ["handlers/settings.go:679"]
+  loc     = ["handlers/settings.go:678"]
   default = "Import started in the background; you’ll get an email when it’s done."
 
 ["notify/login-after-password-reset"]
-  loc     = ["handlers/user.go:308"]
+  loc     = ["handlers/user.go:312"]
   default = "Password reset; use your new password to login."
 
 ["notify/multi-factor-auth-enabled"]
-  loc     = ["handlers/user.go:369"]
+  loc     = ["handlers/user.go:373"]
   default = "Multi-factor authentication enabled."
 
 ["notify/need-email-verification-for-api"]
@@ -1447,11 +1441,11 @@ GeoIP database. See the <tt>-geo</tt> flag in
   default = "could find the user for the given token; perhaps it's expired or has already been used?"
 
 ["notify/not-found"]
-  loc     = ["handlers/settings.go:1013"]
+  loc     = ["handlers/settings.go:1012"]
   default = "Not Found"
 
 ["notify/password-changed"]
-  loc     = ["handlers/user.go:415"]
+  loc     = ["handlers/user.go:419"]
   default = "Password changed."
 
 ["notify/reset-to-default"]
@@ -1463,51 +1457,51 @@ GeoIP database. See the <tt>-geo</tt> flag in
   default = "Email sent to %(email)"
 
 ["notify/restored-previously-deleted-site"]
-  loc     = ["handlers/settings.go:317"]
+  loc     = ["handlers/settings.go:316"]
   default = "Site ‘%(url)’ was previously deleted; restored site with all data."
 
 ["notify/saved"]
   loc = [
     "handlers/handlers.go:123",
-    "handlers/settings.go:227",
-    "handlers/settings.go:252",
+    "handlers/settings.go:226",
+    "handlers/settings.go:251",
     "handlers/settings_user.go:97",
   ]
   default = "Saved!"
 
 ["notify/sent-to-email"]
-  loc     = ["handlers/user.go:427"]
+  loc     = ["handlers/user.go:431"]
   default = "Sent to %(email)."
 
 ["notify/settings-copied-to-site"]
-  loc     = ["handlers/settings.go:463"]
+  loc     = ["handlers/settings.go:462"]
   default = "Settings copied to the selected sites."
 
 ["notify/site-added"]
-  loc     = ["handlers/settings.go:348"]
+  loc     = ["handlers/settings.go:347"]
   default = "Site ‘%(url)’ added."
 
 ["notify/site-removed"]
-  loc     = ["handlers/settings.go:408"]
+  loc     = ["handlers/settings.go:407"]
   default = "Site ‘%(url)’ removed."
 
 ["notify/started-background-process"]
   loc = [
-    "handlers/settings.go:513",
-    "handlers/settings.go:554",
+    "handlers/settings.go:512",
+    "handlers/settings.go:553",
   ]
   default = "Started in the background; may take about 10-20 seconds to fully process."
 
 ["notify/user-added"]
-  loc     = ["handlers/settings.go:980"]
+  loc     = ["handlers/settings.go:979"]
   default = "User ‘%(email)’ added."
 
 ["notify/user-removed"]
-  loc     = ["handlers/settings.go:1066"]
+  loc     = ["handlers/settings.go:1065"]
   default = "User ‘%(email)’ removed."
 
 ["notify/users-edited"]
-  loc     = ["handlers/settings.go:1038"]
+  loc     = ["handlers/settings.go:1037"]
   default = "User ‘%(email)’ edited."
 
 ["p/add-goatcounter-to-multiple-websites"]
@@ -1669,7 +1663,7 @@ Getting started is pretty easy, just add the following JavaScript anywhere on th
 """
 
 ["p/no-matches"]
-  loc     = ["tpl/settings_purge.gohtml:26"]
+  loc     = ["tpl/settings_purge.gohtml:28"]
   default = "Nothing matches %(query)."
 
 ["p/notify-immediate-change"]
@@ -1724,7 +1718,7 @@ Matches are case insensitive. Supports the following special characters:
 """
 
 ["p/rm-pageview-match"]
-  loc     = ["tpl/settings_purge.gohtml:29"]
+  loc     = ["tpl/settings_purge.gohtml:31"]
   default = "The following paths match %(query):"
 
 ["p/setting-recovery-disabled-information"]
@@ -1882,8 +1876,8 @@ Matches are case insensitive. Supports the following special characters:
 
 ["validate/need-one"]
   loc = [
-    "api_token.go:148",
-    "api_token.go:151",
+    "api_token.go:147",
+    "api_token.go:150",
   ]
   default = "must select at least one"
 

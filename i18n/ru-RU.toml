@@ -815,11 +815,6 @@
 
 ["nav-dash/filter-tooltip"]
 
-["nav-dash/forced-daily"]
-  default = "Cannot use the hourly view for a time range of more than 90 days"
-
-["nav-dash/forced-hourly"]
-
 ["nav-dash/forward"]
   default = "вперёд"
 

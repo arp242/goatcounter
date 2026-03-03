@@ -31,28 +31,42 @@ func (g *Group) UnmarshalText(v []byte) error {
 		*g = GroupHourly
 	case "day":
 		*g = GroupDaily
+	case "week":
+		*g = GroupWeekly
+	case "month":
+		*g = GroupMonthly
 	}
 	return nil
 }
 
-func (g Group) Hourly() bool { return g == GroupHourly }
-func (g Group) Daily() bool  { return g == GroupDaily }
+func (g Group) Hourly() bool  { return g == GroupHourly }
+func (g Group) Daily() bool   { return g == GroupDaily }
+func (g Group) Weekly() bool  { return g == GroupWeekly }
+func (g Group) Monthly() bool { return g == GroupMonthly }
 func (g Group) String() string {
 	switch g {
 	case GroupDaily:
 		return "day"
+	case GroupWeekly:
+		return "week"
+	case GroupMonthly:
+		return "month"
 	}
 	return "hour"
 }
 
 type Groups []Group
 
-func (g Groups) Hourly() bool { return slices.Contains(g, GroupHourly) }
-func (g Groups) Daily() bool  { return slices.Contains(g, GroupDaily) }
+func (g Groups) Hourly() bool  { return slices.Contains(g, GroupHourly) }
+func (g Groups) Daily() bool   { return slices.Contains(g, GroupDaily) }
+func (g Groups) Weekly() bool  { return slices.Contains(g, GroupWeekly) }
+func (g Groups) Monthly() bool { return slices.Contains(g, GroupMonthly) }
 
 const (
 	GroupHourly = Group(iota)
 	GroupDaily
+	GroupWeekly
+	GroupMonthly
 )
 
 type HitList struct {
@@ -109,6 +123,14 @@ type HitListStat struct {
 	Day    string `json:"day"`    // Day these statistics are for {date}.
 	Hourly []int  `json:"hourly"` // Visitors per hour.
 	Daily  int    `json:"daily"`  // Total visitors for this day.
+
+	// Visitors for the week; set once every 7 days. This value will not be set
+	// if it's 0.
+	Weekly int `json:"weekly,omitempty"`
+
+	// Visitors for the month; set on first day of the month. This value will
+	// not be set if it's 0.
+	Monthly int `json:"monthly,omitempty"`
 }
 
 // PathCount gets the visit count for one path.
@@ -141,7 +163,11 @@ func (h *HitList) SiteTotalUTC(ctx context.Context, rng ztime.Range) error {
 
 func (h *HitList) sum(user *User, rng ztime.Range, group Group) int {
 	var (
-		total int
+		total     int
+		daynum    int
+		week      int
+		month     int
+		lastmonth int
 	)
 	h.Stats = make([]HitListStat, 0, 7)
 	for d := range rng.Add(user.Settings.Timezone.OffsetDuration()).Iter(ztime.Day) {
@@ -161,9 +187,37 @@ func (h *HitList) sum(user *User, rng ztime.Range, group Group) int {
 		if group.Daily() && st.Daily > h.Max {
 			h.Max = st.Daily
 		}
+
+		if len(h.Stats) > 0 && daynum%7 == 0 { // Start of week.
+			h.Stats[daynum-7].Weekly = week
+			if group.Weekly() {
+				h.Max = max(h.Max, week)
+			}
+			week = 0
+		}
+		if len(h.Stats) > 0 && d.Day() == 1 { // Start of month.
+			h.Stats[lastmonth].Monthly = month
+			if group.Monthly() {
+				h.Max = max(h.Max, month)
+			}
+			month, lastmonth = 0, daynum
+		}
+
 		total += st.Daily
+		week += st.Daily
+		month += st.Daily
 		h.Stats = append(h.Stats, st)
+		daynum++
 	}
+	daynum--
+	h.Stats[daynum-(daynum%7)].Weekly = week
+	h.Stats[lastmonth].Monthly = month
+	if group.Weekly() {
+		h.Max = max(h.Max, week)
+	} else if group.Monthly() {
+		h.Max = max(h.Max, month)
+	}
+
 	h.Stats2 = nil
 	return total
 }

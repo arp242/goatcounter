@@ -844,11 +844,6 @@ Martin
   </div>
 """
 
-["nav-dash/forced-daily"]
-  default = "Nemožno použiť hodinový pohľad pre časové rozmedzie väčšie ako 90 dní"
-
-["nav-dash/forced-hourly"]
-
 ["nav-dash/forward"]
   default = "dopredu"
 

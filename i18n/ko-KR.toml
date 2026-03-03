@@ -838,11 +838,6 @@
   </div>
 """
 
-["nav-dash/forced-daily"]
-  default = "90일 이상의 시간 범위에 대해 시간별 보기를 사용할 수 없습니다."
-
-["nav-dash/forced-hourly"]
-
 ["nav-dash/forward"]
   default = "앞으로"
 
