@@ -12,7 +12,8 @@ with x as (
 	group by hour
 	order by hour asc
 )
-select
-	{{:sqlite  json_group_object(hour, total) as stats2}}
-	{{:sqlite! jsonb_object_agg(hour, total)  as stats2}}
+select coalesce(
+	{{:sqlite  json_group_object(hour, total) }}
+	{{:sqlite! jsonb_object_agg(hour, total)  }}
+, '{}') as stats2
 from x

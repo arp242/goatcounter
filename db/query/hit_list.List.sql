@@ -20,7 +20,7 @@ select
 	paths.title,
 	paths.event,
 	total as count,
-	stats2
+	coalesce(stats2, '{}') as stats2
 from x
 join paths using (path_id)
 order by total desc, path_id desc
