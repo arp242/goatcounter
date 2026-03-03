@@ -885,12 +885,6 @@ De verificatie checkt elke 2 uur.
   </div>
 """
 
-["nav-dash/forced-daily"]
-  default = "Kan niet per uur bekijken voor meer dan 90 dagen"
-
-["nav-dash/forced-hourly"]
-  default = "Kan niet per dag tonen voor een tijdsbestek van minder dan 7 dagen"
-
 ["nav-dash/forward"]
   default = "later"
 

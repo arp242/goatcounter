@@ -848,11 +848,6 @@ Verifikasi akan dijalankan setiap 2 jam.
   </div>
 """
 
-["nav-dash/forced-daily"]
-  default = "Tidak dapat menggunakan tampilan per jam untuk jangka waktu lebih dari 90 hari"
-
-["nav-dash/forced-hourly"]
-
 ["nav-dash/forward"]
   default = "berikutnya"
 

@@ -9,7 +9,6 @@ import (
 	"os"
 	"path/filepath"
 	"slices"
-	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -860,14 +859,19 @@ type (
 		// End time, should be rounded to the hour {datetime, default: current time}.
 		End time.Time `json:"end" query:"end"`
 
-		// Set Max value in the response to the highest daily value, instead of
-		// hourly.
-		//
-		// Both the Hourly and Daily are always included in the response – this
-		// only affects the Max value, which is useful if you want to draw
-		// charts like the GoatCounter dashboard: you need to know the maximum
-		// Y-axis value of the chart to draw it.
+		// Deprecated: identical to group=day and will be removed in the future.
 		Daily bool `json:"daily" query:"daily"`
+
+		// Set Max value in the response to the highest daily, weekly, or
+		// monthly value, instead of hourly.
+		//
+		// The Hourly, Daily, Weekly, and Monthly values are always included in
+		// the response – this only affects the Max value, which is useful if
+		// you want to draw charts like the GoatCounter dashboard: you need to
+		// know the maximum Y-axis value of the chart to draw it.
+		//
+		// {enum: hour day week month}
+		Group goatcounter.Group `json:"group" query:"group"`
 
 		// Include only these path IDs; default is to include everything.
 		//
@@ -932,19 +936,14 @@ func (h api) hits(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	group := goatcounter.GroupHourly
-	if args.Daily {
-		// TODO: ideally would like to refactor this to Group, or maybe just
-		// remove. Lets see if anyone is using it.
-		m := metrics.Start("api-hits-daily")
-		m.AddTag(strconv.FormatInt(int64(Site(r.Context()).ID), 10))
-		m.Done()
-		group = goatcounter.GroupDaily
+	// TODO: backwards compat; remove eventually.
+	if args.Daily && args.Group == goatcounter.GroupHourly {
+		args.Group = goatcounter.GroupDaily
 	}
 
 	var pages goatcounter.HitLists
 	tdu, more, err := pages.List(r.Context(), ztime.NewRange(args.Start).To(args.End),
-		includeIDs, excludeIDs, args.Limit, group)
+		includeIDs, excludeIDs, args.Limit, args.Group)
 	if err != nil {
 		return err
 	}

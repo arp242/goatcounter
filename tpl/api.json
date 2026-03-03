@@ -614,13 +614,26 @@
             "type": "integer"
           },
           {
+            "description": "Set Max value in the response to the highest daily, weekly, or\nmonthly value, instead of hourly.\n\nThe Hourly, Daily, Weekly, and Monthly values are always included in\nthe response – this only affects the Max value, which is useful if\nyou want to draw charts like the GoatCounter dashboard: you need to\nknow the maximum Y-axis value of the chart to draw it.",
+            "enum": [
+              "enum:",
+              "hour",
+              "day",
+              "week",
+              "month"
+            ],
+            "in": "query",
+            "name": "group",
+            "type": "integer"
+          },
+          {
             "description": "Get values for include_paths and exclude_paths by path name, rather\nthan path ID. This is more convenient in some cases, but also a bit\nslower.",
             "in": "query",
             "name": "path_by_name",
             "type": "boolean"
           },
           {
-            "description": "Set Max value in the response to the highest daily value, instead of\nhourly.\n\nBoth the Hourly and Daily are always included in the response – this\nonly affects the Max value, which is useful if you want to draw\ncharts like the GoatCounter dashboard: you need to know the maximum\nY-axis value of the chart to draw it.",
+            "description": "Deprecated: identical to group=day and will be removed in the future.",
             "in": "query",
             "name": "daily",
             "type": "boolean"
@@ -1031,6 +1044,10 @@
         },
         "permissions": {
           "type": "integer"
+        },
+        "sites": {
+          "type": "integer",
+          "items": {}
         }
       }
     },
@@ -1101,6 +1118,14 @@
           "items": {
             "type": "integer"
           }
+        },
+        "monthly": {
+          "description": "Visitors for the month; set on first day of the month. This value will\nnot be set if it's 0.",
+          "type": "integer"
+        },
+        "weekly": {
+          "description": "Visitors for the week; set once every 7 days. This value will not be set\nif it's 0.",
+          "type": "integer"
         }
       }
     },
@@ -1257,7 +1282,6 @@
     },
     "goatcounter.User": {
       "title": "User",
-      "description": "User entry.",
       "type": "object",
       "properties": {
         "access": {
@@ -1333,6 +1357,9 @@
         "date_format": {
           "type": "string"
         },
+        "datepicker": {
+          "type": "boolean"
+        },
         "email_reports": {
           "type": "integer"
         },
@@ -1377,25 +1404,27 @@
     },
     "goatcounter.View": {
       "title": "View",
+      "description": "Views for the dashboard; these settings apply to all widget and are\nconfigurable in the yellow box at the top.",
       "type": "object",
       "properties": {
-        "daily": {
-          "type": "boolean"
-        },
         "filter": {
           "type": "string"
+        },
+        "group": {
+          "type": "integer"
         },
         "name": {
           "type": "string"
         },
         "period": {
-          "description": "\"week\", \"week-cur\", or n days: \"8\"",
+          "description": "\"week\", \"month\", etc., or n days: \"8\"",
           "type": "string"
         }
       }
     },
     "goatcounter.Widget": {
       "title": "Widget",
+      "description": "Widgets is a list of widgets to be printed, in order.",
       "type": "object"
     },
     "handlers.APICountRequest": {

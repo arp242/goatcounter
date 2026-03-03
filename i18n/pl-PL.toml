@@ -1,6 +1,6 @@
 [__meta__]
   language = "pl-PL"
-  maintainers = ['team@sopot.guide']
+  maintainers = ["team@sopot.guide"]
   modified = 2026-02-05
 
 ["button/add-new"]
@@ -863,11 +863,6 @@ Weryfikacja odbywa się co 2 godziny.
     </ul>
   </div>
 """
-
-["nav-dash/forced-daily"]
-  default = "Widok godzinny niedostępny dla zakresu dat powyżej 90 dni"
-
-["nav-dash/forced-hourly"]
 
 ["nav-dash/forward"]
   default = "naprzód"

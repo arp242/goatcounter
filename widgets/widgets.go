@@ -63,6 +63,31 @@ func FromSiteWidget(ctx context.Context, w goatcounter.Widget) Widget {
 	return ww
 }
 
+func NewArgs(
+	user *goatcounter.User,
+	rng ztime.Range, view goatcounter.View, allowGroups goatcounter.Groups,
+	showRefs goatcounter.PathID,
+) Args {
+
+	// Align to start of week or month if we're grouping by week or month.
+	//
+	// This gives a really jarring experience if the UI is updated with the new
+	// dates, as switching between day/week/month can really move the date
+	// around. So don't update the UI and just "silently" include the extra date
+	// ranges.
+	if view.Group.Weekly() {
+		w := ztime.Week(user.Settings.SundayStartsWeek)
+		rng.Start = ztime.StartOf(rng.Start.In(user.Settings.Timezone.Loc()), w).UTC()
+		rng.End = ztime.EndOf(rng.End.In(user.Settings.Timezone.Loc()), w).UTC()
+	}
+	if view.Group.Monthly() {
+		rng.Start = ztime.StartOf(rng.Start.In(user.Settings.Timezone.Loc()), ztime.Month).UTC()
+		rng.End = ztime.EndOf(rng.End.In(user.Settings.Timezone.Loc()), ztime.Month).UTC()
+	}
+
+	return Args{Rng: rng, Group: view.Group, AllowGroups: allowGroups, ShowRefs: showRefs}
+}
+
 func FromSiteWidgets(ctx context.Context, www goatcounter.Widgets, params zint.Bitflag8) List {
 	widgetList := make(List, 0, len(www)+4)
 	if !params.Has(FilterInternal) {

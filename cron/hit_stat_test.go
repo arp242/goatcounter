@@ -61,7 +61,9 @@ func TestHitStats(t *testing.T) {
 			"stats": [{
 				"day":    "2019-08-31",
 				"hourly": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0],
-				"daily":  1
+				"daily":  1,
+				"monthly": 1,
+				"weekly": 1
 			}]}
 		`)
 
@@ -91,7 +93,9 @@ func TestHitStats(t *testing.T) {
 			"stats":[{
 				"day":     "2019-08-31",
 				"hourly":  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0],
-				"daily":   2
+				"daily":   2,
+				"monthly": 2,
+				"weekly": 2
 		}]}`)
 }
 
@@ -151,7 +155,9 @@ func TestHitStatsNoCollect(t *testing.T) {
 			"stats":[{
 				"day":            "2019-08-31",
 				"hourly":  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0],
-				"daily":   2
+				"daily":   2,
+				"monthly": 2,
+				"weekly": 2
 		}]}`,
 		`{
 			"count":         1,
@@ -163,7 +169,9 @@ func TestHitStatsNoCollect(t *testing.T) {
 			"stats":[{
 				"day":            "2019-08-31",
 				"hourly":  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0],
-				"daily":   1
+				"daily":   1,
+				"monthly": 1,
+				"weekly": 1
 		}]}`,
 	)
 }

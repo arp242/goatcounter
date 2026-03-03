@@ -684,6 +684,8 @@ toprefs.</p>
 <p></p>
 <h4>permissions <sup>integer</sup></h4>
 <p></p>
+<h4>sites <sup>integer</sup></h4>
+<p></p>
 
 		</div>
 		<h3 id="goatcounter.HitList">goatcounter.HitList <a class="permalink" href="#goatcounter.HitList">§</a></h3>
@@ -720,6 +722,12 @@ toprefs.</p>
 <p>Visitors per hour.</p>
 <h4>daily <sup>integer</sup></h4>
 <p>Total visitors for this day.</p>
+<h4>weekly <sup>integer</sup></h4>
+<p>Visitors for the week; set once every 7 days. This value will not be set
+if it&#39;s 0.</p>
+<h4>monthly <sup>integer</sup></h4>
+<p>Visitors for the month; set on first day of the month. This value will
+not be set if it&#39;s 0.</p>
 
 		</div>
 		<h3 id="goatcounter.HitStat">goatcounter.HitStat <a class="permalink" href="#goatcounter.HitStat">§</a></h3>
@@ -814,7 +822,7 @@ This is stored as JSON in the database.</p>
 		</div>
 		<h3 id="goatcounter.User">goatcounter.User <a class="permalink" href="#goatcounter.User">§</a></h3>
 		<div class="endpoint model">
-			<p class="info">User entry.</p>
+			<p class="info"></p>
 			<h4>id <sup>integer [readonly]</sup></h4>
 <p></p>
 <h4>site <sup>integer [readonly]</sup></h4>
@@ -875,24 +883,27 @@ This is stored as JSON in the database.</p>
 <p></p>
 <h4>theme <sup>string</sup></h4>
 <p></p>
+<h4>datepicker <sup>boolean</sup></h4>
+<p></p>
 
 		</div>
 		<h3 id="goatcounter.View">goatcounter.View <a class="permalink" href="#goatcounter.View">§</a></h3>
 		<div class="endpoint model">
-			<p class="info"></p>
+			<p class="info">Views for the dashboard; these settings apply to all widget and are
+configurable in the yellow box at the top.</p>
 			<h4>name <sup>string</sup></h4>
 <p></p>
 <h4>filter <sup>string</sup></h4>
 <p></p>
-<h4>daily <sup>boolean</sup></h4>
+<h4>group <sup>integer</sup></h4>
 <p></p>
 <h4>period <sup>string</sup></h4>
-<p>&#34;week&#34;, &#34;week-cur&#34;, or n days: &#34;8&#34;</p>
+<p>&#34;week&#34;, &#34;month&#34;, etc., or n days: &#34;8&#34;</p>
 
 		</div>
 		<h3 id="goatcounter.Widget">goatcounter.Widget <a class="permalink" href="#goatcounter.Widget">§</a></h3>
 		<div class="endpoint model">
-			<p class="info"></p>
+			<p class="info">Widgets is a list of widgets to be printed, in order.</p>
 			
 		</div>
 		<h3 id="handlers.APICountRequest">handlers.APICountRequest <a class="permalink" href="#handlers.APICountRequest">§</a></h3>
@@ -1004,11 +1015,13 @@ field set, but not both.</p>
 <h4>end <sup>string [format: date-time] [default: current time]</sup></h4>
 <p>End time, should be rounded to the hour.</p>
 <h4>daily <sup>boolean</sup></h4>
-<p>Set Max value in the response to the highest daily value, instead of
-hourly.</p><p>Both the Hourly and Daily are always included in the response – this
-only affects the Max value, which is useful if you want to draw
-charts like the GoatCounter dashboard: you need to know the maximum
-Y-axis value of the chart to draw it.</p>
+<p>Deprecated: identical to group=day and will be removed in the future.</p>
+<h4>group <sup>integer [enum: "enum:", "hour", "day", "week", "month"]</sup></h4>
+<p>Set Max value in the response to the highest daily, weekly, or
+monthly value, instead of hourly.</p><p>The Hourly, Daily, Weekly, and Monthly values are always included in
+the response – this only affects the Max value, which is useful if
+you want to draw charts like the GoatCounter dashboard: you need to
+know the maximum Y-axis value of the chart to draw it.</p>
 <h4>include_paths <sup>array [type: string]</sup></h4>
 <p>Include only these path IDs; default is to include everything.</p><p>If path_by_name is set, it will look up paths by name instead of ID.</p>
 <h4>exclude_paths <sup>array [type: string]</sup></h4>

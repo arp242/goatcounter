@@ -571,7 +571,10 @@
 		let ctx     = canvas.getContext('2d', {alpha: false}),
 			max     = Math.max(10, parseInt(c.dataset.max, 10)),
 			scale   = get_current_scale(),
+			hourly  = c.dataset.group === 'hour',
 			daily   = c.dataset.group === 'day',
+			weekly  = c.dataset.group === 'week',
+			monthly = c.dataset.group === 'month',
 			isBar   = $(c).is('.chart-bar'),
 			isEvent = $(c).closest('tr').hasClass('event'),
 			isPages = $(c).closest('.count-list-pages').length > 0,
@@ -581,10 +584,18 @@
 			max = scale
 
 		var data
-		if (daily)
-			data = stats.map((s) => [s.daily]).reduce((a, b) => a.concat(b))
-		else
+		if (hourly)
 			data = stats.map((s) => s.hourly).reduce((a, b) => a.concat(b))
+		else if (daily)
+			data = stats.map((s) => [s.daily]).reduce((a, b) => a.concat(b))
+		else if (weekly) {
+			stats = stats.filter((v, i) => i % 7 == 0)
+			data = stats.map((s) => [s.weekly]).reduce((a, b) => a.concat(b))
+		}
+		else if (monthly) {
+			stats = stats.filter((v) => v.day.endsWith('-01'))
+			data = stats.map((s) => [s.monthly]).reduce((a, b) => a.concat(b))
+		}
 
 		var chart = charty(ctx, data, {
 			mode: isBar ? 'bar' : 'line',
@@ -592,7 +603,7 @@
 			line: {
 				color: style('chart-line'),
 				fill:  style('chart-fill'),
-				width: daily || ndays <= 14 ? 1.5 : 1
+				width: daily || weekly || monthly || ndays <= 14 ? 1.5 : 1
 			},
 			bar:  {color: style('chart-line')},
 		})
@@ -611,18 +622,27 @@
 			else if (x === reset.x)
 				return
 
-			let dpr    = Math.max(1, window.devicePixelRatio || 1),
-				day    = daily ? stats[i] : stats[Math.floor(i / 24)],
-				start  = (i % 24) + ':00',
-				end    = (i % 24) + ':59',
-				visits = daily ? day.daily : day.hourly[i%24],
-				views  = daily ? day.daily : day.hourly[i%24]
-
-			let title = ''
-			if (daily)
+			let day    = hourly ? stats[Math.floor(i / 24)] : stats[i],
+				visits = day.hourly[i%24],
+				views  = day.hourly[i%24],
+				title  = ''
+			if (hourly)
+				title = `${format_date(day.day, true)} ${un24((i % 24) + ':00')} – ${un24((i % 24) + ':59')}`
+			else if (daily) {
+				[visits, views] = [day.daily, day.daily]
 				title = `${format_date(day.day, true)}`
-			else
-				title = `${format_date(day.day, true)} ${un24(start)} – ${un24(end)}`
+			}
+			else if (weekly) {
+				[visits, views] = [day.weekly, day.weekly]
+				let end = get_date(day.day)
+				end.setDate(end.getDate() + 6)
+				title = `${format_date(day.day, true)} to ${format_date(end, true)}`
+			} else if (monthly) {
+				[visits, views] = [day.monthly, day.monthly]
+				let d = get_date(day.day)
+				title = `${months[d.getMonth() % 12]} ${d.getFullYear() + Math.floor(d.getMonth() / 12)}`
+			}
+
 			if (!USER_SETTINGS.fewer_numbers) {
 				if (isEvent) {
 					title += '; ' + T('dashboard/tooltip-event', {

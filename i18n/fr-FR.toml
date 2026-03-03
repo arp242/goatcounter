@@ -844,11 +844,6 @@ Domaine personnalisé, par exemple <em>“stats.example.com”</em>.<br>
   </div>
 """
 
-["nav-dash/forced-daily"]
-  default = "Impossible d'utiliser la vue horaire pour une période de plus de 90 jours"
-
-["nav-dash/forced-hourly"]
-
 ["nav-dash/forward"]
   default = "avancer"
 

@@ -103,12 +103,7 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 		cd = Site(r.Context()).SchemelessURL(r.Context())
 	}
 
-	args := widgets.Args{
-		Rng:         rng,
-		Group:       view.Group,
-		AllowGroups: allowGroups,
-		ShowRefs:    showRefs,
-	}
+	args := widgets.NewArgs(user, rng, view, allowGroups, showRefs)
 
 	f := <-pathFilter
 	args.PathFilter, err = f.Filter, f.Err
@@ -425,24 +420,28 @@ func getGroup(r *http.Request, g goatcounter.Group, rng ztime.Range) (goatcounte
 	// These numbers are based on what makes sense when you click "Last day ·
 	// week · month · quarter · half year · year · all", which is probably what
 	// most people use.
-
 	switch {
 	case d <= 6:
-		allow = append(allow, goatcounter.GroupHourly)
+		g, allow = goatcounter.GroupHourly, append(allow, goatcounter.GroupHourly)
+	case d >= 364:
+		g, allow = goatcounter.GroupDaily, append(allow, goatcounter.GroupDaily, goatcounter.GroupWeekly, goatcounter.GroupMonthly)
+	case d < 90:
+		g, allow = goatcounter.GroupHourly, append(allow, goatcounter.GroupHourly, goatcounter.GroupDaily)
 	case d > 90:
-		allow = append(allow, goatcounter.GroupDaily)
-	default:
-		allow = append(allow, goatcounter.GroupHourly, goatcounter.GroupDaily)
+		g, allow = goatcounter.GroupDaily, append(allow, goatcounter.GroupDaily, goatcounter.GroupWeekly)
 	}
-	switch strings.ToLower(r.URL.Query().Get("group")) {
-	case "hour":
+
+	switch gg := strings.ToLower(r.URL.Query().Get("group")); {
+	case gg == "hour" && slices.Contains(allow, goatcounter.GroupHourly):
 		g = goatcounter.GroupHourly
-	case "day":
+	case gg == "day" && slices.Contains(allow, goatcounter.GroupDaily):
 		g = goatcounter.GroupDaily
+	case gg == "week" && slices.Contains(allow, goatcounter.GroupWeekly):
+		g = goatcounter.GroupWeekly
+	case gg == "month" && slices.Contains(allow, goatcounter.GroupMonthly):
+		g = goatcounter.GroupMonthly
 	}
-	if !slices.Contains(allow, g) {
-		g = allow[0]
-	}
+
 	return g, allow
 }
 

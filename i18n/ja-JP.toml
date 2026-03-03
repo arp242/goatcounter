@@ -833,11 +833,6 @@ Martin
   </div>
 """
 
-["nav-dash/forced-daily"]
-  default = "表示期間が 90 日を超える場合、時刻は表示できません"
-
-["nav-dash/forced-hourly"]
-
 ["nav-dash/forward"]
   default = "進む"
 

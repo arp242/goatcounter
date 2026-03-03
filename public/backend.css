@@ -290,7 +290,8 @@ tr.target .chart-left { display: block; }
 .period-year [value=year],
 .group-hour [value=hour],
 .group-day [value=day],
-.group-week [value=week] {
+.group-week [value=week],
+.group-month [value=month] {
     font-weight: bold;
     text-decoration: underline;
 }
