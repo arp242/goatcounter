@@ -4,10 +4,10 @@ go 1.26.0
 
 require (
 	github.com/bmatcuk/doublestar/v4 v4.10.0
-	github.com/go-chi/chi/v5 v5.2.4
+	github.com/go-chi/chi/v5 v5.2.5
 	github.com/google/uuid v1.6.0
 	github.com/gorilla/websocket v1.5.3
-	github.com/mattn/go-sqlite3 v1.14.33
+	github.com/mattn/go-sqlite3 v1.14.34
 	github.com/monoculum/formam/v3 v3.6.1-0.20221106124510-6a93f49ac1f8
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0
@@ -18,11 +18,11 @@ require (
 require (
 	github.com/BurntSushi/toml v1.6.0
 	github.com/fsnotify/fsnotify v1.9.0 // indirect
-	github.com/lib/pq v1.11.1
+	github.com/lib/pq v1.11.2
 	github.com/teamwork/reload v1.4.2
 	zgo.at/blackmail v0.0.0-20251210171630-f1b7a42e3f87
 	zgo.at/errors v1.5.0
-	zgo.at/follow v0.0.0-20250412000721-fecf5127a123
+	zgo.at/follow v0.0.0-20260217115453-4d2d0f0de407
 	zgo.at/gadget v1.0.0
 	zgo.at/guru v1.2.0
 	zgo.at/isbot v1.0.0
@@ -32,12 +32,12 @@ require (
 	zgo.at/runewidth v0.1.0 // indirect
 	zgo.at/slog_align v0.0.0-20251129094707-bf509eca6089
 	zgo.at/termtext v1.5.0
-	zgo.at/tz v0.0.0-20260223142357-2896be26bea0
+	zgo.at/tz v0.0.0-20260223144614-87265b3b06d6
 	zgo.at/z18n v0.0.0-20251230011627-ee972741a754
 	zgo.at/zcache/v2 v2.4.1
-	zgo.at/zdb v0.0.0-20260224134437-9b2b27f2fb77
-	zgo.at/zdb-drivers/go-sqlite3 v0.0.0-20260129135936-fde4e384e5ae
-	zgo.at/zdb-drivers/pq v0.0.0-20260129135936-fde4e384e5ae
+	zgo.at/zdb v0.0.0-20260303161845-562342f5f7f5
+	zgo.at/zdb-drivers/go-sqlite3 v0.0.0-20260303161431-7b89451cbe2f
+	zgo.at/zdb-drivers/pq v0.0.0-20260303161431-7b89451cbe2f
 	zgo.at/zhttp v0.0.0-20251201061952-9a43cabb6d05
 	zgo.at/zli v0.0.0-20251226224229-7bb9a5cf3265
 	zgo.at/zprof v0.0.0-20251228192741-d31275fbf5af
@@ -48,12 +48,12 @@ require (
 
 // golang.org/x
 require (
-	golang.org/x/crypto v0.47.0
-	golang.org/x/image v0.35.0
-	golang.org/x/mod v0.31.0 // indirect
-	golang.org/x/net v0.49.0
+	golang.org/x/crypto v0.48.0
+	golang.org/x/image v0.36.0
+	golang.org/x/mod v0.33.0 // indirect
+	golang.org/x/net v0.51.0
 	golang.org/x/sync v0.19.0 // indirect
-	golang.org/x/sys v0.40.0
-	golang.org/x/text v0.33.0
-	golang.org/x/tools v0.40.0 // indirect
+	golang.org/x/sys v0.41.0
+	golang.org/x/text v0.34.0
+	golang.org/x/tools v0.42.0 // indirect
 )
