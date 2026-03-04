@@ -280,6 +280,11 @@ func FromBytes(bytes []byte) (*Reader, error) {
 
 func getDBType(reader *maxminddb.Reader) (databaseType, error) {
 	switch reader.Metadata.DatabaseType {
+	// ip66.dev
+	case "Globio-Country-ASN":
+		return isCountry | isCity | isASN, nil
+
+	// maxmind
 	case "GeoIP2-Anonymous-IP":
 		return isAnonymousIP, nil
 	case "DBIP-ASN-Lite (compat=GeoLite2-ASN)",
