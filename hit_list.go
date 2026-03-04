@@ -139,6 +139,35 @@ func (h *HitList) SiteTotalUTC(ctx context.Context, rng ztime.Range) error {
 	return errors.Wrap(err, "HitList.SiteTotalUTC")
 }
 
+func (h *HitList) sum(user *User, rng ztime.Range, group Group) int {
+	var (
+		total int
+	)
+	h.Stats = make([]HitListStat, 0, 7)
+	for d := range rng.Add(user.Settings.Timezone.OffsetDuration()).Iter(ztime.Day) {
+		day := d.Format("2006-01-02")
+		st := HitListStat{Day: day, Hourly: make([]int, 24)}
+		for hour := range 24 {
+			k := fmt.Sprintf("%s %02d", day, hour)
+			n, ok := h.Stats2[k]
+			if ok {
+				st.Hourly[hour] = n
+				st.Daily += n
+				if group.Hourly() && st.Hourly[hour] > h.Max {
+					h.Max = st.Hourly[hour]
+				}
+			}
+		}
+		if group.Daily() && st.Daily > h.Max {
+			h.Max = st.Daily
+		}
+		total += st.Daily
+		h.Stats = append(h.Stats, st)
+	}
+	h.Stats2 = nil
+	return total
+}
+
 type HitLists []HitList
 
 // ListPathsLike lists all paths matching the like pattern.
@@ -198,33 +227,11 @@ func (h *HitLists) List(
 	}
 	hh := *h
 
-	var totalDisplay int
+	var total int
 	for i := range hh {
-		hh[i].Stats = make([]HitListStat, 0, 7)
-		for d := range rng.Add(user.Settings.Timezone.OffsetDuration()).Iter(ztime.Day) {
-			day := d.Format("2006-01-02")
-			st := HitListStat{Day: day, Hourly: make([]int, 24)}
-			for hour := range 24 {
-				k := fmt.Sprintf("%s %02d", day, hour)
-				n, ok := hh[i].Stats2[k]
-				if ok {
-					st.Hourly[hour] = n
-					st.Daily += n
-					if !group.Daily() && st.Hourly[hour] > hh[i].Max {
-						hh[i].Max = st.Hourly[hour]
-					}
-				}
-			}
-			if group.Daily() && st.Daily > hh[i].Max {
-				hh[i].Max = st.Daily
-			}
-			totalDisplay += st.Daily
-			hh[i].Stats = append(hh[i].Stats, st)
-		}
-		hh[i].Stats2 = nil
+		total += hh[i].sum(user, rng, group)
 	}
-
-	return totalDisplay, more, nil
+	return total, more, nil
 }
 
 // PathTotals is a special path to indicate this is the "total" overview.
@@ -252,27 +259,8 @@ func (h *HitList) Totals(ctx context.Context, rng ztime.Range, pathFilter PathFi
 		return errors.Wrap(err, "HitList.Totals")
 	}
 
-	for d := range rng.Add(user.Settings.Timezone.OffsetDuration()).Iter(ztime.Day) {
-		day := d.Format("2006-01-02")
-		st := HitListStat{Day: day, Hourly: make([]int, 24)}
-		for hour := range 24 {
-			k := fmt.Sprintf("%s %02d", day, hour)
-			n, ok := h.Stats2[k]
-			if ok {
-				st.Hourly[hour] = n
-				st.Daily += n
-				if !group.Daily() && st.Hourly[hour] > h.Max {
-					h.Max = st.Hourly[hour]
-				}
-			}
-		}
-		if group.Daily() && st.Daily > h.Max {
-			h.Max = st.Daily
-		}
-		h.Count += st.Daily
-		h.Stats = append(h.Stats, st)
-	}
-	h.Stats2, h.Max, h.Path = nil, max(h.Max, 10), PathTotals
+	h.Count, h.Path = h.sum(user, rng, group), PathTotals
+	h.Max = max(h.Max, 10)
 	return nil
 }
 
