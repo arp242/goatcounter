@@ -12,6 +12,9 @@ Latest
 
 - Only send screen width (instead of width, height, and devicePixelRatio).
 
+- Check for existence of `navigator.sendBeacon()`, and use the image-based
+  fallback if it doesn't exist.
+
 v5 (9 June 2025)
 ----------------
     <script data-goatcounter="{{.SiteURL}}/count"
