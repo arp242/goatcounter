@@ -405,6 +405,10 @@ func getPeriod(w http.ResponseWriter, r *http.Request, site *goatcounter.Site, u
 		y, m, d := c.In(user.Settings.Timezone.Loc()).Date()
 		rng.Start = time.Date(y, m, d, 0, 0, 0, 0, user.Settings.Timezone.Loc())
 	}
+	if rng.End.Before(c) {
+		y, m, d := c.In(user.Settings.Timezone.Loc()).Date()
+		rng.End = time.Date(y, m, d, 0, 0, 0, 0, user.Settings.Timezone.Loc())
+	}
 
 	return rng.From(rng.Start).To(rng.End).UTC(), nil
 }
