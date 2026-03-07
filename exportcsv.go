@@ -19,6 +19,7 @@ import (
 	"zgo.at/zstd/zcrypto"
 	"zgo.at/zstd/zint"
 	"zgo.at/zstd/ztime"
+	"zgo.at/zstd/ztype"
 )
 
 const ExportCSVVersion = "2"
@@ -66,7 +67,7 @@ func (e *Export) RunCSV(ctx context.Context, fp *os.File, mailUser bool) {
 		"Screen size", "Location", "FirstVisit", "Date"})
 
 	var exportErr error
-	e.LastHitID = e.StartFromHitID
+	e.LastHitID = new(ztype.Deref(e.StartFromHitID, 0))
 	var z int
 	e.NumRows = &z
 	for {

@@ -32,19 +32,14 @@ func (e *Export) CreateJSON(ctx context.Context, periodStart time.Time) (*os.Fil
 	e.SiteID = site.ID
 	e.CreatedAt = ztime.Now(ctx)
 	e.Format = "json"
-	var start *string
 	if !periodStart.IsZero() {
 		e.StartFromDay = new(periodStart.Truncate(time.Hour * 24))
-		start = new(e.StartFromDay.Format("2006-01-01"))
 	}
 	e.Path = fmt.Sprintf("%s%sgoatcounter-export-%s-%s.zip",
 		os.TempDir(), string(os.PathSeparator), site.Code,
 		e.CreatedAt.Format("20060102T150405Z"))
 
-	var err error
-	e.ID, err = zdb.InsertID[ExportID](ctx, "export_id",
-		`insert into exports (site_id, path, created_at, start_from_day) values (?, ?, ?, ?)`,
-		e.SiteID, e.Path, e.CreatedAt, start)
+	err := zdb.Insert(ctx, e)
 	if err != nil {
 		return nil, errors.Wrap(err, "Export.CreateJSON")
 	}
