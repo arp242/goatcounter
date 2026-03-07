@@ -1010,9 +1010,7 @@ geçici bir süreliğine iki tane kod (eski ve yeniyi beraber) kullanın.</p>
 
 ["p/export-process"]
   default = """
-<p>İşlemi başlatın ve tamamlanınca size bir indirme bağlantısı gönderilsin. Bunu sadece saatte bir yapabilirsiniz ve sahip olabileceğiniz önceki yedeklerin üstüne yazılır.</p>
-
-<p>Bu, \"bot\" olarak işaretlenenler –ki bunlar genel görünümde görünmez– de dahil olmak üzere tüm sayfa görüntülemelerini içerir.</p>
+İşlemi başlatın ve tamamlanınca size bir indirme bağlantısı gönderilsin. Bunu sadece saatte bir yapabilirsiniz ve sahip olabileceğiniz önceki yedeklerin üstüne yazılır.
 """
 
 ["p/have-mfa"]

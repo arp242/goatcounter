@@ -1010,9 +1010,7 @@ Martin
 
 ["p/export-process"]
   default = """
-<p>Začnem proces a pošlem vám mail s linkom pre stiahnutie po dokončení. Túto akciu je možné vykonať iba raz za hodinu a prepíše akékoľvek predošlé zálohy, ktoré máte.</p>
-
-<p>Toto zahŕňa všetky pozretia stránok vrátane označených ako \"bot\", ktoré nie sú zobrazované v prehľade.</p>
+Začnem proces a pošlem vám mail s linkom pre stiahnutie po dokončení. Túto akciu je možné vykonať iba raz za hodinu a prepíše akékoľvek predošlé zálohy, ktoré máte.
 """
 
 ["p/have-mfa"]

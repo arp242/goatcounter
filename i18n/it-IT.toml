@@ -1019,9 +1019,7 @@ e il vecchio codice potrà essere utilizzato da chiunque; se lo stai già utiliz
 
 ["p/export-process"]
   default = """
-<p>Inizia il processo e riceverai un link di download via email quando sarà pronto. Puoi farlo una volta all'ora e sovrascriverà qualunque backup precedente che potresti aver fatto. </p>
-
-<p> Questo include tutte le visualizzazioni, incluse quelle mascate come \"bot\", che non sono mostrate nella panoramica. </p>
+Inizia il processo e riceverai un link di download via email quando sarà pronto. Puoi farlo una volta all'ora e sovrascriverà qualunque backup precedente che potresti aver fatto.
 """
 
 ["p/have-mfa"]

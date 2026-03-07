@@ -1013,9 +1013,7 @@ Verifikasi akan dijalankan setiap 2 jam.
 
 ["p/export-process"]
   default = """
-<p>Mulai proses dan kirim email kepada Anda sebuah tautan pengunduhan ketika selesai. Anda hanya dapat melakukan ini sekali setiap jam dan akan diutamakan daripada cadangan sebelumnya yang Anda mungkin punya.</p>
-
-<p>Ini termasuk semua tampilan laman, termasuk yang ditandai sebagai \"bot\", yang tidak ditampilkan di ikhtisar.</p>
+Mulai proses dan kirim email kepada Anda sebuah tautan pengunduhan ketika selesai. Anda hanya dapat melakukan ini sekali setiap jam dan akan diutamakan daripada cadangan sebelumnya yang Anda mungkin punya.
 """
 
 ["p/have-mfa"]

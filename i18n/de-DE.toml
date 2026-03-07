@@ -1008,9 +1008,7 @@ Eigene Domain, z.B. <em>„stats.example.com“</em>.
 
 ["p/export-process"]
   default = """
-<p>Den Prozess starten und E-Mail mit Link versenden, sobald der Prozess beendet wurde. Dies kann nur einmal pro Stunde gestartet werden und überschreibt alle eventuell vorhandenen Backups.</p>
-
-<p>Es sind alle Pageviews enthalten, auch jene, die als \"bot\" markiert wurden. Diese werden in der Übersicht nicht berücksichtigt.</p>
+Den Prozess starten und E-Mail mit Link versenden, sobald der Prozess beendet wurde. Dies kann nur einmal pro Stunde gestartet werden und überschreibt alle eventuell vorhandenen Backups.
 """
 
 ["p/have-mfa"]

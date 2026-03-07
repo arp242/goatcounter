@@ -1010,9 +1010,7 @@ Martin
 
 ["p/export-process"]
   default = """
-<p>Comenzar el proceso y enviar un archivo al correo cuando esté listo. Sólo puedes hacer esto una vez por hora y sobreescribirá cualquier copia de seguridad anterior que hayas tenido.</p>
-
-<p>Esto incluye todas las visitas, incluyendo aquellas marcadas como \"bot\" que no se muestran en el tablero.</p>
+Comenzar el proceso y enviar un archivo al correo cuando esté listo. Sólo puedes hacer esto una vez por hora y sobreescribirá cualquier copia de seguridad anterior que hayas tenido.
 """
 
 ["p/have-mfa"]

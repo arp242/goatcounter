@@ -1063,12 +1063,9 @@ site (de oude en nieuwe code) om te voorkomen dat pageviews verloren gaan.</p>
 
 ["p/export-process"]
   default = """
-<p>Start het proces  en email een download link zodra deze klaar is. Je kan dit
+Start het proces  en email een download link zodra deze klaar is. Je kan dit
 maximaal eenmaal per uur doen, en overschrijft elke vorige backups indien
-aanwezig.</p>
-
-<p>Hier zitten alle pageviews in, inclusief pageviews die als \"bot\" gemarkeerd
-zijn, welke niet getoond worden in het overzicht.</p>
+aanwezig.
 """
 
 ["p/have-mfa"]

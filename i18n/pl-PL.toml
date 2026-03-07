@@ -1034,10 +1034,7 @@ kody (ze starym i nowym), aby zapobiec utracie zliczenia jakichkolwiek odsłon.<
 
 ["p/export-process"]
   default = """
-<p>Rozpoczyna proces przetwarzania i wysyła e-mailem link do pobrania po zakończeniu. Można powtarzać raz na godzinę nadpisując poprzednie kopie zapasowe, które utworzono.</p>
-
-<p>Dotyczy to wszystkich odsłon, w tym oznaczonych jako „bot”,
-które nie są wyświetlane w przeglądzie.</p>
+Rozpoczyna proces przetwarzania i wysyła e-mailem link do pobrania po zakończeniu. Można powtarzać raz na godzinę nadpisując poprzednie kopie zapasowe, które utworzono.
 """
 
 ["p/have-mfa"]

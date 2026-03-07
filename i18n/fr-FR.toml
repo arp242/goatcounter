@@ -1001,7 +1001,7 @@ Domaine personnalisé, par exemple <em>“stats.example.com”</em>.<br>
 ["p/export-csv"]
 
 ["p/export-process"]
-  default = "<p>Démarrer le processus et vous envoyer un lien de téléchargement une fois que c'est fait. une fois qu'il est terminé. Vous ne pouvez effectuer cette opération qu'une fois par heure et elle annulera toutes les sauvegardes précédentes. sauvegardes précédentes que vous pourriez avoir.</p>"
+  default = "Démarrer le processus et vous envoyer un lien de téléchargement une fois que c'est fait. une fois qu'il est terminé. Vous ne pouvez effectuer cette opération qu'une fois par heure et elle annulera toutes les sauvegardes précédentes. sauvegardes précédentes que vous pourriez avoir."
 
 ["p/have-mfa"]
   default = "Ce compte est protégé par une authentification multi-facteurs (MFA) ; veuillez saisir le code de votre application d'authentification."
