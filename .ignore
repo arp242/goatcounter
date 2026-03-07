@@ -1,4 +1,4 @@
 /public/jquery.js
 /public/*.min.*
-/pack
-/msg
+/pkg/geo/GeoLite2-Country.mmdb.gz
+/db/migrate

@@ -39,21 +39,23 @@ func (e *Export) CreateCSV(ctx context.Context, startFrom HitID) (*os.File, erro
 
 	err := zdb.Insert(ctx, e)
 	if err != nil {
-		return nil, errors.Wrap(err, "Export.Create")
+		return nil, errors.Wrap(err, "Export.CreateCSV")
 	}
 
 	fp, err := os.Create(e.Path)
-	return fp, errors.Wrap(err, "Export.Create")
+	return fp, errors.Wrap(err, "Export.CreateCSV")
 }
 
 // Export all data to a CSV file.
 func (e *Export) RunCSV(ctx context.Context, fp *os.File, mailUser bool) {
 	l := log.Module("export").With("id", e.ID)
-	l.Info(ctx, "export started")
+	l.Info(ctx, "CSV export started")
 
 	gzfp := gzip.NewWriter(fp)
-	defer fp.Close() // No need to error-check; just for safety.
-	defer gzfp.Close()
+	defer func() {
+		gzfp.Close()
+		fp.Close()
+	}()
 
 	c := csv.NewWriter(gzfp)
 	c.Write([]string{ExportCSVVersion + "Path", "Title", "Event", "UserAgent",
@@ -104,7 +106,7 @@ func (e *Export) RunCSV(ctx context.Context, fp *os.File, mailUser bool) {
 		e.Error = new(exportErr.Error())
 		err := zdb.Update(ctx, e, "error")
 		if err != nil {
-			log.Error(ctx, err)
+			l.Error(ctx, err)
 		}
 
 		_ = gzfp.Close()
@@ -118,12 +120,12 @@ func (e *Export) RunCSV(ctx context.Context, fp *os.File, mailUser bool) {
 		l.Error(ctx, err)
 		return
 	}
+
 	err = fp.Sync() // Ensure stat is correct.
 	if err != nil {
 		l.Error(ctx, err)
 		return
 	}
-
 	stat, err := fp.Stat()
 	size := "0"
 	if err == nil {
@@ -150,7 +152,7 @@ func (e *Export) RunCSV(ctx context.Context, fp *os.File, mailUser bool) {
 	e.FinishedAt = new(ztime.Now(ctx))
 	zdb.Update(ctx, e, "finished_at", "num_rows", "size", "hash", "last_hit_id")
 	if err != nil {
-		log.Error(ctx, err)
+		l.Error(ctx, err)
 	}
 
 	if mailUser {

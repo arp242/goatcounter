@@ -1,11 +1,13 @@
 {{template "_backend_top.gohtml" .}}
 {{template "_settings_nav.gohtml" .}}
 
+<style>
+.flex-form +h3 { margin-top:1.5em; }
+</style>
+
 <h2 id="export">{{.T "header/export-or-import|Export/Import"}}</h2>
 
-<p>{{.T "p/csv-file-format|The format of the CSV file is %[documented over here]."
-	(tag "a" (printf `href="%s/help/export"` .Base))}}</p>
-
+<h3>{{.T "header/csv-format|CSV format"}}</h3>
 <div class="flex-form">
 	<form method="post" action="{{.Base}}/settings/export" class="vertical">
 		<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
@@ -36,13 +38,35 @@
 					There will be a ‘pagination cursor’ in the email, if you fill
 					this in here it will export only pageviews that were recorded
 					after the previous export.
-				`}}</span><br><br>
+				`}}</span>
+
+				<p>{{.T "p/csv-file-format|The format of the CSV file is %[documented over here]."
+					(tag "a" (printf `href="%s/help/export"` .Base))}}</p>
 
 				<button type="submit">{{.T "button/start-export|Start export"}}</button>
 			{{end}}
 		</fieldset>
 	</form>
 
+	<form method="post" action="{{.Base}}/settings/export/import" enctype="multipart/form-data" class="vertical">
+		<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
+
+		<fieldset>
+			<legend>{{.T "header/import-from-csv|Import from CSV"}}</legend>
+
+			<label for="file">{{.T "label/csv-compress-format|CSV file; may be compressed with gzip"}}</label>
+			<input type="file" name="csv" required accept=".csv,.csv.gz">
+
+			<label><input type="checkbox" name="replace"> {{.T "label/clear-pageviews|Clear all existing pageviews."}}</label>
+			<br>
+
+			<button type="submit">{{.T "button/start-import|Start import"}}</button>
+		</fieldset>
+	</form>
+</div>
+
+<h3>{{.T "header/other-formats|Other formats"}}</h3>
+<div class="flex-form">
 	<form method="post" action="{{.Base}}/settings/export/import-ga" enctype="multipart/form-data" class="vertical">
 		<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
 
@@ -70,25 +94,8 @@
 			<button type="submit">{{.T "button/upload-ga-import|Upload"}}</button><br>
 		</fieldset>
 	</form>
-
-	<form method="post" action="{{.Base}}/settings/export/import" enctype="multipart/form-data" class="vertical">
-		<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
-
-		<fieldset>
-			<legend>{{.T "header/import-from-csv|Import from CSV"}}</legend>
-
-			<label for="file">{{.T "label/csv-compress-format|CSV file; may be compressed with gzip"}}</label>
-			<input type="file" name="csv" required accept=".csv,.csv.gz">
-
-			<label><input type="checkbox" name="replace"> {{.T "label/clear-pageviews|Clear all existing pageviews."}}</label>
-			<br>
-
-			<button type="submit">{{.T "button/start-import|Start import"}}</button>
-		</fieldset>
-	</form>
 </div>
 
-<br>
 <h3>{{.T "header/last-10-exports|Last 10 exports"}}</h3>
 <div><table>
 <thead><tr>

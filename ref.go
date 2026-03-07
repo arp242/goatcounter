@@ -83,9 +83,9 @@ var hostAlias = map[string]string{
 type RefID int32
 
 type Ref struct {
-	ID        RefID  `db:"ref_id,id"`
-	Ref       string `db:"ref"`
-	RefScheme string `db:"ref_scheme"`
+	ID        RefID  `db:"ref_id,id" json:"id"`
+	Ref       string `db:"ref" json:"ref"`
+	RefScheme string `db:"ref_scheme" json:"ref_scheme"`
 }
 
 func (Ref) Table() string { return "refs" }
