@@ -359,11 +359,10 @@ Martin
 ["header/email"]
   default = "E-mail"
 
-["header/export"]
-  default = "Exportar"
-
 ["header/export-or-import"]
   default = "Exportar/Importar"
+
+["header/export-to-csv"]
 
 ["header/fewer-number"]
 
@@ -379,8 +378,9 @@ Martin
 ["header/hash"]
   default = "Hash"
 
-["header/import"]
-  default = "Importar"
+["header/import-from-csv"]
+
+["header/import-from-ga"]
 
 ["header/l10n"]
   default = "Localização"

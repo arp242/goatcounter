@@ -338,11 +338,10 @@
 ["header/email"]
   default = "信箱"
 
-["header/export"]
-  default = "匯出"
-
 ["header/export-or-import"]
   default = "匯出 / 匯入"
+
+["header/export-to-csv"]
 
 ["header/fewer-number"]
 
@@ -358,8 +357,9 @@
 ["header/hash"]
   default = "雜湊"
 
-["header/import"]
-  default = "匯入"
+["header/import-from-csv"]
+
+["header/import-from-ga"]
 
 ["header/l10n"]
   default = "本地化"

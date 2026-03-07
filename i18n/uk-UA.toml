@@ -325,11 +325,10 @@
 ["header/email"]
   default = "Електронна пошта"
 
-["header/export"]
-  default = "Експорт"
-
 ["header/export-or-import"]
   default = "Експорт / імпорт"
+
+["header/export-to-csv"]
 
 ["header/fewer-number"]
 
@@ -342,8 +341,9 @@
 
 ["header/hash"]
 
-["header/import"]
-  default = "Імпорт"
+["header/import-from-csv"]
+
+["header/import-from-ga"]
 
 ["header/l10n"]
   default = "Локалізація"

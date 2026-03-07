@@ -362,11 +362,10 @@ Martin
 ["header/email"]
   default = "邮箱"
 
-["header/export"]
-  default = "导出"
-
 ["header/export-or-import"]
   default = "导出/导入"
+
+["header/export-to-csv"]
 
 ["header/fewer-number"]
 
@@ -382,8 +381,9 @@ Martin
 ["header/hash"]
   default = "哈希"
 
-["header/import"]
-  default = "导入"
+["header/import-from-csv"]
+
+["header/import-from-ga"]
 
 ["header/l10n"]
   default = "本地化"
@@ -1014,9 +1014,7 @@ Martin
 ["p/export-csv"]
 
 ["p/export-process"]
-  default = """
-将在完成后通过邮件发送下载链接。你每小时只能导出 1 次，并且将覆盖之前的副本。
-"""
+  default = "将在完成后通过邮件发送下载链接。你每小时只能导出 1 次，并且将覆盖之前的副本。"
 
 ["p/have-mfa"]
   default = "此账号受多重身份验证保护；请输入验证器应用程序中的代码。"

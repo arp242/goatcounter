@@ -282,9 +282,9 @@
 
 ["header/email"]
 
-["header/export"]
-
 ["header/export-or-import"]
+
+["header/export-to-csv"]
 
 ["header/fewer-number"]
 
@@ -296,7 +296,9 @@
 
 ["header/hash"]
 
-["header/import"]
+["header/import-from-csv"]
+
+["header/import-from-ga"]
 
 ["header/l10n"]
 

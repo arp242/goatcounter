@@ -363,11 +363,10 @@
 ["header/email"]
   default = "Электронная почта"
 
-["header/export"]
-  default = "Экспорт"
-
 ["header/export-or-import"]
   default = "Экспорт/Импорт"
+
+["header/export-to-csv"]
 
 ["header/fewer-number"]
 
@@ -383,8 +382,9 @@
 ["header/hash"]
   default = "Хэш"
 
-["header/import"]
-  default = "Импорт"
+["header/import-from-csv"]
+
+["header/import-from-ga"]
 
 ["header/l10n"]
   default = "Локализация"

@@ -374,11 +374,10 @@ Martin
 ["header/email"]
   default = "E-mail"
 
-["header/export"]
-  default = "Eksport"
-
 ["header/export-or-import"]
   default = "Eksport/Import"
+
+["header/export-to-csv"]
 
 ["header/fewer-number"]
 
@@ -394,8 +393,9 @@ Martin
 ["header/hash"]
   default = "Hash"
 
-["header/import"]
-  default = "Import"
+["header/import-from-csv"]
+
+["header/import-from-ga"]
 
 ["header/l10n"]
   default = "Lokalizacja"
@@ -1033,9 +1033,7 @@ kody (ze starym i nowym), aby zapobiec utracie zliczenia jakichkolwiek odsłon.<
 ["p/export-csv"]
 
 ["p/export-process"]
-  default = """
-Rozpoczyna proces przetwarzania i wysyła e-mailem link do pobrania po zakończeniu. Można powtarzać raz na godzinę nadpisując poprzednie kopie zapasowe, które utworzono.
-"""
+  default = "Rozpoczyna proces przetwarzania i wysyła e-mailem link do pobrania po zakończeniu. Można powtarzać raz na godzinę nadpisując poprzednie kopie zapasowe, które utworzono."
 
 ["p/have-mfa"]
   default = "To konto jest chronione za pomocą uwierzytelniania wieloskładnikowego MFA; wprowadź kod z aplikacji uwierzytelniającej."

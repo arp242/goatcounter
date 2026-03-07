@@ -361,11 +361,10 @@ Martin
 ["header/email"]
   default = "Email"
 
-["header/export"]
-  default = "Export"
-
 ["header/export-or-import"]
   default = "Export/Import"
+
+["header/export-to-csv"]
 
 ["header/fewer-number"]
 
@@ -381,8 +380,9 @@ Martin
 ["header/hash"]
   default = "Hash"
 
-["header/import"]
-  default = "Import"
+["header/import-from-csv"]
+
+["header/import-from-ga"]
 
 ["header/l10n"]
   default = "Lokalizácia"
@@ -1009,9 +1009,7 @@ Martin
 ["p/export-csv"]
 
 ["p/export-process"]
-  default = """
-Začnem proces a pošlem vám mail s linkom pre stiahnutie po dokončení. Túto akciu je možné vykonať iba raz za hodinu a prepíše akékoľvek predošlé zálohy, ktoré máte.
-"""
+  default = "Začnem proces a pošlem vám mail s linkom pre stiahnutie po dokončení. Túto akciu je možné vykonať iba raz za hodinu a prepíše akékoľvek predošlé zálohy, ktoré máte."
 
 ["p/have-mfa"]
   default = "Tento účet je chránený multi-faktorovou autentifikáciou; prosím, zadajte kód z vašej autentifikačnej aplikácie."

@@ -357,11 +357,10 @@ Hier ist der entsprechende Link:
 ["header/email"]
   default = "E-Mail"
 
-["header/export"]
-  default = "Export"
-
 ["header/export-or-import"]
   default = "Export/Import"
+
+["header/export-to-csv"]
 
 ["header/fewer-number"]
 
@@ -377,8 +376,9 @@ Hier ist der entsprechende Link:
 ["header/hash"]
   default = "Hash"
 
-["header/import"]
-  default = "Import"
+["header/import-from-csv"]
+
+["header/import-from-ga"]
 
 ["header/l10n"]
   default = "Übersetzung"
@@ -1007,9 +1007,7 @@ Eigene Domain, z.B. <em>„stats.example.com“</em>.
 ["p/export-csv"]
 
 ["p/export-process"]
-  default = """
-Den Prozess starten und E-Mail mit Link versenden, sobald der Prozess beendet wurde. Dies kann nur einmal pro Stunde gestartet werden und überschreibt alle eventuell vorhandenen Backups.
-"""
+  default = "Den Prozess starten und E-Mail mit Link versenden, sobald der Prozess beendet wurde. Dies kann nur einmal pro Stunde gestartet werden und überschreibt alle eventuell vorhandenen Backups."
 
 ["p/have-mfa"]
   default = "Dieser Account verwendet Multi-Faktor-Authentifizierung. Bitte geben Sie den Code aus Ihrer Authentifzierungsapp ein."

@@ -351,11 +351,11 @@ Martin
 ["header/email"]
   default = "Email"
 
-["header/export"]
-  default = "Exportovat do CSV"
-
 ["header/export-or-import"]
   default = "Export/Import"
+
+["header/export-to-csv"]
+  default = "Exportovat do CSV"
 
 ["header/fewer-number"]
 
@@ -367,8 +367,9 @@ Martin
 
 ["header/hash"]
 
-["header/import"]
-  default = "Import"
+["header/import-from-csv"]
+
+["header/import-from-ga"]
 
 ["header/l10n"]
 

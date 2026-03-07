@@ -345,11 +345,10 @@
 ["header/email"]
   default = "ईमेल"
 
-["header/export"]
-  default = "निर्यात"
-
 ["header/export-or-import"]
   default = "आयात/निर्यात"
+
+["header/export-to-csv"]
 
 ["header/fewer-number"]
 
@@ -365,8 +364,9 @@
 ["header/hash"]
   default = "हैश"
 
-["header/import"]
-  default = "आयात"
+["header/import-from-csv"]
+
+["header/import-from-ga"]
 
 ["header/l10n"]
   default = "स्थानीयकरण"

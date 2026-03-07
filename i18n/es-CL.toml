@@ -363,11 +363,10 @@ Martin
 ["header/email"]
   default = "Correo"
 
-["header/export"]
-  default = "Exportar"
-
 ["header/export-or-import"]
   default = "Exportar/Importar"
+
+["header/export-to-csv"]
 
 ["header/fewer-number"]
 
@@ -383,8 +382,9 @@ Martin
 ["header/hash"]
   default = "Hash"
 
-["header/import"]
-  default = "Importar"
+["header/import-from-csv"]
+
+["header/import-from-ga"]
 
 ["header/l10n"]
   default = "Localización"
@@ -1009,9 +1009,7 @@ Martin
 ["p/export-csv"]
 
 ["p/export-process"]
-  default = """
-Comenzar el proceso y enviar un archivo al correo cuando esté listo. Sólo puedes hacer esto una vez por hora y sobreescribirá cualquier copia de seguridad anterior que hayas tenido.
-"""
+  default = "Comenzar el proceso y enviar un archivo al correo cuando esté listo. Sólo puedes hacer esto una vez por hora y sobreescribirá cualquier copia de seguridad anterior que hayas tenido."
 
 ["p/have-mfa"]
   default = "Esta cuenta está protegida con autenticación de múltiples factores; ingresa el código de tu aplicación de autenticación."

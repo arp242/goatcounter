@@ -362,11 +362,10 @@ Martin
 ["header/email"]
   default = "Email"
 
-["header/export"]
-  default = "Esporta"
-
 ["header/export-or-import"]
   default = "Esporta/Imports"
+
+["header/export-to-csv"]
 
 ["header/fewer-number"]
 
@@ -382,8 +381,9 @@ Martin
 ["header/hash"]
   default = "Hash"
 
-["header/import"]
-  default = "Importa"
+["header/import-from-csv"]
+
+["header/import-from-ga"]
 
 ["header/l10n"]
   default = "Localizzazione"
@@ -1018,9 +1018,7 @@ e il vecchio codice potrà essere utilizzato da chiunque; se lo stai già utiliz
 ["p/export-csv"]
 
 ["p/export-process"]
-  default = """
-Inizia il processo e riceverai un link di download via email quando sarà pronto. Puoi farlo una volta all'ora e sovrascriverà qualunque backup precedente che potresti aver fatto.
-"""
+  default = "Inizia il processo e riceverai un link di download via email quando sarà pronto. Puoi farlo una volta all'ora e sovrascriverà qualunque backup precedente che potresti aver fatto."
 
 ["p/have-mfa"]
   default = "Questo account è proteddo dall'autenticazione a più fattori; per favore inserisci il codice dell'app authenticator."

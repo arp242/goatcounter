@@ -11,7 +11,7 @@
 		<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
 
 		<fieldset>
-			<legend>{{.T "header/export|Export to CSV"}}</legend>
+			<legend>{{.T "header/export-to-csv|Export to CSV"}}</legend>
 			{{if not .CollectHits}}
 			{{.T `p/export-csv|
 				<p>CSV exports requires that collection of pageviews to enabled
@@ -47,7 +47,7 @@
 		<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
 
 		<fieldset>
-			<legend>{{.T "header/import|Totals from Google Analytics"}}</legend>
+			<legend>{{.T "header/import-from-ga|Totals from Google Analytics"}}</legend>
 			<p>{{.T `p/import-ga|
 				Google Analytics does not offer meaningful exports; it only
 				offers %[%ga exporting “reports”]. This gives an overview of
@@ -75,7 +75,7 @@
 		<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
 
 		<fieldset>
-			<legend>{{.T "header/import|Import from CSV"}}</legend>
+			<legend>{{.T "header/import-from-csv|Import from CSV"}}</legend>
 
 			<label for="file">{{.T "label/csv-compress-format|CSV file; may be compressed with gzip"}}</label>
 			<input type="file" name="csv" required accept=".csv,.csv.gz">

@@ -363,11 +363,10 @@ Martin
 ["header/email"]
   default = "Mél"
 
-["header/export"]
-  default = "Export"
-
 ["header/export-or-import"]
   default = "Export / Import"
+
+["header/export-to-csv"]
 
 ["header/fewer-number"]
 
@@ -383,8 +382,9 @@ Martin
 ["header/hash"]
   default = "Hash"
 
-["header/import"]
-  default = "Importation"
+["header/import-from-csv"]
+
+["header/import-from-ga"]
 
 ["header/l10n"]
   default = "Traduction"

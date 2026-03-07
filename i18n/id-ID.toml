@@ -360,11 +360,10 @@ Martin
 ["header/email"]
   default = "Email"
 
-["header/export"]
-  default = "Ekspor"
-
 ["header/export-or-import"]
   default = "Ekspor/Impor"
+
+["header/export-to-csv"]
 
 ["header/fewer-number"]
 
@@ -380,8 +379,9 @@ Martin
 ["header/hash"]
   default = "Hash"
 
-["header/import"]
-  default = "Impor"
+["header/import-from-csv"]
+
+["header/import-from-ga"]
 
 ["header/l10n"]
   default = "Lokalisasi"
@@ -1012,9 +1012,7 @@ Verifikasi akan dijalankan setiap 2 jam.
 ["p/export-csv"]
 
 ["p/export-process"]
-  default = """
-Mulai proses dan kirim email kepada Anda sebuah tautan pengunduhan ketika selesai. Anda hanya dapat melakukan ini sekali setiap jam dan akan diutamakan daripada cadangan sebelumnya yang Anda mungkin punya.
-"""
+  default = "Mulai proses dan kirim email kepada Anda sebuah tautan pengunduhan ketika selesai. Anda hanya dapat melakukan ini sekali setiap jam dan akan diutamakan daripada cadangan sebelumnya yang Anda mungkin punya."
 
 ["p/have-mfa"]
   default = "Akun ini dilindungi oleh autentikasi multifaktor; silakan memasukkan kode dari aplikasi autentikasi Anda."

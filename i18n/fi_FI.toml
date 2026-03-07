@@ -329,11 +329,11 @@ Martin
 ["header/email"]
   default = "Sähköpostiosoite"
 
-["header/export"]
-  default = "Vie CSV-muodossa"
-
 ["header/export-or-import"]
   default = "Vie/Tuo"
+
+["header/export-to-csv"]
+  default = "Vie CSV-muodossa"
 
 ["header/fewer-number"]
   default = "Näytä vähemmän numeroita"
@@ -350,8 +350,10 @@ Martin
 ["header/hash"]
   default = "Tarkiste"
 
-["header/import"]
+["header/import-from-csv"]
   default = "Tuo CSV-muodosta"
+
+["header/import-from-ga"]
 
 ["header/l10n"]
   default = "Lokalisaatio"

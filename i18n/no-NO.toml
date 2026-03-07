@@ -319,11 +319,10 @@ Hilsen Martin
 ["header/email"]
   default = "E-post"
 
-["header/export"]
-  default = "Eksport"
-
 ["header/export-or-import"]
   default = "Eksport/import"
+
+["header/export-to-csv"]
 
 ["header/fewer-number"]
 
@@ -337,7 +336,9 @@ Hilsen Martin
 
 ["header/hash"]
 
-["header/import"]
+["header/import-from-csv"]
+
+["header/import-from-ga"]
 
 ["header/l10n"]
 

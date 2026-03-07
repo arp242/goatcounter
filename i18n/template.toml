@@ -146,11 +146,11 @@
   default = "Sign in"
 
 ["button/start-export"]
-  loc     = ["tpl/settings_export.gohtml:44"]
+  loc     = ["tpl/settings_export.gohtml:41"]
   default = "Start export"
 
 ["button/start-import"]
-  loc     = ["tpl/settings_export.gohtml:89"]
+  loc     = ["tpl/settings_export.gohtml:86"]
   default = "Start import"
 
 ["button/submit"]
@@ -158,7 +158,7 @@
   default = "Submit"
 
 ["button/upload-ga-import"]
-  loc     = ["tpl/settings_export.gohtml:73"]
+  loc     = ["tpl/settings_export.gohtml:70"]
   default = "Upload"
 
 ["confirm/delete-user"]
@@ -553,20 +553,20 @@ Martin
   loc     = ["tpl/settings_users.gohtml:6"]
   default = "Email"
 
-["header/export"]
-  loc     = ["tpl/settings_export.gohtml:14"]
-  default = "Export to CSV"
-
 ["header/export-or-import"]
   loc     = ["tpl/settings_export.gohtml:4"]
   default = "Export/Import"
+
+["header/export-to-csv"]
+  loc     = ["tpl/settings_export.gohtml:14"]
+  default = "Export to CSV"
 
 ["header/fewer-number"]
   loc     = ["tpl/user_pref.gohtml:88"]
   default = "Show fewer numbers"
 
 ["header/finished"]
-  loc     = ["tpl/settings_export.gohtml:99"]
+  loc     = ["tpl/settings_export.gohtml:96"]
   default = "Finished"
 
 ["header/forgot-domain"]
@@ -578,15 +578,16 @@ Martin
   default = "Forgot password"
 
 ["header/hash"]
-  loc     = ["tpl/settings_export.gohtml:103"]
+  loc     = ["tpl/settings_export.gohtml:100"]
   default = "Hash"
 
-["header/import"]
-  loc = [
-    "tpl/settings_export.gohtml:53",
-    "tpl/settings_export.gohtml:81",
-  ]
+["header/import-from-csv"]
+  loc     = ["tpl/settings_export.gohtml:78"]
   default = "Import from CSV"
+
+["header/import-from-ga"]
+  loc     = ["tpl/settings_export.gohtml:50"]
+  default = "Totals from Google Analytics"
 
 ["header/l10n"]
   loc     = ["tpl/user_pref.gohtml:20"]
@@ -597,7 +598,7 @@ Martin
   default = "Languages"
 
 ["header/last-10-exports"]
-  loc     = ["tpl/settings_export.gohtml:95"]
+  loc     = ["tpl/settings_export.gohtml:92"]
   default = "Last 10 exports"
 
 ["header/last-used-at"]
@@ -639,7 +640,7 @@ Martin
   default = "Name"
 
 ["header/pagination-cursor"]
-  loc     = ["tpl/settings_export.gohtml:101"]
+  loc     = ["tpl/settings_export.gohtml:98"]
   default = "Pagination cursor"
 
 ["header/passwd-mfa"]
@@ -688,7 +689,7 @@ Martin
   default = "Sites"
 
 ["header/size"]
-  loc     = ["tpl/settings_export.gohtml:102"]
+  loc     = ["tpl/settings_export.gohtml:99"]
   default = "Size"
 
 ["header/sizes"]
@@ -696,11 +697,11 @@ Martin
   default = "Sizes"
 
 ["header/start-pagination-cursor"]
-  loc     = ["tpl/settings_export.gohtml:100"]
+  loc     = ["tpl/settings_export.gohtml:97"]
   default = "Started from pagination cursor"
 
 ["header/started"]
-  loc     = ["tpl/settings_export.gohtml:98"]
+  loc     = ["tpl/settings_export.gohtml:95"]
   default = "Started"
 
 ["header/systems"]
@@ -917,7 +918,7 @@ GeoIP database. See the <tt>-geo</tt> flag in
   default = "You will access your account at https://<em>[my-code]</em>.%(domain) – %[%link change]."
 
 ["label/clear-pageviews"]
-  loc     = ["tpl/settings_export.gohtml:86"]
+  loc     = ["tpl/settings_export.gohtml:83"]
   default = "Clear all existing pageviews."
 
 ["label/code"]
@@ -929,8 +930,8 @@ GeoIP database. See the <tt>-geo</tt> flag in
 
 ["label/csv-compress-format"]
   loc = [
-    "tpl/settings_export.gohtml:69",
-    "tpl/settings_export.gohtml:83",
+    "tpl/settings_export.gohtml:66",
+    "tpl/settings_export.gohtml:80",
   ]
   default = "CSV file; may be compressed with gzip"
 
@@ -1063,7 +1064,7 @@ GeoIP database. See the <tt>-geo</tt> flag in
   default = "New password (confirm)"
 
 ["label/pagination-cursor"]
-  loc     = ["tpl/settings_export.gohtml:36"]
+  loc     = ["tpl/settings_export.gohtml:33"]
   default = "Pagination cursor"
 
 ["label/password"]
@@ -1618,7 +1619,7 @@ previous backups you may have.
   default = "This account is protected with multi-factor auth; please enter the code from your authenticator app."
 
 ["p/import-ga"]
-  loc     = ["tpl/settings_export.gohtml:54"]
+  loc     = ["tpl/settings_export.gohtml:51"]
   default = """
 Google Analytics does not offer meaningful exports; it only
 offers %[%ga exporting “reports”]. This gives an overview of
@@ -1668,7 +1669,7 @@ Getting started is pretty easy, just add the following JavaScript anywhere on th
   default = "Will take effect immediately"
 
 ["p/notify-pagination-cursor"]
-  loc     = ["tpl/settings_export.gohtml:38"]
+  loc     = ["tpl/settings_export.gohtml:35"]
   default = """
 There will be a ‘pagination cursor’ in the email, if you fill
 this in here it will export only pageviews that were recorded

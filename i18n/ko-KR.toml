@@ -352,11 +352,10 @@
 ["header/email"]
   default = "이메일"
 
-["header/export"]
-  default = "내보내기"
-
 ["header/export-or-import"]
   default = "내보내기/가져오기"
+
+["header/export-to-csv"]
 
 ["header/fewer-number"]
 
@@ -372,8 +371,9 @@
 ["header/hash"]
   default = "해시"
 
-["header/import"]
-  default = "가져오기"
+["header/import-from-csv"]
+
+["header/import-from-ga"]
 
 ["header/l10n"]
   default = "지역화"

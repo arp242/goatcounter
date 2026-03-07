@@ -350,11 +350,10 @@ Martin
 ["header/email"]
   default = "E-posta"
 
-["header/export"]
-  default = "Dışa aktar"
-
 ["header/export-or-import"]
   default = "Dışa/İçe aktar"
+
+["header/export-to-csv"]
 
 ["header/fewer-number"]
 
@@ -370,8 +369,10 @@ Martin
 ["header/hash"]
   default = "Hash"
 
-["header/import"]
+["header/import-from-csv"]
   default = "İçe aktar"
+
+["header/import-from-ga"]
 
 ["header/l10n"]
   default = "Yerelleştirme"
@@ -1009,9 +1010,7 @@ geçici bir süreliğine iki tane kod (eski ve yeniyi beraber) kullanın.</p>
 ["p/export-csv"]
 
 ["p/export-process"]
-  default = """
-İşlemi başlatın ve tamamlanınca size bir indirme bağlantısı gönderilsin. Bunu sadece saatte bir yapabilirsiniz ve sahip olabileceğiniz önceki yedeklerin üstüne yazılır.
-"""
+  default = "İşlemi başlatın ve tamamlanınca size bir indirme bağlantısı gönderilsin. Bunu sadece saatte bir yapabilirsiniz ve sahip olabileceğiniz önceki yedeklerin üstüne yazılır."
 
 ["p/have-mfa"]
   default = "Bu hesap çok faktörlü kimlik doğrulama ile korunmaktadır; lütfen kimlik doğrulama uygulamanızdaki kodu girin."
