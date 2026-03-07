@@ -1,4 +1,8 @@
-The GoatCounter export is a CSV export of all pageviews of a site.
+GoatCounter can export a CSV of all pageviews. This can only be done of
+“Individual pageviews” is enabled in the site settings (it’s disabled by
+default).
+
+For most people the [JSON export](export-json) is a better option.
 
 There is no "standard" CSV; the export is created with the [`encoding/csv`][csv]
 package. Some notes:

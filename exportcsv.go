@@ -19,6 +19,7 @@ import (
 	"zgo.at/zstd/zcrypto"
 	"zgo.at/zstd/zint"
 	"zgo.at/zstd/ztime"
+	"zgo.at/zstd/ztype"
 )
 
 const ExportCSVVersion = "2"
@@ -32,7 +33,10 @@ func (e *Export) CreateCSV(ctx context.Context, startFrom HitID) (*os.File, erro
 
 	e.SiteID = site.ID
 	e.CreatedAt = ztime.Now(ctx)
-	e.StartFromHitID = startFrom
+	e.Format = "csv"
+	if startFrom > 0 {
+		e.StartFromHitID = new(startFrom)
+	}
 	e.Path = fmt.Sprintf("%s%sgoatcounter-export-%s-%s-%d.csv.gz",
 		os.TempDir(), string(os.PathSeparator), site.Code,
 		e.CreatedAt.Format("20060102T150405Z"), startFrom)
@@ -63,7 +67,7 @@ func (e *Export) RunCSV(ctx context.Context, fp *os.File, mailUser bool) {
 		"Screen size", "Location", "FirstVisit", "Date"})
 
 	var exportErr error
-	e.LastHitID = &e.StartFromHitID
+	e.LastHitID = new(ztype.Deref(e.StartFromHitID, 0))
 	var z int
 	e.NumRows = &z
 	for {

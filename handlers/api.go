@@ -239,8 +239,14 @@ func (h api) auth(r *http.Request, w http.ResponseWriter, require zint.Bitflag64
 }
 
 type apiExportRequest struct {
-	// Pagination cursor; only export hits with an ID greater than this.
+	// Export format, defaults to csv. {enum csv json}
+	Format string `json:"format"`
+
+	// Pagination cursor for CSV; only export hits with an ID greater than this.
 	StartFromHitID goatcounter.HitID `json:"start_from_hit_id"`
+
+	// The day to start this export from, for JSON exports.
+	StartFromDay time.Time `db:"start_from_day" json:"start_from_day,omitempty"`
 }
 
 // For testing various generic properties about the API.
@@ -341,13 +347,24 @@ func (h api) export(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	var export goatcounter.Export
-	fp, err := export.CreateCSV(r.Context(), req.StartFromHitID)
-	if err != nil {
-		return err
+	switch req.Format {
+	default:
+		return guru.Errorf(400, "unknown format: %q", req.Format)
+	case "csv":
+		fp, err := export.CreateCSV(r.Context(), req.StartFromHitID)
+		if err != nil {
+			return err
+		}
+		ctx := context.WithoutCancel(r.Context())
+		bgrun.MustRunFunction(fmt.Sprintf("export api:%d", export.SiteID), func() { export.RunCSV(ctx, fp, false) })
+	case "json":
+		fp, err := export.CreateJSON(r.Context(), req.StartFromDay)
+		if err != nil {
+			return err
+		}
+		ctx := context.WithoutCancel(r.Context())
+		bgrun.MustRunFunction(fmt.Sprintf("export api:%d", export.SiteID), func() { export.RunJSON(ctx, fp, false) })
 	}
-
-	ctx := context.WithoutCancel(r.Context())
-	bgrun.MustRunFunction(fmt.Sprintf("export api:%d", export.SiteID), func() { export.RunCSV(ctx, fp, false) })
 
 	w.WriteHeader(http.StatusAccepted)
 	return zhttp.JSON(w, export)
