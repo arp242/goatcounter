@@ -20,25 +20,31 @@ import (
 	"zgo.at/zstd/ztime"
 )
 
-const ExportJSONVersion = 2
+const ExportJSONVersion = 1.0
 
 // CreateJSON creates a new JSON export.
 //
 // Inserts a row in exports table and returns open file pointer to the
 // destination file.
-func (e *Export) CreateJSON(ctx context.Context) (*os.File, error) {
+func (e *Export) CreateJSON(ctx context.Context, periodStart time.Time) (*os.File, error) {
 	site := MustGetSite(ctx)
 
 	e.SiteID = site.ID
 	e.CreatedAt = ztime.Now(ctx)
+	e.Format = "json"
+	var start *string
+	if !periodStart.IsZero() {
+		e.StartFromDay = new(periodStart.Truncate(time.Hour * 24))
+		start = new(e.StartFromDay.Format("2006-01-01"))
+	}
 	e.Path = fmt.Sprintf("%s%sgoatcounter-export-%s-%s.zip",
 		os.TempDir(), string(os.PathSeparator), site.Code,
 		e.CreatedAt.Format("20060102T150405Z"))
 
 	var err error
 	e.ID, err = zdb.InsertID[ExportID](ctx, "export_id",
-		`insert into exports (site_id, path, created_at, start_from_hit_id) values (?, ?, ?, ?)`,
-		e.SiteID, e.Path, e.CreatedAt, e.StartFromHitID)
+		`insert into exports (site_id, path, created_at, start_from_day) values (?, ?, ?, ?)`,
+		e.SiteID, e.Path, e.CreatedAt, start)
 	if err != nil {
 		return nil, errors.Wrap(err, "Export.CreateJSON")
 	}
@@ -59,12 +65,14 @@ func (e *Export) RunJSON(ctx context.Context, fp *os.File, mailUser bool) {
 		fp.Close()
 	}()
 
+	// XXX: e.StartFromDay
 	tables := []struct {
 		p string
 		f func(w io.Writer) error
 	}{
 		{"paths", func(w io.Writer) error {
-			return queryToJSON[Path](ctx, w, `select path_id, path, title, event from paths where site_id=?`, siteID)
+			return queryToJSON[Path](ctx, w,
+				`select path_id, path, title, event from paths where site_id=?`, siteID)
 		}},
 		{"refs", func(w io.Writer) error {
 			return queryToJSON[Ref](ctx, w, `
@@ -120,8 +128,8 @@ func (e *Export) RunJSON(ctx context.Context, fp *os.File, mailUser bool) {
 				from campaign_stats
 				where site_id=? order by day asc`, siteID)
 		}},
-		{"ref_stats", func(w io.Writer) error {
-			return queryToJSON[ExportRefStat](ctx, w, `
+		{"hit_stats", func(w io.Writer) error {
+			return queryToJSON[ExportHitStat](ctx, w, `
 				select hour, path_id, ref_id, total
 				from ref_counts
 				where site_id=? order by hour asc`, siteID)
@@ -137,10 +145,13 @@ func (e *Export) RunJSON(ctx context.Context, fp *os.File, mailUser bool) {
 			l.Error(ctx, "err", err)
 			return
 		}
+		u := MustGetUser(ctx)
 		j, _ := json.MarshalIndent(ExportInfo{
-			Version:   ExportJSONVersion,
-			CreatedAt: ztime.Now(ctx).Truncate(time.Second),
-			Site:      GetSite(ctx).Display(ctx),
+			ExportVersion:      ExportJSONVersion,
+			GoatcounterVersion: Version,
+			CreatedFor:         GetSite(ctx).Display(ctx),
+			CreatedBy:          fmt.Sprintf("user %d <%s>", u.ID, u.Email),
+			CreatedAt:          ztime.Now(ctx).Truncate(time.Second),
 		}, "", "  ")
 		if err != nil {
 			l.Error(ctx, "err", err)
@@ -292,9 +303,9 @@ func ImportJSON(ctx context.Context, fp *os.File, replace, email bool) (*time.Ti
 		}
 		f.Close()
 
-		if info.Version > ExportJSONVersion {
-			return nil, fmt.Errorf("unknown export version %d; this version of GoatCounter (%s) only supports up to version %d",
-				info.Version, Version, ExportJSONVersion)
+		if info.ExportVersion > ExportJSONVersion {
+			return nil, fmt.Errorf("unknown export version %.1f; this version of GoatCounter (%s) only supports up to version %.1f",
+				info.ExportVersion, Version, ExportJSONVersion)
 		}
 	}
 
@@ -391,6 +402,20 @@ func ImportJSON(ctx context.Context, fp *os.File, replace, email bool) (*time.Ti
 				}
 				b.Values(v.ISO6393, v.Name)
 				return 0, nil
+			},
+		},
+		"campaigns.jsonl": {
+			table: "campaigns",
+			idcol: "campaign_id",
+			cols:  []string{"name"},
+			values: func(b *zdb.BulkInsert, line []byte) (int64, error) {
+				var v Campaign
+				err := json.Unmarshal(line, &v)
+				if err != nil {
+					return 0, err
+				}
+				b.Values(v.Name)
+				return int64(v.ID), nil
 			},
 		},
 	}
@@ -552,10 +577,13 @@ func ImportJSON(ctx context.Context, fp *os.File, replace, email bool) (*time.Ti
 			//		return nil
 			//	},
 			//},
-			"ref_stats": {
+
+			// XXX: this should be used for both the hit_counts and ref_counts
+			// table.
+			"ref_counts": {
 				tbl: Tables.RefCounts,
 				values: func(b *zdb.BulkInsert, line []byte) error {
-					var v ExportRefStat
+					var v ExportHitStat
 					err := json.Unmarshal(line, &v)
 					if err != nil {
 						return err

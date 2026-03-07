@@ -18,10 +18,19 @@
 					done. You can only do this once per hour and will override any
 					previous backups you may have.
 				`}}</p>
-				<label for="period-start">{{.T "Start"}}</label>
-				<input type="date" id="period-start" name="period-start">
 
-				<button type="submit">{{.T "button/start-export|Start export"}}</button>
+				<label for="period-start">{{.T "label/export-from-date|Export from date"}}</label>
+				<input type="date" id="period-start" name="period-start">
+				<span>{{.T `p/export-from-date|
+					Only include data starting from this date. This is always in
+					UTC. Please be sure to read the documentation to understand
+					some caveats with this.
+				`}}</span>
+
+				<p>{{.T "p/json-file-format|The JSON export is a ZIP file containing several JSON docuemnts, and is %[documented over here]."
+					(tag "a" (printf `href="%s/help/export-json"` .Base))}}</p>
+
+				<button type="submit" name="format" value="json">{{.T "button/start-export|Start export"}}</button>
 		</fieldset>
 	</form>
 
@@ -63,8 +72,8 @@
 					previous backups you may have.
 				`}}</p>
 
-				<label for="startFrom">{{.T "label/pagination-cursor|Pagination cursor"}}</label>
-				<input type="number" id="startFrom" name="startFrom">
+				<label for="start-from">{{.T "label/pagination-cursor|Pagination cursor"}}</label>
+				<input type="number" id="start-from" name="start-from">
 				<span>{{.T `p/notify-pagination-cursor|
 					There will be a ‘pagination cursor’ in the email, if you fill
 					this in here it will export only pageviews that were recorded
@@ -74,7 +83,7 @@
 				<p>{{.T "p/csv-file-format|The format of the CSV file is %[documented over here]."
 					(tag "a" (printf `href="%s/help/export"` .Base))}}</p>
 
-				<button type="submit">{{.T "button/start-export|Start export"}}</button>
+				<button type="submit" name="format" value="csv">{{.T "button/start-export|Start export"}}</button>
 			{{end}}
 		</fieldset>
 	</form>
@@ -135,6 +144,7 @@
 	<th>{{.T "header/start-pagination-cursor|Started from pagination cursor"}}</th>
 	<th>{{.T "header/pagination-cursor|Pagination cursor"}}</th>
 	<th>{{.T "header/size|Size"}}</th>
+	<th>{{.T "header/format|Format"}}</th>
 	<th>{{.T "header/hash|Hash"}}</th>
 	<th></th>
 </tr></thead>
@@ -148,6 +158,7 @@
 			<td>{{if $e.LastHitID}}{{$e.LastHitID}}{{end}}</td>
 
 			<td>{{if $e.NumRows}}{{$e.Size}}M; {{nformat $e.NumRows $.User}} rows{{end}}</td>
+			<td>{{$e.Format}}</td>
 			<td class="hash"><input style="width: 8em" value="{{$e.Hash}}"></td>
 			<td>
 				{{if and $e.Exists $e.FinishedAt}}

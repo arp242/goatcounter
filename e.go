@@ -6,9 +6,11 @@ import (
 
 type (
 	ExportInfo struct {
-		CreatedAt time.Time `json:"created_at"`
-		Version   int       `json:"version"`
-		Site      string    `json:"site"`
+		ExportVersion      float64   `json:"export_version"`
+		GoatcounterVersion string    `json:"goatcounter_version"`
+		CreatedFor         string    `json:"created_for"`
+		CreatedBy          string    `json:"created_by"`
+		CreatedAt          time.Time `json:"created_at"`
 	}
 	ExportLanguage struct {
 		ISO6393 string `db:"iso_639_3" json:"iso_639_3"`
@@ -51,7 +53,7 @@ type (
 		Ref        string     `db:"ref" json:"ref"`
 		Count      int        `db:"count" json:"count"`
 	}
-	ExportRefStat struct {
+	ExportHitStat struct {
 		Hour   string `db:"hour" json:"hour"`
 		PathID PathID `db:"path_id" json:"path_id"`
 		RefID  RefID  `db:"ref_id" json:"ref_id"`
