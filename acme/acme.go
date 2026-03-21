@@ -151,9 +151,8 @@ func Setup(db zdb.DB, flag string, dev bool) (*tls.Config, http.HandlerFunc, uin
 			panic("-tls: no acme and no certificates")
 		}
 		return &tls.Config{
-			PreferServerCipherSuites: true,
-			MinVersion:               tls.VersionTLS12,
-			Certificates:             certs,
+			MinVersion:   tls.VersionTLS12,
+			Certificates: certs,
 		}, nil, listen
 	}
 
