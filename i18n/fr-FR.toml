@@ -1,7 +1,7 @@
 [__meta__]
   language = "fr-FR"
-  maintainers = []
-  modified = 2024-04-09
+  maintainers = ['olivier.potonniee@thalesgroup.com']
+  modified = 2026-03-23
 
 ["button/add-new"]
   default = "Ajouter"
@@ -363,10 +363,11 @@ Martin
 ["header/email"]
   default = "Mél"
 
+["header/export"]
+  default = "Export"
+
 ["header/export-or-import"]
   default = "Export / Import"
-
-["header/export-to-csv"]
 
 ["header/fewer-number"]
 
@@ -382,9 +383,8 @@ Martin
 ["header/hash"]
   default = "Hash"
 
-["header/import-from-csv"]
-
-["header/import-from-ga"]
+["header/import"]
+  default = "Importation"
 
 ["header/l10n"]
   default = "Traduction"
@@ -769,10 +769,13 @@ Domaine personnalisé, par exemple <em>“stats.example.com”</em>.<br>
   default = "Aller à %(path)"
 
 ["link/import"]
+  default = "Importer/Exporter"
 
 ["link/manage-pageviews"]
+  default = "Gérer les pages vues"
 
 ["link/merge-account"]
+  default = "Fusionner un compte"
 
 ["link/passwd-mfa"]
   default = "Mot de passe et MFA"
@@ -790,6 +793,7 @@ Domaine personnalisé, par exemple <em>“stats.example.com”</em>.<br>
   default = "Paramètres"
 
 ["link/show-less"]
+  default = "(voir moins)"
 
 ["link/show-more"]
   default = "Voir plus"
@@ -828,18 +832,19 @@ Domaine personnalisé, par exemple <em>“stats.example.com”</em>.<br>
   default = "Filtrer les pages"
 
 ["nav-dash/filter-more-help"]
+  default = "Aide supplémentaire"
 
 ["nav-dash/filter-tooltip"]
   default = """
-<p>Filtre la liste des pages selon chemin ou titre (sans tenir compte maj/min). %[%more More help]</p>
+<p>Filtrer la liste des pages selon leur chemin ou titre (sans tenir compte maj/min). %[%more More help]</p>
 
   <div>
-    <p>Recognizes the following keywords:</p>
+    <p>Mots clés reconnus:</p>
     <ul>
-      <li><em>at:start</em>, <em>at:end</em>:       match only at the start or end of path or title. Use both for exact match.</li>
-      <li><em>in:path</em>, <em>in:title</em>       match only path or title.</li>
-      <li><em>is:event</em>, <em>is:pageview</em>   show only events or pageviews.</li>
-      <li><em>:not</em> negate the match (that is: only show paths that don't match the filter).</li>
+      <li><em>at:start</em>, <em>at:end</em>:       le pattern doit être en début ou fin du chemin ou titre. Utilisez les 2 pour une correspondance complète.</li>
+      <li><em>in:path</em>, <em>in:title</em>       le pattern doit être dans le chemin, ou dans le titre.</li>
+      <li><em>is:event</em>, <em>is:pageview</em>   Montrer uniquement les événements, ou les pages vues.</li>
+      <li><em>:not</em> Inverse le pattern (c'est-à-dire: ne montrer que les éléments qui ne correspondent pas au pattern).</li>
     </ul>
   </div>
 """
@@ -851,6 +856,7 @@ Domaine personnalisé, par exemple <em>“stats.example.com”</em>.<br>
   default = "semestre"
 
 ["nav-dash/hour"]
+  default = "heure"
 
 ["nav-dash/last"]
   default = "Voir 1"
@@ -865,6 +871,7 @@ Domaine personnalisé, par exemple <em>“stats.example.com”</em>.<br>
   default = "Date de début des statistiques"
 
 ["nav-dash/view-by"]
+  default = "Vue par:"
 
 ["nav-dash/week"]
   default = "semaine"
@@ -873,8 +880,10 @@ Domaine personnalisé, par exemple <em>“stats.example.com”</em>.<br>
   default = "an"
 
 ["nav-fash/filter-less-help"]
+  default = "Moins d'aide"
 
 ["new-paren"]
+  default = "(nouveau)"
 
 ["no-title"]
   default = "pas de titre"
@@ -898,6 +907,7 @@ Domaine personnalisé, par exemple <em>“stats.example.com”</em>.<br>
   default = "L'exportation a commencé en arrière-plan ; vous recevrez un courriel contenant un lien de téléchargement lorsque l'opération sera terminée."
 
 ["notify/import-ga-okay"]
+  default = "Données traitées avec succès."
 
 ["notify/import-started-in-background"]
   default = "L'importation a commencé en arrière-plan ; vous recevrez un courriel contenant un lien de téléchargement lorsque l'opération sera terminée."
@@ -964,16 +974,22 @@ Domaine personnalisé, par exemple <em>“stats.example.com”</em>.<br>
 """
 
 ["p/add-multiple-accounts"]
+  default = "Vous pouvez utiliser la commande <code>goatcounter db create site</code> depuis l'interface de ligne de commande (CLI) pour créer plusieurs comptes. Ces comptes seront totalement indépendants et ne partageront ni utilisateurs ni aucune autre ressource. Par exemple :"
 
 ["p/additional-errors"]
   default = "Autres erreurs"
 
 ["p/all-sites"]
+  default = "Tous les sites, y compris ceux créés ultérieurement"
 
 ["p/api-intro"]
   default = "GoatCounter inclut un API limité. Présentement, vous pouvez l'utiliser pour compter les pages vues, pour créer, supprimer et éditer vos sites, et pour exporter des données."
 
 ["p/change-code-request"]
+  default = """
+<p><strong>ATTENTION:</strong> Cela prendra effet <strong>immédiatement</strong>
+et l'ancien code peut être réenregistré par n’importe qui ; si vous l’utilisez déjà, modifiez-le dès que possible, ou ajoutez temporairement deux codes d’intégration (l’ancien et le nouveau) afin d’éviter toute perte de pages vues.</p>
+"""
 
 ["p/change-email"]
   default = "Modifier l'adresse mél dans %[settings]."
@@ -988,6 +1004,7 @@ Domaine personnalisé, par exemple <em>“stats.example.com”</em>.<br>
   default = "Le format du fichier CSV est %[documenté ici]."
 
 ["p/delete-account"]
+  default = "Le site et toutes les données associées seront définitivement supprimés, sans possibilité de récupération."
 
 ["p/disable-mfa"]
   default = "L'authentification MFA est activée pour ce compte."
@@ -999,9 +1016,13 @@ Domaine personnalisé, par exemple <em>“stats.example.com”</em>.<br>
   default = "Erreur : %(error-message)"
 
 ["p/export-csv"]
+  default = """
+L'exportation CSV nécessite que la collecte des pages vues soit activée dans les paramètres du site %[%setting site settings], mais elle est actuellement désactivée.
+<p>Vous pouvez toujours utiliser l'API pour obtenir les statistiques agrégées utilisées sur le tableau de bord ; voir la documentation de l'API %[%api API docs].</p>
+"""
 
 ["p/export-process"]
-  default = "Démarrer le processus et vous envoyer un lien de téléchargement une fois que c'est fait. une fois qu'il est terminé. Vous ne pouvez effectuer cette opération qu'une fois par heure et elle annulera toutes les sauvegardes précédentes. sauvegardes précédentes que vous pourriez avoir."
+  default = "<p>Démarrer le processus et vous envoyer un lien de téléchargement une fois que c'est fait. une fois qu'il est terminé. Vous ne pouvez effectuer cette opération qu'une fois par heure et elle annulera toutes les sauvegardes précédentes. sauvegardes précédentes que vous pourriez avoir.</p>"
 
 ["p/have-mfa"]
   default = "Ce compte est protégé par une authentification multi-facteurs (MFA) ; veuillez saisir le code de votre application d'authentification."
