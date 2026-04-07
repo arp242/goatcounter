@@ -402,14 +402,19 @@ OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 PERFORMANCE OF THIS SOFTWARE.
 
 
-––– public/fonts/*; OFL 1.1; http://www.latofonts.com –––––––––––––––––––––––––
+––– public/fonts/*; OFL 1.1; Lato + Rajdhani –––––––––––––––––––––––––––––––––––
 
+Lato:
 Copyright (c) 2010-2015, Łukasz Dziedzic (dziedzic@typoland.com),
 with Reserved Font Name Lato.
+
+Rajdhani:
+Copyright (c) 2014, Indian Type Foundry (info@indiantypefoundry.com).
 
 This Font Software is licensed under the SIL Open Font License, Version 1.1.
 This license is copied below, and is also available with a FAQ at:
 http://scripts.sil.org/OFL
+https://openfontlicense.org
 
 
 -----------------------------------------------------------

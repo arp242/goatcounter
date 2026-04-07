@@ -1,3 +1,19 @@
+@font-face {
+    font-family: 'Rajdhani';
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url('fonts/rajdhani-regular.woff2') format('woff2');
+}
+
+@font-face {
+    font-family: 'Rajdhani';
+    font-style: normal;
+    font-weight: 700;
+    font-display: swap;
+    src: url('fonts/rajdhani-bold.woff2') format('woff2');
+}
+
 :root {
     --text:              #f0f0fa;
     --bg:                #000000;
@@ -82,4 +98,35 @@
 
     --plus:                    #4dc78e;
     --minus:                   #c97ae9;
+}
+
+html,
+body,
+textarea,
+select,
+input,
+button,
+.input {
+    font-family: 'Rajdhani', Arial, Verdana, sans-serif;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+nav strong,
+button:not(.link),
+input[type="submit"]:not(.link) {
+    font-family: 'Rajdhani', Arial, Verdana, sans-serif;
+    font-weight: 700;
+}
+
+nav,
+nav a,
+legend,
+button:not(.link),
+input[type="submit"]:not(.link) {
+    letter-spacing: .06em;
 }
