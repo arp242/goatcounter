@@ -15,6 +15,11 @@ Latest
 - Check for existence of `navigator.sendBeacon()`, and use the image-based
   fallback if it doesn't exist.
 
+- Recognize `no_session` in `goatcounter.get_data()` and `goatcounter.count()`.
+
+- Recognize `data-goatcounter-no-session` for elements with
+  `data-goatcounter-click`.
+
 v5 (9 June 2025)
 ----------------
     <script data-goatcounter="{{.SiteURL}}/count"

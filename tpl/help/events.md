@@ -20,6 +20,10 @@ The regular `title` attribute or the element's HTML (capped to 200 characters)
 is used if `data-goatcounter-title` is empty. There is no default for the
 referrer.
 
+`data-goatcounter-no-session="1"` can be added to skip tracking sessions for
+this event so it will always be counted, even if the user clicked the link more
+than once in quick succession.
+
 ### Sending events from JavaScript
 You can send an event by setting the `event` parameter to `true` in `count()`.
 For example:

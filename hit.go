@@ -27,13 +27,14 @@ type Hit struct {
 	Session    zint.Uint128 `db:"session" json:"-"`
 	Width      *int16       `db:"width" json:"width"`
 
-	Path  string     `db:"-" json:"p,omitempty"`
-	Title string     `db:"-" json:"t,omitempty"`
-	Ref   string     `db:"-" json:"r,omitempty"`
-	Event zbool.Bool `db:"-" json:"e,omitempty"`
-	Size  Floats     `db:"-" json:"s,omitempty"`
-	Query string     `db:"-" json:"q,omitempty"`
-	Bot   int        `db:"-" json:"b,omitempty"`
+	Path      string     `db:"-" json:"p,omitempty"`
+	Title     string     `db:"-" json:"t,omitempty"`
+	Ref       string     `db:"-" json:"r,omitempty"`
+	Event     zbool.Bool `db:"-" json:"e,omitempty"`
+	Size      Floats     `db:"-" json:"s,omitempty"`
+	Query     string     `db:"-" json:"q,omitempty"`
+	Bot       int        `db:"-" json:"b,omitempty"`
+	NoSession zbool.Bool `db:"-" json:"ns,omitempty"`
 
 	RefScheme       string     `db:"ref_scheme" json:"-"`
 	UserAgentHeader string     `db:"-" json:"-"`

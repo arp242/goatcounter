@@ -38,6 +38,7 @@
 		if (is_empty(data.r)) data.r = document.referrer
 		if (is_empty(data.t)) data.t = document.title
 		if (is_empty(data.p)) data.p = get_path()
+		if (vars.no_session) data.ns = (typeof(vars.no_session) === 'function' ? vars.no_session(false) : vars.no_session)
 
 		if (rcb) data.r = rcb(data.r)
 		if (tcb) data.t = tcb(data.t)
@@ -179,10 +180,11 @@
 		var send = function(elem) {
 			return function() {
 				goatcounter.count({
-					event:    true,
-					path:     (elem.dataset.goatcounterClick || elem.name || elem.id || ''),
-					title:    (elem.dataset.goatcounterTitle || elem.title || (elem.innerHTML || '').substr(0, 200) || ''),
-					referrer: (elem.dataset.goatcounterReferrer || elem.dataset.goatcounterReferral || ''),
+					event:      true,
+					path:       (elem.dataset.goatcounterClick || elem.name || elem.id || ''),
+					title:      (elem.dataset.goatcounterTitle || elem.title || (elem.innerHTML || '').substr(0, 200) || ''),
+					referrer:   (elem.dataset.goatcounterReferrer || elem.dataset.goatcounterReferral || ''),
+					no_session: ['1', 't', 'true'].indexOf((elem.dataset.goatcounterNoSession || '').toLowerCase()) !== -1,
 				})
 			}
 		}

@@ -61,12 +61,13 @@ You can also use a callback: the default value is passed and the return value is
 sent to the server. No pageview is sent at all if the callback for `path`
 returns `null`.
 
-| Variable   | Description                                                                                                                                        |
-| :-------   | :----------                                                                                                                                        |
-| `path`     | Page path (without domain) or event name. Default is the value of `<link rel="canonical">` if it exists, or `location.pathname + location.search`. |
-| `title`    | Human-readable title. Default is `document.title`.                                                                                                 |
-| `referrer` | Where the user came from; can be an URL (`https://example.com`) or any string (`June Newsletter`). Default is to use the `Referer` header.         |
-| `event`    | Treat the `path` as an event, rather than a URL. Boolean.                                                                                          |
+| Variable     | Description                                                                                                                                        |
+| :-------     | :----------                                                                                                                                        |
+| `path`       | Page path (without domain) or event name. Default is the value of `<link rel="canonical">` if it exists, or `location.pathname + location.search`. |
+| `title`      | Human-readable title. Default is `document.title`.                                                                                                 |
+| `referrer`   | Where the user came from; can be an URL (`https://example.com`) or any string (`June Newsletter`). Default is to use the `Referer` header.         |
+| `event`      | Treat the `path` as an event, rather than a URL. Boolean.                                                                                          |
+| `no_session` | Don’t track sessions for this pageview so it will always be counted, even if the user reloaded the page. Mainly useful for events, if you want to track e.g. every button click. Generally not recommended for pageviews except for special scenarios. |
 
 Like with the settings above, you can use both the `data-goatcounter-settings`
 attribute and `window.goatcounter` object. For example, to always send `/hello`

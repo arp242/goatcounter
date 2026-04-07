@@ -291,11 +291,11 @@ func (m *ms) processHit(ctx context.Context, h *Hit) bool {
 		return false
 	}
 
-	if h.Session.IsZero() && site.Settings.Collect.Has(CollectSession) {
+	if h.Session.IsZero() && site.Settings.Collect.Has(CollectSession) && !h.NoSession.Bool() {
 		h.Session, h.FirstVisit = m.session(ctx, site.ID, h.PathID, h.UserSessionID, h.UserAgentHeader, h.RemoteAddr)
 	}
 
-	if !site.Settings.Collect.Has(CollectSession) {
+	if !site.Settings.Collect.Has(CollectSession) || h.NoSession.Bool() {
 		h.Session, h.FirstVisit = zint.Uint128{}, true
 	}
 	if !site.Settings.Collect.Has(CollectScreenSize) {
