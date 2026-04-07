@@ -70,6 +70,10 @@ func (l *loaderT) connect(r *http.Request, id zint.Uint128, c *websocket.Conn) {
 	l.conns.Set(id, &loaderClient{conn: c})
 }
 
+func (l loaderT) logError(err error) bool {
+	return err != nil && !strings.Contains(err.Error(), "use of closed network connection") && !strings.Contains(err.Error(), "write: broken pipe")
+}
+
 func (l *loaderT) sendJSON(r *http.Request, id zint.Uint128, data any) {
 	c, ok := l.conns.Get(id)
 	if !ok {
@@ -105,7 +109,7 @@ func (l *loaderT) sendJSON(r *http.Request, id zint.Uint128, data any) {
 		if w != nil {
 			w.Close()
 		}
-		if !strings.Contains(err.Error(), "use of closed network connection") {
+		if l.logError(err) {
 			log.Error(r.Context(), fmt.Errorf("loader.send: NextWriter: %w", err), log.AttrHTTP(r),
 				"connectID", id,
 				"siteID", Site(r.Context()).ID,
@@ -116,7 +120,7 @@ func (l *loaderT) sendJSON(r *http.Request, id zint.Uint128, data any) {
 
 	j, err := json.Marshal(data)
 	if err != nil {
-		if !strings.Contains(err.Error(), "use of closed network connection") {
+		if l.logError(err) {
 			log.Error(r.Context(), fmt.Errorf("loader.send: %w", err), log.AttrHTTP(r),
 				"connectID", id,
 				"siteID", Site(r.Context()).ID,
@@ -128,7 +132,7 @@ func (l *loaderT) sendJSON(r *http.Request, id zint.Uint128, data any) {
 	_, err = w.Write(j)
 	w.Close()
 	if err != nil {
-		if !strings.Contains(err.Error(), "use of closed network connection") {
+		if l.logError(err) {
 			log.Error(r.Context(), fmt.Errorf("loader.send: Write: %w", err), log.AttrHTTP(r),
 				"connectID", id,
 				"siteID", Site(r.Context()).ID,
