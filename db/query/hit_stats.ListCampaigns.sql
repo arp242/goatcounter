@@ -5,7 +5,7 @@ with x as (
 	from campaign_stats
 	where site_id = :site and day >= :start and day <= :end and :filter
 	group by campaign_id
-	order by count desc, campaign_id
+	order by count desc, campaign_id asc
 	limit :limit offset :offset
 )
 select
@@ -14,4 +14,4 @@ select
 	x.count  as count
 from x
 join campaigns using (campaign_id)
-order by count desc, name asc
+order by count desc, campaign_id asc

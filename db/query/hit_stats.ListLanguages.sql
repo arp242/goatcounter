@@ -5,7 +5,7 @@ with x as (
 	from language_stats
 	where site_id = :site and day >= :start and day <= :end and :filter
 	group by language
-	order by count desc, language
+	order by count desc, language asc
 	limit :limit offset :offset
 )
 select
@@ -14,4 +14,4 @@ select
 	x.count             as count
 from x
 join languages on languages.iso_639_3 = x.language
-order by count desc, name asc
+order by count desc, language asc

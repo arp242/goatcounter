@@ -5,7 +5,7 @@ with x as (
 	from location_stats
 	where site_id = :site and day >= :start and day <= :end and :filter
 	group by loc
-	order by count desc, loc
+	order by count desc, loc asc
 	limit :limit offset :offset
 )
 select
@@ -14,4 +14,4 @@ select
 	x.count         as count
 from x
 join locations on locations.iso_3166_2 = x.loc
-order by count desc, name asc
+order by count desc, loc asc
