@@ -461,7 +461,7 @@ func (h website) doForgot(w http.ResponseWriter, r *http.Request) error {
 
 	ctx := context.WithoutCancel(r.Context())
 	bgrun.RunFunction("email:sites", func() {
-		defer log.Recover(ctx)
+		defer log.Recover(r.Context(), func(err error) { log.Error(r.Context(), err, log.AttrHTTP(r)) })
 		err := blackmail.Get(ctx).Send("Your GoatCounter sites",
 			mail.Address{Name: "GoatCounter", Address: goatcounter.Config(ctx).EmailFrom},
 			blackmail.To(args.Email),

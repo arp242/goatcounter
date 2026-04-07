@@ -1096,13 +1096,13 @@ func (h api) countTotal(w http.ResponseWriter, r *http.Request) error {
 		rng         = ztime.NewRange(args.Start).To(args.End)
 	)
 	wg.Go(func() {
-		defer log.Recover(r.Context())
+		defer log.Recover(r.Context(), func(err error) { log.Error(r.Context(), err, log.AttrHTTP(r)) })
 		// TODO(apiv2): don't have this totalEevents set to "true"; need to add
 		// parameter for it.
 		tc, tcErr = goatcounter.GetTotalCount(r.Context(), rng, includeIDs, true)
 	})
 	wg.Go(func() {
-		defer log.Recover(r.Context())
+		defer log.Recover(r.Context(), func(err error) { log.Error(r.Context(), err, log.AttrHTTP(r)) })
 		oErr = total.Totals(r.Context(), rng, includeIDs, goatcounter.GroupDaily, false)
 	})
 	wg.Wait()

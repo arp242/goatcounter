@@ -196,7 +196,7 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	go func() {
-		defer log.Recover(r.Context())
+		defer log.Recover(r.Context(), func(err error) { log.Error(r.Context(), err, log.AttrHTTP(r)) })
 		run := zsync.NewAtMost(2)
 		for _, w := range lazy {
 			func(w widgets.Widget) {
