@@ -648,7 +648,7 @@ func (ss *UserSettings) Validate(ctx context.Context) error {
 		v.Append("email_reports", "invalid value")
 	}
 
-	v.Include("theme", ss.Theme, []string{"", "light", "dark"})
+	v.Include("theme", ss.Theme, []string{"", "light", "dark", "spectral"})
 
 	return v.ErrorOrNil()
 }

@@ -1762,6 +1762,10 @@ Matches are case insensitive. Supports the following special characters:
   loc     = ["tpl/user_pref.gohtml:127"]
   default = "Use system setting"
 
+["theme/spectral"]
+  loc     = ["tpl/user_pref.gohtml:130"]
+  default = "Spectral"
+
 ["tooltip/change-period"]
   loc     = ["tpl/_dashboard_pages_rows.gohtml:12"]
   default = "Change compared to previous period"

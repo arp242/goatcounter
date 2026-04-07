@@ -1,0 +1,85 @@
+:root {
+    --text:              #f0f0fa;
+    --bg:                #000000;
+    --header-border:     #3c3f49;
+    --backdrop:          #050505;
+    --target-bg:         #2f3442;
+    --loading-text:      #8b90a0;
+
+    --link:              #c9d6ff;
+    --link-hover:        #ffffff;
+
+    --input-text:        #f0f0fa;
+    --input-bg:          #050608;
+    --input-border:      #4a4d56;
+    --input-focus:       #d8e0ff;
+    --fieldset-border:   #5a5f6a;
+    --form-error-text:   #ffb0b0;
+    --input-error-border: #d66;
+
+    --btn-text:          #f0f0fa;
+    --btn-bg:            linear-gradient(rgba(240, 240, 250, 0.08), rgba(240, 240, 250, 0.03));
+    --btn-border:        rgba(240, 240, 250, 0.24);
+    --btn-border-outset: rgba(240, 240, 250, 0.35);
+    --btn-hover-bg:      linear-gradient(rgba(240, 240, 250, 0.14), rgba(240, 240, 250, 0.06));
+    --btn-active-bg:     linear-gradient(rgba(240, 240, 250, 0.04), rgba(240, 240, 250, 0.12));
+
+    --code-text:         #f0f0fa;
+    --code-bg:           #040406;
+    --code-border:       #4a4d56;
+
+    --tooltip-text:      #f0f0fa;
+    --tooltip-bg:        #06070a;
+    --tooltip-border:    #5a5f6a;
+    --tooltip-shadow:    rgba(0, 0, 0, 0.75);
+
+    --chart-line:        #8fa5ff;
+    --chart-fill:        #1b2238;
+    --chart-grid:        #3d4352;
+    --hchart-border:     #5a6070;
+    --hchart-bar:        #151922;
+    --hchart-bar-hover:  #232a3d;
+
+    --nav-bg:            #06070a;
+    --nav-border:        #1f2533;
+    --footer-shadow:     #020305;
+    --filter-kw-text:    #f0f0fa;
+
+    --info-bg:           #152338;
+    --info-border:       #31496e;
+    --error-bg:          #3a1014;
+    --error-border:      #7d2a32;
+
+    --event-bg:          #1d2130;
+    --pageviews-text:    #9ea4b3;
+
+    --datepicker-border:             #4a4d56;
+    --datepicker-shadow:             rgba(0,0,0,.65);
+    --datepicker-dayname-text:       #9ea4b3;
+    --datepicker-day-text:           #dadcf0;
+    --datepicker-day-bg:             #12151d;
+    --datepicker-day-hover-bg:       #2d3650;
+    --datepicker-today-text:         #d8e0ff;
+    --datepicker-selected-shadow:    #7b8fcf;
+    --datepicker-selected-text:      #f0f0fa;
+    --datepicker-future-text:        #8b90a0;
+    --datepicker-future-bg:          #1b2230;
+    --datepicker-outside-month-text: #6f7585;
+
+    --text-table-even-bg:      #050608;
+    --text-table-border:       #2a2f3a;
+    --text-table-rank-text:    #9ea4b3;
+
+    --widget-border:           #5a5f6a;
+    --widget-dragging-border:  #8fa5ff;
+    --widget-dragging-bg:      #040406;
+    --widget-handle-bg:        #11141b;
+    --widget-handle-text:      #b5bbcb;
+    --widget-handle-hover-bg:  #1a1f29;
+
+    --box-bg:                  #090b10;
+    --box-shadow:              #020305;
+
+    --plus:                    #4dc78e;
+    --minus:                   #c97ae9;
+}

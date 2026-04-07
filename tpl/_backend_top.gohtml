@@ -8,6 +8,8 @@
 		<link rel="stylesheet" href="{{.Static}}/vars.css?v={{.Version}}">
 	{{else if eq .User.Settings.Theme "dark"}}
 		<link rel="stylesheet" href="{{.Static}}/dark.css?v={{.Version}}">
+	{{else if eq .User.Settings.Theme "spectral"}}
+		<link rel="stylesheet" href="{{.Static}}/spectral.css?v={{.Version}}">
 	{{else}}
 		<link rel="stylesheet" href="{{.Static}}/vars.css?v={{.Version}}">
 		<link rel="stylesheet" href="{{.Static}}/dark.css?v={{.Version}}" media="(prefers-color-scheme: dark)">
