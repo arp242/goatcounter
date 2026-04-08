@@ -15,62 +15,62 @@
 }
 
 :root {
-    --text:              #f0f0fa;
-    --bg:                #000000;
-    --header-border:     #3c3f49;
-    --backdrop:          #050505;
-    --target-bg:         #2f3442;
-    --loading-text:      #8b90a0;
+    --text:                    #f0f0fa;
+    --bg:                      #000;
+    --header-border:           #3c3f49;
+    --backdrop:                #050505;
+    --target-bg:               #2f3442;
+    --loading-text:            #8b90a0;
 
-    --link:              #c9d6ff;
-    --link-hover:        #ffffff;
+    --link:                    #c9d6ff;
+    --link-hover:              #fff;
 
-    --input-text:        #f0f0fa;
-    --input-bg:          #050608;
-    --input-border:      #4a4d56;
-    --input-focus:       #d8e0ff;
-    --fieldset-border:   #5a5f6a;
-    --form-error-text:   #ffb0b0;
-    --input-error-border: #d66;
+    --input-text:              #f0f0fa;
+    --input-bg:                #050608;
+    --input-border:            #4a4d56;
+    --input-focus:             #d8e0ff;
+    --fieldset-border:         #5a5f6a;
+    --form-error-text:         #ffb0b0;
+    --input-error-border:      #d66;
 
-    --btn-text:          #f0f0fa;
-    --btn-bg:            linear-gradient(rgba(240, 240, 250, 0.08), rgba(240, 240, 250, 0.03));
-    --btn-border:        rgba(240, 240, 250, 0.24);
-    --btn-border-outset: rgba(240, 240, 250, 0.35);
-    --btn-hover-bg:      linear-gradient(rgba(240, 240, 250, 0.14), rgba(240, 240, 250, 0.06));
-    --btn-active-bg:     linear-gradient(rgba(240, 240, 250, 0.04), rgba(240, 240, 250, 0.12));
+    --btn-text:                #f0f0fa;
+    --btn-bg:                  linear-gradient(rgba(240, 240, 250, 0.08), rgba(240, 240, 250, 0.03));
+    --btn-border:              rgba(240, 240, 250, 0.24);
+    --btn-border-outset:       rgba(240, 240, 250, 0.35);
+    --btn-hover-bg:            linear-gradient(rgba(240, 240, 250, 0.14), rgba(240, 240, 250, 0.06));
+    --btn-active-bg:           linear-gradient(rgba(240, 240, 250, 0.04), rgba(240, 240, 250, 0.12));
 
-    --code-text:         #f0f0fa;
-    --code-bg:           #040406;
-    --code-border:       #4a4d56;
+    --code-text:               #f0f0fa;
+    --code-bg:                 #040406;
+    --code-border:             #4a4d56;
 
-    --tooltip-text:      #f0f0fa;
-    --tooltip-bg:        #06070a;
-    --tooltip-border:    #5a5f6a;
-    --tooltip-shadow:    rgba(0, 0, 0, 0.75);
+    --tooltip-text:            #f0f0fa;
+    --tooltip-bg:              #393939;
+    --tooltip-border:          #000;
+    --tooltip-shadow:          rgba(0, 0, 0, 0.75);
 
-    --chart-line:        #8fa5ff;
-    --chart-fill:        #1b2238;
-    --chart-grid:        #3d4352;
-    --hchart-border:     #5a6070;
-    --hchart-bar:        #151922;
-    --hchart-bar-hover:  #232a3d;
+    --chart-line:              #8fa5ff;
+    --chart-fill:              #1b2238;
+    --chart-grid:              #3d4352;
+    --hchart-border:           #5a6070;
+    --hchart-bar:              #151922;
+    --hchart-bar-hover:        #232a3d;
 
-    --nav-bg:            #06070a;
-    --nav-border:        #1f2533;
-    --footer-shadow:     #020305;
-    --filter-kw-text:    #f0f0fa;
+    --nav-bg:                  #06070a;
+    --nav-border:              #1f2533;
+    --footer-shadow:           #020305;
+    --filter-kw-text:          #f0f0fa;
 
-    --info-bg:           #152338;
-    --info-border:       #31496e;
-    --error-bg:          #3a1014;
-    --error-border:      #7d2a32;
+    --info-bg:                 #152338;
+    --info-border:             #31496e;
+    --error-bg:                #3a1014;
+    --error-border:            #7d2a32;
 
-    --event-bg:          #1d2130;
-    --pageviews-text:    #9ea4b3;
+    --event-bg:                #1d2130;
+    --pageviews-text:          #9ea4b3;
 
     --datepicker-border:             #4a4d56;
-    --datepicker-shadow:             rgba(0,0,0,.65);
+    --datepicker-shadow:             rgba(0, 0, 0, 0.65);
     --datepicker-dayname-text:       #9ea4b3;
     --datepicker-day-text:           #dadcf0;
     --datepicker-day-bg:             #12151d;
@@ -98,6 +98,15 @@
 
     --plus:                    #4dc78e;
     --minus:                   #c97ae9;
+
+    --surface-page:            #141414;
+    --surface-panel:           #222;
+    --surface-panel-alt:       #2b2b2b;
+    --surface-input:           #353535;
+    --surface-chart-label:     #282828;
+    --accent:                  #5368b6;
+    --white:                   #fff;
+    --radius:                  0.4rem;
 }
 
 html,
@@ -119,7 +128,6 @@ h6,
 nav strong,
 button:not(.link),
 input[type="submit"]:not(.link) {
-    font-family: 'Rajdhani', Arial, Verdana, sans-serif;
     font-weight: 700;
 }
 
@@ -128,5 +136,457 @@ nav a,
 legend,
 button:not(.link),
 input[type="submit"]:not(.link) {
-    letter-spacing: .06em;
+    letter-spacing: 0.06em;
+}
+
+textarea,
+button:not(.link),
+select,
+input:not([type="checkbox"]):not([type="file"]):not([type="image"]):not([type="radio"]):not([type="range"]):not(.unstyled),
+.input {
+    border: none;
+}
+
+input[type="text"],
+input[type="search"],
+input[type="tel"],
+input[type="url"],
+input[type="email"],
+input[type="password"],
+input[type="date"],
+input[type="month"],
+input[type="week"],
+input[type="time"],
+input[type="datetime-local"],
+input[type="range"],
+input[type="number"],
+textarea,
+select,
+.input {
+    background-color: var(--surface-input);
+}
+
+nav #usermenu,
+.link {
+    text-transform: uppercase;
+}
+
+.link {
+    font-weight: 700;
+}
+
+td,
+th {
+    padding: 0;
+}
+
+.page {
+    background: var(--surface-page);
+    border-radius: var(--radius);
+}
+
+#dash-form {
+    background-color: var(--surface-panel);
+    padding-bottom: 0.2em;
+}
+
+#dash-main {
+    padding: 0.9em 1.1em 0.7em;
+    background-color: var(--surface-panel-alt);
+    border: none;
+    border-radius: var(--radius) var(--radius) 0 0;
+}
+
+#dash-main > div {
+    color: var(--surface-panel-alt);
+}
+
+#dash-main input[type="text"] {
+    padding: 0.5em 0.6em;
+}
+
+#dash-widgets {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2em;
+}
+#dash-widgets h2 {
+    margin: 0;
+    padding: 0;
+}
+
+#dash-move > div {
+    margin-top: 0.4em;
+}
+
+#dash-timerange,
+#dash-saved-views > div > a {
+    color: var(--white);
+    text-transform: uppercase;
+    font-weight: 700;
+    background-color: var(--accent);
+}
+
+#dash-timerange {
+    margin-top: 0;
+    margin-bottom: 0.1em;
+    padding: 0 0.5em;
+    border: 1px solid #424242;
+    border-radius: 3px;
+}
+
+#dash-saved-views {
+    right: 0;
+}
+
+#dash-saved-views > div > a {
+    padding: 0.1em 0.5em;
+    border-radius: 2px;
+}
+
+#dash-saved-views > span {
+    position: absolute;
+}
+
+#dash-saved-views > div {
+   margin-top: 2.3em;
+}
+
+#filter-paths {
+    padding: 0.5rem 0.5rem 0.3rem;
+    background: var(--surface-input);
+    border: none;
+}
+
+#dash-select-period,
+#dash-select-group {
+    margin-top: 0.4em;
+    padding: 0.3em 0.6em;
+    background-color: var(--surface-input);
+    border-radius: 3px;
+}
+
+#dash-select-group {
+    display: inline-block;
+    color: var(--white);
+}
+
+#dash-select-period > span {
+    color: var(--white);
+    margin: auto;
+}
+
+.chart {
+    padding: 0.3em 0.6em 0 0.6em;
+}
+
+.chart-right {
+    right: 0.6em;
+}
+
+.widget-header {
+    margin-bottom: 0.7em;
+    padding-bottom: 0.15em;
+}
+
+.widget-header h2,
+.widget .header strong {
+    margin: 0;
+    color: var(--text);
+    font-size: 1.22em;
+    line-height: 1.15;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+}
+
+.widget-header h2 small {
+    padding: 0.3em 0.7em;
+    color: var(--white);
+    font-size: 0.72em;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    background: var(--accent);
+    border-radius: 3px;
+    margin-bottom: 0.3em;
+}
+
+.total-display,
+.total {
+    font-size: 1.6em;
+    vertical-align: bottom;
+}
+
+.totals .widget-header h2 small span {
+    font-size: 1.6em;
+    vertical-align: bottom;
+}
+
+.configure-widget {
+    left: -7px;
+    color: var(--widget-handle-text);
+    opacity: 0.8;
+}
+
+.configure-widget:hover {
+    color: var(--text);
+    opacity: 1;
+}
+
+.hcharts {
+    gap: 1em;
+}
+
+.hcharts > div {
+    min-height: 4em;
+}
+
+.hchart > .rows {
+    display: grid;
+    grid-template-columns: max-content 1fr max-content;
+    gap: 0.4em 0.8em;
+    padding: 0.2em 0.8em 0.6em;
+}
+
+.hchart > .rows > div:not(.detail) {
+    display: contents;
+}
+
+.hchart > .rows > .detail {
+    grid-column: 1 / -1;
+}
+
+.hchart .rows > div {
+    margin-bottom: 0.4em;
+}
+
+.hchart .col-name,
+.hchart .col-count {
+    width: unset;
+}
+
+.hchart .col-name {
+    background: var(--surface-chart-label);
+}
+
+.hchart .col-count {
+    text-align: right;
+}
+
+.hchart .col-perc {
+    margin: auto;
+    vertical-align: baseline;
+}
+
+.hchart .bar {
+    background-color: var(--accent);
+    border: none;
+    border-radius: 3px;
+}
+
+.hchart .bar-c {
+    padding: 0.2rem 0 0.1rem 0.5rem;
+}
+
+.hchart .cutoff {
+    font-style: normal;
+}
+
+.hchart .load-detail {
+    color: var(--white);
+    text-transform: uppercase;
+    font-weight: 700;
+}
+
+.hchart .load-more,
+.hchart .load-less {
+    margin-left: 3.2em;
+    padding-left: 8px;
+    color: var(--white);
+    line-height: 0.9;
+    border-left: 3px solid var(--accent);
+}
+
+.load-detail:hover {
+    color: inherit;
+}
+
+.count-list .col-count {
+    padding: 0 0.5em;
+}
+
+.count-list .col-path {
+    display: flex;
+    flex-direction: column;
+}
+
+.count-list:not(.count-list-text) .load-refs {
+    margin-bottom: unset;
+    border: none;
+}
+
+.period-day [value="day"],
+.period-week [value="week"],
+.period-month [value="month"],
+.period-quarter [value="quarter"],
+.period-half-year [value="half-year"],
+.period-year [value="year"],
+.group-hour [value="hour"],
+.group-day [value="day"],
+.group-week [value="week"],
+.group-month [value="month"] {
+    position: relative;
+    display: inline-block;
+    color: var(--white);
+    text-decoration: none;
+}
+
+.period-day [value="day"]::after,
+.period-week [value="week"]::after,
+.period-month [value="month"]::after,
+.period-quarter [value="quarter"]::after,
+.period-half-year [value="half-year"]::after,
+.period-year [value="year"]::after,
+.group-hour [value="hour"]::after,
+.group-day [value="day"]::after,
+.group-week [value="week"]::after,
+.group-month [value="month"]::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: -0.45em;
+    width: 0;
+    height: 0;
+    transform: translateX(-50%);
+    border-right: 0.35em solid transparent;
+    border-bottom: 0.35em solid var(--link);
+    border-left: 0.35em solid transparent;
+    opacity: 0.85;
+}
+
+@media (max-width: 87.5rem) {
+    #dash-saved-views {
+        top: -35px;
+        right: unset;
+        left: 5px;
+    }
+    #dash-saved-views > span {
+        left: 5px;
+    }
+
+}
+
+@media (max-width: 55rem) {
+    .hide-mobile {
+        display: none !important;
+    }
+
+    #period-start,
+    #period-end {
+        flex-grow: 1;
+    }
+
+    .chart {
+        padding: 0;
+    }
+
+    .show-mobile {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .hchart .bar-c {
+        padding: 0.3rem 0 0.2rem 0.5rem;
+    }
+
+    .load-detail .bar-c {
+        font-size: 0.8em;
+    }
+
+    .hchart .col-perc {
+        margin: auto 0.5em auto -0.5em;
+    }
+}
+
+@media (max-width: 45rem) {
+
+    #dash-saved-views > span {
+        left: 0;
+    }
+
+    #dash-move {
+        margin: 0 1.2em;
+        padding: 0;
+    }
+
+    #dash-main input[type="text"] {
+        text-align: center;
+    }
+
+    #dash-main > div > span {
+        display: flex;
+    }
+
+    #dash-select-group > button {
+        flex-grow: 1;
+    }
+
+    #dash-select-period > span {
+        font-size: 0.9em;
+    }
+
+    #dash-timerange {
+        margin: auto !important;
+        font-size: 1.2em;
+    }
+
+    .hcharts {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .hchart > .rows {
+        gap: 0.5em 0.4em;
+    }
+
+    .hchart .col-name {
+        flex-grow: 1;
+    }
+
+    .hchart .col-perc {
+        margin: auto;
+    }
+
+    #dash-widgets h2 {
+        margin: 0;
+    }
+}
+
+@media (max-width: 36.5rem) {
+    #dash-move span {
+        font-size: 1.4em;
+    }
+}
+
+@media (min-width: 33.5rem) and (max-width: 45rem) {
+    #dash-main {
+        display: flex;
+        flex-direction: column;
+    }
+
+    #dash-main > div:nth-child(2) {
+        display: flex;
+        flex-direction: row;
+        gap: 0.4em;
+        margin-top: 0.4em;
+    }
+
+    #dash-select-group {
+        flex-grow: 1;
+        margin-top: unset;
+    }
+
+    #dash-select-period {
+        margin-top: 0.4em;
+    }
 }

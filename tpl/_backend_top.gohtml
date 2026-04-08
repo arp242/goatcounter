@@ -8,9 +8,7 @@
 		<link rel="stylesheet" href="{{.Static}}/vars.css?v={{.Version}}">
 	{{else if eq .User.Settings.Theme "dark"}}
 		<link rel="stylesheet" href="{{.Static}}/dark.css?v={{.Version}}">
-	{{else if eq .User.Settings.Theme "spectral"}}
-		<link rel="stylesheet" href="{{.Static}}/spectral.css?v={{.Version}}">
-	{{else}}
+	{{else if ne .User.Settings.Theme "spectral"}}
 		<link rel="stylesheet" href="{{.Static}}/vars.css?v={{.Version}}">
 		<link rel="stylesheet" href="{{.Static}}/dark.css?v={{.Version}}" media="(prefers-color-scheme: dark)">
 	{{end}}
@@ -34,6 +32,9 @@
 	<link rel="stylesheet" href="{{.Static}}/shared.css?v={{.Version}}">
 	<link rel="stylesheet" href="{{.Static}}/pikaday.css?v={{.Version}}">
 	<link rel="stylesheet" href="{{.Static}}/backend.css?v={{.Version}}">
+	{{if eq .User.Settings.Theme "spectral"}}
+		<link rel="stylesheet" href="{{.Static}}/spectral.css?v={{.Version}}">
+	{{end}}
 	<style>{{if not .User.ID}}.logged-in { display: none !important; }{{end}}</style>
 </head>
 
