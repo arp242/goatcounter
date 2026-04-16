@@ -27,6 +27,7 @@ import (
 	"zgo.at/zhttp/auth"
 	"zgo.at/zhttp/mware"
 	"zgo.at/zstd/zfs"
+	"zgo.at/zstd/zstring"
 	"zgo.at/zvalidate"
 )
 
@@ -486,7 +487,7 @@ func (h website) help(w http.ResponseWriter, r *http.Request) error {
 		dc = Site(r.Context()).SchemelessURL(r.Context())
 	}
 
-	cp := strings.TrimLeft(chi.URLParam(r, "*"), "/")
+	cp := strings.TrimLeft(zstring.Squeeze(chi.URLParam(r, "*"), '/'), "/")
 	if cp == "" {
 		return zhttp.MovedPermanently(w, "/help/start")
 	}
