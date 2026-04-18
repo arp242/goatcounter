@@ -88,7 +88,7 @@ func TestCSVExport(t *testing.T) {
 		want := strings.ReplaceAll(`{
 			"id": 1,
 			"site_id": 2,
-			"start_from_hit_id": 0,
+			"format": "csv",
 			"last_hit_id": 4,
 			"path": "%(ANY)goatcounter-export-gctest2-%(YEAR)%(MONTH)%(DAY)T%(ANY)Z-0.csv.gz",
 			"created_at": "%(YEAR)-%(MONTH)-%(DAY)T%(ANY)Z",

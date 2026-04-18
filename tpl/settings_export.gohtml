@@ -7,6 +7,47 @@
 
 <h2 id="export">{{.T "header/export-or-import|Export/Import"}}</h2>
 
+<h3>{{.T "header/json-format|JSON format"}}</h3>
+<div class="flex-form">
+	<form method="post" action="{{.Base}}/settings/export" class="vertical">
+		<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
+		<fieldset>
+			<legend>{{.T "header/export-to-json|Export to JSON"}}</legend>
+				<p>{{.T `p/export-process|
+					Start the process and email you a download link once it’s
+					done. You can only do this once per hour and will override
+					any previous backups you may have.
+				`}}</p>
+
+				<label for="period-start">{{.T "label/export-from-date|Export from date"}}</label>
+				<input type="date" id="period-start" name="period-start">
+				<span>{{.T `p/export-from-date|
+					Only include data starting from this date (inclusive). This
+					is always in UTC. Please be sure to read the documentation
+					to understand some caveats with this.
+				`}}</span>
+
+				<p>{{.T `p/json-file-format|
+					The JSON export is a ZIP file containing several JSON documents, and is %[documented over here].
+				` (tag "a" (printf `href="%s/help/export-json"` .Base))}}</p>
+
+				<button type="submit" name="format" value="json">{{.T "button/start-export|Start export"}}</button>
+		</fieldset>
+	</form>
+
+	<form method="post" action="{{.Base}}/settings/export/import" enctype="multipart/form-data" class="vertical">
+		<input type="hidden" name="csrf" value="{{.User.CSRFToken}}">
+		<fieldset>
+			<legend>{{.T "header/import-from-json|Import from JSON"}}</legend>
+			<label for="file">{{.T "label/zip-file|ZIP file"}}</label>
+			<input type="file" name="json" required accept=".zip">
+			<label><input type="checkbox" name="replace"> {{.T "label/clear-pageviews|Clear all existing pageviews."}}</label>
+			<br>
+			<button type="submit">{{.T "button/start-import|Start import"}}</button>
+		</fieldset>
+	</form>
+</div>
+
 <h3>{{.T "header/csv-format|CSV format"}}</h3>
 <div class="flex-form">
 	<form method="post" action="{{.Base}}/settings/export" class="vertical">
@@ -32,8 +73,8 @@
 					previous backups you may have.
 				`}}</p>
 
-				<label for="startFrom">{{.T "label/pagination-cursor|Pagination cursor"}}</label>
-				<input type="number" id="startFrom" name="startFrom">
+				<label for="start-from">{{.T "label/pagination-cursor|Pagination cursor"}}</label>
+				<input type="number" id="start-from" name="start-from">
 				<span>{{.T `p/notify-pagination-cursor|
 					There will be a ‘pagination cursor’ in the email, if you fill
 					this in here it will export only pageviews that were recorded
@@ -43,7 +84,7 @@
 				<p>{{.T "p/csv-file-format|The format of the CSV file is %[documented over here]."
 					(tag "a" (printf `href="%s/help/export"` .Base))}}</p>
 
-				<button type="submit">{{.T "button/start-export|Start export"}}</button>
+				<button type="submit" name="format" value="csv">{{.T "button/start-export|Start export"}}</button>
 			{{end}}
 		</fieldset>
 	</form>
@@ -104,6 +145,7 @@
 	<th>{{.T "header/start-pagination-cursor|Started from pagination cursor"}}</th>
 	<th>{{.T "header/pagination-cursor|Pagination cursor"}}</th>
 	<th>{{.T "header/size|Size"}}</th>
+	<th>{{.T "header/format|Format"}}</th>
 	<th>{{.T "header/hash|Hash"}}</th>
 	<th></th>
 </tr></thead>
@@ -117,6 +159,7 @@
 			<td>{{if $e.LastHitID}}{{$e.LastHitID}}{{end}}</td>
 
 			<td>{{if $e.NumRows}}{{$e.Size}}M; {{nformat $e.NumRows $.User}} rows{{end}}</td>
+			<td>{{$e.Format}}</td>
 			<td class="hash"><input style="width: 8em" value="{{$e.Hash}}"></td>
 			<td>
 				{{if and $e.Exists $e.FinishedAt}}

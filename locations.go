@@ -15,16 +15,16 @@ import (
 type LocationID int32
 
 type Location struct {
-	ID LocationID `db:"location_id,id"`
+	ID LocationID `db:"location_id,id" json:"-"`
 
-	Country     string `db:"country"`
-	Region      string `db:"region"`
-	CountryName string `db:"country_name"`
-	RegionName  string `db:"region_name"`
+	Country     string `db:"country" json:"country"`
+	Region      string `db:"region" json:"region"`
+	CountryName string `db:"country_name" json:"country_name"`
+	RegionName  string `db:"region_name" json:"region_name"`
 
 	// TODO: send patch to staticcheck to deal with this better. This shouldn't
 	// errror since "ISO" is an initialism.
-	ISO3166_2 string `db:"iso_3166_2,noinsert"` //lint:ignore ST1003 staticcheck bug
+	ISO3166_2 string `db:"iso_3166_2,noinsert" json:"-"` //lint:ignore ST1003 staticcheck bug
 }
 
 func (Location) Table() string { return "locations" }
