@@ -416,7 +416,7 @@ func (u User) AccessSettings() bool  { return u.AccessAdmin() || u.Access["all"]
 func (u User) EmailReportRange(ctx context.Context) ztime.Range {
 	var (
 		start, end ztime.Time
-		lastReport = ztime.Time{u.LastReportAt.In(u.Settings.Timezone.Loc())}
+		lastReport = ztime.Time{Time: u.LastReportAt.In(u.Settings.Timezone.Loc())}
 		week       = ztime.Week(u.Settings.SundayStartsWeek)
 	)
 	switch u.Settings.EmailReports {

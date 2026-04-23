@@ -286,9 +286,9 @@ func TestBackendCountSessions(t *testing.T) {
 
 		// TODO: test in order.
 		sort.Slice(want, func(i, j int) bool { return want[i][1] < want[j][1] })
-		var w string
+		var w strings.Builder
 		for _, ww := range want {
-			w += ww.Format(16) + " "
+			w.WriteString(ww.Format(16) + " ")
 		}
 
 		sort.Slice(got, func(i, j int) bool { return got[i][1] < got[j][1] })
@@ -297,8 +297,8 @@ func TestBackendCountSessions(t *testing.T) {
 			g += gg.Format(16) + " "
 		}
 
-		if w != g {
-			t.Errorf("wrong session\nwant: %s\ngot:  %s", w, g)
+		if w.String() != g {
+			t.Errorf("wrong session\nwant: %s\ngot:  %s", w.String(), g)
 		}
 	}
 

@@ -126,7 +126,7 @@ func (h user) requestReset(w http.ResponseWriter, r *http.Request) error {
 			blackmail.From("GoatCounter login", goatcounter.Config(ctx).EmailFrom),
 			blackmail.To(u.Email),
 			blackmail.HeadersAutoreply(),
-			blackmail.BodyMustText(goatcounter.TplEmailPasswordReset{ctx, *site, *u}.Render))
+			blackmail.BodyMustText(goatcounter.TplEmailPasswordReset{Context: ctx, Site: *site, User: *u}.Render))
 		if err != nil {
 			log.Errorf(ctx, "password reset: %s", err)
 		}
@@ -438,7 +438,7 @@ func sendEmailVerify(ctx context.Context, site *goatcounter.Site, user *goatcoun
 		err := blackmail.Get(ctx).Send("Verify your email",
 			mail.Address{Name: "GoatCounter", Address: emailFrom},
 			blackmail.To(user.Email),
-			blackmail.BodyMustText(goatcounter.TplEmailVerify{ctx, *site, *user}.Render))
+			blackmail.BodyMustText(goatcounter.TplEmailVerify{Context: ctx, Site: *site, User: *user}.Render))
 		if err != nil {
 			log.Errorf(ctx, "blackmail: %s", err)
 		}

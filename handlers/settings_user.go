@@ -55,7 +55,7 @@ func (h settings) userPrefSave(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	if args.FewerNumbersLock != "" {
-		args.User.Settings.FewerNumbersLockUntil = ztime.Time{ztime.Now(r.Context())}.
+		args.User.Settings.FewerNumbersLockUntil = ztime.Time{Time: ztime.Now(r.Context())}.
 			In(args.User.Settings.Timezone.Location).
 			AddPeriod(1, map[string]ztime.Period{"week": ztime.WeekMonday, "month": ztime.Month}[args.FewerNumbersLock]).
 			StartOf(ztime.Day).

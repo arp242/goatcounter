@@ -94,7 +94,7 @@ func cmdDashboard(f zli.Flags) error {
 // Parse -range flag.
 func parseRange(rangeFlag string) (ztime.Range, error) {
 	var (
-		now = ztime.Time{ztime.Now(context.Background())}
+		now = ztime.Time{Time: ztime.Now(context.Background())}
 		// Default to last week.
 		rng = ztime.NewRange(now.AddPeriod(-7, ztime.Day).Time).To(now.Time)
 	)

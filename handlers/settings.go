@@ -661,7 +661,7 @@ func (h settings) exportImport(w http.ResponseWriter, r *http.Request) error {
 				blackmail.From("GoatCounter import", goatcounter.Config(r.Context()).EmailFrom),
 				blackmail.To(user.Email),
 				blackmail.HeadersAutoreply(),
-				blackmail.BodyMustText(goatcounter.TplEmailImportError{r.Context(), err}.Render))
+				blackmail.BodyMustText(goatcounter.TplEmailImportError{Context: r.Context(), Error: err}.Render))
 			if sendErr != nil {
 				log.Error(ctx, sendErr)
 			}
@@ -969,7 +969,12 @@ func (h settings) usersAdd(w http.ResponseWriter, r *http.Request) error {
 			fmt.Sprintf("A GoatCounter account was created for you at %s", account.Display(ctx)),
 			blackmail.From("GoatCounter", goatcounter.Config(r.Context()).EmailFrom),
 			blackmail.To(newUser.Email),
-			blackmail.BodyMustText(goatcounter.TplEmailAddUser{ctx, *account, newUser, goatcounter.GetUser(ctx).Email}.Render),
+			blackmail.BodyMustText(goatcounter.TplEmailAddUser{
+				Context: ctx,
+				Site:    *account,
+				NewUser: newUser,
+				AddedBy: goatcounter.GetUser(ctx).Email,
+			}.Render),
 		)
 		if err != nil {
 			log.Errorf(ctx, ": %s", err)

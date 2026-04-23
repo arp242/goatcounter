@@ -373,8 +373,6 @@ func TestSettingsMerge(t *testing.T) {
 		`)
 	})
 
-	return
-
 	t.Run("merge two paths", func(t *testing.T) {
 		ctx := gctest.DB(t)
 		gctest.StoreHits(ctx, t, false,

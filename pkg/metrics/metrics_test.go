@@ -3,6 +3,7 @@ package metrics
 import (
 	"fmt"
 	"os"
+	"strings"
 	"testing"
 	"time"
 )
@@ -33,10 +34,10 @@ func TestMetrics(t *testing.T) {
 
 	tr := func(d time.Duration) time.Duration { return d.Truncate(time.Millisecond) }
 
-	have := ""
+	var have strings.Builder
 	for _, l := range List() {
-		have += fmt.Sprintf("%s\t%s\t%s\t%s\n", l.Tag,
-			tr(l.Times.Sum()), tr(l.Times.Min()), tr(l.Times.Max()))
+		have.WriteString(fmt.Sprintf("%s\t%s\t%s\t%s\n", l.Tag,
+			tr(l.Times.Sum()), tr(l.Times.Min()), tr(l.Times.Max())))
 	}
 
 	want := `
@@ -44,7 +45,7 @@ test	30ms	10ms	20ms
 test·x	15ms	15ms	15ms
 `[1:]
 
-	if want != have {
-		t.Errorf("\nwant:\n%shave:\n%s", want, have)
+	if want != have.String() {
+		t.Errorf("\nwant:\n%shave:\n%s", want, have.String())
 	}
 }
