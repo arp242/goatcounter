@@ -52,9 +52,9 @@ func (p *UserAgent) GetOrInsert(ctx context.Context) error {
 type BrowserID int32
 
 type Browser struct {
-	ID      BrowserID `db:"browser_id,id"`
-	Name    string    `db:"name"`
-	Version string    `db:"version"`
+	ID      BrowserID `db:"browser_id,id" json:"id"`
+	Name    string    `db:"name" json:"name"`
+	Version string    `db:"version" json:"version"`
 }
 
 func (Browser) Table() string { return "browsers" }
@@ -84,9 +84,9 @@ func (b *Browser) GetOrInsert(ctx context.Context, name, version string) error {
 type SystemID int32
 
 type System struct {
-	ID      SystemID `db:"system_id,id"`
-	Name    string   `db:"name"`
-	Version string   `db:"version"`
+	ID      SystemID `db:"system_id,id" json:"id"`
+	Name    string   `db:"name" json:"name"`
+	Version string   `db:"version" json:"version"`
 }
 
 func (System) Table() string { return "systems" }

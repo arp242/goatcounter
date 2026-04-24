@@ -292,13 +292,13 @@ func TestBackendCountSessions(t *testing.T) {
 		}
 
 		sort.Slice(got, func(i, j int) bool { return got[i][1] < got[j][1] })
-		var g string
+		var g strings.Builder
 		for _, gg := range got {
-			g += gg.Format(16) + " "
+			g.WriteString(gg.Format(16) + " ")
 		}
 
-		if w.String() != g {
-			t.Errorf("wrong session\nwant: %s\ngot:  %s", w.String(), g)
+		if w.String() != g.String() {
+			t.Errorf("wrong session\nwant: %s\ngot:  %s", w.String(), g.String())
 		}
 	}
 

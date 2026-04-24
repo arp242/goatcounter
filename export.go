@@ -16,15 +16,20 @@ type Export struct {
 	ID     ExportID `db:"export_id,id" json:"id,readonly"`
 	SiteID SiteID   `db:"site_id" json:"site_id,readonly"`
 
-	// The hit ID this export was started from.
-	StartFromHitID HitID `db:"start_from_hit_id" json:"start_from_hit_id"`
+	// Export format, csv or json.
+	Format string `db:"format" json:"format,readonly"`
+
+	// The hit ID this export was started from, for CSV exports.
+	StartFromHitID *HitID `db:"start_from_hit_id" json:"start_from_hit_id,omitempty"`
 
 	// Last hit ID that was exported; can be used as start_from_hit_id.
 	LastHitID *HitID `db:"last_hit_id" json:"last_hit_id,readonly"`
 
-	Path      string    `db:"path" json:"path,readonly"` // {omitdoc}
-	CreatedAt time.Time `db:"created_at" json:"created_at,readonly"`
+	// The day this export was started from, for JSON exports.
+	StartFromDay *time.Time `db:"start_from_day" json:"start_from_day,omitempty"`
 
+	Path       string     `db:"path" json:"path,readonly"` // {omitdoc}
+	CreatedAt  time.Time  `db:"created_at" json:"created_at,readonly"`
 	FinishedAt *time.Time `db:"finished_at" json:"finished_at,readonly"`
 	NumRows    *int       `db:"num_rows" json:"num_rows,readonly"`
 

@@ -208,7 +208,8 @@ func init() {
 		{label: "Other", items: []x{
 			// TODO: add "adblock" page
 			// TODO: add "campiagns page"; link in "settings_main".
-			{href: "export", label: "Export format"},
+			{href: "export-json", label: "JSON exports"},
+			{href: "export", label: "CSV exports"},
 			{href: "sessions", label: "Sessions and visitors"},
 			{href: "api", label: "JSON API"},
 			{href: "faq", label: "FAQ"},
