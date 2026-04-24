@@ -610,70 +610,119 @@ func (h settings) exportDownload(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (h settings) exportImport(w http.ResponseWriter, r *http.Request) error {
+	r.Body = http.MaxBytesReader(w, r.Body, 1024*1024*500)
+
 	v := goatcounter.NewValidate(r.Context())
 	replace := v.Boolean("replace", r.Form.Get("replace"))
 	if v.HasErrors() {
 		return v
 	}
 
-	file, head, err := r.FormFile("csv")
+	format := r.Form.Get("format")
+	switch format {
+	default:
+		return guru.Errorf(400, "unknown format: %q", format)
+	case "csv", "json":
+		// Okay, don't need to do anything.
+	}
+
+	file, head, err := r.FormFile(format)
 	if err != nil {
 		return err
 	}
 	defer file.Close()
 
-	var fp io.ReadCloser = file
-	if strings.HasSuffix(head.Filename, ".gz") {
-		fp, err = gzip.NewReader(file)
-		if err != nil {
-			return guru.New(400, T(r.Context(), "error/could-not-read|Could not read as gzip: %(err)", err))
+	switch format {
+	case "json":
+		if !strings.HasSuffix(head.Filename, ".zip") {
+			return guru.New(400, "JSON import must be as a .zip file")
 		}
-	}
-	defer fp.Close()
+		tmp, err := zhttp.SaveUpload(file, head)
+		if err != nil {
+			return err
+		}
 
-	user := User(r.Context())
-	ctx := context.WithoutCancel(r.Context())
-	n := 0
-	bgrun.RunFunction(fmt.Sprintf("import:%d", Site(ctx).ID), func() {
-		firstHitAt, err := goatcounter.ImportCSV(ctx, fp, replace, true, func(hit goatcounter.Hit, final bool) {
-			if final {
-				return
+		user := User(r.Context())
+		ctx := context.WithoutCancel(r.Context())
+		bgrun.RunFunction(fmt.Sprintf("import:%d", Site(ctx).ID), func() {
+			firstHitAt, err := goatcounter.ImportJSON(ctx, tmp, replace, true)
+			if err != nil {
+				if err != nil {
+					if e, ok := err.(*errors.StackErr); ok {
+						err = e.Unwrap()
+					}
+
+					sendErr := blackmail.Get(ctx).Send("GoatCounter import error",
+						blackmail.From("GoatCounter import", goatcounter.Config(r.Context()).EmailFrom),
+						blackmail.To(user.Email),
+						blackmail.HeadersAutoreply(),
+						blackmail.BodyMustText(goatcounter.TplEmailImportError{Context: r.Context(), Error: err}.Render))
+					if sendErr != nil {
+						log.Error(ctx, sendErr)
+					}
+				}
 			}
-
-			goatcounter.Memstore.Append(hit)
-			n++
-
-			// Spread out the load a bit.
-			if n%5000 == 0 {
-				err := cron.TaskPersistAndStat()
+			if firstHitAt != nil && !firstHitAt.IsZero() {
+				err := Site(ctx).UpdateFirstHitAt(ctx, *firstHitAt)
 				if err != nil {
 					log.Error(ctx, err)
 				}
-				cron.WaitPersistAndStat()
 			}
 		})
-		if err != nil {
-			if e, ok := err.(*errors.StackErr); ok {
-				err = e.Unwrap()
-			}
 
-			sendErr := blackmail.Get(ctx).Send("GoatCounter import error",
-				blackmail.From("GoatCounter import", goatcounter.Config(r.Context()).EmailFrom),
-				blackmail.To(user.Email),
-				blackmail.HeadersAutoreply(),
-				blackmail.BodyMustText(goatcounter.TplEmailImportError{Context: r.Context(), Error: err}.Render))
-			if sendErr != nil {
-				log.Error(ctx, sendErr)
-			}
-		}
-
-		if firstHitAt != nil && !firstHitAt.IsZero() {
-			err := Site(ctx).UpdateFirstHitAt(ctx, *firstHitAt)
+	case "csv":
+		var fp io.ReadCloser = file
+		if strings.HasSuffix(head.Filename, ".gz") {
+			fp, err = gzip.NewReader(file)
 			if err != nil {
-				log.Error(ctx, err)
+				return guru.New(400, T(r.Context(), "error/could-not-read|Could not read as gzip: %(err)", err))
 			}
 		}
-	})
+		defer fp.Close()
+
+		user := User(r.Context())
+		ctx := context.WithoutCancel(r.Context())
+		n := 0
+		bgrun.RunFunction(fmt.Sprintf("import:%d", Site(ctx).ID), func() {
+			firstHitAt, err := goatcounter.ImportCSV(ctx, fp, replace, true, func(hit goatcounter.Hit, final bool) {
+				if final {
+					return
+				}
+
+				goatcounter.Memstore.Append(hit)
+				n++
+
+				// Spread out the load a bit.
+				if n%5000 == 0 {
+					err := cron.TaskPersistAndStat()
+					if err != nil {
+						log.Error(ctx, err)
+					}
+					cron.WaitPersistAndStat()
+				}
+			})
+			if err != nil {
+				if e, ok := err.(*errors.StackErr); ok {
+					err = e.Unwrap()
+				}
+
+				sendErr := blackmail.Get(ctx).Send("GoatCounter import error",
+					blackmail.From("GoatCounter import", goatcounter.Config(r.Context()).EmailFrom),
+					blackmail.To(user.Email),
+					blackmail.HeadersAutoreply(),
+					blackmail.BodyMustText(goatcounter.TplEmailImportError{Context: r.Context(), Error: err}.Render))
+				if sendErr != nil {
+					log.Error(ctx, sendErr)
+				}
+			}
+			if firstHitAt != nil && !firstHitAt.IsZero() {
+				err := Site(ctx).UpdateFirstHitAt(ctx, *firstHitAt)
+				if err != nil {
+					log.Error(ctx, err)
+				}
+			}
+		})
+	}
 
 	zhttp.Flash(w, r, T(r.Context(),
 		"notify/import-started-in-background|Import started in the background; you’ll get an email when it’s done."))
@@ -681,6 +730,7 @@ func (h settings) exportImport(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (h settings) exportImportGA(w http.ResponseWriter, r *http.Request) error {
+	r.Body = http.MaxBytesReader(w, r.Body, 1024*1024*500)
 	file, head, err := r.FormFile("csv")
 	if err != nil {
 		return err
@@ -708,23 +758,48 @@ func (h settings) exportImportGA(w http.ResponseWriter, r *http.Request) error {
 func (h settings) exportStart(w http.ResponseWriter, r *http.Request) error {
 	r.ParseForm()
 
-	v := goatcounter.NewValidate(r.Context())
-	startFrom := goatcounter.HitID(v.Integer("startFrom", r.Form.Get("startFrom")))
-	if v.HasErrors() {
-		return v
+	if !r.Form.Has("format") {
+		return guru.New(400, `"format" missing`)
+	}
+	switch r.Form.Get("format") {
+	default:
+		return guru.Errorf(400, "unknown format: %q", r.Form.Get("format"))
+
+	case "json":
+		v := goatcounter.NewValidate(r.Context())
+		periodStart := v.Date("period-start", r.Form.Get("period-start"), "2006-01-02")
+		if v.HasErrors() {
+			return v
+		}
+
+		var export goatcounter.Export
+		fp, err := export.CreateJSON(r.Context(), periodStart)
+		if err != nil {
+			return err
+		}
+		ctx := context.WithoutCancel(r.Context())
+		bgrun.RunFunction(fmt.Sprintf("export web:%d", Site(ctx).ID),
+			func() { export.RunJSON(ctx, fp, true) })
+
+	case "csv":
+		v := goatcounter.NewValidate(r.Context())
+		startFrom := goatcounter.HitID(v.Integer("start-from", r.Form.Get("start-from")))
+		if v.HasErrors() {
+			return v
+		}
+
+		var export goatcounter.Export
+		fp, err := export.CreateCSV(r.Context(), startFrom)
+		if err != nil {
+			return err
+		}
+		ctx := context.WithoutCancel(r.Context())
+		bgrun.RunFunction(fmt.Sprintf("export web:%d", Site(ctx).ID),
+			func() { export.RunCSV(ctx, fp, true) })
 	}
 
-	var export goatcounter.Export
-	fp, err := export.CreateCSV(r.Context(), startFrom)
-	if err != nil {
-		return err
-	}
-
-	ctx := context.WithoutCancel(r.Context())
-	bgrun.RunFunction(fmt.Sprintf("export web:%d", Site(ctx).ID),
-		func() { export.RunCSV(ctx, fp, true) })
-
-	zhttp.Flash(w, r, T(r.Context(), "notify/export-started-in-background|Export started in the background; you’ll get an email with a download link when it’s done."))
+	zhttp.Flash(w, r, T(r.Context(), `notify/export-started-in-background|
+		Export started in the background; you’ll get an email with a download link when it’s done.`))
 	return zhttp.SeeOther(w, "/settings/export")
 }
 

@@ -1,4 +1,8 @@
-The GoatCounter export is a CSV export of all pageviews of a site.
+GoatCounter can export a CSV of all pageviews. This can only be done of
+“Individual pageviews” is enabled in the site settings (it’s disabled by
+default).
+
+For most people the [JSON export](export-json) is a better option.
 
 There is no "standard" CSV; the export is created with the [`encoding/csv`][csv]
 package. Some notes:
@@ -33,14 +37,14 @@ The first line is a header with the field names. The fields, in order, are:
 <tr><th>Referrer</th><td>Referrer data.</td></tr>
 <tr><th>Referrer scheme</th><td>
         <code>h</code> – HTTP; an URL;<br>
-        <code>g</code> – Generated; e.g. all the various Hacker News interfaces don't
-        add a link to the specific story, so are just recorded as “Hacker News”;<br>
+        <code>g</code> – Generated; e.g. <code>mail.google.com</code> and several other email apps end up as <code>Email</code>;<br>
         <code>c</code> – Campaign; text string from a campaign parameter;<br>
         <code>o</code> – Other (e.g. Android apps).
     </td></tr>
 <tr><th>Screen size</th><td>Screen size as <code>x,y,scaling</code>.</td></tr>
 <tr><th>Location</th><td>ISO 3166-2 country code (either "US" or "US-TX")</td></tr>
-<tr><th>FirstVisit</th><td>First visit in this session?</td>
+<tr><th>FirstVisit</th><td>First visit in this session? The GoatCounter UI only
+shows pageviews that have this set.</td>
 <tr><th>Date</th><td>Creation date as RFC 3339/ISO 8601.</td></tr>
 </table>
 

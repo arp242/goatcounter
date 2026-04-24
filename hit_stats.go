@@ -37,7 +37,7 @@ func (t tbl) OnConflict(ctx context.Context) string {
 func (t tbl) Bulk(ctx context.Context) (zdb.BulkInsert, error) {
 	ins, err := zdb.NewBulkInsert(ctx, t.Table, t.Columns)
 	if err != nil {
-		return zdb.BulkInsert{}, err
+		return zdb.BulkInsert{}, fmt.Errorf("%q: %w", t.Table, err)
 	}
 	ins.OnConflict(t.OnConflict(ctx))
 	return ins, nil
