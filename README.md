@@ -137,8 +137,7 @@ You can manually import the schema with:
 
 See `goatcounter help db` and the [pq docs][pq] for more details.
 
-[pq]: https://pkg.go.dev/github.com/lib/pq#hdr-Connection_String_Parameters
-
+[pq]: https://pkg.go.dev/github.com/lib/pq#NewConfig
 
 ### Running with Docker
 GoatCounter is available on DockerHub at [arp242/goatcounter].
@@ -193,6 +192,12 @@ Or PostgreSQL (also starts PostgreSQL from compose.yaml):
     % docker compose up -d goatcounter-postgres
 
 [arp242/goatcounter]: https://hub.docker.com/r/arp242/goatcounter
+
+### Management
+A Server management page is available at *Settings → Server management*, which
+can be useful to debug and test some things.
+
+A status URL is available at `/status`, which can be used for health monitors.
 
 ### Updating
 You may need to run the database migrations when updating. Use  `goatcounter
