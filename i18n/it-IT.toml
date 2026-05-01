@@ -2,7 +2,7 @@
   comments = "https://github.com/arp242/goatcounter/issues/539"
   language = "it-IT"
   maintainers = ["Matteo Cosentino <cosentino.matteo.it@gmail.com>"]
-  modified = 2021-12-11
+  modified = 2026-05-01
 
 ["button/add-new"]
   default = "Aggiungi nuovo"
@@ -32,6 +32,7 @@
   default = "Sì, cancella tutto"
 
 ["button/delete-pageviews"]
+  default = "Cancella viste pagine"
 
 ["button/disable-mfa"]
   default = "Disabilita MFA"
@@ -46,6 +47,7 @@
   default = "Password dimenticata?"
 
 ["button/merge"]
+  default = "Unisci"
 
 ["button/remove"]
   default = "Rimuovi"
@@ -69,11 +71,13 @@
   default = "Salva visualizzazione di default"
 
 ["button/search"]
+  default = "Cerca"
 
 ["button/send-login-url"]
   default = "Invia URL di login"
 
 ["button/show"]
+  default = "Mostra"
 
 ["button/sign-in"]
   default = "Accedi"
@@ -88,6 +92,7 @@
   default = "Invia"
 
 ["button/upload-ga-import"]
+  default = "Carica"
 
 ["confirm/delete-user"]
   default = "Cancellare %(email)?"
@@ -101,19 +106,16 @@
   many    = "Molti"
 
 ["dashboard/loading"]
+  default = "Caricamento..."
 
 ["dashboard/month-ago"]
   default = "%(n) mesi fa"
-  zero    = "Zero"
-  one     = "Uno"
-  two     = "Due"
-  few     = "Alcuni"
-  many    = "Molti"
 
 ["dashboard/nothing-to-display"]
   default = "Niente da mostrare"
 
 ["dashboard/pages/change"]
+  default = "Cambia"
 
 ["dashboard/pages/header"]
   default = "Pagine"
@@ -157,6 +159,7 @@
   default = "Nome del paese, per esempio Belgio, Indonesia, ecc."
 
 ["data-collect/help/hits"]
+  default = "Memorizza singole visualizzazioni di pagina per le esportazioni. Questo non influisce su nient'altro. L'API può ancora essere utilizzata per esportare dati aggregati."
 
 ["data-collect/help/language"]
   default = "Lingue supportate da Accept-Language"
@@ -174,11 +177,13 @@
   default = "Dimensione schermo"
 
 ["data-collect/help/user-agent"]
+  default = "Browser e nome di sistema derivati dall'intestazione User-Agent (l'intestazione stessa non è memorizzata)."
 
 ["data-collect/label/country"]
   default = "Paese"
 
 ["data-collect/label/hits"]
+  default = "Visualizzazioni di pagina individuali"
 
 ["data-collect/label/language"]
   default = "Lingua"
@@ -208,16 +213,22 @@
   default = "Mese passato"
 
 ["dont-lock"]
+  default = "Non bloccare"
 
 ["email-report/daily"]
+  default = "Quotidiano"
 
 ["email-report/monthly"]
+  default = "Mensile"
 
 ["email-report/never"]
+  default = "Mai"
 
 ["email-report/two-weeks"]
+  default = "Ogni due settimane"
 
 ["email-report/weekly"]
+  default = "Settimanale"
 
 ["email/header"]
   default = "Ciao,"
@@ -256,6 +267,7 @@ Martin
   default = "Sarebbe prima della data di creazione del sito; GoatCounter non funziona *così* bene ;-)"
 
 ["error/email-exists"]
+  default = "L'indirizzo email “%(email)” è già utilizzato da un altro utente per questo sito"
 
 ["error/export-expired"]
   default = "Sembra che non ci sia alcun export o che l'export sia scaduto"
@@ -288,6 +300,7 @@ Martin
   default = "Password errata per %(email)"
 
 ["error/merge-self"]
+  default = "Non è possibile unire un percorso con se stesso"
 
 ["error/not-found"]
   default = "Non trovato"
@@ -299,6 +312,7 @@ Martin
   default = "%(email) non corrisponde a un account su questo sito"
 
 ["error/unknown-activation-token"]
+  default = "Token di attivazione sconosciuto"
 
 ["event"]
   default = "evento"
@@ -310,6 +324,7 @@ Martin
   default = "Accedi"
 
 ["header/add-api-token"]
+  default = "Aggiungi un nuovo token API"
 
 ["header/add-new-user"]
   default = "Aggiungi un nuovo utente"
@@ -366,8 +381,10 @@ Martin
   default = "Esporta/Imports"
 
 ["header/export-to-csv"]
+  default = "Esporta CSV"
 
 ["header/fewer-number"]
+  default = "Mostra meno numeri"
 
 ["header/finished"]
   default = "Finito"
@@ -382,8 +399,10 @@ Martin
   default = "Hash"
 
 ["header/import-from-csv"]
+  default = "Importa da CSV"
 
 ["header/import-from-ga"]
+  default = "Totali da Google Analytics"
 
 ["header/l10n"]
   default = "Localizzazione"
@@ -395,6 +414,7 @@ Martin
   default = "Ultimi 10 export"
 
 ["header/last-used-at"]
+  default = "Ultimo utilizzato"
 
 ["header/locations"]
   default = "Luoghi"
@@ -403,8 +423,10 @@ Martin
   default = "Luoghi in %(country)"
 
 ["header/manage-pageviews"]
+  default = "Gestisci le visualizzazioni di pagina"
 
 ["header/merge-account"]
+  default = "Unisci l'account"
 
 ["header/mfa"]
   default = "Multi-factor authentication"
@@ -482,6 +504,7 @@ Martin
   default = "Utenti"
 
 ["help/allow-embed"]
+  default = "Elenco separato da virgole di domini o URL che possono incorporare GoatCounter in un frame; %[documentazione completa]."
 
 ["help/allow-visitor-counts"]
   default = "Guarda %[la documentazione] per dettagli sull'utilizzo"
@@ -493,6 +516,7 @@ Martin
   default = "Accederai al tuo sito a https://<em>[il-mio-codice]</em>.%(domain)"
 
 ["help/configure-dashboard"]
+  default = "Configura dashboard"
 
 ["help/custom-domain"]
   default = """
@@ -516,6 +540,7 @@ La verifica è effettuata ogni 2 ore.
   default = "Le visualizzazioni e tutti i dati associati verranno rimossi permanentemente dopo questo ammontare di giorni. Imposta a <code>0</code> per non eliminarli mai."
 
 ["help/datepicker"]
+  default = "GoatCounter utilizza un datapicker JavaScript personalizzato sui sistemi desktop in quanto spesso offre un'esperienza migliore. Puoi disabilitarlo per utilizzare il datepicker nativo. Sui sistemi mobili utilizzerà sempre il datepicker nativo."
 
 ["help/domain-access"]
   default = "Dominio da cui accedere al sito"
@@ -524,10 +549,13 @@ La verifica è effettuata ogni 2 ore.
   default = "Trascina per ordinare"
 
 ["help/email-reports"]
+  default = "I rapporti vengono inviati il primo giorno del nuovo periodo (ad esempio il primo giorno del mese)."
 
 ["help/fewer-numbers"]
+  default = 'Non mostrare i numeri sul cruscotto. Questo è destinato a dare ancora una panoramica ragionevolmente utile di ciò che accade sul tuo sito ma evita una "ossessione" sul numero esatto di visitatori e statistiche.'
 
 ["help/fewer-numbers-lock"]
+  default = "Non sarai in grado di disabilitare questa impostazione per il periodo di tempo specificato."
 
 ["help/for-the-following-countries"]
   default = "Lista di codici paese (%[list]; usare il codice alpha-2); lasciare bianco per recuperare tutti i paesi (se abilitato)."
@@ -542,8 +570,10 @@ La verifica è effettuata ogni 2 ore.
   default = "Alternativamente, %[disabilita per questo browser] (clicca nuovamente per abilitare)."
 
 ["help/locked-until"]
+  default = "Bloccato fino a %(data)"
 
 ["help/need-cities"]
+  default = 'Questa opzione richiede la versione "Città" del database GeoIP. Vedi il flag <tt>-geo</tt> in <tt>goatcounter help serve</tt>.'
 
 ["help/new-user-email"]
   default = "Email di login"
@@ -590,6 +620,7 @@ La verifica è effettuata ogni 2 ore.
   default = "Statistiche browser"
 
 ["label/campaigns"]
+  default = "Campagne"
 
 ["label/change-code"]
   default = "Accederai al tuo account su https://<em>[il-mio-codice]</em>.%(domain) – %[%link cambia]."
@@ -610,6 +641,7 @@ La verifica è effettuata ogni 2 ore.
   default = "Dominio attuale"
 
 ["label/dashboard-allow-embed"]
+  default = "Siti che possono incorporare GoatCounter"
 
 ["label/dashboard-public"]
   default = "Dashboard visibile da"
@@ -621,6 +653,7 @@ La verifica è effettuata ogni 2 ore.
   default = "Formato data"
 
 ["label/datepicker"]
+  default = "Abilita il datapicker personalizzato"
 
 ["label/delete-account-confirmation"]
   default = "Sicuro di voler cancellare l'intero acount?"
@@ -632,8 +665,10 @@ La verifica è effettuata ogni 2 ore.
   default = "Indirizzo Email"
 
 ["label/email-reports"]
+  default = "Invia rapporti via e-mail"
 
 ["label/fewer-numbers"]
+  default = "Mostra meno numeri"
 
 ["label/for-following-countries"]
   default = "Solo per i seguenti paesi:"
@@ -654,18 +689,22 @@ La verifica è effettuata ogni 2 ore.
   default = "Statistiche località"
 
 ["label/lock-setting"]
+  default = "Impostazione del blocco"
 
 ["label/mark-current"]
   default = "(attuale)"
 
 ["label/match-case"]
+  default = "Corrispondere con distinzione tra maiuscole e minuscole"
 
 ["label/match-title"]
   default = "Controlla anche il titolo"
 
 ["label/merge-account-confirmation"]
+  default = "Sei sicuro di voler unire questo account?"
 
 ["label/merge-to"]
+  default = "Unisci tutti i percorsi per"
 
 ["label/mfa-token"]
   default = "Token MFA"
@@ -728,6 +767,7 @@ La verifica è effettuata ogni 2 ore.
   default = "Statistiche sistema"
 
 ["label/theme"]
+  default = "Tema"
 
 ["label/thousand-separator"]
   default = "Separatore migliaia"
@@ -775,10 +815,13 @@ La verifica è effettuata ogni 2 ore.
   default = "Vai a %(path)"
 
 ["link/import"]
+  default = "Importazione/Esportazione"
 
 ["link/manage-pageviews"]
+  default = "Gestisci le visualizzazioni di pagina"
 
 ["link/merge-account"]
+  default = "Unisci l'account"
 
 ["link/passwd-mfa"]
   default = "Password & MFA"
@@ -796,6 +839,7 @@ La verifica è effettuata ogni 2 ore.
   default = "impostazioni"
 
 ["link/show-less"]
+  default = "(mostra meno)"
 
 ["link/show-more"]
   default = "Mostra di più"
@@ -834,6 +878,7 @@ La verifica è effettuata ogni 2 ore.
   default = "Filtra i percorsi"
 
 ["nav-dash/filter-more-help"]
+  default = "Più aiuto"
 
 ["nav-dash/filter-tooltip"]
   default = """
@@ -857,6 +902,7 @@ La verifica è effettuata ogni 2 ore.
   default = "semestre"
 
 ["nav-dash/hour"]
+  default = "ora"
 
 ["nav-dash/last"]
   default = "Ultimo/a"
@@ -871,6 +917,7 @@ La verifica è effettuata ogni 2 ore.
   default = "Data di inizio del range da mostrare"
 
 ["nav-dash/view-by"]
+  default = "Visualizza:"
 
 ["nav-dash/week"]
   default = "settimana"
@@ -879,8 +926,10 @@ La verifica è effettuata ogni 2 ore.
   default = "anno"
 
 ["nav-fash/filter-less-help"]
+  default = "Meno aiuto"
 
 ["new-paren"]
+  default = "(nuovo)"
 
 ["no-title"]
   default = "nessun titolo"
@@ -904,6 +953,7 @@ La verifica è effettuata ogni 2 ore.
   default = "L'export è iniziato in background, riceverai un'email con il link di download una volta terminato."
 
 ["notify/import-ga-okay"]
+  default = "Dati elaborati con successo."
 
 ["notify/import-started-in-background"]
   default = "L'import è iniziato in backdround, riceverai un'email una volta terminato."
@@ -973,11 +1023,13 @@ Le impostazioni correnti del sito sono copiate al momento della creazione, ma do
 """
 
 ["p/add-multiple-accounts"]
+  default = "Puoi usare il comando <code>goatcounter db create site</code> dalla CLI per creare più account. Questi saranno completamente separati e non condivideranno utenti o qualsiasi altra cosa. Per esempio:"
 
 ["p/additional-errors"]
   default = "Errori addizionali"
 
 ["p/all-sites"]
+  default = "Tutti i siti, compresi quelli creati in futuro"
 
 ["p/api-intro"]
   default = "GoatCounter mette a dispisizione API limitate; al momento puoi contare le visite da API, creare, cancellare e modificare siti e creare export."
@@ -1005,6 +1057,7 @@ e il vecchio codice potrà essere utilizzato da chiunque; se lo stai già utiliz
   default = "Il formato del file CSV è %[documentato qui]."
 
 ["p/delete-account"]
+  default = "Il sito e tutti i dati associati saranno rimossi definitivamente senza possibilità di recupero."
 
 ["p/disable-mfa"]
   default = "MFA abilitata per questo account."
@@ -1016,6 +1069,13 @@ e il vecchio codice potrà essere utilizzato da chiunque; se lo stai già utiliz
   default = "Errore: %(error-message)"
 
 ["p/export-csv"]
+  default = """
+<p>Le esportazioni CSV richiedono che la raccolta di visualizzazioni di pagina sia abilitata in %[% setting site settings], ma attualmente è disabilitato.</p>
+
+<p>Puoi ancora usare l'API per ottenere le statistiche aggegrate
+
+Utilizzato sulla dashboard; vedi %[%api API docs].</p>
+"""
 
 ["p/export-process"]
   default = "Inizia il processo e riceverai un link di download via email quando sarà pronto. Puoi farlo una volta all'ora e sovrascriverà qualunque backup precedente che potresti aver fatto."
@@ -1024,13 +1084,20 @@ e il vecchio codice potrà essere utilizzato da chiunque; se lo stai già utiliz
   default = "Questo account è proteddo dall'autenticazione a più fattori; per favore inserisci il codice dell'app authenticator."
 
 ["p/import-ga"]
+  default = """
+Google Analytics non offre esportazioni significative; offre solo %[%ga exporting “reports”]. Questo dà una panoramica dei percorsi totali, non suddivisi per data. Non ci sono abbastanza dati da visualizzare per GoatCounter, ma puoi “import” questo e verrà aggiunto ai totali in %[%vc Visitor Counter].
+<br><br>
+Potrebbero volerci fino a 30 minuti perché i numeri del contatore visite si aggiornino.
+"""
 
 ["p/last-user"]
   default = "Impossibile cancellare o modificare l'ultimo account amministratore"
 
 ["p/manage-hits"]
+  default = "Rimuovi o unisci le visualizzazioni di pagina."
 
 ["p/merge-account"]
+  default = "Puoi unire gli account che hanno un utente amministratore con un'e-mail verificata che sia Identica alla tua email attuale."
 
 ["p/no-data"]
   default = """
@@ -1060,6 +1127,7 @@ Nell'email sarà presente un \"cursore di paginazione\", se lo inserisci qui, ve
   default = "%(number) siti verranno cancellati"
 
 ["p/num-accounts"]
+  default = "Questo account contiene %(n) siti:"
 
 ["p/remove-site-confirm"]
   default = """
@@ -1077,6 +1145,14 @@ Questa azione <strong>cancellerà tutti i dati assocuati</strong> ed è il <stro
 """
 
 ["p/rm-hits-help"]
+  default = """
+<ul>
+<li><code>%</code> è un jolly; ad esempio <code>/page%.html</code> abbina tutto ciò che inizia da <code>/page</code> e termina con <code>.html</code>.</li>
+<li><code>_</code> confronta ogni carattere; ad esempio <code>_.html</code> confronta <code>a.html</code> e <code>b.html</code>.</li>
+<li>Utilizza <code>\\%</code> e <code>\\_</code> per i caratteri letterali senza significato speciale.</li>
+<li>Utilizza due backslahe (<code>\\\\</code>) per abbinare una singola barra rovesciata.</li>
+</ul>
+"""
 
 ["p/rm-pageview-match"]
   default = "I path seguenti corrispondono a %(query):"
@@ -1106,12 +1182,16 @@ Per favore verifica la tua email cliccando sul link inviato a %(email).
   default = "Scala l'asse delle Y al massimo"
 
 ["theme/dark"]
+  default = "Scuro"
 
 ["theme/light"]
+  default = "Chiaro"
 
 ["theme/system"]
+  default = "Usa impostazioni di sistema"
 
 ["tooltip/change-period"]
+  default = "Variazione rispetto periodo precedente"
 
 ["top-nav/back"]
   default = "Indietro"
@@ -1120,6 +1200,7 @@ Per favore verifica la tua email cliccando sul link inviato a %(email).
   default = "Dashboard"
 
 ["top-nav/documentation"]
+  default = "Aiuto"
 
 ["top-nav/need-js"]
   default = "GoatCounter ha bisogno che JavaScript sia abilitato per funzionare correttamente; per favore abilita JavaScript su %(domain)."
@@ -1188,6 +1269,7 @@ Per favore verifica la tua email cliccando sul link inviato a %(email).
   default = "non può essere più corto di %d caratteri"
 
 ["validate/need-one"]
+  default = "Occorre selezionarne almeno uno"
 
 ["validate/phone"]
   default = "dev'essere un numero di telefono valido"
@@ -1213,6 +1295,7 @@ Per favore verifica la tua email cliccando sul link inviato a %(email).
   default = "Aggiungi margine a sinistra per allineare i grafici delle pagine"
 
 ["widget-setting/help/chart-style"]
+  default = "Come disegnare i grafici"
 
 ["widget-setting/help/no-events"]
   default = "Non includere eventi nella panoramica dei Totali"
@@ -1230,6 +1313,7 @@ Per favore verifica la tua email cliccando sul link inviato a %(email).
   default = "Allinea alle pagine"
 
 ["widget-setting/label/chart-style"]
+  default = "Stile del grafico"
 
 ["widget-setting/label/no-events"]
   default = "Escludi eventi"
@@ -1244,10 +1328,13 @@ Per favore verifica la tua email cliccando sul link inviato a %(email).
   default = "Mostra regioni"
 
 ["widget-settings/bar-chart"]
+  default = "Grafico a barre"
 
 ["widget-settings/line-chart"]
+  default = "Grafico a linea"
 
 ["widget-settings/text-chart"]
+  default = "Tabella di testo"
 
 ["y-scale"]
   default = "Scala asse delle Y"
