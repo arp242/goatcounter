@@ -240,6 +240,7 @@ commas.
     memstore       Storing of pageviews in the database
     migrate        Database migrations
     monitor        Additional logs in "goatcounter monitor"
+    refspam        Pageviews blocked due to being in the refspam list
     session        Internal "session" generation to track visitors
     sql-query      Log all SQL queries
     sql-result     Log all SQL queries with the data they're returning.

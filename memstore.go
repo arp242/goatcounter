@@ -26,8 +26,9 @@ var (
 )
 
 var (
-	memlog  = log.Module("memstore")
-	sesslog = log.Module("session")
+	memlog     = log.Module("memstore")
+	sesslog    = log.Module("session")
+	refspamlog = log.Module("refspam")
 )
 
 type sessionKey string
@@ -257,7 +258,7 @@ func (m *ms) processHit(ctx context.Context, h *Hit) bool {
 	h.RefURL, _ = url.Parse(h.Ref)
 	if h.RefURL != nil {
 		if isRefspam(h.RefURL.Host) {
-			memlog.Debugf(ctx, "refspam ignored: %q", h.RefURL.Host)
+			refspamlog.Debugf(ctx, "refspam ignored: %q", h.RefURL.Host)
 			return false
 		}
 	}
