@@ -17,4 +17,4 @@ from hit_counts
 join x using(path_id)
 where site_id = :site
 group by path_id, path, title
-order by count desc
+order by count desc, path_id
