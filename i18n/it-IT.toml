@@ -2,7 +2,7 @@
   comments = "https://github.com/arp242/goatcounter/issues/539"
   language = "it-IT"
   maintainers = ["Matteo Cosentino <cosentino.matteo.it@gmail.com>"]
-  modified = 2026-05-01
+  modified = 2026-04-29
 
 ["button/add-new"]
   default = "Aggiungi nuovo"
@@ -49,6 +49,8 @@
 ["button/merge"]
   default = "Unisci"
 
+["button/preview"]
+
 ["button/remove"]
   default = "Rimuovi"
 
@@ -63,6 +65,8 @@
 
 ["button/reset-password"]
   default = "Reimposta password"
+
+["button/run"]
 
 ["button/save"]
   default = "Salva"
@@ -356,6 +360,8 @@ Martin
 ["header/created-at"]
   default = "Creato a"
 
+["header/csv-format"]
+
 ["header/dashboard"]
   default = "Dashboard"
 
@@ -364,6 +370,8 @@ Martin
 
 ["header/delete-account"]
   default = "Cancella account"
+
+["header/deleting"]
 
 ["header/domain"]
   default = "Dominio"
@@ -383,6 +391,8 @@ Martin
 ["header/export-to-csv"]
   default = "Esporta CSV"
 
+["header/export-to-json"]
+
 ["header/fewer-number"]
   default = "Mostra meno numeri"
 
@@ -395,6 +405,8 @@ Martin
 ["header/forgot-password"]
   default = "Password dimenticata"
 
+["header/format"]
+
 ["header/hash"]
   default = "Hash"
 
@@ -403,6 +415,10 @@ Martin
 
 ["header/import-from-ga"]
   default = "Totali da Google Analytics"
+
+["header/import-from-json"]
+
+["header/json-format"]
 
 ["header/l10n"]
   default = "Localizzazione"
@@ -428,6 +444,8 @@ Martin
 ["header/merge-account"]
   default = "Unisci l'account"
 
+["header/merging-to"]
+
 ["header/mfa"]
   default = "Multi-factor authentication"
 
@@ -436,6 +454,8 @@ Martin
 
 ["header/name"]
   default = "Nome"
+
+["header/other-formats"]
 
 ["header/pagination-cursor"]
   default = "Cursore paginazione"
@@ -451,6 +471,8 @@ Martin
 
 ["header/preferences"]
   default = "Preferenze"
+
+["header/renaming"]
 
 ["header/reset-password"]
   default = "Resetta password per %(email) a %(site-name)"
@@ -667,6 +689,8 @@ La verifica è effettuata ogni 2 ore.
 ["label/email-reports"]
   default = "Invia rapporti via e-mail"
 
+["label/export-from-date"]
+
 ["label/fewer-numbers"]
   default = "Mostra meno numeri"
 
@@ -795,6 +819,8 @@ La verifica è effettuata ogni 2 ore.
 
 ["label/your-site"]
   default = "Il tuo sito"
+
+["label/zip-file"]
 
 ["link/add-translation"]
   default = "Aggiungi o aggiorna traduzioni"
@@ -1077,6 +1103,8 @@ e il vecchio codice potrà essere utilizzato da chiunque; se lo stai già utiliz
 Utilizzato sulla dashboard; vedi %[%api API docs].</p>
 """
 
+["p/export-from-date"]
+
 ["p/export-process"]
   default = "Inizia il processo e riceverai un link di download via email quando sarà pronto. Puoi farlo una volta all'ora e sovrascriverà qualunque backup precedente che potresti aver fatto."
 
@@ -1090,8 +1118,14 @@ Google Analytics non offre esportazioni significative; offre solo %[%ga exportin
 Potrebbero volerci fino a 30 minuti perché i numeri del contatore visite si aggiornino.
 """
 
+["p/json-file-format"]
+
 ["p/last-user"]
   default = "Impossibile cancellare o modificare l'ultimo account amministratore"
+
+["p/link-to-batch-rename"]
+
+["p/manage-batch-hits"]
 
 ["p/manage-hits"]
   default = "Rimuovi o unisci le visualizzazioni di pagina."

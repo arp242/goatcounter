@@ -3,7 +3,9 @@
 
 <h2 id="purge">{{.T "header/manage-pageviews|Manage pageviews"}}</h2>
 
-<p>{{.T "p/manage-hits|Remove or merge pageviews."}}</p>
+<p>{{.T "p/manage-hits|Remove or merge pageviews."}}
+	{{.T "p/link-to-batch-rename|You can also %[delete or rename many pageviews from a text file]."
+		(tag "a" (printf `href="%s/settings/batchpurge"` .Base))}}</p>
 
 <p>{{.T `p/rm-hits-help|
 Matches are case insensitive. Supports the following special characters:

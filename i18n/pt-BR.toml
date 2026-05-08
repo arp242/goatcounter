@@ -1,7 +1,7 @@
 [__meta__]
   language = "pt-BR"
   maintainers = []
-  modified = 2025-05-22
+  modified = 2025-05-20
 
 ["button/add-new"]
   default = "Adicionar"
@@ -46,6 +46,8 @@
 
 ["button/merge"]
 
+["button/preview"]
+
 ["button/remove"]
   default = "Remover"
 
@@ -60,6 +62,8 @@
 
 ["button/reset-password"]
   default = "Redefinir senha"
+
+["button/run"]
 
 ["button/save"]
   default = "Salvar"
@@ -338,6 +342,8 @@ Martin
 ["header/created-at"]
   default = "Criado em"
 
+["header/csv-format"]
+
 ["header/dashboard"]
   default = "Painel"
 
@@ -346,6 +352,8 @@ Martin
 
 ["header/delete-account"]
   default = "Excluir conta"
+
+["header/deleting"]
 
 ["header/domain"]
   default = "Domínio"
@@ -364,6 +372,8 @@ Martin
 
 ["header/export-to-csv"]
 
+["header/export-to-json"]
+
 ["header/fewer-number"]
 
 ["header/finished"]
@@ -375,12 +385,18 @@ Martin
 ["header/forgot-password"]
   default = "Esqueci a senha"
 
+["header/format"]
+
 ["header/hash"]
   default = "Hash"
 
 ["header/import-from-csv"]
 
 ["header/import-from-ga"]
+
+["header/import-from-json"]
+
+["header/json-format"]
 
 ["header/l10n"]
   default = "Localização"
@@ -403,6 +419,8 @@ Martin
 
 ["header/merge-account"]
 
+["header/merging-to"]
+
 ["header/mfa"]
   default = "Autenticação Multi-Fator (MFA)"
 
@@ -411,6 +429,8 @@ Martin
 
 ["header/name"]
   default = "Nome"
+
+["header/other-formats"]
 
 ["header/pagination-cursor"]
   default = "Cursor de paginação"
@@ -426,6 +446,8 @@ Martin
 
 ["header/preferences"]
   default = "Preferências"
+
+["header/renaming"]
 
 ["header/reset-password"]
   default = "Alterar senha para %(email) em %(site-name)"
@@ -627,6 +649,8 @@ A verificação é executada a cada 2 horas.
 
 ["label/email-reports"]
 
+["label/export-from-date"]
+
 ["label/fewer-numbers"]
 
 ["label/for-following-countries"]
@@ -747,6 +771,8 @@ A verificação é executada a cada 2 horas.
 
 ["label/your-site"]
   default = "Seu site"
+
+["label/zip-file"]
 
 ["link/add-translation"]
   default = "Adicionar ou atualizar traduções"
@@ -989,6 +1015,8 @@ A verificação é executada a cada 2 horas.
 
 ["p/export-csv"]
 
+["p/export-from-date"]
+
 ["p/export-process"]
 
 ["p/have-mfa"]
@@ -996,8 +1024,14 @@ A verificação é executada a cada 2 horas.
 
 ["p/import-ga"]
 
+["p/json-file-format"]
+
 ["p/last-user"]
   default = "Não é possível excluir ou editar o único administrador"
+
+["p/link-to-batch-rename"]
+
+["p/manage-batch-hits"]
 
 ["p/manage-hits"]
 

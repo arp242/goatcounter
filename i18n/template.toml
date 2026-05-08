@@ -61,7 +61,7 @@
   default = "Yes, delete everything"
 
 ["button/delete-pageviews"]
-  loc     = ["tpl/settings_purge.gohtml:73"]
+  loc     = ["tpl/settings_purge.gohtml:75"]
   default = "Delete pageviews"
 
 ["button/disable-mfa"]
@@ -70,6 +70,7 @@
 
 ["button/edit"]
   loc = [
+    "tpl/settings_batchpurge.gohtml:118",
     "tpl/settings_users.gohtml:15",
     "tpl/settings_users_form.gohtml:84",
   ]
@@ -86,9 +87,13 @@
 ["button/merge"]
   loc = [
     "tpl/settings_merge.gohtml:37",
-    "tpl/settings_purge.gohtml:63",
+    "tpl/settings_purge.gohtml:65",
   ]
   default = "Merge"
+
+["button/preview"]
+  loc     = ["tpl/settings_batchpurge.gohtml:50"]
+  default = "Preview"
 
 ["button/remove"]
   loc     = ["tpl/_user_dashboard_widgets.gohtml:12"]
@@ -113,6 +118,10 @@
   loc     = ["tpl/user_reset.gohtml:14"]
   default = "Reset password"
 
+["button/run"]
+  loc     = ["tpl/settings_batchpurge.gohtml:121"]
+  default = "Run"
+
 ["button/save"]
   loc = [
     "tpl/_dashboard_configure_widget.gohtml:3",
@@ -127,7 +136,7 @@
   default = "Save default view"
 
 ["button/search"]
-  loc     = ["tpl/settings_purge.gohtml:21"]
+  loc     = ["tpl/settings_purge.gohtml:23"]
   default = "Search"
 
 ["button/send-login-url"]
@@ -146,11 +155,17 @@
   default = "Sign in"
 
 ["button/start-export"]
-  loc     = ["tpl/settings_export.gohtml:41"]
+  loc = [
+    "tpl/settings_export.gohtml:34",
+    "tpl/settings_export.gohtml:87",
+  ]
   default = "Start export"
 
 ["button/start-import"]
-  loc     = ["tpl/settings_export.gohtml:86"]
+  loc = [
+    "tpl/settings_export.gohtml:46",
+    "tpl/settings_export.gohtml:104",
+  ]
   default = "Start import"
 
 ["button/submit"]
@@ -158,7 +173,7 @@
   default = "Submit"
 
 ["button/upload-ga-import"]
-  loc     = ["tpl/settings_export.gohtml:70"]
+  loc     = ["tpl/settings_export.gohtml:135"]
   default = "Upload"
 
 ["confirm/delete-user"]
@@ -178,7 +193,7 @@
   default = "%(n) months ago"
 
 ["dashboard/nothing-to-display"]
-  loc     = ["tpl.go:369"]
+  loc     = ["tpl.go:370"]
   default = "Nothing to display"
 
 ["dashboard/pages/change"]
@@ -366,15 +381,15 @@ Martin
 
 ["error/address-exists"]
   loc = [
-    "handlers/settings.go:303",
-    "handlers/settings.go:308",
+    "handlers/settings.go:306",
+    "handlers/settings.go:311",
   ]
   default = "%(addr) already exists"
 
 ["error/could-not-read"]
   loc = [
-    "handlers/settings.go:629",
-    "handlers/settings.go:694",
+    "handlers/settings.go:847",
+    "handlers/settings.go:913",
   ]
   default = "Could not read as gzip: %(err)"
 
@@ -398,7 +413,7 @@ Martin
   default = "The email address “%(email)” is already used by another user for this site"
 
 ["error/export-expired"]
-  loc     = ["handlers/settings.go:592"]
+  loc     = ["handlers/settings.go:761"]
   default = "It looks like there is no export yet or the export has expired."
 
 ["error/incorrect-password"]
@@ -438,14 +453,17 @@ Martin
   default = "Wrong password for %(email)"
 
 ["error/merge-self"]
-  loc     = ["handlers/settings.go:535"]
+  loc = [
+    "handlers/settings.go:527",
+    "handlers/settings.go:704",
+  ]
   default = "Cannot merge a path with itself"
 
 ["error/not-found"]
   loc = [
     "handlers/backend.go:78",
-    "handlers/settings.go:365",
-    "handlers/settings.go:1057",
+    "handlers/settings.go:368",
+    "handlers/settings.go:1307",
   ]
   default = "Not Found"
 
@@ -469,7 +487,7 @@ Martin
     "tpl/_dashboard_pages_rows.gohtml:25",
     "tpl/_dashboard_pages_rows.gohtml:35",
     "tpl/_dashboard_pages_text_rows.gohtml:33",
-    "tpl/settings_purge.gohtml:60",
+    "tpl/settings_purge.gohtml:62",
   ]
   default = "event"
 
@@ -525,6 +543,10 @@ Martin
   loc     = ["tpl/user_api.gohtml:27"]
   default = "Created at"
 
+["header/csv-format"]
+  loc     = ["tpl/settings_export.gohtml:51"]
+  default = "CSV format"
+
 ["header/dashboard"]
   loc     = ["tpl/user_dashboard.gohtml:4"]
   default = "Dashboard"
@@ -536,6 +558,10 @@ Martin
 ["header/delete-account"]
   loc     = ["tpl/settings_delete.gohtml:4"]
   default = "Delete account"
+
+["header/deleting"]
+  loc     = ["tpl/settings_batchpurge.gohtml:65"]
+  default = "Deleting the following paths"
 
 ["header/domain"]
   loc     = ["tpl/settings_sites.gohtml:28"]
@@ -554,19 +580,23 @@ Martin
   default = "Email"
 
 ["header/export-or-import"]
-  loc     = ["tpl/settings_export.gohtml:4"]
+  loc     = ["tpl/settings_export.gohtml:8"]
   default = "Export/Import"
 
 ["header/export-to-csv"]
-  loc     = ["tpl/settings_export.gohtml:14"]
+  loc     = ["tpl/settings_export.gohtml:57"]
   default = "Export to CSV"
+
+["header/export-to-json"]
+  loc     = ["tpl/settings_export.gohtml:15"]
+  default = "Export to JSON"
 
 ["header/fewer-number"]
   loc     = ["tpl/user_pref.gohtml:88"]
   default = "Show fewer numbers"
 
 ["header/finished"]
-  loc     = ["tpl/settings_export.gohtml:96"]
+  loc     = ["tpl/settings_export.gohtml:144"]
   default = "Finished"
 
 ["header/forgot-domain"]
@@ -577,17 +607,29 @@ Martin
   loc     = ["tpl/user_forgot_pw.gohtml:3"]
   default = "Forgot password"
 
+["header/format"]
+  loc     = ["tpl/settings_export.gohtml:148"]
+  default = "Format"
+
 ["header/hash"]
-  loc     = ["tpl/settings_export.gohtml:100"]
+  loc     = ["tpl/settings_export.gohtml:149"]
   default = "Hash"
 
 ["header/import-from-csv"]
-  loc     = ["tpl/settings_export.gohtml:78"]
+  loc     = ["tpl/settings_export.gohtml:96"]
   default = "Import from CSV"
 
 ["header/import-from-ga"]
-  loc     = ["tpl/settings_export.gohtml:50"]
+  loc     = ["tpl/settings_export.gohtml:115"]
   default = "Totals from Google Analytics"
+
+["header/import-from-json"]
+  loc     = ["tpl/settings_export.gohtml:41"]
+  default = "Import from JSON"
+
+["header/json-format"]
+  loc     = ["tpl/settings_export.gohtml:10"]
+  default = "JSON format"
 
 ["header/l10n"]
   loc     = ["tpl/user_pref.gohtml:20"]
@@ -598,7 +640,7 @@ Martin
   default = "Languages"
 
 ["header/last-10-exports"]
-  loc     = ["tpl/settings_export.gohtml:92"]
+  loc     = ["tpl/settings_export.gohtml:140"]
   default = "Last 10 exports"
 
 ["header/last-used-at"]
@@ -614,12 +656,22 @@ Martin
   default = "Locations for %(country)"
 
 ["header/manage-pageviews"]
-  loc     = ["tpl/settings_purge.gohtml:4"]
+  loc = [
+    "tpl/settings_batchpurge.gohtml:4",
+    "tpl/settings_purge.gohtml:4",
+  ]
   default = "Manage pageviews"
 
 ["header/merge-account"]
   loc     = ["tpl/settings_merge.gohtml:4"]
   default = "Merge account"
+
+["header/merging-to"]
+  loc = [
+    "tpl/settings_batchpurge.gohtml:90",
+    "tpl/settings_batchpurge.gohtml:92",
+  ]
+  default = "Merging to %(path)"
 
 ["header/mfa"]
   loc = [
@@ -629,7 +681,11 @@ Martin
   default = "Multi-factor authentication"
 
 ["header/n-hits"]
-  loc     = ["tpl/settings_purge.gohtml:34"]
+  loc = [
+    "tpl/settings_batchpurge.gohtml:68",
+    "tpl/settings_batchpurge.gohtml:97",
+    "tpl/settings_purge.gohtml:36",
+  ]
   default = "# of hits"
 
 ["header/name"]
@@ -639,8 +695,12 @@ Martin
   ]
   default = "Name"
 
+["header/other-formats"]
+  loc     = ["tpl/settings_export.gohtml:109"]
+  default = "Other formats"
+
 ["header/pagination-cursor"]
-  loc     = ["tpl/settings_export.gohtml:98"]
+  loc     = ["tpl/settings_export.gohtml:146"]
   default = "Pagination cursor"
 
 ["header/passwd-mfa"]
@@ -648,7 +708,11 @@ Martin
   default = "Password & MFA"
 
 ["header/path"]
-  loc     = ["tpl/settings_purge.gohtml:35"]
+  loc = [
+    "tpl/settings_batchpurge.gohtml:69",
+    "tpl/settings_batchpurge.gohtml:98",
+    "tpl/settings_purge.gohtml:37",
+  ]
   default = "Path"
 
 ["header/permissions"]
@@ -664,6 +728,10 @@ Martin
     "tpl/user_pref.gohtml:123",
   ]
   default = "Preferences"
+
+["header/renaming"]
+  loc     = ["tpl/settings_batchpurge.gohtml:84"]
+  default = "Renaming the following paths"
 
 ["header/reset-password"]
   loc     = ["tpl/user_reset.gohtml:3"]
@@ -689,7 +757,7 @@ Martin
   default = "Sites"
 
 ["header/size"]
-  loc     = ["tpl/settings_export.gohtml:99"]
+  loc     = ["tpl/settings_export.gohtml:147"]
   default = "Size"
 
 ["header/sizes"]
@@ -697,11 +765,11 @@ Martin
   default = "Sizes"
 
 ["header/start-pagination-cursor"]
-  loc     = ["tpl/settings_export.gohtml:97"]
+  loc     = ["tpl/settings_export.gohtml:145"]
   default = "Started from pagination cursor"
 
 ["header/started"]
-  loc     = ["tpl/settings_export.gohtml:95"]
+  loc     = ["tpl/settings_export.gohtml:143"]
   default = "Started"
 
 ["header/systems"]
@@ -709,7 +777,10 @@ Martin
   default = "Systems"
 
 ["header/title"]
-  loc     = ["tpl/settings_purge.gohtml:36"]
+  loc = [
+    "tpl/settings_batchpurge.gohtml:70",
+    "tpl/settings_purge.gohtml:38",
+  ]
   default = "Title"
 
 ["header/token"]
@@ -851,10 +922,11 @@ GeoIP database. See the <tt>-geo</tt> flag in
 
 ["help/no-undo"]
   loc = [
-    "tpl/settings_purge.gohtml:52",
-    "tpl/settings_purge.gohtml:65",
-    "tpl/settings_purge.gohtml:68",
-    "tpl/settings_purge.gohtml:74",
+    "tpl/settings_batchpurge.gohtml:122",
+    "tpl/settings_purge.gohtml:54",
+    "tpl/settings_purge.gohtml:67",
+    "tpl/settings_purge.gohtml:70",
+    "tpl/settings_purge.gohtml:76",
   ]
   default = "This cannot be undone!"
 
@@ -918,7 +990,10 @@ GeoIP database. See the <tt>-geo</tt> flag in
   default = "You will access your account at https://<em>[my-code]</em>.%(domain) – %[%link change]."
 
 ["label/clear-pageviews"]
-  loc     = ["tpl/settings_export.gohtml:83"]
+  loc = [
+    "tpl/settings_export.gohtml:44",
+    "tpl/settings_export.gohtml:101",
+  ]
   default = "Clear all existing pageviews."
 
 ["label/code"]
@@ -930,10 +1005,10 @@ GeoIP database. See the <tt>-geo</tt> flag in
 
 ["label/csv-compress-format"]
   loc = [
-    "tpl/settings_export.gohtml:66",
-    "tpl/settings_export.gohtml:80",
+    "tpl/settings_export.gohtml:98",
+    "tpl/settings_export.gohtml:131",
   ]
-  default = "CSV file; may be compressed with gzip"
+  default = "Google Analytics CSV file"
 
 ["label/current-passwd"]
   loc     = ["tpl/user_auth.gohtml:13"]
@@ -986,6 +1061,10 @@ GeoIP database. See the <tt>-geo</tt> flag in
   loc     = ["tpl/user_pref.gohtml:132"]
   default = "Send email reports"
 
+["label/export-from-date"]
+  loc     = ["tpl/settings_export.gohtml:22"]
+  default = "Export from date"
+
 ["label/fewer-numbers"]
   loc     = ["tpl/user_pref.gohtml:96"]
   default = "Show fewer numbers"
@@ -1026,11 +1105,11 @@ GeoIP database. See the <tt>-geo</tt> flag in
   default = "(current)"
 
 ["label/match-case"]
-  loc     = ["tpl/settings_purge.gohtml:23"]
+  loc     = ["tpl/settings_purge.gohtml:25"]
   default = "Match case-sensitive"
 
 ["label/match-title"]
-  loc     = ["tpl/settings_purge.gohtml:22"]
+  loc     = ["tpl/settings_purge.gohtml:24"]
   default = "Match title as well"
 
 ["label/merge-account-confirmation"]
@@ -1038,7 +1117,7 @@ GeoIP database. See the <tt>-geo</tt> flag in
   default = "Are you sure you want to merge this account?"
 
 ["label/merge-to"]
-  loc     = ["tpl/settings_purge.gohtml:57"]
+  loc     = ["tpl/settings_purge.gohtml:59"]
   default = "Merge all the paths to"
 
 ["label/mfa-token"]
@@ -1064,7 +1143,7 @@ GeoIP database. See the <tt>-geo</tt> flag in
   default = "New password (confirm)"
 
 ["label/pagination-cursor"]
-  loc     = ["tpl/settings_export.gohtml:33"]
+  loc     = ["tpl/settings_export.gohtml:76"]
   default = "Pagination cursor"
 
 ["label/password"]
@@ -1112,15 +1191,15 @@ GeoIP database. See the <tt>-geo</tt> flag in
   default = "Also set as default for new users and the public view (if enabled)."
 
 ["label/size-desktop"]
-  loc     = ["tpl.go:404"]
+  loc     = ["tpl.go:405"]
   default = "Computer monitors"
 
 ["label/size-desktophd"]
-  loc     = ["tpl.go:406"]
+  loc     = ["tpl.go:407"]
   default = "Computer monitors larger than HD"
 
 ["label/size-phones"]
-  loc     = ["tpl.go:400"]
+  loc     = ["tpl.go:401"]
   default = "Phones"
 
 ["label/size-stats"]
@@ -1128,7 +1207,7 @@ GeoIP database. See the <tt>-geo</tt> flag in
   default = "Size stats"
 
 ["label/size-tablets"]
-  loc     = ["tpl.go:402"]
+  loc     = ["tpl.go:403"]
   default = "Tablets and large phones"
 
 ["label/system-stats"]
@@ -1174,6 +1253,10 @@ GeoIP database. See the <tt>-geo</tt> flag in
 ["label/your-site"]
   loc     = ["tpl/settings_main.gohtml:13"]
   default = "Your site"
+
+["label/zip-file"]
+  loc     = ["tpl/settings_export.gohtml:42"]
+  default = "ZIP file"
 
 ["link/add-translation"]
   loc     = ["tpl/user_pref.gohtml:49"]
@@ -1414,15 +1497,15 @@ GeoIP database. See the <tt>-geo</tt> flag in
   default = "%(email) is already verified."
 
 ["notify/export-started-in-background"]
-  loc     = ["handlers/settings.go:727"]
+  loc     = ["handlers/settings.go:970"]
   default = "Export started in the background; you’ll get an email with a download link when it’s done."
 
 ["notify/import-ga-okay"]
-  loc     = ["handlers/settings.go:704"]
+  loc     = ["handlers/settings.go:923"]
   default = "Data processed successfully."
 
 ["notify/import-started-in-background"]
-  loc     = ["handlers/settings.go:678"]
+  loc     = ["handlers/settings.go:896"]
   default = "Import started in the background; you’ll get an email when it’s done."
 
 ["notify/login-after-password-reset"]
@@ -1442,7 +1525,7 @@ GeoIP database. See the <tt>-geo</tt> flag in
   default = "could find the user for the given token; perhaps it's expired or has already been used?"
 
 ["notify/not-found"]
-  loc     = ["handlers/settings.go:1012"]
+  loc     = ["handlers/settings.go:1262"]
   default = "Not Found"
 
 ["notify/password-changed"]
@@ -1458,14 +1541,14 @@ GeoIP database. See the <tt>-geo</tt> flag in
   default = "Email sent to %(email)"
 
 ["notify/restored-previously-deleted-site"]
-  loc     = ["handlers/settings.go:316"]
+  loc     = ["handlers/settings.go:319"]
   default = "Site ‘%(url)’ was previously deleted; restored site with all data."
 
 ["notify/saved"]
   loc = [
     "handlers/handlers.go:123",
-    "handlers/settings.go:226",
-    "handlers/settings.go:251",
+    "handlers/settings.go:229",
+    "handlers/settings.go:254",
     "handlers/settings_user.go:97",
   ]
   default = "Saved!"
@@ -1475,34 +1558,35 @@ GeoIP database. See the <tt>-geo</tt> flag in
   default = "Sent to %(email)."
 
 ["notify/settings-copied-to-site"]
-  loc     = ["handlers/settings.go:462"]
+  loc     = ["handlers/settings.go:465"]
   default = "Settings copied to the selected sites."
 
 ["notify/site-added"]
-  loc     = ["handlers/settings.go:347"]
+  loc     = ["handlers/settings.go:350"]
   default = "Site ‘%(url)’ added."
 
 ["notify/site-removed"]
-  loc     = ["handlers/settings.go:407"]
+  loc     = ["handlers/settings.go:410"]
   default = "Site ‘%(url)’ removed."
 
 ["notify/started-background-process"]
   loc = [
-    "handlers/settings.go:512",
-    "handlers/settings.go:553",
+    "handlers/settings.go:550",
+    "handlers/settings.go:681",
+    "handlers/settings.go:722",
   ]
   default = "Started in the background; may take about 10-20 seconds to fully process."
 
 ["notify/user-added"]
-  loc     = ["handlers/settings.go:979"]
+  loc     = ["handlers/settings.go:1229"]
   default = "User ‘%(email)’ added."
 
 ["notify/user-removed"]
-  loc     = ["handlers/settings.go:1065"]
+  loc     = ["handlers/settings.go:1315"]
   default = "User ‘%(email)’ removed."
 
 ["notify/users-edited"]
-  loc     = ["handlers/settings.go:1037"]
+  loc     = ["handlers/settings.go:1287"]
   default = "User ‘%(email)’ edited."
 
 ["p/add-goatcounter-to-multiple-websites"]
@@ -1572,7 +1656,7 @@ codes (with the old and new code) to prevent the loss of any pageviews.</p>
   default = "Copy all settings from the current site except the domain name."
 
 ["p/csv-file-format"]
-  loc     = ["tpl/settings_export.gohtml:6"]
+  loc     = ["tpl/settings_export.gohtml:84"]
   default = "The format of the CSV file is %[documented over here]."
 
 ["p/delete-account"]
@@ -1597,7 +1681,7 @@ codes (with the old and new code) to prevent the loss of any pageviews.</p>
   default = "Error: %(error-message)"
 
 ["p/export-csv"]
-  loc     = ["tpl/settings_export.gohtml:16"]
+  loc     = ["tpl/settings_export.gohtml:59"]
   default = """
 <p>CSV exports requires that collection of pageviews to enabled
 in the %[%setting site settings], but it’s currently disabled.</p>
@@ -1606,8 +1690,19 @@ in the %[%setting site settings], but it’s currently disabled.</p>
 used on the dashboard; see %[%api API docs].</p>
 """
 
+["p/export-from-date"]
+  loc     = ["tpl/settings_export.gohtml:24"]
+  default = """
+Only include data starting from this date (inclusive). This
+is always in UTC. Please be sure to read the documentation
+to understand some caveats with this.
+"""
+
 ["p/export-process"]
-  loc     = ["tpl/settings_export.gohtml:27"]
+  loc = [
+    "tpl/settings_export.gohtml:16",
+    "tpl/settings_export.gohtml:70",
+  ]
   default = """
 Start the process and email you a download link once it’s
 done. You can only do this once per hour and will override any
@@ -1619,7 +1714,7 @@ previous backups you may have.
   default = "This account is protected with multi-factor auth; please enter the code from your authenticator app."
 
 ["p/import-ga"]
-  loc     = ["tpl/settings_export.gohtml:51"]
+  loc     = ["tpl/settings_export.gohtml:116"]
   default = """
 Google Analytics does not offer meaningful exports; it only
 offers %[%ga exporting “reports”]. This gives an overview of
@@ -1631,9 +1726,58 @@ It may take up to 30 minutes for the numbers on the visitor
 counter to be updated.
 """
 
+["p/json-file-format"]
+  loc     = ["tpl/settings_export.gohtml:30"]
+  default = "The JSON export is a ZIP file containing several JSON documents, and is %[documented over here]."
+
 ["p/last-user"]
   loc     = ["tpl/settings_users.gohtml:13"]
   default = "Can’t delete or edit last admin user"
+
+["p/link-to-batch-rename"]
+  loc     = ["tpl/settings_purge.gohtml:7"]
+  default = "You can also %[delete or rename many pageviews from a text file]."
+
+["p/manage-batch-hits"]
+  loc     = ["tpl/settings_batchpurge.gohtml:7"]
+  default = """
+<p>This forms allows removing or renaming many pages by pasting a text file; the
+syntax is:</p>
+<pre>
+# Hash denotes a comment, but only at start of line (may be indented).
+delete path
+rename src dst
+</pre>
+
+<p>The command and argument(s) are separated by any number of spaces and/or
+tabs.</p>
+
+<p>Accepted commands are <code>delete</code> to delete pageviews, and
+<code>rename</code> to rename the path. The command name is case-insensitive so
+e.g. <code>DELETE</code> or <code>dELeTe</code> also works. It's okay to indent
+the command with spaces or tabs.</p>
+
+<p>When renaming hit counts will be merged if the destination path already exists.</p>
+
+<p>You can use SQL placeholders as documented on the <a
+href=\"%(base)/settings/purge\">Manage Pageviews</a> page. In addition the pattern may
+start with with <code>(?i)</code> for case-insensitive matches. The destination
+path for renames doesn't accept any placeholders or <code>(?i)</code> and must
+be an exact match (or a new path).</p>
+
+<p>You get a preview before anything is changed.</p>
+
+<p>Example:</p>
+
+<pre>
+delete /foo
+delete (?i)/archive/%
+
+# Move from /weblog/*.html to /*.html.
+RENAME   /weblog/page.html   /page.html
+RENAME   /weblog/other.html  /other.html
+</pre>
+"""
 
 ["p/manage-hits"]
   loc     = ["tpl/settings_purge.gohtml:6"]
@@ -1661,7 +1805,7 @@ Getting started is pretty easy, just add the following JavaScript anywhere on th
 """
 
 ["p/no-matches"]
-  loc     = ["tpl/settings_purge.gohtml:28"]
+  loc     = ["tpl/settings_purge.gohtml:30"]
   default = "Nothing matches %(query)."
 
 ["p/notify-immediate-change"]
@@ -1669,7 +1813,7 @@ Getting started is pretty easy, just add the following JavaScript anywhere on th
   default = "Will take effect immediately"
 
 ["p/notify-pagination-cursor"]
-  loc     = ["tpl/settings_export.gohtml:35"]
+  loc     = ["tpl/settings_export.gohtml:78"]
   default = """
 There will be a ‘pagination cursor’ in the email, if you fill
 this in here it will export only pageviews that were recorded
@@ -1703,7 +1847,7 @@ This will <strong>remove all associated data</strong> and is the <strong>current
 """
 
 ["p/rm-hits-help"]
-  loc     = ["tpl/settings_purge.gohtml:8"]
+  loc     = ["tpl/settings_purge.gohtml:10"]
   default = """
 Matches are case insensitive. Supports the following special characters:
 
@@ -1716,7 +1860,7 @@ Matches are case insensitive. Supports the following special characters:
 """
 
 ["p/rm-pageview-match"]
-  loc     = ["tpl/settings_purge.gohtml:31"]
+  loc     = ["tpl/settings_purge.gohtml:33"]
   default = "The following paths match %(query):"
 
 ["p/setting-recovery-disabled-information"]
@@ -1813,7 +1957,7 @@ Matches are case insensitive. Supports the following special characters:
   default = "Sites:"
 
 ["unknown"]
-  loc     = ["tpl.go:412"]
+  loc     = ["tpl.go:413"]
   default = "(unknown)"
 
 ["validate/bool"]

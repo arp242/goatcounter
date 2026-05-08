@@ -1,7 +1,7 @@
 [__meta__]
   language = "de-DE"
   maintainers = ["Jan Wildeboer <jan@wildeboer.net>"]
-  modified = 2023-03-30
+  modified = 2023-03-28
 
 ["button/add-new"]
   default = "Hinzufügen"
@@ -46,6 +46,8 @@
 
 ["button/merge"]
 
+["button/preview"]
+
 ["button/remove"]
   default = "Entfernen"
 
@@ -60,6 +62,8 @@
 
 ["button/reset-password"]
   default = "Passwort neu setzen"
+
+["button/run"]
 
 ["button/save"]
   default = "Speichern"
@@ -336,6 +340,8 @@ Hier ist der entsprechende Link:
 ["header/created-at"]
   default = "Erstellt am"
 
+["header/csv-format"]
+
 ["header/dashboard"]
   default = "Dashboard"
 
@@ -344,6 +350,8 @@ Hier ist der entsprechende Link:
 
 ["header/delete-account"]
   default = "Konto löschen"
+
+["header/deleting"]
 
 ["header/domain"]
   default = "Domain"
@@ -362,6 +370,8 @@ Hier ist der entsprechende Link:
 
 ["header/export-to-csv"]
 
+["header/export-to-json"]
+
 ["header/fewer-number"]
 
 ["header/finished"]
@@ -373,12 +383,18 @@ Hier ist der entsprechende Link:
 ["header/forgot-password"]
   default = "Passwort vergessen"
 
+["header/format"]
+
 ["header/hash"]
   default = "Hash"
 
 ["header/import-from-csv"]
 
 ["header/import-from-ga"]
+
+["header/import-from-json"]
+
+["header/json-format"]
 
 ["header/l10n"]
   default = "Übersetzung"
@@ -401,6 +417,8 @@ Hier ist der entsprechende Link:
 
 ["header/merge-account"]
 
+["header/merging-to"]
+
 ["header/mfa"]
   default = "Multi-Faktor-Authentifizierung"
 
@@ -409,6 +427,8 @@ Hier ist der entsprechende Link:
 
 ["header/name"]
   default = "Name"
+
+["header/other-formats"]
 
 ["header/pagination-cursor"]
   default = "Paginierungscursor"
@@ -424,6 +444,8 @@ Hier ist der entsprechende Link:
 
 ["header/preferences"]
   default = "Einstellungen"
+
+["header/renaming"]
 
 ["header/reset-password"]
   default = "Passwort für %(email) auf %(site-name) neu setzen"
@@ -625,6 +647,8 @@ Eigene Domain, z.B. <em>„stats.example.com“</em>.
 
 ["label/email-reports"]
 
+["label/export-from-date"]
+
 ["label/fewer-numbers"]
 
 ["label/for-following-countries"]
@@ -747,6 +771,8 @@ Eigene Domain, z.B. <em>„stats.example.com“</em>.
 
 ["label/your-site"]
   default = "Ihre Website"
+
+["label/zip-file"]
 
 ["link/add-translation"]
   default = "Übersetzungen hinzufügen oder aktualisieren"
@@ -1006,6 +1032,8 @@ Eigene Domain, z.B. <em>„stats.example.com“</em>.
 
 ["p/export-csv"]
 
+["p/export-from-date"]
+
 ["p/export-process"]
   default = "Den Prozess starten und E-Mail mit Link versenden, sobald der Prozess beendet wurde. Dies kann nur einmal pro Stunde gestartet werden und überschreibt alle eventuell vorhandenen Backups."
 
@@ -1014,8 +1042,14 @@ Eigene Domain, z.B. <em>„stats.example.com“</em>.
 
 ["p/import-ga"]
 
+["p/json-file-format"]
+
 ["p/last-user"]
   default = "Der letzte Admin-Benutzer kann nicht gelöscht oder verändert werden"
+
+["p/link-to-batch-rename"]
+
+["p/manage-batch-hits"]
 
 ["p/manage-hits"]
 

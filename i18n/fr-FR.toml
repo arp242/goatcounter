@@ -1,7 +1,7 @@
 [__meta__]
   language = "fr-FR"
-  maintainers = ['olivier.potonniee@thalesgroup.com']
-  modified = 2026-03-23
+  maintainers = ["olivier.potonniee@thalesgroup.com"]
+  modified = 2026-03-21
 
 ["button/add-new"]
   default = "Ajouter"
@@ -46,6 +46,8 @@
 
 ["button/merge"]
 
+["button/preview"]
+
 ["button/remove"]
   default = "Supprimer"
 
@@ -60,6 +62,8 @@
 
 ["button/reset-password"]
   default = "Réinitialiser le mot de passe"
+
+["button/run"]
 
 ["button/save"]
   default = "Enregistrer"
@@ -342,6 +346,8 @@ Martin
 ["header/created-at"]
   default = "Créé le"
 
+["header/csv-format"]
+
 ["header/dashboard"]
   default = "Tableau de bord"
 
@@ -350,6 +356,8 @@ Martin
 
 ["header/delete-account"]
   default = "Supprimer le compte"
+
+["header/deleting"]
 
 ["header/domain"]
   default = "Domaine"
@@ -363,11 +371,12 @@ Martin
 ["header/email"]
   default = "Mél"
 
-["header/export"]
-  default = "Export"
-
 ["header/export-or-import"]
   default = "Export / Import"
+
+["header/export-to-csv"]
+
+["header/export-to-json"]
 
 ["header/fewer-number"]
 
@@ -380,11 +389,18 @@ Martin
 ["header/forgot-password"]
   default = "Mot de passe oublié"
 
+["header/format"]
+
 ["header/hash"]
   default = "Hash"
 
-["header/import"]
-  default = "Importation"
+["header/import-from-csv"]
+
+["header/import-from-ga"]
+
+["header/import-from-json"]
+
+["header/json-format"]
 
 ["header/l10n"]
   default = "Traduction"
@@ -407,6 +423,8 @@ Martin
 
 ["header/merge-account"]
 
+["header/merging-to"]
+
 ["header/mfa"]
   default = "Authentification multi-facteur"
 
@@ -415,6 +433,8 @@ Martin
 
 ["header/name"]
   default = "Nom"
+
+["header/other-formats"]
 
 ["header/pagination-cursor"]
   default = "Curseur de pagination"
@@ -430,6 +450,8 @@ Martin
 
 ["header/preferences"]
   default = "Préférences"
+
+["header/renaming"]
 
 ["header/reset-password"]
   default = "Réinitialiser le mot de passe de %(email) pour %(site-name)"
@@ -628,6 +650,8 @@ Domaine personnalisé, par exemple <em>“stats.example.com”</em>.<br>
 
 ["label/email-reports"]
 
+["label/export-from-date"]
+
 ["label/fewer-numbers"]
 
 ["label/for-following-countries"]
@@ -749,6 +773,8 @@ Domaine personnalisé, par exemple <em>“stats.example.com”</em>.<br>
 
 ["label/your-site"]
   default = "Votre site"
+
+["label/zip-file"]
 
 ["link/add-translation"]
   default = "Ajouter ou modifier une traduction"
@@ -1021,6 +1047,8 @@ L'exportation CSV nécessite que la collecte des pages vues soit activée dans l
 <p>Vous pouvez toujours utiliser l'API pour obtenir les statistiques agrégées utilisées sur le tableau de bord ; voir la documentation de l'API %[%api API docs].</p>
 """
 
+["p/export-from-date"]
+
 ["p/export-process"]
   default = "<p>Démarrer le processus et vous envoyer un lien de téléchargement une fois que c'est fait. une fois qu'il est terminé. Vous ne pouvez effectuer cette opération qu'une fois par heure et elle annulera toutes les sauvegardes précédentes. sauvegardes précédentes que vous pourriez avoir.</p>"
 
@@ -1029,8 +1057,14 @@ L'exportation CSV nécessite que la collecte des pages vues soit activée dans l
 
 ["p/import-ga"]
 
+["p/json-file-format"]
+
 ["p/last-user"]
   default = "Impossible de supprimer ou modifier le dernier administrateur"
+
+["p/link-to-batch-rename"]
+
+["p/manage-batch-hits"]
 
 ["p/manage-hits"]
 

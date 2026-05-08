@@ -82,6 +82,7 @@ func TestMain(m *testing.M) {
 		"_dashboard_configure_widget.gohtml",
 		"_user_dashboard_widget.gohtml",
 		"settings_merge.gohtml",
+		"settings_batchpurge.gohtml",
 	))
 }
 

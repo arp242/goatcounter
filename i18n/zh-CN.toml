@@ -1,7 +1,7 @@
 [__meta__]
   language = "zh-CN"
   maintainers = []
-  modified = 2024-04-09
+  modified = 2024-04-07
 
 ["button/add-new"]
   default = "新建"
@@ -46,6 +46,8 @@
 
 ["button/merge"]
 
+["button/preview"]
+
 ["button/remove"]
   default = "删除"
 
@@ -60,6 +62,8 @@
 
 ["button/reset-password"]
   default = "重置密码"
+
+["button/run"]
 
 ["button/save"]
   default = "保存"
@@ -341,6 +345,8 @@ Martin
 ["header/created-at"]
   default = "创建于"
 
+["header/csv-format"]
+
 ["header/dashboard"]
   default = "仪表盘"
 
@@ -349,6 +355,8 @@ Martin
 
 ["header/delete-account"]
   default = "删除账号"
+
+["header/deleting"]
 
 ["header/domain"]
   default = "域名"
@@ -367,6 +375,8 @@ Martin
 
 ["header/export-to-csv"]
 
+["header/export-to-json"]
+
 ["header/fewer-number"]
 
 ["header/finished"]
@@ -378,12 +388,18 @@ Martin
 ["header/forgot-password"]
   default = "忘记了密码"
 
+["header/format"]
+
 ["header/hash"]
   default = "哈希"
 
 ["header/import-from-csv"]
 
 ["header/import-from-ga"]
+
+["header/import-from-json"]
+
+["header/json-format"]
 
 ["header/l10n"]
   default = "本地化"
@@ -406,6 +422,8 @@ Martin
 
 ["header/merge-account"]
 
+["header/merging-to"]
+
 ["header/mfa"]
   default = "多重身份认证"
 
@@ -414,6 +432,8 @@ Martin
 
 ["header/name"]
   default = "名称"
+
+["header/other-formats"]
 
 ["header/pagination-cursor"]
   default = "分页游标"
@@ -429,6 +449,8 @@ Martin
 
 ["header/preferences"]
   default = "首选项"
+
+["header/renaming"]
 
 ["header/reset-password"]
   default = "为 %(site-name) 的 %(email) 重置密码"
@@ -633,6 +655,8 @@ Martin
 
 ["label/email-reports"]
 
+["label/export-from-date"]
+
 ["label/fewer-numbers"]
 
 ["label/for-following-countries"]
@@ -755,6 +779,8 @@ Martin
 
 ["label/your-site"]
   default = "你的站点"
+
+["label/zip-file"]
 
 ["link/add-translation"]
   default = "添加或更新翻译"
@@ -1013,6 +1039,8 @@ Martin
 
 ["p/export-csv"]
 
+["p/export-from-date"]
+
 ["p/export-process"]
   default = "将在完成后通过邮件发送下载链接。你每小时只能导出 1 次，并且将覆盖之前的副本。"
 
@@ -1021,8 +1049,14 @@ Martin
 
 ["p/import-ga"]
 
+["p/json-file-format"]
+
 ["p/last-user"]
   default = "无法删除或编辑最后一位管理员用户"
+
+["p/link-to-batch-rename"]
+
+["p/manage-batch-hits"]
 
 ["p/manage-hits"]
 
