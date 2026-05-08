@@ -8,7 +8,6 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/gorilla/websocket v1.5.3
 	github.com/mattn/go-sqlite3 v1.14.42
-	github.com/monoculum/formam/v3 v3.6.1-0.20221106124510-6a93f49ac1f8
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0
 	github.com/sethvargo/go-limiter v1.1.0
@@ -19,6 +18,7 @@ require (
 	github.com/BurntSushi/toml v1.6.0
 	github.com/fsnotify/fsnotify v1.9.0 // indirect
 	github.com/lib/pq v1.12.3
+	github.com/monoculum/formam/v3 v3.6.1-0.20221106124510-6a93f49ac1f8
 	github.com/teamwork/reload v1.4.2
 	zgo.at/blackmail v0.0.0-20251210171630-f1b7a42e3f87
 	zgo.at/errors v1.6.0

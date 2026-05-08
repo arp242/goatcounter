@@ -1,0 +1,129 @@
+{{template "_backend_top.gohtml" .}}
+{{template "_settings_nav.gohtml" .}}
+
+<h2 id="batchpurge">{{.T "header/manage-pageviews|Batch manage pageviews"}}</h2>
+
+<div id="batchpurge-input" {{if and .Input (not .Errors)}}class="hide"{{end}}>
+<p>{{.T `p/manage-batch-hits|
+<p>This forms allows removing or renaming many pages by pasting a text file; the
+syntax is:</p>
+<pre>
+# Hash denotes a comment, but only at start of line (may be indented).
+delete path
+rename src dst
+</pre>
+
+<p>The command and argument(s) are separated by any number of spaces and/or
+tabs.</p>
+
+<p>Accepted commands are <code>delete</code> to delete pageviews, and
+<code>rename</code> to rename the path. The command name is case-insensitive so
+e.g. <code>DELETE</code> or <code>dELeTe</code> also works. It's okay to indent
+the command with spaces or tabs.</p>
+
+<p>When renaming hit counts will be merged if the destination path already exists.</p>
+
+<p>You can use SQL placeholders as documented on the <a
+href="%(base)/settings/purge">Manage Pageviews</a> page. In addition the pattern may
+start with with <code>(?i)</code> for case-insensitive matches. The destination
+path for renames doesn't accept any placeholders or <code>(?i)</code> and must
+be an exact match (or a new path).</p>
+
+<p>You get a preview before anything is changed.</p>
+
+<p>Example:</p>
+
+<pre>
+delete /foo
+delete (?i)/archive/%
+
+# Move from /weblog/*.html to /*.html.
+    RENAME   /weblog/page.html   /page.html
+    RENAME   /weblog/other.html  /other.html
+</pre>
+` .Base}}
+</p>
+
+<form method="post" action="{{.Base}}/settings/batchpurge">
+	<input type="hidden" name="csrf" value="{{$.User.CSRFToken}}">
+	<textarea name="input" class="monospace">{{.Input}}</textarea>
+	<button type="submit" name="action" value="preview">{{$.T "button/preview|Preview"}}</button>
+</form>
+</div>
+
+{{if .Errors}}
+	<div class="flash flash-inline flash-e"><h3>Errors</h3>{{range $err := .Errors}}{{$err}}<br>{{end}}</div>
+{{end}}
+
+{{if and .Input (not .Errors)}}
+<div id="batchpurge-preview">
+	<form method="post" action="{{.Base}}/settings/batchpurge">
+		<input type="hidden" name="csrf" value="{{$.User.CSRFToken}}">
+
+		{{if .Deletes}}
+			<div class="box">
+				<h4>{{.T "header/deleting|Deleting the following paths"}}</h4>
+				<table class="indent">
+					<thead><tr>
+						<th style="width: 10em">{{.T "header/n-hits|# of hits"}}</th>
+						<th style="text-align: left">{{.T "header/path|Path"}}</th>
+						<th>{{.T "header/title|Title"}}</th>
+					</tr></thead></thead>
+					<tbody>
+						{{range $s := .Deletes}}
+							<tr><td><input type="hidden" name="delete[]" value="{{$s.PathID}}">
+								{{- nformat $s.Count $.User}}</td><td>{{$s.Path}}</td><td>{{$s.Title}}</td></tr>
+						{{end}}
+					</tbody>
+				</table>
+			</div>
+		{{end}}
+
+		{{if .Renames}}
+			<div class="box">
+				<h4>{{.T "header/renaming|Renaming the following paths"}}</h4>
+				<div class="preview-batchmerge indent">
+					{{$i := 0}}
+					{{range $dst, $src := .Renames}}
+						<h5>
+							{{- if eq $dst.ID 0 -}}
+								{{$.T "header/merging-to|Renaming to %(path)" $dst.Path}}
+							{{- else -}}
+								{{$.T "header/merging-to|Merging to %(path)" $dst.Path}}
+							{{- end -}}
+						</h5>
+						<table>
+							<thead><tr>
+								<th style="width: 10em">{{$.T "header/n-hits|# of hits"}}</th>
+								<th style="text-align: left">{{$.T "header/path|Path"}}</th>
+							</tr></thead></thead>
+							<tbody>
+								{{range $s := $src}}
+								{{/* Using rename[{{$dst.ID}}][] triggers a panic in formam, so give indexes explicitly.
+									TODO: should fix once I have some time. */}}
+									<tr><td><input type="hidden" name="rename[{{$dst.ID}}-{{$dst.Path}}][{{$i}}]" value="{{$s.PathID}}">
+										{{- nformat $s.Count $.User}}</td><td>{{$s.Path}}</td></tr>
+									{{- $i = sum $i 1 -}}
+								{{end}}
+							</tbody>
+						</table>
+						<div class="flex-break"></div>
+					{{end}}
+				</div>
+			</div>
+		{{end}}
+
+		<div class="buttons">
+			<div>
+				<button type="submit" name="action" value="edit" id="edit-button">{{$.T "button/edit|Edit"}}</button>
+			</div>
+			<div>
+				<button type="submit" name="action" value="run">{{$.T "button/run|Run"}}</button>
+				<strong>{{.T "help/no-undo|This cannot be undone!"}}</strong><br>
+			</div>
+		</div>
+	</form>
+</div>
+{{end}}
+
+{{template "_backend_bottom.gohtml" .}}

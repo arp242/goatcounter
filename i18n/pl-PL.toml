@@ -1,7 +1,7 @@
 [__meta__]
   language = "pl-PL"
   maintainers = ["team@sopot.guide"]
-  modified = 2026-02-05
+  modified = 2026-02-03
 
 ["button/add-new"]
   default = "Dodaj"
@@ -48,6 +48,8 @@
 ["button/merge"]
   default = "Scal"
 
+["button/preview"]
+
 ["button/remove"]
   default = "Usuń"
 
@@ -62,6 +64,8 @@
 
 ["button/reset-password"]
   default = "Resetuj hasło"
+
+["button/run"]
 
 ["button/save"]
   default = "Zapisz"
@@ -353,6 +357,8 @@ Martin
 ["header/created-at"]
   default = "Utworzono w"
 
+["header/csv-format"]
+
 ["header/dashboard"]
   default = "Pulpit"
 
@@ -361,6 +367,8 @@ Martin
 
 ["header/delete-account"]
   default = "Usuń konto"
+
+["header/deleting"]
 
 ["header/domain"]
   default = "Domena"
@@ -379,6 +387,8 @@ Martin
 
 ["header/export-to-csv"]
 
+["header/export-to-json"]
+
 ["header/fewer-number"]
 
 ["header/finished"]
@@ -390,12 +400,18 @@ Martin
 ["header/forgot-password"]
   default = "Zapomniałeś hasła"
 
+["header/format"]
+
 ["header/hash"]
   default = "Hash"
 
 ["header/import-from-csv"]
 
 ["header/import-from-ga"]
+
+["header/import-from-json"]
+
+["header/json-format"]
 
 ["header/l10n"]
   default = "Lokalizacja"
@@ -418,6 +434,8 @@ Martin
 
 ["header/merge-account"]
 
+["header/merging-to"]
+
 ["header/mfa"]
   default = "Uwierzytelnianie wieloskładnikowe"
 
@@ -426,6 +444,8 @@ Martin
 
 ["header/name"]
   default = "Nazwa"
+
+["header/other-formats"]
 
 ["header/pagination-cursor"]
   default = "Kursor stronicowania"
@@ -441,6 +461,8 @@ Martin
 
 ["header/preferences"]
   default = "Preferencje"
+
+["header/renaming"]
 
 ["header/reset-password"]
   default = "Resetuj hasło dla %(email) na %(site-name)"
@@ -647,6 +669,8 @@ Weryfikacja odbywa się co 2 godziny.
 
 ["label/email-reports"]
 
+["label/export-from-date"]
+
 ["label/fewer-numbers"]
 
 ["label/for-following-countries"]
@@ -769,6 +793,8 @@ Weryfikacja odbywa się co 2 godziny.
 
 ["label/your-site"]
   default = "Twoja witryna"
+
+["label/zip-file"]
 
 ["link/add-translation"]
   default = "Dodaj lub zaktualizuj"
@@ -1032,6 +1058,8 @@ kody (ze starym i nowym), aby zapobiec utracie zliczenia jakichkolwiek odsłon.<
 
 ["p/export-csv"]
 
+["p/export-from-date"]
+
 ["p/export-process"]
   default = "Rozpoczyna proces przetwarzania i wysyła e-mailem link do pobrania po zakończeniu. Można powtarzać raz na godzinę nadpisując poprzednie kopie zapasowe, które utworzono."
 
@@ -1040,8 +1068,14 @@ kody (ze starym i nowym), aby zapobiec utracie zliczenia jakichkolwiek odsłon.<
 
 ["p/import-ga"]
 
+["p/json-file-format"]
+
 ["p/last-user"]
   default = "Nie można usuwać ani zmieniać ostatniego administratora."
+
+["p/link-to-batch-rename"]
+
+["p/manage-batch-hits"]
 
 ["p/manage-hits"]
 

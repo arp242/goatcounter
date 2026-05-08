@@ -29,17 +29,17 @@ h5, h6 { font-size: 1em; }
 img    { max-width: 100%; }
 figure { text-align: center; margin: 1rem 0; }
 
-pre, code            { font-family: 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', 'Consolas', monospace; }
-code, pre, kbd, samp { background-color: var(--code-bg); color: var(--code-text); }
-code, kbd, samp      { padding: 1px 2px; }
-pre                  { font-size: 14px; line-height: 130%; overflow: auto; max-height: 500px; padding: .5em 1em;
-                       border-radius: 2px; border-top: 1px solid var(--pre-border); border-bottom: 1px solid var(--pre-border); }
-pre > code           { padding: 0; box-shadow: none; border: none; }
-h1 code, h2 code, h3 code, h4 code, h5 code, h6 code { background-color: transparent; box-shadow: none; color: inherit; }
+pre, code, .monospace { font-family:'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', 'Consolas', monospace; }
+code, pre, kbd, samp  { background-color:var(--code-bg); color:var(--code-text); }
+code, kbd, samp       { padding:1px 2px; }
+pre                   { font-size:14px; line-height:130%; overflow:auto; max-height:500px; padding:.5em 1em;
+                        border-radius:2px; border-top:1px solid var(--pre-border); border-bottom:1px solid var(--pre-border); }
+pre > code            { padding:0; box-shadow:none; border:none; }
+h1 code, h2 code, h3 code, h4 code, h5 code, h6 code { background-color:transparent; box-shadow:none; color:inherit; }
 
-sup, sub, .sup, .sub { height: 0; line-height: 1; vertical-align: baseline; position: relative; font-size: smaller; }
-sup, .sup            { bottom: 1ex; }
-sub, .sub            { top: .5ex; }
+sup, sub, .sup, .sub  { height:0; line-height:1; vertical-align:baseline; position:relative; font-size:smaller; }
+sup, .sup             { bottom:1ex; }
+sub, .sub             { top:.5ex; }
 
 /*** Tables ***/
 table        { border-collapse: collapse; width: 100%; }
@@ -88,7 +88,6 @@ select {
 input:not(.link):not(.unstyled):focus,
 .input:focus,
 button:not(.link):focus,
-textarea:focus,
 select:focus {
   outline: 1px solid var(--input-focus);
   box-shadow: 0 0 .2em var(--input-focus);

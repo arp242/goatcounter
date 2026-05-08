@@ -28,7 +28,6 @@ label.inline          { display:inline; }
 
 #js-settings, #js-csrf, #js-i18n { display: none; }
 
-
 .page, .center {
     /* .note has a width of 76mm plus 5mm margin on either side, so 86mm total
      * width. .page has a 1em padding on either side.
@@ -72,12 +71,14 @@ input.red { border: 1px solid var(--input-error-border) !important; }
     .flex-form fieldset { height: 100%; }
 }
 
-.flash     { padding: 10px; text-align: center; border: 2px solid var(--bg); margin: calc(-1em - 2px); margin-bottom: 1em; }
-.flash p   { max-width: none !important; }
-.flash pre { text-align: left; margin: 0 auto; display: inline-block; }
-.flash-i   { background-color: var(--info-bg); border-color: var(--info-border); }
-.flash-e   { background-color: var(--error-bg); border-color: var(--error-border); }
-.onetime   { display:none; }
+.flash              { padding:10px; text-align:center; border:2px solid var(--bg); margin:calc(-1em - 2px); margin-bottom:1em; }
+.flash p            { max-width:none !important; }
+.flash pre          { text-align:left; margin:0 auto; display:inline-block; }
+.flash h3           { margin:0; }
+.flash-i            { background-color:var(--info-bg); border-color:var(--info-border); }
+.flash-e            { background-color:var(--error-bg); border-color:var(--error-border); }
+.flash.flash-inline { margin:1em 0; text-align:left; }
+.onetime            { display:none; }
 
 .screen-reader { display: none; }
 .hide          { display: none; }
@@ -331,6 +332,16 @@ tr.target .chart-left { display: block; }
 .user-api-key               { width:100%; }
 .user-api-key td            { vertical-align:top; }
 .user-api-key ul            { margin:0; padding-left:1em; }
+
+/*** Batch manage pageviews
+ **************************/
+#batchpurge-preview .buttons    { display:flex; justify-content:space-between; margin-top:2em; }
+#batchpurge-preview .box        { border:1px solid var(--header-border); margin-top:1em; padding:.5em; }
+#batchpurge-preview h4          { margin:0; }
+.preview-batchmerge             { display:flex; flex-wrap:wrap; }
+.preview-batchmerge h5          { margin-right:1em; }
+.preview-batchmerge table       { max-width:80%; }
+.indent                         { margin-left:4em; }
 
 /*** Widget settings
  *******************/

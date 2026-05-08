@@ -16,7 +16,7 @@
 			USER_SETTINGS.language = 'en'
 
 		;[report_errors, bind_tooltip, bind_confirm, translate_calendar, onetime].forEach((f) => f.call())
-		;[page_dashboard, page_settings_main, page_user_pref, page_user_api, page_user_dashboard, page_bosmang]
+		;[page_dashboard, page_settings_main, page_settings_batchpurge, page_user_pref, page_user_api, page_user_dashboard, page_bosmang]
 			.forEach((f) => document.body.id.match(new RegExp('^' + f.name.replace(/_/g, '-'))) && f.call())
 	})
 
@@ -175,6 +175,14 @@
 		$('#settings-secret').on('change', function(e) {
 			$('#secret-url').val(`${location.protocol}//${location.host}${BASE_PATH}?access-token=${this.value}`)
 		}).trigger('change')
+	}
+
+	let page_settings_batchpurge = () => {
+		$('#edit-button').on('click', (e) => {
+			e.preventDefault()
+			$('#batchpurge-input').removeClass('hide')
+			$('#batchpurge-preview').remove()
+		})
 	}
 
 	var page_user_pref = function() {

@@ -2,7 +2,7 @@
   comments = "For some notes, see: https://github.com/arp242/goatcounter/issues/538"
   language = "es-CL"
   maintainers = ["confor <nitoducci@gmail.com>"]
-  modified = 2021-12-07
+  modified = 2021-12-05
 
 ["button/add-new"]
   default = "Añadir"
@@ -47,6 +47,8 @@
 
 ["button/merge"]
 
+["button/preview"]
+
 ["button/remove"]
   default = "Remover"
 
@@ -61,6 +63,8 @@
 
 ["button/reset-password"]
   default = "Reestablecer contraseña"
+
+["button/run"]
 
 ["button/save"]
   default = "Guardar"
@@ -342,6 +346,8 @@ Martin
 ["header/created-at"]
   default = "Creada el"
 
+["header/csv-format"]
+
 ["header/dashboard"]
   default = "Tablero"
 
@@ -350,6 +356,8 @@ Martin
 
 ["header/delete-account"]
   default = "Eliminar cuenta"
+
+["header/deleting"]
 
 ["header/domain"]
   default = "Dominio"
@@ -368,6 +376,8 @@ Martin
 
 ["header/export-to-csv"]
 
+["header/export-to-json"]
+
 ["header/fewer-number"]
 
 ["header/finished"]
@@ -379,12 +389,18 @@ Martin
 ["header/forgot-password"]
   default = "Contraseña olvidada"
 
+["header/format"]
+
 ["header/hash"]
   default = "Hash"
 
 ["header/import-from-csv"]
 
 ["header/import-from-ga"]
+
+["header/import-from-json"]
+
+["header/json-format"]
 
 ["header/l10n"]
   default = "Localización"
@@ -407,6 +423,8 @@ Martin
 
 ["header/merge-account"]
 
+["header/merging-to"]
+
 ["header/mfa"]
   default = "Autenticación de múltiples factores"
 
@@ -415,6 +433,8 @@ Martin
 
 ["header/name"]
   default = "Nombre"
+
+["header/other-formats"]
 
 ["header/pagination-cursor"]
   default = "Cursor de paginación"
@@ -430,6 +450,8 @@ Martin
 
 ["header/preferences"]
   default = "Preferencias"
+
+["header/renaming"]
 
 ["header/reset-password"]
   default = "Reestablece la contraseña para %(email) en %(site-name)"
@@ -628,6 +650,8 @@ Martin
 
 ["label/email-reports"]
 
+["label/export-from-date"]
+
 ["label/fewer-numbers"]
 
 ["label/for-following-countries"]
@@ -750,6 +774,8 @@ Martin
 
 ["label/your-site"]
   default = "Tu sitio"
+
+["label/zip-file"]
 
 ["link/add-translation"]
   default = "Añadir o actualizar traducciones"
@@ -1008,6 +1034,8 @@ Martin
 
 ["p/export-csv"]
 
+["p/export-from-date"]
+
 ["p/export-process"]
   default = "Comenzar el proceso y enviar un archivo al correo cuando esté listo. Sólo puedes hacer esto una vez por hora y sobreescribirá cualquier copia de seguridad anterior que hayas tenido."
 
@@ -1016,8 +1044,14 @@ Martin
 
 ["p/import-ga"]
 
+["p/json-file-format"]
+
 ["p/last-user"]
   default = "No se puede eliminar o editar el último administrador"
+
+["p/link-to-batch-rename"]
+
+["p/manage-batch-hits"]
 
 ["p/manage-hits"]
 

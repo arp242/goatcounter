@@ -30,6 +30,7 @@ import (
 	"zgo.at/zhttp/header"
 	"zgo.at/zstd/zint"
 	"zgo.at/zstd/zruntime"
+	"zgo.at/zstd/zstrconv"
 	"zgo.at/zstd/ztime"
 	"zgo.at/zvalidate"
 )
@@ -73,6 +74,8 @@ func (h settings) mount(r chi.Router, ratelimits Ratelimits) {
 		set.Get("/settings/purge", zhttp.Wrap(h.purge))
 		set.Post("/settings/purge", zhttp.Wrap(h.purgeDo))
 		set.Post("/settings/merge", zhttp.Wrap(h.merge))
+		set.Get("/settings/batchpurge", zhttp.Wrap(h.batchpurge))
+		set.Post("/settings/batchpurge", zhttp.Wrap(h.batchpurge))
 
 		set.Get("/settings/export", zhttp.Wrap(func(w http.ResponseWriter, r *http.Request) error {
 			return h.export(nil)(w, r)
@@ -461,6 +464,172 @@ func (h settings) sitesCopySettings(w http.ResponseWriter, r *http.Request) erro
 
 	zhttp.Flash(w, r, T(r.Context(), "notify/settings-copied-to-site|Settings copied to the selected sites."))
 	return zhttp.SeeOther(w, "/settings/sites")
+}
+
+func (h settings) batchpurge(w http.ResponseWriter, r *http.Request) error {
+	type renameKey struct {
+		ID   goatcounter.PathID
+		Path string
+	}
+	var (
+		deletes goatcounter.HitLists
+		renames = make(map[renameKey]goatcounter.HitLists)
+		dsts    = make(map[string]goatcounter.PathID)
+		errs    = errors.NewGroup(50)
+		args    struct {
+			Input  string                          `json:"input"`
+			Delete []goatcounter.PathID            `json:"delete"`
+			Rename map[string][]goatcounter.PathID `json:"rename"`
+			Action string                          `json:"action"`
+		}
+	)
+	if r.Method == "POST" {
+		if _, err := zhttp.Decode(r, &args); err != nil {
+			return err
+		}
+
+		if args.Action == "run" {
+			ctx := context.WithoutCancel(r.Context())
+			bgrun.RunFunction(fmt.Sprintf("purge:%d", Site(ctx).ID), func() {
+				err := zdb.TX(ctx, func(ctx context.Context) error {
+					if len(args.Delete) > 0 {
+						var list goatcounter.Hits
+						err := list.Purge(ctx, args.Delete)
+						if err != nil {
+							return err
+						}
+					}
+					if len(args.Rename) > 0 {
+						for dstPath, mergeIDs := range args.Rename {
+							id, dstPath, _ := strings.Cut(dstPath, "-")
+
+							var (
+								dst goatcounter.Path
+								err error
+							)
+							if id == "0" { // Create new Path
+								// It's possible that a previous line created this, so GetOrInsert() is appropriate.
+								dst.Path = dstPath
+								err = dst.GetOrInsert(ctx)
+							} else { // Merge to existing ID
+								pID, err2 := zstrconv.ParseInt[goatcounter.PathID](id, 10)
+								if err2 != nil {
+									return err2
+								}
+								err = dst.ByID(ctx, pID)
+							}
+							if err != nil {
+								return err
+							}
+
+							mergeIDs = slices.DeleteFunc(mergeIDs, func(p goatcounter.PathID) bool { return p == dst.ID })
+							if len(mergeIDs) == 0 {
+								return guru.New(400, T(ctx, "error/merge-self|Cannot merge a path with itself"))
+							}
+							merge := make(goatcounter.Paths, len(mergeIDs))
+							for i := range mergeIDs {
+								err := merge[i].ByID(ctx, mergeIDs[i])
+								if err != nil {
+									return err
+								}
+							}
+
+							err = dst.Merge(ctx, merge)
+							if err != nil {
+								return err
+							}
+						}
+					}
+					return nil
+				})
+				if err != nil {
+					log.Error(ctx, err)
+				}
+			})
+
+			zhttp.Flash(w, r, T(r.Context(),
+				"notify/started-background-process|Started in the background; may take about 10-20 seconds to fully process."))
+			return zhttp.SeeOther(w, "/settings/batchpurge")
+		}
+
+		var (
+			i    = 0
+			find = func(path string) (goatcounter.HitLists, error) {
+				matchCase := true
+				if strings.HasPrefix(path, "(?i)") {
+					matchCase, path = false, path[4:]
+				}
+				var list goatcounter.HitLists
+				err := list.ListPathsLike(r.Context(), path, false, matchCase)
+				return list, err
+			}
+		)
+		for line := range strings.SplitSeq(args.Input, "\n") {
+			i++
+			line = strings.TrimSpace(line)
+			if len(line) == 0 || line[0] == '#' {
+				continue
+			}
+			fields := strings.Fields(line)
+			switch strings.ToLower(fields[0]) {
+			default:
+				errs.Append(fmt.Errorf("line %d: unknown command %q", i, fields[0]))
+			case "rename":
+				if len(fields) != 3 {
+					errs.Append(fmt.Errorf(`line %d: wrong number of fields (%d): expect 3: "RENAME old-path new-path"`, i, len(fields)))
+					continue
+				}
+				list, err := find(fields[1])
+				if err != nil {
+					return err
+				}
+				if len(list) == 0 {
+					errs.Append(fmt.Errorf("line %d: nothing matches %q", i, fields[1]))
+					continue
+				}
+
+				key := renameKey{Path: fields[2]}
+				if id, ok := dsts[fields[2]]; ok {
+					key.ID = id
+				} else {
+					var dst goatcounter.Path
+					err = dst.ByPath(r.Context(), fields[2])
+					if err != nil && !zdb.ErrNoRows(err) {
+						return err
+					}
+					key.ID = dst.ID
+					dsts[fields[2]] = dst.ID
+				}
+				renames[key] = append(renames[key], list...)
+			case "delete":
+				if len(fields) != 2 {
+					errs.Append(fmt.Errorf(`line %d: wrong number of fields (%d): expect 2: "DELETE path"`, i, len(fields)))
+					continue
+				}
+
+				list, err := find(fields[1])
+				if err != nil {
+					return err
+				}
+				if len(list) == 0 {
+					errs.Append(fmt.Errorf("line %d: nothing matches %q", i, fields[1]))
+					continue
+				}
+				deletes = append(deletes, list...)
+			}
+		}
+	}
+
+	if errs.Len() > 0 {
+		w.WriteHeader(400)
+	}
+	return zhttp.Template(w, "settings_batchpurge.gohtml", struct {
+		Globals
+		Input   string
+		Errors  []error
+		Deletes goatcounter.HitLists
+		Renames map[renameKey]goatcounter.HitLists
+	}{newGlobals(w, r), args.Input, errs.Unwrap(), deletes, renames})
 }
 
 func (h settings) purge(w http.ResponseWriter, r *http.Request) error {

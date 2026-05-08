@@ -48,6 +48,8 @@
 ["button/merge"]
   default = "Samenvoegen"
 
+["button/preview"]
+
 ["button/remove"]
   default = "Verwijderen"
 
@@ -62,6 +64,8 @@
 
 ["button/reset-password"]
   default = "Wachtwoord opnieuw instellen"
+
+["button/run"]
 
 ["button/save"]
   default = "Opslaan"
@@ -347,6 +351,8 @@ Martin
 ["header/created-at"]
   default = "Gemaakt op"
 
+["header/csv-format"]
+
 ["header/dashboard"]
   default = "Dashboard"
 
@@ -355,6 +361,8 @@ Martin
 
 ["header/delete-account"]
   default = "Verwijder account"
+
+["header/deleting"]
 
 ["header/domain"]
   default = "Domein"
@@ -373,6 +381,8 @@ Martin
 
 ["header/export-to-csv"]
 
+["header/export-to-json"]
+
 ["header/fewer-number"]
   default = "Toon minder nummers"
 
@@ -385,12 +395,18 @@ Martin
 ["header/forgot-password"]
   default = "Wachtwoord vergeten"
 
+["header/format"]
+
 ["header/hash"]
   default = "Hash"
 
 ["header/import-from-csv"]
 
 ["header/import-from-ga"]
+
+["header/import-from-json"]
+
+["header/json-format"]
 
 ["header/l10n"]
   default = "Lokalisatie"
@@ -416,6 +432,8 @@ Martin
 ["header/merge-account"]
   default = "Accounts samenvoegen"
 
+["header/merging-to"]
+
 ["header/mfa"]
   default = "Multi-factor authenticatie"
 
@@ -424,6 +442,8 @@ Martin
 
 ["header/name"]
   default = "Naam"
+
+["header/other-formats"]
 
 ["header/pagination-cursor"]
   default = "Cursor"
@@ -439,6 +459,8 @@ Martin
 
 ["header/preferences"]
   default = "Instellingen"
+
+["header/renaming"]
 
 ["header/reset-password"]
   default = "Wachtwoord opnieuw instellen voor %(email) op %(site-name)"
@@ -657,6 +679,8 @@ De verificatie checkt elke 2 uur.
 ["label/email-reports"]
   default = "Stuur email rapporten"
 
+["label/export-from-date"]
+
 ["label/fewer-numbers"]
   default = "Toon minder nummers"
 
@@ -785,6 +809,8 @@ De verificatie checkt elke 2 uur.
 
 ["label/your-site"]
   default = "Jouw site"
+
+["label/zip-file"]
 
 ["link/add-translation"]
   default = "Wijzig of maak nieuwe vertalingen"
@@ -1061,6 +1087,8 @@ site (de oude en nieuwe code) om te voorkomen dat pageviews verloren gaan.</p>
 
 ["p/export-csv"]
 
+["p/export-from-date"]
+
 ["p/export-process"]
   default = """
 Start het proces  en email een download link zodra deze klaar is. Je kan dit
@@ -1073,8 +1101,14 @@ aanwezig.
 
 ["p/import-ga"]
 
+["p/json-file-format"]
+
 ["p/last-user"]
   default = "Kan laatste admingebruiker niet verwijderen of aanpassen"
+
+["p/link-to-batch-rename"]
+
+["p/manage-batch-hits"]
 
 ["p/manage-hits"]
   default = "Pageviews verwijderen of samenvoegen"

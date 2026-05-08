@@ -48,6 +48,8 @@
 ["button/merge"]
   default = "Yhdistä"
 
+["button/preview"]
+
 ["button/remove"]
   default = "Poista"
 
@@ -62,6 +64,8 @@
 
 ["button/reset-password"]
   default = "Nollaa salasana"
+
+["button/run"]
 
 ["button/save"]
   default = "Tallenna"
@@ -311,11 +315,15 @@ Martin
 
 ["header/created-at"]
 
+["header/csv-format"]
+
 ["header/dashboard"]
 
 ["header/data-collection"]
 
 ["header/delete-account"]
+
+["header/deleting"]
 
 ["header/domain"]
   default = "Verkkotunnus"
@@ -335,6 +343,8 @@ Martin
 ["header/export-to-csv"]
   default = "Vie CSV-muodossa"
 
+["header/export-to-json"]
+
 ["header/fewer-number"]
   default = "Näytä vähemmän numeroita"
 
@@ -347,6 +357,8 @@ Martin
 ["header/forgot-password"]
   default = "Salasana unohtunut"
 
+["header/format"]
+
 ["header/hash"]
   default = "Tarkiste"
 
@@ -354,6 +366,10 @@ Martin
   default = "Tuo CSV-muodosta"
 
 ["header/import-from-ga"]
+
+["header/import-from-json"]
+
+["header/json-format"]
 
 ["header/l10n"]
   default = "Lokalisaatio"
@@ -379,6 +395,8 @@ Martin
 ["header/merge-account"]
   default = "Yhdistä tili"
 
+["header/merging-to"]
+
 ["header/mfa"]
   default = "Monivaiheinen tunnistautuminen"
 
@@ -387,6 +405,8 @@ Martin
 
 ["header/name"]
   default = "Nimi"
+
+["header/other-formats"]
 
 ["header/pagination-cursor"]
 
@@ -399,6 +419,8 @@ Martin
   default = "Oikeudet"
 
 ["header/preferences"]
+
+["header/renaming"]
 
 ["header/reset-password"]
 
@@ -559,6 +581,8 @@ Martin
 
 ["label/email-reports"]
 
+["label/export-from-date"]
+
 ["label/fewer-numbers"]
 
 ["label/for-following-countries"]
@@ -671,6 +695,8 @@ Martin
 
 ["label/your-site"]
   default = "Sivustosi"
+
+["label/zip-file"]
 
 ["link/add-translation"]
   default = "Lisää tai muokkaa käännöksiä"
@@ -882,13 +908,21 @@ Martin
 
 ["p/export-csv"]
 
+["p/export-from-date"]
+
 ["p/export-process"]
 
 ["p/have-mfa"]
 
 ["p/import-ga"]
 
+["p/json-file-format"]
+
 ["p/last-user"]
+
+["p/link-to-batch-rename"]
+
+["p/manage-batch-hits"]
 
 ["p/manage-hits"]
 
