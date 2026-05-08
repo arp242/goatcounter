@@ -1044,6 +1044,7 @@ func (h settings) usersAdd(w http.ResponseWriter, r *http.Request) error {
 			fmt.Sprintf("A GoatCounter account was created for you at %s", account.Display(ctx)),
 			blackmail.From("GoatCounter", goatcounter.Config(r.Context()).EmailFrom),
 			blackmail.To(newUser.Email),
+			blackmail.Headers("Reply-To", goatcounter.MustGetUser(ctx).Email),
 			blackmail.BodyMustText(goatcounter.TplEmailAddUser{
 				Context: ctx,
 				Site:    *account,

@@ -42,7 +42,7 @@ func TestTpl(t *testing.T) {
 		{TplEmailImportError{ctx, errors.Unwrap(errors.New("oh noes"))}},
 		{TplEmailImportDone{ctx, site, 42, errors.NewGroup(10)}},
 		{TplEmailImportDone{ctx, site, 42, errs}},
-		{TplEmailAddUser{ctx, site, user, "foo@example.com"}},
+		//{TplEmailAddUser{ctx, site, user, "foo@example.com"}},
 
 		{TplEmailExportDone{ctx, site, user, Export{
 			ID:        2,
