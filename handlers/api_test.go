@@ -627,7 +627,7 @@ func TestAPIPaths(t *testing.T) {
 		for i := range p {
 			c := strconv.Itoa(i + 1)
 			p[i].Site = 1
-			p[i].Path = "/" + c
+			p[i].Path = fmt.Sprintf("/%02s", c)
 			p[i].Title = c + " - " + c
 			err := p[i].GetOrInsert(ctx)
 			if err != nil {
@@ -669,15 +669,15 @@ func TestAPIPaths(t *testing.T) {
 			}, "", 200, `{
 			"more": true,
 			"paths": [
-				{"event": false, "id": 1, "path": "/1", "title": "1 - 1"},
-				{"event": false, "id": 2, "path": "/2", "title": "2 - 2"},
-				{"event": false, "id": 3, "path": "/3", "title": "3 - 3"},
-				{"event": false, "id": 4, "path": "/4", "title": "4 - 4"},
-				{"event": false, "id": 5, "path": "/5", "title": "5 - 5"},
-				{"event": false, "id": 6, "path": "/6", "title": "6 - 6"},
-				{"event": false, "id": 7, "path": "/7", "title": "7 - 7"},
-				{"event": false, "id": 8, "path": "/8", "title": "8 - 8"},
-				{"event": false, "id": 9, "path": "/9", "title": "9 - 9"},
+				{"event": false, "id": 1, "path": "/01", "title": "1 - 1"},
+				{"event": false, "id": 2, "path": "/02", "title": "2 - 2"},
+				{"event": false, "id": 3, "path": "/03", "title": "3 - 3"},
+				{"event": false, "id": 4, "path": "/04", "title": "4 - 4"},
+				{"event": false, "id": 5, "path": "/05", "title": "5 - 5"},
+				{"event": false, "id": 6, "path": "/06", "title": "6 - 6"},
+				{"event": false, "id": 7, "path": "/07", "title": "7 - 7"},
+				{"event": false, "id": 8, "path": "/08", "title": "8 - 8"},
+				{"event": false, "id": 9, "path": "/09", "title": "9 - 9"},
 				{"event": false, "id": 10, "path": "/10", "title": "10 - 10"},
 				{"event": false, "id": 11, "path": "/11", "title": "11 - 11"},
 				{"event": false, "id": 12, "path": "/12", "title": "12 - 12"},
