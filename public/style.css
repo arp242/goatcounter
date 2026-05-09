@@ -1177,18 +1177,25 @@ html.backend-app body[id^="page-user"] {
 }
 
 html.backend-app body[id^="page-user"] .page {
-	display: grid;
-	place-items: center;
-	padding: 3rem 1.5rem;
+	max-width: 34rem;
+	margin-left: auto;
+	margin-right: auto;
+	padding: 1.25rem 0 0;
+	border: none;
+	border-radius: 0;
+	background: transparent;
+	box-shadow: none;
 }
 
 html.backend-app body[id^="page-user"] nav.center {
-	max-width: 70rem;
+	max-width: 34rem;
+	margin-bottom: .5rem;
 }
 
 html.backend-app body[id^="page-user"] .auth-shell {
 	width: 100%;
 	max-width: 28rem;
+	margin: 0 auto;
 }
 
 html.backend-app body[id^="page-user"] .auth-card {
@@ -1197,6 +1204,12 @@ html.backend-app body[id^="page-user"] .auth-card {
 	border-radius: var(--gc-radius-xl);
 	background: var(--gc-surface-2);
 	box-shadow: var(--gc-shadow-md);
+	text-align: center;
+}
+
+html.backend-app body[id^="page-user"] .flash {
+	max-width: 28rem;
+	margin: 0 auto 1rem;
 	text-align: center;
 }
 
@@ -1240,7 +1253,7 @@ html.backend-app body[id^="page-user"] .auth-card p {
 
 @media (max-width: 40rem) {
 	html.backend-app body[id^="page-user"] .page {
-		padding: 1rem;
+		padding: .5rem 0 0;
 	}
 
 	html.backend-app body[id^="page-user"] .auth-card {
