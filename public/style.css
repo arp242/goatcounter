@@ -146,3 +146,939 @@ dt         { font-weight: bold; margin-top: 1em; }
  * going to bother writing a JS thing.
  * https://github.com/arp242/goatcounter/issues/529 */
 input:user-invalid { outline: 1px solid #f00 !important; box-shadow: 0 0 .2em #f00 !important; background-color: #feeaea; }
+
+/*** 2026 visual refresh ***/
+:root {
+	--gc-font-sans: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+	--gc-font-mono: ui-monospace, "SFMono-Regular", "SF Mono", Menlo, Consolas, monospace;
+
+	--text: #18181b;
+	--bg: #ffffff;
+	--backdrop: #f4f4f5;
+	--header-border: #e4e4e7;
+	--target-bg: #e4e4e7;
+	--loading-text: #71717a;
+
+	--link: #18181b;
+	--link-hover: #52525b;
+
+	--input-text: #18181b;
+	--input-bg: #fafafa;
+	--input-border: #d4d4d8;
+	--input-focus: #71717a;
+	--fieldset-border: #d4d4d8;
+	--form-error-text: #b91c1c;
+	--input-error-border: #dc2626;
+
+	--btn-text: #fafafa;
+	--btn-bg: #18181b;
+	--btn-border: #18181b;
+	--btn-border-outset: #18181b;
+	--btn-hover-bg: #27272a;
+	--btn-active-bg: #09090b;
+
+	--code-text: #27272a;
+	--code-bg: #f4f4f5;
+	--code-border: #d4d4d8;
+
+	--tooltip-text: #18181b;
+	--tooltip-bg: #ffffff;
+	--tooltip-border: rgba(24, 24, 27, .12);
+	--tooltip-shadow: rgba(24, 24, 27, .08);
+
+	--chart-line: #18181b;
+	--chart-fill: rgba(24, 24, 27, .12);
+	--chart-grid: rgba(63, 63, 70, .14);
+	--hchart-border: rgba(24, 24, 27, .1);
+	--hchart-bar: rgba(24, 24, 27, .08);
+	--hchart-bar-hover: rgba(24, 24, 27, .14);
+
+	--nav-bg: rgba(255, 255, 255, .82);
+	--nav-border: rgba(24, 24, 27, .09);
+	--footer-shadow: rgba(24, 24, 27, .06);
+	--filter-kw-text: #52525b;
+
+	--info-bg: #f4f4f5;
+	--info-border: #d4d4d8;
+	--error-bg: #fef2f2;
+	--error-border: #fca5a5;
+
+	--event-bg: #f4f4f5;
+	--pageviews-text: #71717a;
+
+	--datepicker-border: #d4d4d8;
+	--datepicker-shadow: rgba(24, 24, 27, .15);
+	--datepicker-dayname-text: #71717a;
+	--datepicker-day-text: #27272a;
+	--datepicker-day-bg: #fafafa;
+	--datepicker-day-hover-bg: #e4e4e7;
+	--datepicker-today-text: #18181b;
+	--datepicker-selected-shadow: #3f3f46;
+	--datepicker-selected-text: #18181b;
+	--datepicker-future-text: #71717a;
+	--datepicker-future-bg: #f4f4f5;
+	--datepicker-outside-month-text: #a1a1aa;
+
+	--text-table-even-bg: #fafafa;
+	--text-table-border: #e4e4e7;
+	--text-table-rank-text: #71717a;
+
+	--widget-border: rgba(24, 24, 27, .08);
+	--widget-dragging-border: #71717a;
+	--widget-dragging-bg: rgba(255, 255, 255, .88);
+	--widget-handle-bg: #f4f4f5;
+	--widget-handle-text: #71717a;
+	--widget-handle-hover-bg: #e4e4e7;
+
+	--box-bg: #fafafa;
+	--box-shadow: rgba(24, 24, 27, .08);
+	--plus: #15803d;
+	--minus: #b91c1c;
+
+	--gc-surface-0: #ffffff;
+	--gc-surface-1: rgba(255, 255, 255, .84);
+	--gc-surface-2: #fafafa;
+	--gc-surface-3: #f4f4f5;
+	--gc-border-strong: rgba(24, 24, 27, .12);
+	--gc-shadow-lg: 0 24px 80px rgba(24, 24, 27, .08);
+	--gc-shadow-md: 0 10px 30px rgba(24, 24, 27, .06);
+	--gc-radius-xl: 24px;
+	--gc-radius-lg: 18px;
+	--gc-radius-md: 14px;
+}
+
+@media (prefers-color-scheme: dark) {
+	html.theme-auto {
+		--text: #f4f4f5;
+		--bg: #09090b;
+		--backdrop: #09090b;
+		--header-border: #27272a;
+		--target-bg: #27272a;
+		--loading-text: #a1a1aa;
+
+		--link: #fafafa;
+		--link-hover: #d4d4d8;
+
+		--input-text: #fafafa;
+		--input-bg: #111113;
+		--input-border: #27272a;
+		--input-focus: #a1a1aa;
+		--fieldset-border: #27272a;
+		--form-error-text: #fca5a5;
+		--input-error-border: #f87171;
+
+		--btn-text: #09090b;
+		--btn-bg: #fafafa;
+		--btn-border: #fafafa;
+		--btn-border-outset: #fafafa;
+		--btn-hover-bg: #e4e4e7;
+		--btn-active-bg: #d4d4d8;
+
+		--code-text: #e4e4e7;
+		--code-bg: #111113;
+		--code-border: #27272a;
+
+		--tooltip-text: #f4f4f5;
+		--tooltip-bg: #111113;
+		--tooltip-border: rgba(244, 244, 245, .12);
+		--tooltip-shadow: rgba(0, 0, 0, .35);
+
+		--chart-line: #fafafa;
+		--chart-fill: rgba(244, 244, 245, .12);
+		--chart-grid: rgba(212, 212, 216, .14);
+		--hchart-border: rgba(244, 244, 245, .1);
+		--hchart-bar: rgba(244, 244, 245, .08);
+		--hchart-bar-hover: rgba(244, 244, 245, .16);
+
+		--nav-bg: rgba(17, 17, 19, .82);
+		--nav-border: rgba(244, 244, 245, .09);
+		--footer-shadow: rgba(0, 0, 0, .24);
+		--filter-kw-text: #d4d4d8;
+
+		--info-bg: #111113;
+		--info-border: #27272a;
+		--error-bg: rgba(127, 29, 29, .2);
+		--error-border: rgba(252, 165, 165, .35);
+
+		--event-bg: #18181b;
+		--pageviews-text: #a1a1aa;
+
+		--datepicker-border: #27272a;
+		--datepicker-shadow: rgba(0, 0, 0, .45);
+		--datepicker-dayname-text: #a1a1aa;
+		--datepicker-day-text: #e4e4e7;
+		--datepicker-day-bg: #18181b;
+		--datepicker-day-hover-bg: #27272a;
+		--datepicker-today-text: #fafafa;
+		--datepicker-selected-shadow: #d4d4d8;
+		--datepicker-selected-text: #fafafa;
+		--datepicker-future-text: #a1a1aa;
+		--datepicker-future-bg: #111113;
+		--datepicker-outside-month-text: #71717a;
+
+		--text-table-even-bg: #111113;
+		--text-table-border: #27272a;
+		--text-table-rank-text: #a1a1aa;
+
+		--widget-border: rgba(244, 244, 245, .08);
+		--widget-dragging-border: #d4d4d8;
+		--widget-dragging-bg: rgba(9, 9, 11, .9);
+		--widget-handle-bg: #18181b;
+		--widget-handle-text: #a1a1aa;
+		--widget-handle-hover-bg: #27272a;
+
+		--box-bg: #111113;
+		--box-shadow: rgba(0, 0, 0, .22);
+
+		--gc-surface-0: #09090b;
+		--gc-surface-1: rgba(17, 17, 19, .84);
+		--gc-surface-2: #111113;
+		--gc-surface-3: #18181b;
+		--gc-border-strong: rgba(244, 244, 245, .12);
+		--gc-shadow-lg: 0 30px 90px rgba(0, 0, 0, .35);
+		--gc-shadow-md: 0 16px 44px rgba(0, 0, 0, .24);
+	}
+}
+
+html.theme-dark {
+	--text: #f4f4f5;
+	--bg: #09090b;
+	--backdrop: #09090b;
+	--header-border: #27272a;
+	--target-bg: #27272a;
+	--loading-text: #a1a1aa;
+
+	--link: #fafafa;
+	--link-hover: #d4d4d8;
+
+	--input-text: #fafafa;
+	--input-bg: #111113;
+	--input-border: #27272a;
+	--input-focus: #a1a1aa;
+	--fieldset-border: #27272a;
+	--form-error-text: #fca5a5;
+	--input-error-border: #f87171;
+
+	--btn-text: #09090b;
+	--btn-bg: #fafafa;
+	--btn-border: #fafafa;
+	--btn-border-outset: #fafafa;
+	--btn-hover-bg: #e4e4e7;
+	--btn-active-bg: #d4d4d8;
+
+	--code-text: #e4e4e7;
+	--code-bg: #111113;
+	--code-border: #27272a;
+
+	--tooltip-text: #f4f4f5;
+	--tooltip-bg: #111113;
+	--tooltip-border: rgba(244, 244, 245, .12);
+	--tooltip-shadow: rgba(0, 0, 0, .35);
+
+	--chart-line: #fafafa;
+	--chart-fill: rgba(244, 244, 245, .12);
+	--chart-grid: rgba(212, 212, 216, .14);
+	--hchart-border: rgba(244, 244, 245, .1);
+	--hchart-bar: rgba(244, 244, 245, .08);
+	--hchart-bar-hover: rgba(244, 244, 245, .16);
+
+	--nav-bg: rgba(17, 17, 19, .82);
+	--nav-border: rgba(244, 244, 245, .09);
+	--footer-shadow: rgba(0, 0, 0, .24);
+	--filter-kw-text: #d4d4d8;
+
+	--info-bg: #111113;
+	--info-border: #27272a;
+	--error-bg: rgba(127, 29, 29, .2);
+	--error-border: rgba(252, 165, 165, .35);
+
+	--event-bg: #18181b;
+	--pageviews-text: #a1a1aa;
+
+	--datepicker-border: #27272a;
+	--datepicker-shadow: rgba(0, 0, 0, .45);
+	--datepicker-dayname-text: #a1a1aa;
+	--datepicker-day-text: #e4e4e7;
+	--datepicker-day-bg: #18181b;
+	--datepicker-day-hover-bg: #27272a;
+	--datepicker-today-text: #fafafa;
+	--datepicker-selected-shadow: #d4d4d8;
+	--datepicker-selected-text: #fafafa;
+	--datepicker-future-text: #a1a1aa;
+	--datepicker-future-bg: #111113;
+	--datepicker-outside-month-text: #71717a;
+
+	--text-table-even-bg: #111113;
+	--text-table-border: #27272a;
+	--text-table-rank-text: #a1a1aa;
+
+	--widget-border: rgba(244, 244, 245, .08);
+	--widget-dragging-border: #d4d4d8;
+	--widget-dragging-bg: rgba(9, 9, 11, .9);
+	--widget-handle-bg: #18181b;
+	--widget-handle-text: #a1a1aa;
+	--widget-handle-hover-bg: #27272a;
+
+	--box-bg: #111113;
+	--box-shadow: rgba(0, 0, 0, .22);
+
+	--gc-surface-0: #09090b;
+	--gc-surface-1: rgba(17, 17, 19, .84);
+	--gc-surface-2: #111113;
+	--gc-surface-3: #18181b;
+	--gc-border-strong: rgba(244, 244, 245, .12);
+	--gc-shadow-lg: 0 30px 90px rgba(0, 0, 0, .35);
+	--gc-shadow-md: 0 16px 44px rgba(0, 0, 0, .24);
+}
+
+html,
+body,
+button,
+input,
+select,
+textarea {
+	font-family: var(--gc-font-sans) !important;
+	letter-spacing: -.011em;
+}
+
+code,
+pre,
+kbd,
+samp {
+	font-family: var(--gc-font-mono);
+}
+
+html {
+	background:
+		radial-gradient(circle at top, rgba(161, 161, 170, .09), transparent 30%),
+		linear-gradient(180deg, var(--backdrop) 0%, color-mix(in srgb, var(--backdrop) 86%, var(--bg)) 100%);
+	color: var(--text);
+}
+
+body {
+	color: var(--text);
+}
+
+html.backend-app body {
+	background: transparent;
+}
+
+html.backend-app .center,
+html.backend-app .page {
+	max-width: 94rem;
+}
+
+html.backend-app nav.center,
+html.backend-app footer.center {
+	margin: 1rem auto;
+	padding: .85rem 1.1rem;
+	border: 1px solid var(--nav-border);
+	border-radius: var(--gc-radius-lg);
+	background: var(--nav-bg);
+	backdrop-filter: blur(18px);
+	box-shadow: var(--gc-shadow-md);
+}
+
+html.backend-app nav.center {
+	align-items: center;
+	gap: 1rem;
+}
+
+html.backend-app nav.center a,
+html.backend-app nav.center button.link {
+	font-weight: 500;
+}
+
+html.backend-app nav.center #back a {
+	display: inline-flex;
+	align-items: center;
+	gap: .45rem;
+	padding: .4rem .75rem;
+	border: 1px solid transparent;
+	border-radius: 999px;
+	background: var(--gc-surface-2);
+}
+
+html.backend-app nav.center #usermenu,
+html.backend-app nav.center #signin {
+	font-size: .92rem;
+	color: var(--pageviews-text);
+}
+
+html.backend-app nav.center #usermenu form {
+	display: inline;
+}
+
+html.backend-app .page {
+	margin-top: 0;
+	margin-bottom: 1rem;
+	padding: 1.5rem;
+	border: 1px solid var(--gc-border-strong);
+	border-radius: var(--gc-radius-xl);
+	background: var(--gc-surface-1);
+	box-shadow: var(--gc-shadow-lg);
+}
+
+html.backend-app .flash {
+	margin: 0 0 1rem;
+	padding: .95rem 1.1rem;
+	border-width: 1px;
+	border-radius: var(--gc-radius-md);
+	background: var(--gc-surface-2);
+}
+
+html.backend-app h1,
+html.backend-app h2,
+html.backend-app h3,
+html.backend-app h4 {
+	letter-spacing: -.03em;
+}
+
+html.backend-app h2 {
+	border-bottom: none;
+	font-size: 1rem;
+	font-weight: 600;
+}
+
+html.backend-app h2 small {
+	color: var(--pageviews-text);
+	font-size: .78rem;
+	font-weight: 500;
+	line-height: 1.5;
+}
+
+html.backend-app input:not(.link):not(.unstyled):focus,
+html.backend-app .input:focus,
+html.backend-app button:not(.link):focus,
+html.backend-app textarea:focus,
+html.backend-app select:focus {
+	outline: 2px solid rgba(113, 113, 122, .16);
+	box-shadow: 0 0 0 4px rgba(113, 113, 122, .08);
+}
+
+html.backend-app button:not(.link),
+html.backend-app input[type="submit"]:not(.link) {
+	border-style: solid;
+	box-shadow: none;
+	font-weight: 600;
+}
+
+html.backend-app footer.center {
+	justify-content: space-between;
+	gap: 1rem;
+}
+
+html.backend-app footer a {
+	font-weight: 500;
+}
+
+html.backend-app footer span {
+	opacity: .35;
+}
+
+html.backend-app #dash-form {
+	margin: 0 0 1.25rem;
+	padding: 0;
+	display: grid;
+	gap: .85rem;
+}
+
+html.backend-app #dash-main {
+	display: grid;
+	grid-template-columns: minmax(0, 1.3fr) minmax(18rem, 1fr);
+	gap: 1rem 1.2rem;
+	padding: 1rem 1.1rem;
+	margin: 0;
+	border: 1px solid var(--gc-border-strong);
+	border-radius: var(--gc-radius-lg);
+	background: var(--gc-surface-2);
+	box-shadow: none;
+}
+
+html.backend-app .dashboard-toolbar-primary,
+html.backend-app .dashboard-toolbar-secondary {
+	display: grid;
+	gap: .85rem;
+	align-content: start;
+}
+
+html.backend-app .dashboard-date-range {
+	display: inline-flex;
+	align-items: center;
+	gap: .5rem;
+	flex-wrap: wrap;
+	font-weight: 500;
+	color: var(--pageviews-text);
+}
+
+html.backend-app #dash-main .date-input,
+html.backend-app #filter-wrap,
+html.backend-app #filter-help,
+html.backend-app #dash-timerange {
+	border-radius: 12px;
+}
+
+html.backend-app #dash-main .date-input {
+	width: 9.5rem;
+	padding: .68rem .78rem;
+	border: 1px solid var(--input-border);
+	background: var(--gc-surface-0);
+	text-align: left;
+}
+
+html.backend-app #dash-select-period,
+html.backend-app #dash-select-group {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: .45rem .55rem;
+	padding: 0;
+	color: var(--pageviews-text);
+}
+
+html.backend-app #dash-select-period > span,
+html.backend-app #dash-select-group {
+	margin: 0;
+}
+
+html.backend-app #dash-select-period .link,
+html.backend-app #dash-select-group .link,
+html.backend-app #dash-move .link {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: .35rem .7rem;
+	border: 1px solid transparent;
+	border-radius: 999px;
+	color: var(--pageviews-text);
+	text-decoration: none;
+	transition: background-color .18s ease, border-color .18s ease, color .18s ease;
+}
+
+html.backend-app #dash-select-period .link:hover,
+html.backend-app #dash-select-group .link:hover,
+html.backend-app #dash-move .link:hover {
+	background: var(--gc-surface-3);
+	border-color: var(--gc-border-strong);
+	color: var(--text);
+	text-decoration: none;
+}
+
+html.backend-app .period-day [value=day],
+html.backend-app .period-week [value=week],
+html.backend-app .period-month [value=month],
+html.backend-app .period-quarter [value=quarter],
+html.backend-app .period-half-year [value=half-year],
+html.backend-app .period-year [value=year],
+html.backend-app .group-hour [value=hour],
+html.backend-app .group-day [value=day],
+html.backend-app .group-week [value=week],
+html.backend-app .group-month [value=month] {
+	color: var(--text);
+	background: var(--gc-surface-0);
+	border-color: var(--gc-border-strong);
+	font-weight: 600;
+	text-decoration: none;
+}
+
+html.backend-app #filter-outer {
+	position: relative;
+}
+
+html.backend-app #filter-wrap {
+	width: 100%;
+	min-height: 2.75rem;
+	padding: 0 .75rem;
+	align-items: center;
+	border: 1px solid var(--input-border);
+	background: var(--gc-surface-0);
+}
+
+html.backend-app #filter-wrap.value {
+	outline: none;
+	border-color: var(--gc-border-strong);
+	background: var(--gc-surface-0);
+}
+
+html.backend-app #filter-wrap.focus {
+	outline: none;
+	border-color: var(--input-focus);
+	box-shadow: 0 0 0 4px rgba(113, 113, 122, .08);
+}
+
+html.backend-app #filter-styled {
+	padding: 0;
+	font-size: .95rem;
+}
+
+html.backend-app #filter-help {
+	top: calc(100% + .45rem);
+	padding: .85rem .95rem;
+	border: 1px solid var(--gc-border-strong);
+	background: var(--gc-surface-0);
+	box-shadow: var(--gc-shadow-md);
+}
+
+html.backend-app #dash-saved-views {
+	top: .1rem;
+	right: 0;
+	max-width: 20rem;
+}
+
+html.backend-app #dash-saved-views > span {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 2rem;
+	height: 2rem;
+	border: 1px solid var(--gc-border-strong);
+	border-radius: 999px;
+	background: var(--gc-surface-0);
+	font-size: 1rem;
+}
+
+html.backend-app #dash-saved-views > div {
+	margin-top: .55rem;
+	margin-right: 0;
+	padding: .9rem 1rem;
+	border: 1px solid var(--gc-border-strong);
+	border-radius: var(--gc-radius-md);
+	background: var(--gc-surface-0);
+	box-shadow: var(--gc-shadow-md);
+}
+
+html.backend-app #dash-move {
+	display: grid;
+	grid-template-columns: 1fr auto 1fr;
+	align-items: center;
+	gap: .75rem;
+	margin: 0;
+	padding: .8rem 1rem;
+	border: 1px solid var(--gc-border-strong);
+	border-radius: var(--gc-radius-lg);
+	background: var(--gc-surface-2);
+}
+
+html.backend-app #dash-move > div:last-child {
+	text-align: right;
+}
+
+html.backend-app #dash-timerange {
+	padding: .55rem .9rem;
+	margin: 0;
+	border: 1px solid var(--gc-border-strong);
+	border-radius: 999px;
+	background: var(--gc-surface-0);
+	font-size: .86rem;
+	font-weight: 600;
+	color: var(--pageviews-text);
+}
+
+html.backend-app #dash-widgets {
+	display: grid;
+	gap: 1rem;
+}
+
+html.backend-app .dashboard-widget {
+	margin-bottom: 0;
+	padding: 1rem 1.1rem 1.05rem;
+	border: 1px solid var(--gc-border-strong);
+	border-radius: var(--gc-radius-lg);
+	background: var(--gc-surface-2);
+	box-shadow: none;
+}
+
+html.backend-app .widget-header {
+	margin: 0 0 .9rem;
+	padding: 0;
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: .8rem;
+}
+
+html.backend-app #dash-widgets h2 {
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: .25rem;
+}
+
+html.backend-app .configure-widget {
+	position: static;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 1.9rem;
+	height: 1.9rem;
+	border: 1px solid transparent;
+	border-radius: 999px;
+	color: var(--pageviews-text);
+	opacity: 0;
+	transition: opacity .18s ease, background-color .18s ease, border-color .18s ease, color .18s ease;
+}
+
+html.backend-app .dashboard-widget:hover .configure-widget {
+	opacity: 1;
+}
+
+html.backend-app .configure-widget:hover {
+	color: var(--text);
+	background: var(--gc-surface-0);
+	border-color: var(--gc-border-strong);
+	text-decoration: none;
+}
+
+html.backend-app .count-list {
+	margin-top: 0;
+}
+
+html.backend-app .totals .count-list,
+html.backend-app .pages-list .count-list:not(.count-list-text) {
+	border-collapse: separate;
+	border-spacing: 0 .7rem;
+}
+
+html.backend-app .pages-list .count-list:not(.count-list-text) > tbody > tr > td,
+html.backend-app .totals .count-list > tbody > tr > td {
+	padding: .8rem .9rem;
+	background: var(--gc-surface-0);
+	border-top: 1px solid var(--gc-border-strong);
+	border-bottom: 1px solid var(--gc-border-strong);
+}
+
+html.backend-app .pages-list .count-list:not(.count-list-text) > tbody > tr > td:first-child,
+html.backend-app .totals .count-list > tbody > tr > td:first-child {
+	border-left: 1px solid var(--gc-border-strong);
+	border-top-left-radius: 14px;
+	border-bottom-left-radius: 14px;
+}
+
+html.backend-app .pages-list .count-list:not(.count-list-text) > tbody > tr > td:last-child,
+html.backend-app .totals .count-list > tbody > tr > td:last-child {
+	border-right: 1px solid var(--gc-border-strong);
+	border-top-right-radius: 14px;
+	border-bottom-right-radius: 14px;
+}
+
+html.backend-app .count-list .col-count {
+	width: 6.5rem;
+	color: var(--pageviews-text);
+}
+
+html.backend-app .count-list .col-count > span:first-child {
+	display: inline-block;
+	font-size: 1rem;
+	font-weight: 600;
+	color: var(--text);
+}
+
+html.backend-app .count-list .col-count-diff {
+	display: inline-block;
+	margin-top: .25rem;
+	font-size: .77rem;
+	font-weight: 600;
+}
+
+html.backend-app .rlink {
+	max-width: 100%;
+	font-weight: 600;
+	color: var(--text);
+}
+
+html.backend-app .page-title,
+html.backend-app .go,
+html.backend-app .page-n,
+html.backend-app .scale {
+	color: var(--pageviews-text);
+}
+
+html.backend-app .page-title {
+	display: inline-block;
+	margin-top: .2rem;
+	font-size: .84rem;
+	line-height: 1.45;
+}
+
+html.backend-app .label-event {
+	display: inline-flex;
+	align-items: center;
+	margin-left: .35rem;
+	padding: .14rem .45rem;
+	border: 1px solid var(--gc-border-strong);
+	border-radius: 999px;
+	background: var(--event-bg);
+	font-size: .68rem;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: .02em;
+}
+
+html.backend-app .chart {
+	height: 4.25rem;
+	margin-bottom: 0;
+	padding: .3rem 0 0;
+}
+
+html.backend-app .chart-left,
+html.backend-app .chart-right {
+	font-size: .9rem;
+}
+
+html.backend-app .chart-right {
+	top: -.25rem;
+	right: 0;
+}
+
+html.backend-app .chart-line canvas,
+html.backend-app .chart-bar canvas {
+	height: 4rem;
+}
+
+html.backend-app .pages-list > .load-btns {
+	margin-top: .15rem;
+}
+
+html.backend-app .load-more,
+html.backend-app .load-less {
+	display: inline-flex;
+	align-items: center;
+	padding: .35rem .7rem;
+	border: 1px solid var(--gc-border-strong);
+	border-radius: 999px;
+	background: var(--gc-surface-0);
+	font-size: .84rem;
+	font-weight: 500;
+	text-decoration: none;
+}
+
+html.backend-app .load-less {
+	margin-left: .45rem;
+}
+
+html.backend-app .dashboard-split-grid {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 1rem;
+}
+
+html.backend-app .hchart .rows > div {
+	margin-bottom: .55rem;
+	padding: .65rem .75rem;
+	border: 1px solid var(--gc-border-strong);
+	border-radius: 14px;
+	background: var(--gc-surface-0);
+}
+
+html.backend-app .hchart .col-name {
+	width: calc(100% - 9rem);
+	font-weight: 500;
+}
+
+html.backend-app .hchart .bar {
+	border-radius: 999px;
+}
+
+html.backend-app .hchart .bar-c {
+	padding-left: .55rem;
+}
+
+html.backend-app .hchart .col-count,
+html.backend-app .hchart .col-perc {
+	color: var(--pageviews-text);
+	font-weight: 600;
+}
+
+html.backend-app .hchart .detail {
+	padding: .6rem 0 0 0;
+	border-bottom: none;
+}
+
+html.backend-app .count-list-text {
+	border-collapse: separate;
+	border-spacing: 0;
+	border: 1px solid var(--gc-border-strong);
+	border-radius: var(--gc-radius-md);
+	overflow: hidden;
+}
+
+html.backend-app .count-list-text thead th {
+	padding: .75rem .8rem;
+	background: var(--gc-surface-3);
+	border-bottom: 1px solid var(--gc-border-strong);
+	font-size: .76rem;
+	font-weight: 700;
+	letter-spacing: .04em;
+	text-transform: uppercase;
+}
+
+html.backend-app .count-list-text tbody tr {
+	border-top: none;
+	border-bottom: 1px solid var(--text-table-border);
+}
+
+html.backend-app .count-list-text tbody tr:last-child {
+	border-bottom: none;
+}
+
+html.backend-app .count-list-text td {
+	padding: .85rem .8rem;
+	background: var(--gc-surface-0);
+}
+
+html.backend-app .count-list-text tr:nth-child(even) td {
+	background: var(--text-table-even-bg);
+}
+
+@media (max-width: 72rem) {
+	html.backend-app #dash-main {
+		grid-template-columns: 1fr;
+	}
+}
+
+@media (max-width: 60rem) {
+	html.backend-app #dash-move {
+		grid-template-columns: 1fr;
+		text-align: left;
+	}
+
+	html.backend-app #dash-move > div:last-child {
+		text-align: left;
+	}
+
+	html.backend-app .dashboard-split-grid {
+		grid-template-columns: 1fr;
+	}
+}
+
+@media (max-width: 54em) {
+	html.backend-app .page,
+	html.backend-app nav.center,
+	html.backend-app footer.center {
+		padding: 1rem;
+	}
+}
+
+@media (max-width: 40rem) {
+	html.backend-app nav.center {
+		flex-direction: column;
+		align-items: stretch;
+	}
+
+	html.backend-app nav.center #usermenu,
+	html.backend-app nav.center #signin {
+		min-width: 0;
+		text-align: left;
+	}
+
+	html.backend-app #dash-main .date-input {
+		width: 100%;
+	}
+
+	html.backend-app .dashboard-date-range {
+		display: grid;
+		grid-template-columns: 1fr;
+	}
+}
