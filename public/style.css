@@ -786,6 +786,7 @@ html.backend-app .dashboard-widget {
 	border-radius: var(--gc-radius-lg);
 	background: var(--gc-surface-2);
 	box-shadow: none;
+	min-width: 0;
 }
 
 html.backend-app .widget-header {
@@ -795,6 +796,7 @@ html.backend-app .widget-header {
 	align-items: flex-start;
 	justify-content: space-between;
 	gap: .8rem;
+	padding-right: .25rem;
 }
 
 html.backend-app #dash-widgets h2 {
@@ -811,11 +813,16 @@ html.backend-app .configure-widget {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	width: 1.9rem;
-	height: 1.9rem;
-	border: 1px solid transparent;
+	flex: 0 0 auto;
+	width: 2.15rem;
+	height: 2.15rem;
+	margin-top: -.15rem;
+	margin-right: -.05rem;
+	border: 1px solid var(--gc-border-strong);
 	border-radius: 999px;
 	color: var(--pageviews-text);
+	background: var(--gc-surface-0);
+	box-shadow: 0 1px 2px rgba(24, 24, 27, .06);
 	opacity: 0;
 	transition: opacity .18s ease, background-color .18s ease, border-color .18s ease, color .18s ease;
 }
@@ -826,7 +833,7 @@ html.backend-app .dashboard-widget:hover .configure-widget {
 
 html.backend-app .configure-widget:hover {
 	color: var(--text);
-	background: var(--gc-surface-0);
+	background: var(--gc-surface-2);
 	border-color: var(--gc-border-strong);
 	text-decoration: none;
 }
@@ -1072,6 +1079,11 @@ html.backend-app .count-list-text tr:nth-child(even) td {
 }
 
 @media (max-width: 40rem) {
+	html.backend-app,
+	html.backend-app body {
+		overflow-x: hidden;
+	}
+
 	html.backend-app nav.center {
 		flex-direction: column;
 		align-items: stretch;
@@ -1083,6 +1095,15 @@ html.backend-app .count-list-text tr:nth-child(even) td {
 		text-align: left;
 	}
 
+	html.backend-app nav.center #back {
+		margin-right: 0;
+	}
+
+	html.backend-app .page {
+		padding: .9rem;
+		overflow-x: clip;
+	}
+
 	html.backend-app #dash-main .date-input {
 		width: 100%;
 	}
@@ -1090,6 +1111,64 @@ html.backend-app .count-list-text tr:nth-child(even) td {
 	html.backend-app .dashboard-date-range {
 		display: grid;
 		grid-template-columns: 1fr;
+	}
+
+	html.backend-app footer.center {
+		flex-direction: column;
+		align-items: flex-start;
+		gap: .85rem;
+	}
+
+	html.backend-app footer.center > div {
+		width: 100%;
+	}
+
+	html.backend-app footer.center a {
+		display: inline-block;
+		margin: .2rem .5rem .2rem 0;
+	}
+
+	html.backend-app .vertical input[type="text"],
+	html.backend-app .vertical input[type="search"],
+	html.backend-app .vertical input[type="tel"],
+	html.backend-app .vertical input[type="url"],
+	html.backend-app .vertical input[type="email"],
+	html.backend-app .vertical input[type="password"],
+	html.backend-app .vertical input[type="date"],
+	html.backend-app .vertical input[type="month"],
+	html.backend-app .vertical input[type="week"],
+	html.backend-app .vertical input[type="time"],
+	html.backend-app .vertical input[type="datetime-local"],
+	html.backend-app .vertical input[type="range"],
+	html.backend-app .vertical input[type="number"],
+	html.backend-app .vertical textarea,
+	html.backend-app .vertical select {
+		min-width: 0;
+		width: 100%;
+		max-width: 100%;
+	}
+
+	html.backend-app .count-list .col-count {
+		width: 4.6rem;
+	}
+
+	html.backend-app .hchart .rows > div {
+		padding: .6rem .65rem;
+	}
+
+	html.backend-app .hchart .col-name {
+		display: block;
+		width: auto;
+		max-width: calc(100% - 7rem);
+	}
+
+	html.backend-app .hchart .col-count {
+		width: 3.5rem;
+	}
+
+	html.backend-app .hchart .col-perc {
+		width: 2rem;
+		margin-right: .35rem;
 	}
 }
 
