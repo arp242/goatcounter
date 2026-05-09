@@ -962,6 +962,16 @@ html.backend-app .dashboard-split-grid {
 	display: grid;
 	grid-template-columns: repeat(2, minmax(0, 1fr));
 	gap: 1rem;
+	justify-content: stretch;
+}
+
+html.backend-app .hcharts.dashboard-split-grid > div {
+	width: auto;
+	min-width: 0;
+}
+
+html.backend-app .hcharts.dashboard-split-grid > .dashboard-widget {
+	width: 100%;
 }
 
 html.backend-app .hchart .rows > div {
