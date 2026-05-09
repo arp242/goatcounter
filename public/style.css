@@ -1221,6 +1221,15 @@ html.backend-app body[id^="page-user"] .auth-card h1 {
 	line-height: 1.08;
 }
 
+html.backend-app body[id^="page-user"] .page > h1 {
+	margin: 0 auto 1.75rem;
+	padding: 0;
+	max-width: 28rem;
+	text-align: center;
+	font-size: 2rem;
+	line-height: 1.08;
+}
+
 html.backend-app body[id^="page-user"] .auth-card form {
 	display: grid;
 	width: 100%;
@@ -1229,7 +1238,16 @@ html.backend-app body[id^="page-user"] .auth-card form {
 	justify-items: center;
 }
 
-html.backend-app body[id^="page-user"] .auth-card.vertical label {
+html.backend-app body[id^="page-user"] .page > form.vertical {
+	display: grid;
+	width: 100%;
+	max-width: 26rem;
+	margin: 0 auto;
+	justify-items: center;
+}
+
+html.backend-app body[id^="page-user"] .auth-card form.vertical label,
+html.backend-app body[id^="page-user"] .page > form.vertical label {
 	display: block;
 	width: 100%;
 	margin-top: 0;
@@ -1239,7 +1257,8 @@ html.backend-app body[id^="page-user"] .auth-card.vertical label {
 	text-align: left;
 }
 
-html.backend-app body[id^="page-user"] .auth-card.vertical input {
+html.backend-app body[id^="page-user"] .auth-card form.vertical input,
+html.backend-app body[id^="page-user"] .page > form.vertical input {
 	width: 100%;
 	min-width: 0;
 	margin-left: auto;
@@ -1247,12 +1266,14 @@ html.backend-app body[id^="page-user"] .auth-card.vertical input {
 	margin-bottom: 1.15rem;
 }
 
-html.backend-app body[id^="page-user"] .auth-card button {
+html.backend-app body[id^="page-user"] .auth-card button,
+html.backend-app body[id^="page-user"] .page > form.vertical button {
 	margin: .2rem 0 0;
 	justify-self: center;
 }
 
-html.backend-app body[id^="page-user"] .auth-card p {
+html.backend-app body[id^="page-user"] .auth-card p,
+html.backend-app body[id^="page-user"] .page > p {
 	margin: 1rem 0 0;
 	text-align: center;
 }
@@ -1267,6 +1288,10 @@ html.backend-app body[id^="page-user"] .auth-card p {
 	}
 
 	html.backend-app body[id^="page-user"] .auth-card h1 {
+		font-size: 1.6rem;
+	}
+
+	html.backend-app body[id^="page-user"] .page > h1 {
 		font-size: 1.6rem;
 	}
 }
