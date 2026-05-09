@@ -1092,3 +1092,78 @@ html.backend-app .count-list-text tr:nth-child(even) td {
 		grid-template-columns: 1fr;
 	}
 }
+
+html.backend-app#page-user body,
+html.backend-app body#page-user {
+	background: transparent;
+}
+
+html.backend-app body#page-user .page {
+	display: grid;
+	place-items: center;
+	padding: 3rem 1.5rem;
+}
+
+html.backend-app body#page-user nav.center {
+	max-width: 70rem;
+}
+
+html.backend-app body#page-user .auth-shell {
+	width: 100%;
+	max-width: 28rem;
+}
+
+html.backend-app body#page-user .auth-card {
+	padding: 2rem;
+	border: 1px solid var(--gc-border-strong);
+	border-radius: var(--gc-radius-xl);
+	background: var(--gc-surface-2);
+	box-shadow: var(--gc-shadow-md);
+}
+
+html.backend-app body#page-user .auth-card h1 {
+	margin: 0 0 1.75rem;
+	padding: 0;
+	text-align: left;
+	font-size: 2rem;
+	line-height: 1.08;
+}
+
+html.backend-app body#page-user .auth-card form {
+	display: block;
+}
+
+html.backend-app body#page-user .auth-card.vertical label {
+	margin-top: 0;
+	margin-bottom: .45rem;
+	font-size: .95rem;
+	font-weight: 600;
+}
+
+html.backend-app body#page-user .auth-card.vertical input {
+	width: 100%;
+	min-width: 0;
+	margin-bottom: 1.15rem;
+}
+
+html.backend-app body#page-user .auth-card button {
+	margin: .2rem 0 0;
+}
+
+html.backend-app body#page-user .auth-card p {
+	margin: 1rem 0 0;
+}
+
+@media (max-width: 40rem) {
+	html.backend-app body#page-user .page {
+		padding: 1rem;
+	}
+
+	html.backend-app body#page-user .auth-card {
+		padding: 1.25rem;
+	}
+
+	html.backend-app body#page-user .auth-card h1 {
+		font-size: 1.6rem;
+	}
+}
