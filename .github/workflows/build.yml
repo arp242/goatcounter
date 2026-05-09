@@ -90,7 +90,19 @@ jobs:
       - name: 'Create manifest list'
         working-directory: '/tmp/digests'
         run: |
-          tags=$(printf -- '--tag %s ' ${{ steps.meta.outputs.tags }})
-          docker buildx imagetools create \
-            $tags \
-            $(printf '${{ env.REGISTRY_IMAGE }}@sha256:%s ' *)
+          set -eu
+
+          tag_args=()
+          while IFS= read -r tag; do
+            [ -n "$tag" ] || continue
+            tag_args+=(--tag "$tag")
+          done <<'EOF'
+          ${{ steps.meta.outputs.tags }}
+          EOF
+
+          refs=()
+          for digest in *; do
+            refs+=("${{ env.REGISTRY_IMAGE }}@sha256:${digest}")
+          done
+
+          docker buildx imagetools create "${tag_args[@]}" "${refs[@]}"
