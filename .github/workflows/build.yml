@@ -3,6 +3,10 @@ on:
   push:         {branches: ['main'], tags: ['v*']}
   pull_request: {}
 
+permissions:
+  contents: 'read'
+  packages: 'write'
+
 jobs:
   build:
     runs-on: 'ubuntu-latest'
@@ -25,13 +29,20 @@ jobs:
       - uses: 'docker/login-action@v4'
         if: ${{ github.event_name != 'pull_request' }}
         with:
-          username: ${{ vars.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          registry: 'ghcr.io'
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
       - uses: 'docker/metadata-action@v5'
         id: 'meta'
         with:
-          images: 'arp242/goatcounter'
-          tags:   "type=semver,pattern={{version}}\ntype=semver,pattern={{major}}.{{minor}}"
+          images: 'ghcr.io/${{ github.repository }}'
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=sha
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
       - uses: 'docker/build-push-action@v6'
         with:
           context:    '.'
@@ -44,6 +55,6 @@ jobs:
           platforms:  'linux/amd64,linux/arm64'
           tags:       ${{ steps.meta.outputs.tags }}
           labels:     ${{ steps.meta.outputs.labels }}
-          push:       ${{ github.event_name != 'pull_request' && github.ref_name != 'main' }}
-          cache-from: 'type=registry,ref=arp242/goatcounter:latest'
-          cache-to:   'type=inline'
+          push:       ${{ github.event_name != 'pull_request' }}
+          cache-from: 'type=registry,ref=ghcr.io/${{ github.repository }}:buildcache'
+          cache-to:   'type=registry,ref=ghcr.io/${{ github.repository }}:buildcache,mode=max'
