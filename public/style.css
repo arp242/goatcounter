@@ -1198,18 +1198,22 @@ html.backend-app body#page-user .auth-card {
 	border-radius: var(--gc-radius-xl);
 	background: var(--gc-surface-2);
 	box-shadow: var(--gc-shadow-md);
+	text-align: center;
 }
 
 html.backend-app body#page-user .auth-card h1 {
 	margin: 0 0 1.75rem;
 	padding: 0;
-	text-align: left;
+	text-align: center;
 	font-size: 2rem;
 	line-height: 1.08;
 }
 
 html.backend-app body#page-user .auth-card form {
 	display: block;
+	width: 100%;
+	max-width: 26rem;
+	margin: 0 auto;
 }
 
 html.backend-app body#page-user .auth-card.vertical label {
@@ -1217,6 +1221,7 @@ html.backend-app body#page-user .auth-card.vertical label {
 	margin-bottom: .45rem;
 	font-size: .95rem;
 	font-weight: 600;
+	text-align: left;
 }
 
 html.backend-app body#page-user .auth-card.vertical input {
@@ -1231,6 +1236,7 @@ html.backend-app body#page-user .auth-card button {
 
 html.backend-app body#page-user .auth-card p {
 	margin: 1rem 0 0;
+	text-align: center;
 }
 
 @media (max-width: 40rem) {
