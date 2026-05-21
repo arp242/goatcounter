@@ -31,6 +31,7 @@
   default = "Oui, supprimez tout"
 
 ["button/delete-pageviews"]
+  default = "Supprimer les pages vues"
 
 ["button/disable-mfa"]
   default = "Désactiver MFA"
@@ -45,8 +46,7 @@
   default = "Mot de passe oublié ?"
 
 ["button/merge"]
-
-["button/preview"]
+  default = "Fusionner"
 
 ["button/remove"]
   default = "Supprimer"
@@ -63,8 +63,6 @@
 ["button/reset-password"]
   default = "Réinitialiser le mot de passe"
 
-["button/run"]
-
 ["button/save"]
   default = "Enregistrer"
 
@@ -72,11 +70,13 @@
   default = "Enregistrer la vue par défaut"
 
 ["button/search"]
+  default = "Rechercher"
 
 ["button/send-login-url"]
   default = "Recevoir l'URL de connexion"
 
 ["button/show"]
+  default = "afficher"
 
 ["button/sign-in"]
   default = "Connexion"
@@ -91,6 +91,7 @@
   default = "Valider"
 
 ["button/upload-ga-import"]
+  default = "Charger"
 
 ["confirm/delete-user"]
   default = "Supprimer %(email) ?"
@@ -104,6 +105,7 @@
   many    = "Plusieurs"
 
 ["dashboard/loading"]
+  default = "Chargement..."
 
 ["dashboard/month-ago"]
   default = "il y a %(n) mois"
@@ -117,6 +119,7 @@
   default = "Rien à afficher"
 
 ["dashboard/pages/change"]
+  default = "Modifier"
 
 ["dashboard/pages/header"]
   default = "Pages"
@@ -160,6 +163,7 @@
   default = "Nom du pays, par exemple Belgique, Indonésie, etc..."
 
 ["data-collect/help/hits"]
+  default = "Enregistrez les consultations de pages individuelles en vue d'une exportation. Cela n'a aucune incidence sur le reste. L'API peut toujours être utilisée pour exporter des données agrégées."
 
 ["data-collect/help/language"]
   default = "Les langues indiquées par l'en-tête Accept-Language"
@@ -183,6 +187,7 @@
   default = "Pays"
 
 ["data-collect/label/hits"]
+  default = "Nombre de pages vues"
 
 ["data-collect/label/language"]
   default = "Langue"
@@ -212,6 +217,7 @@
   default = "Mois précédent"
 
 ["dont-lock"]
+  default = "Ne pas verrouiller"
 
 ["email-report/daily"]
 
@@ -346,8 +352,6 @@ Martin
 ["header/created-at"]
   default = "Créé le"
 
-["header/csv-format"]
-
 ["header/dashboard"]
   default = "Tableau de bord"
 
@@ -356,8 +360,6 @@ Martin
 
 ["header/delete-account"]
   default = "Supprimer le compte"
-
-["header/deleting"]
 
 ["header/domain"]
   default = "Domaine"
@@ -371,12 +373,11 @@ Martin
 ["header/email"]
   default = "Mél"
 
+["header/export"]
+  default = "Export"
+
 ["header/export-or-import"]
   default = "Export / Import"
-
-["header/export-to-csv"]
-
-["header/export-to-json"]
 
 ["header/fewer-number"]
 
@@ -389,18 +390,11 @@ Martin
 ["header/forgot-password"]
   default = "Mot de passe oublié"
 
-["header/format"]
-
 ["header/hash"]
   default = "Hash"
 
-["header/import-from-csv"]
-
-["header/import-from-ga"]
-
-["header/import-from-json"]
-
-["header/json-format"]
+["header/import"]
+  default = "Importation"
 
 ["header/l10n"]
   default = "Traduction"
@@ -423,8 +417,6 @@ Martin
 
 ["header/merge-account"]
 
-["header/merging-to"]
-
 ["header/mfa"]
   default = "Authentification multi-facteur"
 
@@ -433,8 +425,6 @@ Martin
 
 ["header/name"]
   default = "Nom"
-
-["header/other-formats"]
 
 ["header/pagination-cursor"]
   default = "Curseur de pagination"
@@ -450,8 +440,6 @@ Martin
 
 ["header/preferences"]
   default = "Préférences"
-
-["header/renaming"]
 
 ["header/reset-password"]
   default = "Réinitialiser le mot de passe de %(email) pour %(site-name)"
@@ -650,8 +638,6 @@ Domaine personnalisé, par exemple <em>“stats.example.com”</em>.<br>
 
 ["label/email-reports"]
 
-["label/export-from-date"]
-
 ["label/fewer-numbers"]
 
 ["label/for-following-countries"]
@@ -747,6 +733,7 @@ Domaine personnalisé, par exemple <em>“stats.example.com”</em>.<br>
   default = "Statistiques sur le système"
 
 ["label/theme"]
+  default = "Thème"
 
 ["label/thousand-separator"]
   default = "Séparateur de milliers"
@@ -755,6 +742,7 @@ Domaine personnalisé, par exemple <em>“stats.example.com”</em>.<br>
   default = "Fuseau horaire"
 
 ["label/topref"]
+  default = "Meilleurs referers"
 
 ["label/total-pageviews"]
   default = "Nombre total de pages vues pour le site"
@@ -773,8 +761,6 @@ Domaine personnalisé, par exemple <em>“stats.example.com”</em>.<br>
 
 ["label/your-site"]
   default = "Votre site"
-
-["label/zip-file"]
 
 ["link/add-translation"]
   default = "Ajouter ou modifier une traduction"
@@ -1047,8 +1033,6 @@ L'exportation CSV nécessite que la collecte des pages vues soit activée dans l
 <p>Vous pouvez toujours utiliser l'API pour obtenir les statistiques agrégées utilisées sur le tableau de bord ; voir la documentation de l'API %[%api API docs].</p>
 """
 
-["p/export-from-date"]
-
 ["p/export-process"]
   default = "<p>Démarrer le processus et vous envoyer un lien de téléchargement une fois que c'est fait. une fois qu'il est terminé. Vous ne pouvez effectuer cette opération qu'une fois par heure et elle annulera toutes les sauvegardes précédentes. sauvegardes précédentes que vous pourriez avoir.</p>"
 
@@ -1057,18 +1041,14 @@ L'exportation CSV nécessite que la collecte des pages vues soit activée dans l
 
 ["p/import-ga"]
 
-["p/json-file-format"]
-
 ["p/last-user"]
   default = "Impossible de supprimer ou modifier le dernier administrateur"
 
-["p/link-to-batch-rename"]
-
-["p/manage-batch-hits"]
-
 ["p/manage-hits"]
+  default = "Supprimer ou fusionner les pages vues."
 
 ["p/merge-account"]
+  default = "Vous pouvez fusionner des comptes dont l'utilisateur administrateur dispose d'une adresse e-mail vérifiée identique à votre adresse e-mail actuelle."
 
 ["p/no-data"]
   default = "%[%pre %(js_code)]"
@@ -1080,11 +1060,13 @@ L'exportation CSV nécessite que la collecte des pages vues soit activée dans l
   default = "Prendra effet immédiatement"
 
 ["p/notify-pagination-cursor"]
+  default = "Un « curseur de pagination » apparaîtra dans l'e-mail ; si vous le remplissez ici, seules les pages vues enregistrées après la dernière exportation seront exportées."
 
 ["p/notify-site-deletion"]
   default = "%(number) sites seront supprimés"
 
 ["p/num-accounts"]
+  default = "Ce compte contient %(n) sites :"
 
 ["p/remove-site-confirm"]
   default = """
@@ -1102,6 +1084,14 @@ Il s'agit du <strong>site en cours</strong> et cela va supprimer <strong>toutes 
 """
 
 ["p/rm-hits-help"]
+  default = """
+<ul><\\
+<li><code>%</code> est un caractère générique ; par exemple, <code>/page%.html</code> correspond à tout ce qui commence par <code>/page</code> et se termine par <code>.html</code>.</li>
+<li><code>_</code> correspond à n'importe quel caractère ; par exemple, <code>_.html</code> correspond à <code>a.html</code> et <code>b.html</code>.</li>
+<li>Utilisez <code>\\%</code> et <code>\\_</code> pour les caractères littéraux sans signification particulière.</li>
+<li>Utilisez deux barres obliques inversées (<code>\\\\</code>) pour faire correspondre une seule barre oblique inversée.</li>
+</ul>
+"""
 
 ["p/rm-pageview-match"]
   default = "Les chemins suivant correspondent à %(query):"
@@ -1130,12 +1120,16 @@ Le domaine de votre site, par exemple <em>\\\"www.example.com\\\"</em>, utilisé
   default = "Mettre l'échelle de l'axe Y de tous les graphiques à la valeur maximum de ce graphique (%(n))"
 
 ["theme/dark"]
+  default = "Sombre"
 
 ["theme/light"]
+  default = "Clair"
 
 ["theme/system"]
+  default = "Utiliser les paramètres système"
 
 ["tooltip/change-period"]
+  default = "Évolution par rapport à la période précédente"
 
 ["top-nav/back"]
   default = "Retour"
@@ -1144,6 +1138,7 @@ Le domaine de votre site, par exemple <em>\\\"www.example.com\\\"</em>, utilisé
   default = "Tableau de bord"
 
 ["top-nav/documentation"]
+  default = "Aide"
 
 ["top-nav/need-js"]
   default = "GoatCounter a besoin de JavaScript pour fonctionner ; veuillez autoriser l'exécution de JavaScript à partir de %(domaine)."
@@ -1212,6 +1207,7 @@ Le domaine de votre site, par exemple <em>\\\"www.example.com\\\"</em>, utilisé
   default = "doit compter moins de %d caractères"
 
 ["validate/need-one"]
+  default = "doit sélectionner au moins un"
 
 ["validate/phone"]
   default = "doit être un numéro de téléphone valide"

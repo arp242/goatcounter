@@ -1,7 +1,7 @@
 [__meta__]
   language = "pt-BR"
   maintainers = []
-  modified = 2025-05-20
+  modified = 2026-05-21
 
 ["button/add-new"]
   default = "Adicionar"
@@ -31,6 +31,7 @@
   default = "Sim, excluir tudo"
 
 ["button/delete-pageviews"]
+  default = "Excluir visualizações de páginas"
 
 ["button/disable-mfa"]
   default = "Desativar MFA"
@@ -45,8 +46,10 @@
   default = "Esqueceu a senha?"
 
 ["button/merge"]
+  default = "Fundir"
 
 ["button/preview"]
+  default = "Pré-visualizar"
 
 ["button/remove"]
   default = "Remover"
@@ -64,6 +67,7 @@
   default = "Redefinir senha"
 
 ["button/run"]
+  default = "Rodar"
 
 ["button/save"]
   default = "Salvar"
@@ -72,11 +76,13 @@
   default = "Salvar visão padrão"
 
 ["button/search"]
+  default = "Buscar"
 
 ["button/send-login-url"]
   default = "Enviar URL de login"
 
 ["button/show"]
+  default = "mostrar"
 
 ["button/sign-in"]
   default = "Entrar"
@@ -91,6 +97,7 @@
   default = "Enviar"
 
 ["button/upload-ga-import"]
+  default = "Fazer upload"
 
 ["confirm/delete-user"]
   default = "Excluir %(email)?"
@@ -104,6 +111,7 @@
   many    = "%(n) dias atrás"
 
 ["dashboard/loading"]
+  default = "Carregando..."
 
 ["dashboard/month-ago"]
   default = "%(n) meses atrás"
@@ -117,6 +125,7 @@
   default = "Nada para mostrar"
 
 ["dashboard/pages/change"]
+  default = "Alterar"
 
 ["dashboard/pages/header"]
   default = "Páginas"
@@ -170,16 +179,19 @@
   default = "Região - por exemplo, Texas, Bali etc. Os detalhes podem variar conforme o país."
 
 ["data-collect/help/sessions"]
+  default = "%[Rastrear visitantes únicos] por até 8 horas; se a opção for desabilitada, alguém pressionando, por exemplo, F5, para recarregar a página contará como 2 visualizações ao invés de 1."
 
 ["data-collect/help/size"]
   default = "Tamanho da tela."
 
 ["data-collect/help/user-agent"]
+  default = "Navegador e nome do sistema obtido através do User-Agent header (o cabeçalho em si não é armazenado)."
 
 ["data-collect/label/country"]
   default = "País"
 
 ["data-collect/label/hits"]
+  default = "Visualizações individuais de páginas"
 
 ["data-collect/label/language"]
   default = "Idioma"
@@ -211,14 +223,19 @@
 ["dont-lock"]
 
 ["email-report/daily"]
+  default = "Diariamente"
 
 ["email-report/monthly"]
+  default = "Mensalmente"
 
 ["email-report/never"]
+  default = "Nunca"
 
 ["email-report/two-weeks"]
+  default = "A cada duas semanas"
 
 ["email-report/weekly"]
+  default = "Semanalmente"
 
 ["email/header"]
   default = "Olá,"
@@ -255,9 +272,10 @@ Martin
   default = "data final é antes da data inicial"
 
 ["error/date-past"]
-  default = "Isso seria antes de criação do site; GoarCount não é *tão* bom ;-)"
+  default = "Isso seria antes de criação do site; GoatCount não é *tão* bom ;-)"
 
 ["error/email-exists"]
+  default = 'O endereço de e-mail "%(email)" já está sendo usado por outro usuário deste site'
 
 ["error/export-expired"]
   default = "Parece que ainda não há nenhuma exportação ou a exportação está expirada."
@@ -290,6 +308,7 @@ Martin
   default = "Senha incorreta para %(email)"
 
 ["error/merge-self"]
+  default = "Não é possível fundir um caminho consigo mesmo"
 
 ["error/not-found"]
   default = "Não encontrado"
@@ -301,6 +320,7 @@ Martin
   default = "Não é uma conta neste site: %(email)"
 
 ["error/unknown-activation-token"]
+  default = "Token de ativação desconhecido"
 
 ["event"]
   default = "evento"
@@ -311,6 +331,7 @@ Martin
   default = "Nível de acesso"
 
 ["header/add-api-token"]
+  default = "Adicionar novo Token da API"
 
 ["header/add-new-user"]
   default = "Adicionar novo usuário"
@@ -343,6 +364,7 @@ Martin
   default = "Criado em"
 
 ["header/csv-format"]
+  default = "Formato CSV"
 
 ["header/dashboard"]
   default = "Painel"
@@ -354,6 +376,7 @@ Martin
   default = "Excluir conta"
 
 ["header/deleting"]
+  default = "Excluir os seguintes caminhos"
 
 ["header/domain"]
   default = "Domínio"
@@ -371,10 +394,13 @@ Martin
   default = "Exportar/Importar"
 
 ["header/export-to-csv"]
+  default = "Exportar para CSV"
 
 ["header/export-to-json"]
+  default = "Exportar para JSON"
 
 ["header/fewer-number"]
+  default = "Mostrar menos números"
 
 ["header/finished"]
   default = "Terminado"
@@ -386,17 +412,22 @@ Martin
   default = "Esqueci a senha"
 
 ["header/format"]
+  default = "Formato"
 
 ["header/hash"]
   default = "Hash"
 
 ["header/import-from-csv"]
+  default = "Importar de CSV"
 
 ["header/import-from-ga"]
+  default = "Totais do Google Analytics"
 
 ["header/import-from-json"]
+  default = "Importar de JSON"
 
 ["header/json-format"]
+  default = "Formato JSON"
 
 ["header/l10n"]
   default = "Localização"
@@ -416,10 +447,13 @@ Martin
   default = "Localidades para %(country)"
 
 ["header/manage-pageviews"]
+  default = "Gerenciar visualizações de páginas"
 
 ["header/merge-account"]
+  default = "Fundir conta"
 
 ["header/merging-to"]
+  default = "Fundindo para %(path)"
 
 ["header/mfa"]
   default = "Autenticação Multi-Fator (MFA)"
@@ -431,6 +465,7 @@ Martin
   default = "Nome"
 
 ["header/other-formats"]
+  default = "Outros formatos"
 
 ["header/pagination-cursor"]
   default = "Cursor de paginação"
@@ -448,6 +483,7 @@ Martin
   default = "Preferências"
 
 ["header/renaming"]
+  default = "Renomeando os seguintes caminhos"
 
 ["header/reset-password"]
   default = "Alterar senha para %(email) em %(site-name)"
@@ -486,7 +522,7 @@ Martin
   default = "Token"
 
 ["header/toprefs"]
-  default = "Top indicadores"
+  default = "Maiores indicadores"
 
 ["header/tracking"]
   default = "Rastreamento"
@@ -506,12 +542,13 @@ Martin
   default = "Consulte %[a documentação] para mais detalhes."
 
 ["help/cfg-dashboard"]
-  default = "Mude o que mostrar no dashboard e em qual ordem."
+  default = "Altere o que mostrar no painel e em qual ordem."
 
 ["help/code-access"]
   default = "Você acessará o seu site em https://<em>[meu-código]</em>.%(domain)."
 
 ["help/configure-dashboard"]
+  default = "Configurar o painel"
 
 ["help/custom-domain"]
   default = 'Domínio personalizado, por exemplo <em>“estatísticas.exemplo.com.br”</em>. <strong>Observação:</strong> isto <em>não</em> impedirá que a maioria dos bloqueadores de anúncios bloqueie o GoatCounter. É apenas um "domínio bonitinho".'
@@ -540,8 +577,10 @@ A verificação é executada a cada 2 horas.
   default = "Arraste para reordenar"
 
 ["help/email-reports"]
+  default = "Relatórios são enviados no primeiro dia do novo período (ex. primeiro dia do mês)."
 
 ["help/fewer-numbers"]
+  default = 'Não mostrar números no painel. O objetivo é dar uma visão geral razoavelmente útil do que acontece no seu site, mas evitar uma "obsessão" pelo número exato de vistantes e estatísticas.'
 
 ["help/fewer-numbers-lock"]
 
@@ -592,6 +631,7 @@ A verificação é executada a cada 2 horas.
   default = "Relógio de 24 horas (13:00)"
 
 ["label/access-to-sites"]
+  default = "Acesso aos sites"
 
 ["label/add-new"]
   default = "Adicionar"
@@ -606,6 +646,7 @@ A verificação é executada a cada 2 horas.
   default = "Estatísticas de navegadores"
 
 ["label/campaigns"]
+  default = "Campanhas"
 
 ["label/change-code"]
   default = "Você acessará a sua conta em https://<em>[meu-código]</em>.%(domain) - %[%link alterar]."
@@ -626,6 +667,7 @@ A verificação é executada a cada 2 horas.
   default = "Domínio personalizado"
 
 ["label/dashboard-allow-embed"]
+  default = "Sites que podem incorporar GoatCounter"
 
 ["label/dashboard-public"]
   default = "Visibilidade do painel"
@@ -648,10 +690,12 @@ A verificação é executada a cada 2 horas.
   default = "Endereço de e-mail"
 
 ["label/email-reports"]
+  default = "Enviar relatórios por e-mail"
 
 ["label/export-from-date"]
 
 ["label/fewer-numbers"]
+  default = "Mostrar menos números"
 
 ["label/for-following-countries"]
   default = "Restringir a apenas os seguintes países:"
@@ -660,7 +704,7 @@ A verificação é executada a cada 2 horas.
   default = "Domínio do GoatCounter"
 
 ["label/ignore-ips"]
-  default = "IPs ignorados"
+  default = "Ignorar IPs"
 
 ["label/lang"]
   default = "Idioma"
@@ -677,12 +721,16 @@ A verificação é executada a cada 2 horas.
   default = "(atual)"
 
 ["label/match-case"]
+  default = "Diferenciar maiúsculas e minúsculas"
 
 ["label/match-title"]
+  default = "Corresponder também ao título"
 
 ["label/merge-account-confirmation"]
+  default = "Tem certeza de que deseja fundir esta conta?"
 
 ["label/merge-to"]
+  default = "Fundir todos os caminhos para"
 
 ["label/mfa-token"]
   default = "Token MFA"
@@ -745,6 +793,7 @@ A verificação é executada a cada 2 horas.
   default = "Estatísticas de sistema"
 
 ["label/theme"]
+  default = "Tema"
 
 ["label/thousand-separator"]
   default = "Separador de milhares"
@@ -753,6 +802,7 @@ A verificação é executada a cada 2 horas.
   default = "Fuso horário"
 
 ["label/topref"]
+  default = "Maiores indicadores"
 
 ["label/total-pageviews"]
   default = "Total de visualizações de páginas do site"
@@ -773,6 +823,7 @@ A verificação é executada a cada 2 horas.
   default = "Seu site"
 
 ["label/zip-file"]
+  default = "Arquivo ZIP"
 
 ["link/add-translation"]
   default = "Adicionar ou atualizar traduções"
@@ -793,10 +844,13 @@ A verificação é executada a cada 2 horas.
   default = "Ir para %(path)"
 
 ["link/import"]
+  default = "Importar/Exportar"
 
 ["link/manage-pageviews"]
+  default = "Gerenciar visualizações de páginas"
 
 ["link/merge-account"]
+  default = "Fundir conta"
 
 ["link/passwd-mfa"]
   default = "Senha e MFA"
@@ -814,6 +868,7 @@ A verificação é executada a cada 2 horas.
   default = "configurações"
 
 ["link/show-less"]
+  default = "(mostrar menos)"
 
 ["link/show-more"]
   default = "Exibir mais"
@@ -846,24 +901,25 @@ A verificação é executada a cada 2 horas.
   default = "dia"
 
 ["nav-dash/end-date"]
-  default = "Final do intervalo de datas a ser exibido."
+  default = "Final do intervalo de datas a ser exibido"
 
 ["nav-dash/filter"]
   default = "Filtrar caminhos"
 
 ["nav-dash/filter-more-help"]
+  default = "Mais ajuda"
 
 ["nav-dash/filter-tooltip"]
   default = """
-<p>Filtrar a lista de caminhos sem diferenciação entre maiúsculas e minúsculas no título e no caminho. %[%more More help]</p>
+<p>Filtra a lista de caminhos, sem diferenciar entre maiúsculas e minúsculas no caminho e no título. %[%more Mais ajuda]</p>
 
   <div>
-    <p>Recognizes the following keywords:</p>
+    <p>Reconhece as seguintes palavras-chave:</p>
     <ul>
-      <li><em>at:start</em>, <em>at:end</em>:       match only at the start or end of path or title. Use both for exact match.</li>
-      <li><em>in:path</em>, <em>in:title</em>       match only path or title.</li>
-      <li><em>is:event</em>, <em>is:pageview</em>   show only events or pageviews.</li>
-      <li><em>:not</em> negate the match (that is: only show paths that don't match the filter).</li>
+      <li><em>at:start</em>, <em>at:end</em>:       corresponde somente aos início ou ao fim de um caminho ou título. Use ambos para uma correspondência exata.</li>
+      <li><em>in:path</em>, <em>in:title</em>       corresponde somente a um caminho ou título.</li>
+      <li><em>is:event</em>, <em>is:pageview</em>   mostra apenas eventos ou visualizações de páginas.</li>
+      <li><em>:not</em> nega a correspondência (ou seja: somente mostra caminhos que não correspondem com o filtro).</li>
     </ul>
   </div>
 """
@@ -875,6 +931,7 @@ A verificação é executada a cada 2 horas.
   default = "meio ano"
 
 ["nav-dash/hour"]
+  default = "hora"
 
 ["nav-dash/last"]
   default = "Último"
@@ -889,6 +946,7 @@ A verificação é executada a cada 2 horas.
   default = "Início do período a ser exibido"
 
 ["nav-dash/view-by"]
+  default = "Visto por:"
 
 ["nav-dash/week"]
   default = "semana"
@@ -897,14 +955,16 @@ A verificação é executada a cada 2 horas.
   default = "ano"
 
 ["nav-fash/filter-less-help"]
+  default = "Menos ajuda"
 
 ["new-paren"]
+  default = "(novo)"
 
 ["no-title"]
   default = "sem título"
 
 ["notify/add-one-thing"]
-  default = "Necessário adicionar pelo menos uma coisa; um dashboard vazio é um pouco sem sentido, não?"
+  default = "Necessário adicionar pelo menos uma coisa; um painel vazio é um pouco sem sentido, não?"
 
 ["notify/api-token-created"]
   default = "Token de API criado."
@@ -922,6 +982,7 @@ A verificação é executada a cada 2 horas.
   default = "Exportação iniciada em segundo plano; você receberá um email com um link para baixar assim que finalizar."
 
 ["notify/import-ga-okay"]
+  default = "Dados processados com sucesso."
 
 ["notify/import-started-in-background"]
   default = "Importação iniciada em segundo plano; você receberá um email assim que finalizar."
@@ -938,7 +999,7 @@ A verificação é executada a cada 2 horas.
 ["notify/no-user-for-token"]
 
 ["notify/not-found"]
-  default = "Não encontrado"
+  default = "Não Encontrado"
 
 ["notify/password-changed"]
   default = "Senha alterada."
@@ -947,16 +1008,16 @@ A verificação é executada a cada 2 horas.
   default = "Redefinir para padrões!"
 
 ["notify/reset-user-sent"]
-  default = "E-mail enviado para %(e-mail)"
+  default = "E-mail enviado para %(email)"
 
 ["notify/restored-previously-deleted-site"]
-  default = "O site ‘%(url)’ foi deletado previamente; O site e todo seu conteúdo foi restaurado."
+  default = "O site ‘%(url)’ foi previamente deletado; O site e todo o seu conteúdo foram restaurados."
 
 ["notify/saved"]
   default = "Salvo!"
 
 ["notify/sent-to-email"]
-  default = "Enviado para %(e-mail)."
+  default = "Enviado para %(email)."
 
 ["notify/settings-copied-to-site"]
   default = "Configurações copiadas para os sites selecionados."
@@ -980,30 +1041,40 @@ A verificação é executada a cada 2 horas.
   default = 'Usuário "%(email)" editado.'
 
 ["p/add-goatcounter-to-multiple-websites"]
+  default = """
+<p>Adicione GoatCounter a vários websites criando novos sites. Todos os sites compartilharão os mesmos usuários e logins, mas serão completamente separados de todas as outras formas. As configurações do site atual são copiadas no momento da criação, mas são independente depois.</p>
+
+<p>Você pode adicionar quantos quiser.</p>
+"""
 
 ["p/add-multiple-accounts"]
+  default = "Você pode usar o comando <code>goatcounter db create site</code> a partir do CLI para criar múltiplas contas. Elas serão completamente separadas, e não compartilharão usuários nem nada mais. Por exemplo:"
 
 ["p/additional-errors"]
   default = "Erros adicionais"
 
 ["p/all-sites"]
+  default = "Todos os sites, incluindo aqueles criados no futuro"
 
 ["p/api-intro"]
+  default = "GoatCounter vem com uma API para contar visualizações de páginas, ler estatísticas, fazer exportações, e gerenciar sites e usuários."
 
 ["p/change-code-request"]
 
 ["p/change-email"]
-  default = "Altere o endereço de email em %[settings]."
+  default = "Altere o endereço de email em %[configurações]."
 
 ["p/collect-disabled"]
-  default = "Coletar esta informção está atualmente %[disabled in settings]."
+  default = "A coleta desta informação está atualmente %[desabilitada nas configurações]."
 
 ["p/copy-settings-from-current-site"]
   default = "Copie todas as configurações do site atual exceto o nome de domínio."
 
 ["p/csv-file-format"]
+  default = "O formato do arquivo CSV está %[documentado aqui]."
 
 ["p/delete-account"]
+  default = "O site e todos os dados associados a ele serão permanentemente removidos, sem possibilidade de recuperação."
 
 ["p/disable-mfa"]
 
@@ -1023,25 +1094,77 @@ A verificação é executada a cada 2 horas.
   default = "Esta conta é protegida com autenticação multi-fato; por favor entre com o código do seu aplicativo de autenticação."
 
 ["p/import-ga"]
+  default = """
+Google Analytics não oferece relatórios significativos; ele só oferece %[%ga \"relatórios\" de exportação]. Eles dão uma visão geral de totais por caminho, que não são separados por data. Não são dados suficientes para GoatCounter mostrar, mas você pode \"importá-los\" e eles serão adicionados aos totais no %[%vc Contador de Visitantes].
+<br><br>
+Pode levar até 30 minutos para os números no contador de visitantes serem atualizados.
+"""
 
 ["p/json-file-format"]
+  default = "A exportação em JSON é um arquivo ZIP contendo vários documentos JSON, e está %[documentada aqui]."
 
 ["p/last-user"]
   default = "Não é possível excluir ou editar o único administrador"
 
 ["p/link-to-batch-rename"]
+  default = "Você também pode %[deletar ou renomear várias visualizações de páginas a partir de um documento de texto]."
 
 ["p/manage-batch-hits"]
+  default = """
+<p>Este formulário permite remover ou renomear várias páginas, colando o conteúdo de um arquivo de texto. A sintaxe é:</p>
+<pre>
+# Cerquilha denota um comentário, mas somente no início de uma linha (que pode ser indentada).
+delete path
+rename src dst
+</pre>
+
+<p>O comando e o(s) argumento(s) são separados por um número qualquer de espaços e/ou tabulações.</p>
+
+<p>Comando aceitados são <code>delete</code> para excluir visualizações de páginas, e <code>rename</code> para renomear o caminho. O nome do comando não diferencia maiúsculas e minúsculas, então, por exemplo, <code>DELETE</code> ou <code>dELeTe</code> também funcionam. O comando pode ser indentado com espaços ou tabulações.</p>
+
+<p>Ao renomear, a contagem de acessos serão fundidas caso o caminho de destino já exista.</p>
+
+<p>Você pode usar placeholders SQL conforme documentado na página <a
+href=\"%(base)/settings/purge\">Gerenciar Visualizações de Páginas</a>. Além disso, o padrão pode começar com <code>(?i)</code> para ignorar maiúsculas e minúsculas. O caminho de destino para renomeações não aceita quaisquer placeholders ou <code>(?i)</code> e precisa ser uma correspondência exata (ou um novo caminho).</p>
+
+<p>Você receberá uma pré-visualização antes que qualquer alteração seja feita.</p>
+
+<p>Exemplo:</p>
+
+<pre>
+delete /foo
+delete (?i)/archive/%
+
+# Transfere de /weblog/*.html para /*.html.
+RENAME   /weblog/page.html   /page.html
+RENAME   /weblog/other.html  /other.html
+</pre>
+"""
 
 ["p/manage-hits"]
+  default = "Remover ou fundir visualizações de páginas."
 
 ["p/merge-account"]
+  default = "Você pode fundir contas que possuam um usuário administrador com um e-mail verificado que seja idêntico ao seu e-mail atual."
 
 ["p/no-data"]
+  default = """
+<p>
+%[%bold Nenhum dado recebido] – GoatCounter ainda não recebeu nenhum dado.<br>
+É bem fácil começar, basta adicionar o seguinte JavaScript a qualquer lugar da página:</p>
+
+%[%pre %(js_code)]
+
+<p>Cheque se seu adblocker está bloqueando GoatCounter se não aparecer nenhuma visualização de páginas (Domínio %(domain) e/ou gc.zgo.at).</p>
+
+<p>Esta mensagem desaparecerá depois que recebermos dados; veja %[%link_docs Código do site] no menu superior para mais documentação e integrações pré-prontas.</p>
+"""
 
 ["p/no-matches"]
+  default = "Nada corresponde a %(query)."
 
 ["p/notify-immediate-change"]
+  default = "Terá efeito imediato"
 
 ["p/notify-pagination-cursor"]
 
@@ -1049,18 +1172,40 @@ A verificação é executada a cada 2 horas.
   default = "%(number) sites serão excluídos"
 
 ["p/num-accounts"]
+  default = "Esta conta contém %(n) sites:"
 
 ["p/remove-site-confirm"]
+  default = """
+Tem certeza de que deseja remover o site %(sitename)?<br>
+Isto irá <strong>remover todos os dados associados a ele</strong>.
+"""
 
 ["p/remove-site-confirm-contact"]
+  default = "%[Entre em contato] se quiser fazer outra coisa, como fundi-lo a outro site ou transferi-lo para uma nova conta."
 
 ["p/remove-site-confirm-current"]
+  default = """
+Tem certeza de que deseja remover o site %(sitename)?<br>
+Isto irá <strong>remover todos os dados associados a ele</strong>, e ele é o <strong>site atual</strong>.
+"""
 
 ["p/rm-hits-help"]
+  default = """
+Correspondências não diferenciam maiúsculas e minúsculas. Há suporte para os seguintes caracteres especiais:
+
+<ul>
+<li><code>%</code> é um coringa; ex. <code>/page%.html</code> corresponde a tudo que comece com <code>/page</code> e termine com <code>.html</code>.</li>
+<li><code>_</code> corresponde a qualquer caractere; ex. <code>_.html</code> obtém <code>a.html</code> e <code>b.html</code>.</li>
+<li>Use <code>\\%</code> e <code>\\_</code> para os caracteres literais, sem o significado especial.</li>
+<li>Use duas barras invertidas (<code>\\\\</code>) para obter uma única barra invertida.</li>
+</ul>
+"""
 
 ["p/rm-pageview-match"]
+  default = "Os seguintes caminhos correspondem a %(query):"
 
 ["p/setting-recovery-disabled-information"]
+  default = "Se uma configuração for desabilitada, não há como recuperar esta informação após uma visualização de página ser registrada, pois a informação não será armazenada."
 
 ["p/settings-all-sites"]
   default = "Estas configurações serão aplicadas a todos os sites aos quais você tem acesso."
@@ -1072,7 +1217,7 @@ A verificação é executada a cada 2 horas.
   default = "Isso inclui a retenção de dados e configurações de coleta!"
 
 ["p/verify-email"]
-  default = "Por favor verifique seu email clicando no link enviado para %(email). %[%sup (Por que?)]"
+  default = "Seu endereço de e-mail (%(email)) não foi verificado; você precisa verificar o seu e-mail antes de poder fundir contas."
 
 ["page-ranking"]
 
@@ -1080,12 +1225,16 @@ A verificação é executada a cada 2 horas.
   default = "Dimensionar o eixo Y para o máximo"
 
 ["theme/dark"]
+  default = "Escuro"
 
 ["theme/light"]
+  default = "Claro"
 
 ["theme/system"]
+  default = "Usar a configuração do sistema"
 
 ["tooltip/change-period"]
+  default = "Diferença comparada ao período anterior"
 
 ["top-nav/back"]
   default = "Voltar"
@@ -1094,6 +1243,7 @@ A verificação é executada a cada 2 horas.
   default = "Painel"
 
 ["top-nav/documentation"]
+  default = "Ajuda"
 
 ["top-nav/need-js"]
   default = "O GoatCounter requer JavaScript ativado para funcionar; permita a execução de JavaScript no domínio %(domain)."
@@ -1162,6 +1312,7 @@ A verificação é executada a cada 2 horas.
   default = "deve ser menor que %d caracteres"
 
 ["validate/need-one"]
+  default = "deve ter ao menos um selecionado"
 
 ["validate/phone"]
   default = "deve ser um número de telefone válido"
@@ -1196,6 +1347,7 @@ A verificação é executada a cada 2 horas.
   default = "Total de páginas a serem carregadas"
 
 ["widget-setting/help/ref-page-size"]
+  default = "Número de indicadores para carregar ao clicar em um caminho"
 
 ["widget-setting/help/regions"]
   default = "Exibir as regiões correspondentes a este país em vez de uma lista de países"
