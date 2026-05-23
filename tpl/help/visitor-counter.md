@@ -68,7 +68,8 @@ override the size by adding `width` and `height` in `attr`.
 The special path `TOTAL` (case-sensitive, no leading `/`) can be used to display
 the site totals.
 
-The images are cached for 30 minutes, so new pageviews don’t show up right away.
+The responses are cached for up to four hours, so new pageviews don’t show up
+right away.
 
 ### CSS
 You can add the `style` option to customize the looks, this only works for HTML

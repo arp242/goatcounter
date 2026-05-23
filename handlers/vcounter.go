@@ -2,12 +2,15 @@ package handlers
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"image"
 	"image/color"
 	"image/png"
 	"io/fs"
 	"net/http"
+	"net/url"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -20,6 +23,7 @@ import (
 	"golang.org/x/image/math/fixed"
 	"zgo.at/goatcounter/v2"
 	"zgo.at/guru"
+	"zgo.at/zcache/v2"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zstd/zfilepath"
@@ -35,7 +39,7 @@ func (h vcounter) mount(r chi.Router) {
 	c := r.With(middleware.Compress(2), func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("Cache-Control", "public")
-			w.Header().Set("Expires", ztime.Now(r.Context()).Add(30*time.Minute).Format(time.RFC1123Z))
+			w.Header().Set("Expires", ztime.Now(r.Context()).Add(4*time.Hour).Format(time.RFC1123Z))
 			next.ServeHTTP(w, r)
 		})
 	})
@@ -90,88 +94,80 @@ func loadVCFiles(fsys fs.FS) {
 	}
 }
 
-func (h vcounter) counter(w http.ResponseWriter, r *http.Request) error {
-	loadVCFilesOnce.Do(func() { loadVCFiles(h.files) })
+type vcache struct {
+	out      []byte
+	ct       string
+	notfound bool
 
-	site := Site(r.Context())
-	if !site.Settings.AllowCounter {
-		return guru.New(http.StatusForbidden, "Need to enable the ‘allow using the visitor counter’ setting")
-	}
+	// TODO: GetStale() gets stale entries (we want this), and GetWithExpired()
+	// also gets the expiration date (we want this too), but there is no way to
+	// have both.
+	//
+	// I think we want GetWithExpired() to just return stale content, too?
+	// Anyway, for now waste a bit of memory.
+	created time.Time
+}
 
+var (
+	vcounterCache  = zcache.New[string, vcache](time.Hour*4, time.Hour*8)
+	vcounterUpdate = zcache.New[string, struct{}](zcache.NoExpiration, zcache.NoExpiration)
+)
+
+func (h vcounter) get(ctx context.Context, path, ext string, q url.Values, total bool) (bool, []byte, string, error) {
 	var (
-		path, ext  = zfilepath.SplitExt(r.URL.Path[9:])
-		total      = path == "TOTAL"
-		noBranding = r.URL.Query().Get("no_branding") != ""
-		style      = r.URL.Query().Get("style")
+		site       = Site(ctx)
+		noBranding = q.Get("no_branding") != ""
+		style      = q.Get("style")
 	)
-	// Sanitize slashes, but only if we can't find the path (so events work).
-	if !total {
-		var p goatcounter.Path
-		err := p.ByPath(r.Context(), path)
-		if err != nil {
-			if !zdb.ErrNoRows(err) {
-				return err
-			}
-			path = "/" + strings.Trim(path, "/")
-		}
-	}
-
-	if ext == "json" {
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-	}
 
 	var (
 		rng      ztime.Range
 		err      error
-		startArg = r.URL.Query().Get("start")
+		startArg = q.Get("start")
 	)
 	if startArg != "" {
 		switch startArg {
 		case "week":
-			rng.Start = ztime.Now(r.Context()).Add(-7 * 24 * time.Hour)
+			rng.Start = ztime.Now(ctx).Add(-7 * 24 * time.Hour)
 		case "month":
-			rng.Start = ztime.Now(r.Context()).Add(-30 * 24 * time.Hour)
+			rng.Start = ztime.Now(ctx).Add(-30 * 24 * time.Hour)
 		case "year":
-			rng.Start = ztime.Now(r.Context()).Add(-365 * 24 * time.Hour)
+			rng.Start = ztime.Now(ctx).Add(-365 * 24 * time.Hour)
 		default:
 			rng.Start, err = time.Parse("2006-01-02", startArg)
 		}
 		if err != nil {
-			return guru.WithCode(400, err)
+			return false, nil, "", guru.WithCode(400, err)
 		}
 	}
-	if s := r.URL.Query().Get("end"); s != "" {
+	if s := q.Get("end"); s != "" {
 		rng.End, err = time.Parse("2006-01-02", s)
 		if err != nil {
-			return guru.WithCode(400, err)
+			return false, nil, "", guru.WithCode(400, err)
 		}
 	}
 
 	var hl goatcounter.HitList
 	if total {
-		err = hl.SiteTotalUTC(r.Context(), rng)
+		err = hl.SiteTotalUTC(ctx, rng)
 	} else {
-		err = hl.PathCount(r.Context(), path, rng)
+		err = hl.PathCount(ctx, path, rng)
 	}
 	if err != nil && !zdb.ErrNoRows(err) {
-		return err
+		return false, nil, "", err
 	}
+	var notfound bool
 	if zdb.ErrNoRows(err) {
-		w.WriteHeader(404)
+		notfound = true
 	}
-	count := tplfunc.Number(hl.Count, site.UserDefaults.NumberFormat)
 
+	count := tplfunc.Number(hl.Count, site.UserDefaults.NumberFormat)
 	switch ext {
 	default:
-		return guru.Errorf(400, "unknown extension: %q", ext)
+		return false, nil, "", guru.Errorf(400, "unknown extension: %q", ext)
 	case "json":
-		return zhttp.JSON(w, map[string]string{
-			"count_unique": count,
-			"count":        count,
-		})
+		return notfound, []byte(`{"count_unique":"` + count + `", "count":"` + count + `"}`), "application/json", nil
 	case "html":
-		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-
 		s := html
 		if noBranding {
 			s = htmlNoBranding
@@ -179,11 +175,8 @@ func (h vcounter) counter(w http.ResponseWriter, r *http.Request) error {
 		if total {
 			s = strings.Replace(s, "page", "site", 1)
 		}
-
-		return zhttp.String(w, fmt.Sprintf(s, style, count))
+		return notfound, []byte(fmt.Sprintf(s, style, count)), "text/html;charset=utf-8", nil
 	case "svg":
-		w.Header().Set("Content-Type", "image/svg+xml")
-
 		s := svg
 		if noBranding {
 			s = svgNoBranding
@@ -191,8 +184,7 @@ func (h vcounter) counter(w http.ResponseWriter, r *http.Request) error {
 		if total {
 			s = strings.Replace(s, "page", "site", 1)
 		}
-
-		return zhttp.String(w, fmt.Sprintf(s, style, count))
+		return notfound, []byte(fmt.Sprintf(s, style, count)), "image/svg+xml", nil
 	case "png":
 		src := pngImg
 		if total {
@@ -243,7 +235,91 @@ func (h vcounter) counter(w http.ResponseWriter, r *http.Request) error {
 			}
 		}
 
-		w.Header().Set("Content-Type", "image/png")
-		return png.Encode(w, img)
+		buf := new(bytes.Buffer)
+		err = png.Encode(buf, img)
+		if err != nil {
+			return false, nil, "", err
+		}
+		return notfound, buf.Bytes(), "image/png", nil
 	}
+}
+
+func (h vcounter) counter(w http.ResponseWriter, r *http.Request) error {
+	loadVCFilesOnce.Do(func() { loadVCFiles(h.files) })
+
+	site := Site(r.Context())
+	if !site.Settings.AllowCounter {
+		return guru.New(http.StatusForbidden, "Need to enable the ‘allow using the visitor counter’ setting")
+	}
+
+	var (
+		q         = r.URL.Query()
+		path, ext = zfilepath.SplitExt(r.URL.Path[9:])
+		total     = path == "TOTAL"
+	)
+	// Sanitize slashes, but only if we can't find the path (so events work).
+	if !total {
+		var p goatcounter.Path
+		err := p.ByPath(r.Context(), path)
+		if err != nil {
+			if !zdb.ErrNoRows(err) {
+				return err
+			}
+			path = "/" + strings.Trim(path, "/")
+		}
+	}
+
+	// Don't need to take options in to account for cache. Some people are using
+	// "cache buster" URL params so can't use all of r.URL.
+	cachekey := strconv.FormatInt(int64(site.ID), 10) + "-" + path + "." + ext + "-" + q.Get("start") + "-" + q.Get("end")
+
+	getcount := func() (vcache, error) {
+		// Mostly just runs in the background; we can afford a bit of a longer
+		// timeout on this as it's not interactive.
+		ctx, cancel := context.WithTimeout(r.Context(), time.Minute)
+		defer cancel()
+
+		notfound, out, ct, err := h.get(ctx, path, ext, q, total)
+		if err != nil {
+			return vcache{}, err
+		}
+		c := vcache{out: out, ct: ct, created: time.Now(), notfound: notfound}
+
+		vcounterCache.Set(cachekey, c)
+		return c, nil
+
+	}
+	send := func(c vcache) error {
+		w.Header().Set("Content-Type", c.ct)
+		if c.ct == "application/json" {
+			w.Header().Set("Access-Control-Allow-Origin", "*")
+		}
+		w.Header().Set("Age", strconv.Itoa(int(time.Since(c.created).Seconds())))
+		if c.notfound {
+			w.WriteHeader(404)
+		}
+		w.Write(c.out)
+		return nil
+	}
+
+	cached, expired, ok := vcounterCache.GetStale(cachekey)
+	if ok {
+		// Cache expired: still use the old cache, but start a goroutine to update it.
+		if expired {
+			if _, ok := vcounterUpdate.Get(cachekey); !ok {
+				vcounterUpdate.Set(cachekey, struct{}{})
+				go func() {
+					defer vcounterUpdate.Delete(cachekey)
+					getcount()
+				}()
+			}
+		}
+		return send(cached)
+	}
+
+	c, err := getcount()
+	if err != nil {
+		return err
+	}
+	return send(c)
 }
