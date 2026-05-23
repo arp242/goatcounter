@@ -143,6 +143,8 @@ func addctx(db zdb.DB, dev, saas, loadSite bool, dashTimeout int) func(http.Hand
 			t := 3
 			if r.URL.Path == "/" {
 				t = dashTimeout + 1
+			} else if strings.HasPrefix(r.URL.Path, "/counter/") {
+				t = dashTimeout
 			}
 			var cancel context.CancelFunc
 			ctx, cancel = context.WithTimeout(ctx, time.Duration(t)*time.Second)

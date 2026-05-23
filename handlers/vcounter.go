@@ -274,12 +274,7 @@ func (h vcounter) counter(w http.ResponseWriter, r *http.Request) error {
 	cachekey := strconv.FormatInt(int64(site.ID), 10) + "-" + path + "." + ext + "-" + q.Get("start") + "-" + q.Get("end")
 
 	getcount := func() (vcache, error) {
-		// Mostly just runs in the background; we can afford a bit of a longer
-		// timeout on this as it's not interactive.
-		ctx, cancel := context.WithTimeout(r.Context(), time.Minute)
-		defer cancel()
-
-		notfound, out, ct, err := h.get(ctx, path, ext, q, total)
+		notfound, out, ct, err := h.get(r.Context(), path, ext, q, total)
 		if err != nil {
 			return vcache{}, err
 		}
