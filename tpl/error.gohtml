@@ -126,7 +126,7 @@ sub {
 		{{if eq .Code 404}}
 			<h1>Not found</h1>
 			<p>This page doesn’t exist.</p>
-		{{else if ge .Code 500}}
+		{{else if and (ge .Code 500) (ne .Code 504)}}
 			<h1>Unexpected error</h1>
 			<p>An unexpected error with the code ‘{{error_code .Error}}’ occurred.<br>
 				This has been reported for investigation.</p>
