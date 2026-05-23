@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -58,7 +59,12 @@ func (h backend) Mount(r chi.Router, db zdb.DB, dev, saas bool, domainStatic str
 		mware.NoStore(),
 		middleware.Compress(5))
 	if log.HasDebug("req") {
-		r.Use(mware.RequestLog(nil, nil, "/count"))
+		opt := &mware.RequestLogOptions{}
+		if !dev {
+			opt.Host = true
+			opt.TimeFmt = time.DateTime
+		}
+		r.Use(mware.RequestLog(opt, nil, "/count", "/loader"))
 	}
 
 	fsys, err := zfs.EmbedOrDir(goatcounter.Templates, "", dev)
