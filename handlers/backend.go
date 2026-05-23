@@ -64,7 +64,7 @@ func (h backend) Mount(r chi.Router, db zdb.DB, dev, saas bool, domainStatic str
 			opt.Host = true
 			opt.TimeFmt = time.DateTime
 		}
-		r.Use(mware.RequestLog(opt, nil, "/count", "/loader"))
+		r.Use(mware.RequestLog(opt, nil, "/count", "/api/v0/count", "/loader", "/robots.txt"))
 	}
 
 	fsys, err := zfs.EmbedOrDir(goatcounter.Templates, "", dev)

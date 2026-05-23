@@ -241,7 +241,7 @@ commas.
     migrate        Database migrations
     monitor        Additional logs in "goatcounter monitor"
     refspam        Pageviews blocked due to being in the refspam list
-    req            HTTP requests (all except /count and /loader)
+    req            HTTP requests (all except /count, /api/v0/count, and /loader)
     session        Internal "session" generation to track visitors
     sql-query      Log all SQL queries
     sql-result     Log all SQL queries with the data they're returning.
