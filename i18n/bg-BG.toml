@@ -1,6 +1,6 @@
 [__meta__]
   language = "bg-BG"
-  modified = 2026-05-15
+  modified = 2026-05-26
 
 ["button/add-new"]
   default = "Добавяне на нов"
@@ -60,7 +60,7 @@
   default = "Изпращане на имейла отново"
 
 ["button/reset-defaults"]
-  default = "Възстановяване на подразб. настройките"
+  default = "Възстановяване на подразб. настройки"
 
 ["button/reset-password"]
   default = "Нулиране на паролата"
@@ -250,709 +250,1203 @@
   default = "%(addr) вече съществува"
 
 ["error/could-not-read"]
+  default = "Не може да се прочете като gzip: %(err)"
 
 ["error/date-future"]
+  default = "Това би било в бъдещето"
 
 ["error/date-mismatch"]
+  default = "крайната дата е преди началната дата"
 
 ["error/date-past"]
+  default = "Това би било преди създаването на сайта"
 
 ["error/email-exists"]
+  default = "Имейл адресът „%(email)“ вече се използва от друг потребител за този сайт"
 
 ["error/export-expired"]
+  default = "Изглежда все още няма изнасяне или изнасянето е изтекло."
 
 ["error/incorrect-password"]
+  default = "Текущата парола е невалидна."
 
 ["error/invalid-end-date"]
+  default = "Невалидна крайна дата: %(date)"
 
 ["error/invalid-start-date"]
+  default = "Невалидна начална дата: %(date)"
 
 ["error/load-url"]
+  default = "Не може да се зареди %(url): %(error)"
 
 ["error/login-invalid"]
+  default = "Невалидни данни за влизане"
 
 ["error/login-no-password"]
+  default = "Няма зададена парола за %(email); моля, нулирайте я"
 
 ["error/login-not-found"]
+  default = "Потребителят %(email) не е намерен"
 
 ["error/login-token-expired"]
+  default = "Не може да се намери потребителят за дадения токен; може би е изтекъл или вече е използван?"
 
 ["error/login-wrong-pwd"]
+  default = "Грешна парола за %(email)"
 
 ["error/merge-self"]
+  default = "Пътят не може да бъде обединен със самия себе си"
 
 ["error/not-found"]
+  default = "Не е намерено"
 
 ["error/password-does-not-match"]
+  default = "Потвърждението на паролата не съвпада."
 
 ["error/reset-user-no-account"]
+  default = "Не е акаунт в този сайт: %(email)"
 
 ["error/unknown-activation-token"]
+  default = "Неизвестен токен за активация"
 
 ["event"]
+  default = "събитие"
 
 ["forgot-domain-help"]
+  default = "Изпращане на имейл със списък с всички домейни, свързани с имейл адреса."
 
 ["header/access"]
+  default = "Достъп"
 
 ["header/add-api-token"]
+  default = "Добавяне на нов API токен"
 
 ["header/add-new-user"]
+  default = "Добавяне на нов потребител"
 
 ["header/allow-access"]
+  default = "Разрешаване на достъп"
 
 ["header/api"]
+  default = "API"
 
 ["header/api-tokens"]
+  default = "API токени"
 
 ["header/browsers"]
+  default = "Браузъри"
 
 ["header/change-code"]
+  default = "Промяна на кода на сайта"
 
 ["header/change-passwd"]
+  default = "Промяна на паролата"
 
 ["header/code"]
+  default = "Код"
 
 ["header/copy-settings"]
+  default = "Копиране на настройките"
 
 ["header/created-at"]
+  default = "Създадено на"
 
 ["header/csv-format"]
+  default = "CSV формат"
 
 ["header/dashboard"]
+  default = "Табло"
 
 ["header/data-collection"]
+  default = "Събиране на данни"
 
 ["header/delete-account"]
+  default = "Изтриване на акаунта"
 
 ["header/deleting"]
+  default = "Изтриване на следните пътища"
 
 ["header/domain"]
+  default = "Домейн"
 
 ["header/domain-settings"]
+  default = "Настройки на домейна"
 
 ["header/edit-user"]
+  default = "Редактиране на потребител %(email)"
 
 ["header/email"]
+  default = "Имейл"
 
 ["header/export-or-import"]
+  default = "Изнасяне/Внасяне"
 
 ["header/export-to-csv"]
+  default = "Изнасяне в CSV"
 
 ["header/export-to-json"]
+  default = "Изнасяне в JSON"
 
 ["header/fewer-number"]
+  default = "Показване на по-малко числа"
 
 ["header/finished"]
+  default = "Завършено"
 
 ["header/forgot-domain"]
+  default = "Забравен домейн"
 
 ["header/forgot-password"]
+  default = "Забравена парола"
 
 ["header/format"]
+  default = "Формат"
 
 ["header/hash"]
+  default = "Хеш"
 
 ["header/import-from-csv"]
+  default = "Внасяне от CSV"
 
 ["header/import-from-ga"]
+  default = "Общо от Google Analytics"
 
 ["header/import-from-json"]
+  default = "Внасяне от JSON"
 
 ["header/json-format"]
+  default = "JSON формат"
 
 ["header/l10n"]
+  default = "Локализация"
 
 ["header/languages"]
+  default = "Езици"
 
 ["header/last-10-exports"]
+  default = "Последни 10 изнасяния"
 
 ["header/last-used-at"]
+  default = "Последно използван"
 
 ["header/locations"]
+  default = "Местоположения"
 
 ["header/locations-for"]
+  default = "Местоположения за %(country)"
 
 ["header/manage-pageviews"]
+  default = "Управление на показванията на страници"
 
 ["header/merge-account"]
+  default = "Обединяване на акаунт"
 
 ["header/merging-to"]
+  default = "Обединяване към %(path)"
 
 ["header/mfa"]
+  default = "Многостепенно удостоверяване"
 
 ["header/n-hits"]
+  default = "Брой посещения"
 
 ["header/name"]
+  default = "Име"
 
 ["header/other-formats"]
+  default = "Други формати"
 
 ["header/pagination-cursor"]
+  default = "Курсор за странициране"
 
 ["header/passwd-mfa"]
+  default = "Парола и MFA"
 
 ["header/path"]
+  default = "Път"
 
 ["header/permissions"]
+  default = "Разрешения"
 
 ["header/preferences"]
+  default = "Предпочитания"
 
 ["header/renaming"]
+  default = "Преименуване на следните пътища"
 
 ["header/reset-password"]
+  default = "Нулиране на паролата за %(email) в %(site-name)"
 
 ["header/settings"]
+  default = "Настройки"
 
 ["header/sign-in-at"]
+  default = "Влизане в %(name)"
 
 ["header/site-settings"]
+  default = "Настройки на сайта"
 
 ["header/sites"]
+  default = "Сайтове"
 
 ["header/size"]
+  default = "Размер"
 
 ["header/sizes"]
+  default = "Размери"
 
 ["header/start-pagination-cursor"]
+  default = "Започнато от курсора за странициране"
 
 ["header/started"]
+  default = "Започнато"
 
 ["header/systems"]
+  default = "Системи"
 
 ["header/title"]
+  default = "Заглавие"
 
 ["header/token"]
+  default = "Токен"
 
 ["header/toprefs"]
+  default = "Топ препращащи"
 
 ["header/tracking"]
+  default = "Проследяване"
 
 ["header/user-info"]
+  default = "Потребителско инфо"
 
 ["header/user-information"]
+  default = "Потребителска информация"
 
 ["header/users"]
+  default = "Потребители"
 
 ["help/allow-embed"]
+  default = "Списък от домейни или URL адреси, разделени със запетая, които могат да вграждат GoatCounter в рамка (frame); %[пълна документация]."
 
 ["help/allow-visitor-counts"]
+  default = "Вижте %[документацията] за подробности как да използвате."
 
 ["help/cfg-dashboard"]
+  default = "Променете какво да се показва на таблото и в какъв ред."
 
 ["help/code-access"]
+  default = "Ще осъществявате достъп до сайта си на адрес https://<em>[моят-код]</em>.%(domain)."
 
 ["help/configure-dashboard"]
+  default = "Конфигуриране на таблото"
 
 ["help/custom-domain"]
+  default = """
+Персонален домейн, напр. <em>„stats.example.com“</em>.
+<strong>Бележка:</strong> Това <em>няма</em> да попречи на повечето
+adblocker-и да блокират GoatCounter и е предназначено само
+като удобен „персонализиран домейн“.
+"""
 
 ["help/custom-domain-cname"]
+  default = "Задайте CNAME запис към <code>%(domain)</code> – %[%docs подробни инструкции]."
 
 ["help/custom-domain-error"]
+  default = """
+%[%error Все още не е проверен]; задайте CNAME запис към <code>%(domain)</code> – %[%docs подробни инструкции].
+Проверката се изпълнява на всеки 2 часа.
+"""
 
 ["help/custom-domain-verified"]
+  default = "Домейнът е проверен и настроен (бележка: може да отнеме до един час, преди сертификатът да заработи)."
 
 ["help/data-retention"]
+  default = "Показванията на страници и всички свързани данни ще бъдат премахнати за постоянно след толкова дни. Задайте на <code>0</code>, за да не се изтриват никога."
 
 ["help/datepicker"]
+  default = "GoatCounter използва персонализиран JavaScript инструмент за избор на дата на десктоп системи, тъй като това често предоставя по-добро изживяване. Можете да го деактивирате, за да използвате системния. На мобилни системи винаги ще се използва системният инструмент за избор на дата."
 
 ["help/domain-access"]
+  default = "Домейн за достъп до GoatCounter."
 
 ["help/drag-reorder"]
+  default = "Плъзнете за пренареждане"
 
 ["help/email-reports"]
+  default = "Отчетите се изпращат в първия ден на новия период (напр. първия ден от месеца)."
 
 ["help/fewer-numbers"]
+  default = """
+Да не се показват числа на таблото. Целта на това е
+да даде достатъчно полезен общ преглед на това какво се случва във
+вашия сайт, но да предотврати „обсебването“ от точния брой
+посетители и статистика.
+"""
 
 ["help/fewer-numbers-lock"]
+  default = "Няма да можете да деактивирате тази настройка за дадения период от време."
 
 ["help/for-the-following-countries"]
+  default = "Списък с кодове на държави (%[списък]; използвайте alpha-2 кода); оставете празно, за да събирате за всички държави (ако е активирано)."
 
 ["help/goatcounter-domain"]
+  default = "Домейнът на вашата инсталация на GoatCounter, напр. <em>„stats.example.com“</em>."
 
 ["help/ignore-ips"]
+  default = "Никога не отчитай заявки, идващи от тези IP адреси. Разделени със запетая. Поддържат се само точни съвпадения. %[Добавете вашия текущ IP адрес]."
 
 ["help/ignore-ips-2"]
+  default = "Като алтернатива, %[деактивирайте за този браузър] (кликнете отново, за да активирате)."
 
 ["help/locked-until"]
+  default = "Заключено до %(date)"
 
 ["help/need-cities"]
+  default = """
+Тази опция изисква версията „Cities“ на
+GeoIP базата данни. Вижте флага <tt>-geo</tt> в
+<tt>goatcounter help serve</tt>.
+"""
 
 ["help/new-user-email"]
+  default = "Имейл за влизане."
 
 ["help/new-user-email-confirm"]
+  default = "Имейл за влизане; трябва да бъде потвърден."
 
 ["help/no-undo"]
+  default = "Това действие е необратимо!"
 
 ["help/password-edit"]
+  default = "Оставете празно, за да не се променя."
 
 ["help/password-new-user"]
+  default = "Може да остане празно, за да се изпрати имейл за нулиране на паролата."
 
 ["help/public"]
+  default = "Управление на това кой може да вижда таблото."
 
 ["help/save-default-view"]
+  default = "Запазване на текущия изглед (т.е. всички настройки в жълтата кутия) като такъв по подразбиране, който да се зарежда, когато още нищо не е избрано."
 
 ["help/turing-test"]
+  default = "Само малка проверка, че сте човек :-)"
 
 ["help/your-email"]
+  default = "Ще трябва да потвърдите отново новия адрес, ако го промените."
 
 ["label/24-hour-clock"]
+  default = "24-часов формат (13:00)"
 
 ["label/access-to-sites"]
+  default = "Достъп до сайтовете"
 
 ["label/add-new"]
+  default = "Добавяне на нов"
 
 ["label/all-sites"]
+  default = "Всички сайтове"
 
 ["label/allow-visitor-counts"]
+  default = "Разрешаване на добавянето на брояч на посетителите на вашия уебсайт"
 
 ["label/browser-stats"]
+  default = "Статистика за браузърите"
 
 ["label/campaigns"]
+  default = "Кампании"
 
 ["label/change-code"]
+  default = "Ще осъществявате достъп до профила си на https://<em>[моят-код]</em>.%(domain) – %[%link промяна]."
 
 ["label/clear-pageviews"]
+  default = "Изчистване на всички съществуващи показвания на страници."
 
 ["label/code"]
+  default = "Код"
 
 ["label/csv-compress-format"]
+  default = "Google Analytics CSV файл"
 
 ["label/current-passwd"]
+  default = "Текуща парола"
 
 ["label/custom-domain"]
+  default = "Персонален домейн"
 
 ["label/dashboard-allow-embed"]
+  default = "Сайтове, които могат да вграждат GoatCounter"
 
 ["label/dashboard-public"]
+  default = "Таблото е видимо за"
 
 ["label/data-retention"]
+  default = "Съхранение на данните в дни"
 
 ["label/date-fmt"]
+  default = "Формат на датата"
 
 ["label/datepicker"]
+  default = "Активиране на персонализиран инструмент за избор на дата"
 
 ["label/delete-account-confirmation"]
+  default = "Сигурни ли сте, че искате да изтриете целия си акаунт?"
 
 ["label/email"]
+  default = "Имейл"
 
 ["label/email-address"]
+  default = "Имейл адрес"
 
 ["label/email-reports"]
+  default = "Изпращане на имейл отчети"
 
 ["label/export-from-date"]
+  default = "Изнасяне от дата"
 
 ["label/fewer-numbers"]
+  default = "Показване на по-малко числа"
 
 ["label/for-following-countries"]
+  default = "Само за следните държави:"
 
 ["label/goatcounter-domain"]
+  default = "Домейн на GoatCounter"
 
 ["label/ignore-ips"]
+  default = "Игнориране на IP адреси"
 
 ["label/lang"]
+  default = "Език"
 
 ["label/language-stats"]
+  default = "Статистика за езиците"
 
 ["label/loc-stats"]
+  default = "Статистика за местоположенията"
 
 ["label/lock-setting"]
+  default = "Заключване на настройката"
 
 ["label/mark-current"]
+  default = "(текущ)"
 
 ["label/match-case"]
+  default = "Чувствителност към главни/малки букви"
 
 ["label/match-title"]
+  default = "Съвпадение и по заглавие"
 
 ["label/merge-account-confirmation"]
+  default = "Сигурни ли сте, че искате да обедините този акаунт?"
 
 ["label/merge-to"]
+  default = "Обединяване на всички пътища в"
 
 ["label/mfa-token"]
+  default = "MFA токен"
 
 ["label/new-code"]
+  default = "Нов код"
 
 ["label/new-password"]
+  default = "Нова парола"
 
 ["label/new-password-confirm"]
+  default = "Нова парола (потвърждение)"
 
 ["label/pagination-cursor"]
+  default = "Курсор за странициране"
 
 ["label/password"]
+  default = "Парола"
 
 ["label/paths"]
+  default = "Преглед на пътищата"
 
 ["label/public-anyone"]
+  default = "Всички"
 
 ["label/public-private"]
+  default = "Само за влезли потребители"
 
 ["label/public-token"]
+  default = "Влезли потребители или такива с таен токен"
 
 ["label/secret"]
+  default = "Тайна"
 
 ["label/secret-access"]
+  default = "URL адрес за таен достъп:"
 
 ["label/secret-token"]
+  default = "Таен токен"
 
 ["label/set-default"]
+  default = "Да се зададе и по подразбиране за нови потребители и публичния изглед (ако е активиран)."
 
 ["label/size-desktop"]
+  default = "Компютърни монитори"
 
 ["label/size-desktophd"]
+  default = "Компютърни монитори, по-големи от HD"
 
 ["label/size-phones"]
+  default = "Телефони"
 
 ["label/size-stats"]
+  default = "Статистика за размерите"
 
 ["label/size-tablets"]
+  default = "Таблети и големи телефони"
 
 ["label/system-stats"]
+  default = "Статистика за системите"
 
 ["label/theme"]
+  default = "Тема"
 
 ["label/thousand-separator"]
+  default = "Разделител на хилядите"
 
 ["label/timezone"]
+  default = "Часови пояс"
 
 ["label/topref"]
+  default = "Топ препращащи"
 
 ["label/total-pageviews"]
+  default = "Общо показвания на страниците на сайта"
 
 ["label/turing-test"]
+  default = "Въведете 9 тук"
 
 ["label/verifictation-token"]
+  default = "Токен за потвърждение"
 
 ["label/week-start"]
+  default = "Седмицата започва в неделя"
 
 ["label/your-email"]
+  default = "Вашият имейл"
 
 ["label/your-site"]
+  default = "Вашият сайт"
 
 ["label/zip-file"]
+  default = "ZIP файл"
 
 ["link/add-translation"]
+  default = "Добавяне или обновяване на преводи"
 
 ["link/api"]
+  default = "API"
 
 ["link/api-docs"]
+  default = "API документация"
 
 ["link/dashboard"]
+  default = "Табло"
 
 ["link/generate-random"]
+  default = "Генериране на случайна тайна."
 
 ["link/goto-path"]
+  default = "Към %(path)"
 
 ["link/import"]
+  default = "Внасяне/Изнасяне"
 
 ["link/manage-pageviews"]
+  default = "Управление на показванията на страници"
 
 ["link/merge-account"]
+  default = "Обединяване на акаунт"
 
 ["link/passwd-mfa"]
+  default = "Парола и MFA"
 
 ["link/preferences"]
+  default = "Предпочитания"
 
 ["link/rm-account"]
+  default = "Изтриване на акаунта"
 
 ["link/set-from-browser"]
+  default = "Задаване от браузъра"
 
 ["link/settings"]
+  default = "настройки"
 
 ["link/show-less"]
+  default = "(показване на по-малко)"
 
 ["link/show-more"]
+  default = "Показване на повече"
 
 ["link/sites"]
+  default = "Сайтове"
 
 ["link/users"]
+  default = "Потребители"
 
 ["nav-bot/contact"]
+  default = "За контакт"
 
 ["nav-bot/contribute"]
+  default = "Принос"
 
 ["nav-bot/docs"]
+  default = "Документация"
 
 ["nav-bot/home"]
+  default = "Начало"
 
 ["nav-bot/src"]
+  default = "Програмен код"
 
 ["nav-dash/back"]
+  default = "назад"
 
 ["nav-dash/day"]
+  default = "ден"
 
 ["nav-dash/end-date"]
+  default = "Последният ден за показване"
 
 ["nav-dash/filter"]
+  default = "Филтриране на пътищата"
 
 ["nav-dash/filter-more-help"]
+  default = "Още помощ"
 
 ["nav-dash/filter-tooltip"]
+  default = """
+<p>Филтриране на списъка с пътища; съвпадения без разграничаване на главни и малки букви в пътя и заглавието. %[%more Още помощ]</p>
+
+<div>
+<p>Разпознават се следните ключови думи:</p>
+<ul>
+<li><em>at:start</em>, <em>at:end</em>:       съвпадение само в началото или в края на пътя или заглавието. Използвайте и двете за точно съвпадение.</li>
+<li><em>in:path</em>, <em>in:title</em>       съвпадение само в пътя или заглавието.</li>
+<li><em>is:event</em>, <em>is:pageview</em>   показване само на събития или показвания на страници.</li>
+<li><em>:not</em> отрицание на съвпадението (тоест: показване само на пътища, които не съвпадат с филтъра).</li>
+</ul>
+</div>
+"""
 
 ["nav-dash/forward"]
+  default = "напред"
 
 ["nav-dash/half-year"]
+  default = "полугодие"
 
 ["nav-dash/hour"]
+  default = "час"
 
 ["nav-dash/last"]
+  default = "Последният"
 
 ["nav-dash/month"]
+  default = "месец"
 
 ["nav-dash/quarter"]
+  default = "тримесечие"
 
 ["nav-dash/start-date"]
+  default = "Първият ден за показване"
 
 ["nav-dash/view-by"]
+  default = "Преглед по:"
 
 ["nav-dash/week"]
+  default = "седмица"
 
 ["nav-dash/year"]
+  default = "година"
 
 ["nav-fash/filter-less-help"]
+  default = "По-малко помощ"
 
 ["new-paren"]
+  default = "(ново)"
 
 ["no-title"]
+  default = "няма заглавие"
 
 ["notify/add-one-thing"]
+  default = "Трябва да добавите поне едно нещо; празното табло е малко безсмислено, нали?"
 
 ["notify/api-token-created"]
+  default = "API токенът е създаден."
 
 ["notify/api-token-removed"]
+  default = "API токенът е премахнат."
 
 ["notify/disabled-multi-factor-auth"]
+  default = "Многостепенното удостоверяване е деактивирано."
 
 ["notify/email-already-verified"]
+  default = "%(email) вече е потвърден."
 
 ["notify/export-started-in-background"]
+  default = "Изнасянето започна във фонов режим; ще получите имейл с връзка за изтегляне, когато приключи."
 
 ["notify/import-ga-okay"]
+  default = "Данните са обработени успешно."
 
 ["notify/import-started-in-background"]
+  default = "Внасянето започна във фонов режим; ще получите имейл, когато приключи."
 
 ["notify/login-after-password-reset"]
+  default = "Паролата е нулирана; използвайте новата си парола, за да влезете."
 
 ["notify/multi-factor-auth-enabled"]
+  default = "Многостепенното удостоверяване е активирано."
 
 ["notify/need-email-verification-for-api"]
+  default = "Трябва да потвърдите имейла си, преди да можете да използвате API-то."
 
 ["notify/no-user-for-token"]
+  default = "потребителят не може да бъде намерен за дадения токен; може би е изтекъл или вече е използван?"
 
 ["notify/not-found"]
+  default = "Не е намерено"
 
 ["notify/password-changed"]
+  default = "Паролата е променена."
 
 ["notify/reset-to-default"]
+  default = "Възстановено към настройките по подразбиране!"
 
 ["notify/reset-user-sent"]
+  default = "Имейлът е изпратен до %(email)"
 
 ["notify/restored-previously-deleted-site"]
+  default = "Сайтът „%(url)“ е бил изтрит преди това; сайтът е възстановен с всичките му данни."
 
 ["notify/saved"]
+  default = "Запазено!"
 
 ["notify/sent-to-email"]
+  default = "Изпратено до %(email)."
 
 ["notify/settings-copied-to-site"]
+  default = "Настройките са копирани в избраните сайтове."
 
 ["notify/site-added"]
+  default = "Сайтът „%(url)“ е добавен."
 
 ["notify/site-removed"]
+  default = "Сайтът „%(url)“ е премахнат."
 
 ["notify/started-background-process"]
+  default = "Започнато във фонов режим; може да отнеме около 10-20 секунди за пълна обработка."
 
 ["notify/user-added"]
+  default = "Потребителят „%(email)“ е добавен."
 
 ["notify/user-removed"]
+  default = "Потребителят „%(email)“ е премахнат."
 
 ["notify/users-edited"]
+  default = "Потребителят „%(email)“ е редактиран."
 
 ["p/add-goatcounter-to-multiple-websites"]
+  default = """
+<p>Добавете GoatCounter към множество уебсайтове чрез създаване на нови сайтове. Всички сайтове
+ще споделят едни и същи потребители и данни за влизане, но иначе са напълно
+отделни. Настройките на текущия сайт се копират при създаването, но след това са
+независими.</p>
+
+<p>Можете да добавите колкото искате.</p>
+"""
 
 ["p/add-multiple-accounts"]
+  default = """
+Можете да използвате командата <code>goatcounter db create site</code> от CLI,
+за да създадете множество акаунти. Те ще бъдат напълно отделни и няма да споделят
+потребители или каквото и да е друго. Например:
+"""
 
 ["p/additional-errors"]
+  default = "Допълнителни грешки"
 
 ["p/all-sites"]
+  default = "Всички сайтове, включително тези, създадени в бъдеще"
 
 ["p/api-intro"]
+  default = "GoatCounter идва с API за отчитане на показванията на страници, четене на статистически данни, създаване на изнасяния и управление на сайтове и потребители."
 
 ["p/change-code-request"]
+  default = """
+<p>Смяна на кода на вашия сайт и домейна за вписване.</p>
+
+<p><strong>ПРЕДУПРЕЖДЕНИЕ:</strong> това ще влезе в сила <strong>незабавно</strong>
+и старият код ще може да бъде регистриран отново от всеки; ако вече го използвате
+на даден сайт, сменете го възможно най-скоро или временно добавете два интеграционни кода
+(със стария и новия код), за да предотвратите загуба на показвания.</p>
+
+<p>Текущ код: <code>%(current-code)</code> (%(current-url))</p>
+"""
 
 ["p/change-email"]
+  default = "Променете имейл адреса в %[настройките]."
 
 ["p/collect-disabled"]
+  default = "Събирането на тази информация понастоящем е %[деактивирано в настройките]."
 
 ["p/copy-settings-from-current-site"]
+  default = "Копиране на всички настройки от текущия сайт с изключение на името на домейна."
 
 ["p/csv-file-format"]
+  default = "Форматът на CSV файла е %[документиран тук]."
 
 ["p/delete-account"]
+  default = "Сайтът и всички свързани данни ще бъдат окончателно премахнати без възможност за възстановяване."
 
 ["p/disable-mfa"]
+  default = "MFA в момента е активирано за този акаунт."
 
 ["p/enable-mfa"]
+  default = "Активирайте многостепенно удостоверяване, базирано на TOTP, като сканирате кода във вашето приложение за удостоверяване или въведете тайната ръчно."
 
 ["p/error"]
+  default = "Грешка: %(error-message)"
 
 ["p/export-csv"]
+  default = """
+<p>Изнасянето в CSV изисква събирането на показванията на страници да бъде активирано
+в %[%setting настройките на сайта], но в момента то е деактивирано.</p>
+
+<p>Все още можете да използвате API-то, за да получите обобщената статистика,
+използвана на таблото; вижте %[%api API документацията].</p>
+"""
 
 ["p/export-from-date"]
+  default = """
+Включване само на данни, започващи от тази дата (включително). Това
+винаги е в UTC. Моля, не забравяйте да прочетете документацията,
+за да разберете някои особености, свързани с това.
+"""
 
 ["p/export-process"]
+  default = """
+Започване на процеса и изпращане на имейл с връзка за изтегляне, когато е
+готово. Можете да правите това само веднъж на час и то ще презапише всички
+предишни архиви, които може да имате.
+"""
 
 ["p/have-mfa"]
+  default = "Този акаунт е защитен с многостепенно удостоверяване; моля, въведете кода от вашето приложение за удостоверяване."
 
 ["p/import-ga"]
+  default = """
+Google Analytics не предлага смислени изнасяния; предлага само
+%[%ga изнасяне на „отчети“]. Това дава общ преглед на
+общите стойности по път, без разбивка по дата. Това не са достатъчно данни,
+за да бъдат показани от GoatCounter, но можете да ги „внесете“ и те
+ще бъдат добавени към общите суми в %[%vc Брояча на посетителите].
+<br><br>
+Може да отнеме до 30 минути, преди числата в брояча на посетители
+да бъдат обновени.
+"""
 
 ["p/json-file-format"]
+  default = "JSON изнасянето е ZIP файл, съдържащ няколко JSON документа, и е %[документиран тук]."
 
 ["p/last-user"]
+  default = "Последният администратор не може да бъде изтрит или редактиран"
 
 ["p/link-to-batch-rename"]
+  default = "Можете също така да %[изтриете или преименувате множество показвания на страници от текстов файл]."
 
 ["p/manage-batch-hits"]
+  default = """
+<p>Тази форма позволява премахване или преименуване на много страници чрез поставяне на текстов файл;
+синтаксисът е:</p>
+<pre>
+# Диезът (hash) обозначава коментар, но само в началото на реда (може да бъде с отстъп).
+delete path
+rename src dst
+</pre>
+
+<p>Командата и аргументът(ите) са разделени от произволен брой интервали и/или
+табулации.</p>
+
+<p>Приеманите команди са <code>delete</code> за изтриване на показвания на страници и
+<code>rename</code> за преименуване на пътя. Името на командата не е чувствително към регистъра (главни/малки букви), така че
+напр. <code>DELETE</code> или <code>dELeTe</code> също работи. Допустимо е да има отстъп на
+командата с интервали или табулации.</p>
+
+<p>При преименуване броят на посещенията ще бъде обединен, ако целевият път вече съществува.</p>
+
+<p>Можете да използвате SQL контейнери (placeholders), както е документирано на страницата <a
+href=\"%(base)/settings/purge\">Управление на показванията на страници</a>. В допълнение, шаблонът може
+да започне с <code>(?i)</code> за съвпадения без разграничаване на главни и малки букви. Целевият
+път за преименуване не приема никакви контейнери или <code>(?i)</code> и трябва
+да бъде точно съвпадение (или нов път).</p>
+
+<p>Ще получите преглед, преди да бъде променено каквото и да било.</p>
+
+<p>Пример:</p>
+
+<pre>
+delete /foo
+delete (?i)/archive/%
+
+# Преместване от /weblog/*.html към /*.html.
+RENAME   /weblog/page.html   /page.html
+RENAME   /weblog/other.html  /other.html
+</pre>
+"""
 
 ["p/manage-hits"]
+  default = "Премахване или обединяване на показвания на страници."
 
 ["p/merge-account"]
+  default = """
+Можете да обединявате акаунти, които имат администраторски потребител с потвърден имейл, който е
+идентичен с текущия ви имейл.
+"""
 
 ["p/no-data"]
+  default = """
+<p>
+%[%bold Не са получени данни] – GoatCounter все още не е получил никакви данни.<br>
+Началото е доста лесно, просто добавете следния JavaScript навсякъде в страницата:</p>
+
+%[%pre %(js_code)]
+
+<p>Проверете дали вашият adblocker блокира GoatCounter, ако не виждате никакви показвания на страници (домейна %(domain) и/или gc.zgo.at).</p>
+
+<p>Това съобщение ще изчезне, след като получим данни; вижте %[%link_docs Код на сайта] в горното меню за допълнителна документация и готови интеграции.</p>
+"""
 
 ["p/no-matches"]
+  default = "Нищо не съвпада с %(query)."
 
 ["p/notify-immediate-change"]
+  default = "Ще влезе в сила незабавно"
 
 ["p/notify-pagination-cursor"]
+  default = """
+В имейла ще има „курсор за странициране“, ако го попълните
+тук, ще се изнесат само показванията на страници, които са записани
+след предишното изнасяне.
+"""
 
 ["p/notify-site-deletion"]
+  default = "%(number) сайта ще бъдат изтрити"
 
 ["p/num-accounts"]
+  default = "Този акаунт съдържа %(n) сайта:"
 
 ["p/remove-site-confirm"]
+  default = """
+Сигурни ли сте, че искате да премахнете сайта %(sitename)?<br>
+Това ще <strong>премахне всички свързани данни</strong>.
+"""
 
 ["p/remove-site-confirm-contact"]
+  default = "%[Свържете се с нас], ако искате да направите нещо друго, като например да го обедините с друг сайт или да го отделите в нов акаунт."
 
 ["p/remove-site-confirm-current"]
+  default = """
+Сигурни ли сте, че искате да премахнете сайта %(sitename)?<br>
+Това ще <strong>премахне всички свързани данни</strong> и е <strong>текущият сайт</strong>.
+"""
 
 ["p/rm-hits-help"]
+  default = """
+Съвпаденията не са чувствителни към главни/малки букви. Поддържат се следните специални символи:
+
+<ul>
+<li><code>%</code> е заместващ символ (wildcard); напр. <code>/page%.html</code> съвпада с всичко, започващо с <code>/page</code> и завършващо с <code>.html</code>.</li>
+<li><code>_</code> съвпада с произволен символ; напр. <code>_.html</code> съвпада с <code>a.html</code> и <code>b.html</code>.</li>
+<li>Използвайте <code>\\%</code> и <code>\\_</code> за буквалните символи без специално значение.</li>
+<li>Използвайте две наклонени черти (<code>\\\\</code>), за да съвпадне с единична наклонена черта.</li>
+</ul>
+"""
 
 ["p/rm-pageview-match"]
+  default = "Следните пътища съвпадат с %(query):"
 
 ["p/setting-recovery-disabled-information"]
+  default = "Ако дадена настройка е деактивирана, тогава няма начин да се възстанови тази информация след записване на показване на страница, тъй като тя няма да бъде съхранена."
 
 ["p/settings-all-sites"]
+  default = "Тези настройки влизат в сила за всички сайтове, до които имате достъп."
 
 ["p/site-domain-link-to-page"]
+  default = "Домейнът на вашия сайт, напр. <em>„www.example.com“</em>, използван за връзка към страницата в общия преглед."
 
 ["p/text-data-retention"]
+  default = "Това включва настройките за съхранение и събиране на данни!"
 
 ["p/verify-email"]
+  default = "Вашият имейл адрес %(email) не е потвърден; трябва да потвърдите имейла си, преди да можете да обединявате акаунти."
 
 ["page-ranking"]
+  default = "Класиране на страниците"
 
 ["scale-y"]
+  default = "Мащабиране на оста Y на всички графики към най-високата стойност в тази графика (%(n))"
 
 ["theme/dark"]
+  default = "Тъмна"
 
 ["theme/light"]
+  default = "Светла"
 
 ["theme/system"]
+  default = "Използване на системната настройка"
 
 ["tooltip/change-period"]
+  default = "Промяна спрямо предишния период"
 
 ["top-nav/back"]
+  default = "Назад"
 
 ["top-nav/dashboard"]
+  default = "Табло"
 
 ["top-nav/documentation"]
+  default = "Помощ"
 
 ["top-nav/need-js"]
+  default = "GoatCounter изисква активиран JavaScript, за да функционира добре; моля, разрешете изпълнението на JavaScript от %(domain)."
 
 ["top-nav/public-link"]
+  default = "Анализи за %(domain)."
 
 ["top-nav/public-time"]
+  default = "Публичният изглед се обновява веднъж на час; всички часове са в %(timezone-name) (%(timezone-offset))."
 
 ["top-nav/settings"]
+  default = "Настройки"
 
 ["top-nav/sign-in"]
+  default = "Влизане"
 
 ["top-nav/sign-out"]
+  default = "Излизане"
 
 ["top-nav/sites"]
+  default = "Сайтове:"
 
 ["unknown"]
+  default = "(неизвестно)"
 
 ["validate/bool"]
+  default = "трябва да бъде булева стойност"
 
 ["validate/color"]
+  default = "трябва да бъде валиден код на цвят"
 
 ["validate/contains"]
+  default = "не може да съдържа символите %s"
 
 ["validate/date"]
+  default = "трябва да бъде дата като „%s“"
 
 ["validate/domain"]
+  default = "трябва да бъде валиден домейн"
 
 ["validate/email"]
+  default = "трябва да бъде валиден имейл адрес"
 
 ["validate/exclude"]
+  default = "не може да бъде „%s“"
 
 ["validate/hostname"]
+  default = "трябва да бъде валидно име на хост (hostname)"
 
 ["validate/include"]
+  default = "трябва да бъде едно от „%s“"
 
 ["validate/int"]
+  default = "трябва да бъде цяло число"
 
 ["validate/ip"]
+  default = "трябва да бъде валиден IPv4 или IPv6 адрес"
 
 ["validate/ipv4"]
+  default = "трябва да бъде валиден IPv4 адрес"
 
 ["validate/len-longer"]
+  default = "трябва да бъде по-дълго от %d символа"
 
 ["validate/len-shorter"]
+  default = "трябва да бъде по-късо от %d символа"
 
 ["validate/need-one"]
+  default = "трябва да изберете поне едно"
 
 ["validate/phone"]
+  default = "трябва да бъде валиден телефонен номер"
 
 ["validate/range-higher"]
+  default = "трябва да бъде %d или по-високо"
 
 ["validate/range-lower"]
+  default = "трябва да бъде %d или по-ниско"
 
 ["validate/required"]
+  default = "трябва да бъде зададено"
 
 ["validate/url"]
+  default = "трябва да бъде валиден URL"
 
 ["validate/utf8"]
+  default = "трябва да бъде UTF-8"
 
 ["view not set"]
 
 ["widget-setting/help/align"]
+  default = "Добавяне на отстъп отляво, за да се подравни с графиките на страниците"
 
 ["widget-setting/help/chart-style"]
+  default = "Как да се изчертават графиките"
 
 ["widget-setting/help/no-events"]
+  default = "Да не се включват събитията в общия преглед"
 
 ["widget-setting/help/page-size"]
+  default = "Брой страници за зареждане"
 
 ["widget-setting/help/ref-page-size"]
+  default = "Брой препращащи за зареждане при кликване върху път"
 
 ["widget-setting/help/regions"]
+  default = "Показване на региони за тази държава вместо списък с държави"
 
 ["widget-setting/label/align"]
+  default = "Подравняване със страниците"
 
 ["widget-setting/label/chart-style"]
+  default = "Стил на графиката"
 
 ["widget-setting/label/no-events"]
+  default = "Изключване на събитията"
 
 ["widget-setting/label/page-size"]
+  default = "Брой страници"
 
 ["widget-setting/label/ref-page-size"]
+  default = "Размер на страницата с препращащи"
 
 ["widget-setting/label/regions"]
+  default = "Показване на региони"
 
 ["widget-settings/bar-chart"]
+  default = "Стълбовидна графика"
 
 ["widget-settings/line-chart"]
+  default = "Линейна графика"
 
 ["widget-settings/text-chart"]
+  default = "Текстова таблица"
 
 ["y-scale"]
+  default = "Мащаб на оста Y"
