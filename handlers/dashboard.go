@@ -11,6 +11,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/lib/pq"
+	"github.com/lib/pq/pqerror"
 	"zgo.at/errors"
 	"zgo.at/goatcounter/v2"
 	"zgo.at/goatcounter/v2/pkg/log"
@@ -134,8 +136,12 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 		l := log.Module("dashboard")
 		_, err := w.GetData(ctx, args)
 		if err != nil {
-			l.Error(ctx, err, log.AttrHTTP(r))
-			_, err = zhttp.UserError(err)
+			if pq.As(err, pqerror.QueryCanceled) != nil {
+				err = guru.New(http.StatusGatewayTimeout, "server timed out loading data")
+			} else {
+				l.Error(ctx, err, log.AttrHTTP(r))
+				_, err = zhttp.UserError(err)
+			}
 			w.SetErr(err)
 		}
 		l.Debug(r.Context(), w.Name(), "took", time.Since(start))
