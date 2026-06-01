@@ -175,7 +175,7 @@ func (h vcounter) get(ctx context.Context, path, ext string, q url.Values, total
 		if total {
 			s = strings.Replace(s, "page", "site", 1)
 		}
-		return notfound, []byte(fmt.Sprintf(s, style, count)), "text/html;charset=utf-8", nil
+		return notfound, fmt.Appendf(nil, s, style, count), "text/html;charset=utf-8", nil
 	case "svg":
 		s := svg
 		if noBranding {
@@ -184,7 +184,7 @@ func (h vcounter) get(ctx context.Context, path, ext string, q url.Values, total
 		if total {
 			s = strings.Replace(s, "page", "site", 1)
 		}
-		return notfound, []byte(fmt.Sprintf(s, style, count)), "image/svg+xml", nil
+		return notfound, fmt.Appendf(nil, s, style, count), "image/svg+xml", nil
 	case "png":
 		src := pngImg
 		if total {

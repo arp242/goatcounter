@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"maps"
 	"net/http"
 	"time"
 
@@ -17,10 +18,12 @@ import (
 	"zgo.at/goatcounter/v2/pkg/log"
 	"zgo.at/goatcounter/v2/pkg/metrics"
 	"zgo.at/guru"
+	"zgo.at/zcache/v2"
 	"zgo.at/zdb"
 	"zgo.at/zhttp"
 	"zgo.at/zhttp/mware"
 	"zgo.at/zprof"
+	"zgo.at/zstd/zruntime"
 	"zgo.at/zstd/ztime"
 	"zgo.at/zvalidate"
 )
@@ -46,10 +49,31 @@ func (h bosmang) mount(r chi.Router, db zdb.DB) {
 }
 
 func (h bosmang) cache(w http.ResponseWriter, r *http.Request) error {
+	caches := goatcounter.Caches(r.Context())
+	maps.Copy(caches, map[string]interface {
+		ItemsAny() map[any]zcache.Item[any]
+	}{
+		"loader":          loader.conns,
+		"vcounter-cache":  vcounterCache,
+		"vcounter-update": vcounterUpdate,
+	})
+
+	cache := make(map[string]struct{ Num, Size int64 })
+	for name, f := range caches {
+		var (
+			content = f.ItemsAny()
+			s       = zruntime.SizeOf(content)
+		)
+		for _, v := range content {
+			s += cache[name].Size + zruntime.SizeOf(v.Object)
+		}
+		cache[name] = struct{ Num, Size int64 }{int64(len(content)), s / 1024}
+	}
+
 	return zhttp.Template(w, "bosmang_cache.gohtml", struct {
 		Globals
 		Cache map[string]struct{ Num, Size int64 }
-	}{newGlobals(w, r), goatcounter.ListCache(r.Context())})
+	}{newGlobals(w, r), cache})
 }
 
 func (h bosmang) bgrun(w http.ResponseWriter, r *http.Request) error {

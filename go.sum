@@ -72,8 +72,8 @@ zgo.at/tz v0.0.0-20260223144614-87265b3b06d6 h1:CH7eJN3DboXISXn4+F3Z+CqjGb5QD34T
 zgo.at/tz v0.0.0-20260223144614-87265b3b06d6/go.mod h1:AFua0GUgfi3prdr/wUbDslcPLMzX1HHrSMxEV82xAtU=
 zgo.at/z18n v0.0.0-20260305153946-39b09953a335 h1:lZCRIUy9Eer5aLG33usHShLEtd7/FShVCjdmBXENePI=
 zgo.at/z18n v0.0.0-20260305153946-39b09953a335/go.mod h1:zupAMKDu1gu8WJtwvQabYwZ1H90unuJBsiAXpZTQjpY=
-zgo.at/zcache/v2 v2.4.1 h1:Dfjoi8yI0Uq7NCc4lo2kaQJJmp9Mijo21gef+oJstbY=
-zgo.at/zcache/v2 v2.4.1/go.mod h1:gyCeoLVo01QjDZynjime8xUGHHMbsLiPyUTBpDGd4Gk=
+zgo.at/zcache/v2 v2.4.2-0.20260601222847-61659fd033bd h1:sLNebI0DtRcKIPPPrrzdX1D5lMpeyiUy1nMhDVqdfNo=
+zgo.at/zcache/v2 v2.4.2-0.20260601222847-61659fd033bd/go.mod h1:eOHfwPwVAOf8FKz/iz3Yb35ckMmEK7R7mNyG7bFhz28=
 zgo.at/zdb v0.0.0-20260425145215-e580739daf43 h1:jYOTj8yUgmL9s5I1vw0RbwOb+sGXV/eJ2rW9jvLjDhU=
 zgo.at/zdb v0.0.0-20260425145215-e580739daf43/go.mod h1:lWKRy+R/LR4K3UTZmrxuk70Z73KSmhqaEitw3+60mQc=
 zgo.at/zdb-drivers/go-sqlite3 v0.0.0-20260423171746-77fa440c58ab h1:rzYuU3UyD7c46VAhRG83Ej/h/sCt9pVVf7LKMhLw7Nc=

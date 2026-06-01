@@ -34,7 +34,7 @@ require (
 	zgo.at/termtext v1.5.0
 	zgo.at/tz v0.0.0-20260223144614-87265b3b06d6
 	zgo.at/z18n v0.0.0-20260305153946-39b09953a335
-	zgo.at/zcache/v2 v2.4.1
+	zgo.at/zcache/v2 v2.4.2-0.20260601222847-61659fd033bd
 	zgo.at/zdb v0.0.0-20260425145215-e580739daf43
 	zgo.at/zdb-drivers/go-sqlite3 v0.0.0-20260423171746-77fa440c58ab
 	zgo.at/zdb-drivers/pq v0.0.0-20260423171746-77fa440c58ab

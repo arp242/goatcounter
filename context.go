@@ -181,6 +181,25 @@ func NewCache(ctx context.Context) context.Context {
 	return ctx
 }
 
+func Caches(ctx context.Context) map[string]interface {
+	ItemsAny() map[any]zcache.Item[any]
+} {
+	return map[string]interface {
+		ItemsAny() map[any]zcache.Item[any]
+	}{
+		"sites":          cacheSites(ctx),
+		"sites-hosts":    cacheSitesHost(ctx),
+		"ua":             cacheUA(ctx),
+		"browsers":       cacheBrowsers(ctx),
+		"systems":        cacheSystems(ctx),
+		"paths":          cachePaths(ctx),
+		"refs":           cacheRefs(ctx),
+		"loc":            cacheLoc(ctx),
+		"campaigns":      cacheCampaigns(ctx),
+		"changed-titles": cacheChangedTitles(ctx),
+	}
+}
+
 func NewConfig(ctx context.Context) context.Context {
 	return context.WithValue(ctx, keyConfig, &GlobalConfig{})
 }
