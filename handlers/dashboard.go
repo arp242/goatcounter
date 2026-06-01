@@ -30,15 +30,22 @@ import (
 )
 
 func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
-	m := metrics.Start(r.Host)
-	defer m.Done()
+	var (
+		site       = Site(r.Context())
+		user       = User(r.Context())
+		publicView = site.Settings.IsPublic() && User(r.Context()).ID == 0
+	)
 
-	site := Site(r.Context())
-	user := User(r.Context())
+	k := r.Host
+	if publicView {
+		k += "-public"
+	}
+	m := metrics.Start(k)
+	defer m.Done()
 
 	// Cache much more aggressively for public displays. Don't care so much if
 	// it's outdated by an hour.
-	if site.Settings.IsPublic() && User(r.Context()).ID == 0 {
+	if publicView {
 		w.Header().Set("Cache-Control", "public,max-age=3600")
 		w.Header().Set("Vary", "Cookie")
 	}
