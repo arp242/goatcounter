@@ -311,16 +311,5 @@
 			th.closest('table').find('th').attr('data-sort', '0')
 			th.attr('data-sort', is_sort ? '0' : '1')
 		})
-
-		$('.show-cache').on('click', function(e) {
-			e.preventDefault()
-
-			let btn = $(this),
-				tbl = btn.closest('li').find('table'),
-				vis = tbl.css('display') !== 'none'
-
-			btn.text(vis ? 'show' : 'hide')
-			tbl.css('display', vis ? 'none' : 'table')
-		})
 	}
 })();

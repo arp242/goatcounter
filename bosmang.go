@@ -2,22 +2,12 @@ package goatcounter
 
 import (
 	"context"
-	"fmt"
 
 	"zgo.at/zcache/v2"
-	"zgo.at/zstd/zjson"
 	"zgo.at/zstd/zruntime"
 )
 
-func ListCache(ctx context.Context) map[string]struct {
-	Size  int64
-	Items map[string]string
-} {
-	c := make(map[string]struct {
-		Size  int64
-		Items map[string]string
-	})
-
+func ListCache(ctx context.Context) map[string]struct{ Num, Size int64 } {
 	caches := map[string]interface {
 		ItemsAny() map[any]zcache.Item[any]
 	}{
@@ -26,25 +16,25 @@ func ListCache(ctx context.Context) map[string]struct {
 		"browsers":       cacheBrowsers(ctx),
 		"systems":        cacheSystems(ctx),
 		"paths":          cachePaths(ctx),
+		"refs":           cacheRefs(ctx),
 		"loc":            cacheLoc(ctx),
+		"campaigns":      cacheCampaigns(ctx),
 		"changed_titles": cacheChangedTitles(ctx),
 		//"loader":         handler.loader.conns,
 	}
 
+	c := make(map[string]struct{ Num, Size int64 })
 	for name, f := range caches {
 		var (
 			content = f.ItemsAny()
 			s       = zruntime.SizeOf(content)
-			items   = make(map[string]string)
 		)
-		for k, v := range content {
-			items[fmt.Sprintf("%v", k)] = fmt.Sprintf("%s\n", zjson.MustMarshalIndent(v.Object, "", "  "))
+		for _, v := range content {
 			s += c[name].Size + zruntime.SizeOf(v.Object)
 		}
 		c[name] = struct {
-			Size  int64
-			Items map[string]string
-		}{s / 1024, items}
+			Num, Size int64
+		}{int64(len(content)), s / 1024}
 	}
 
 	{
@@ -52,16 +42,11 @@ func ListCache(ctx context.Context) map[string]struct {
 			name    = "sites_host"
 			content = cacheSitesHost(ctx).Items()
 			s       = zruntime.SizeOf(content)
-			items   = make(map[string]string)
 		)
-		for k, v := range content {
-			items[k] = fmt.Sprintf("%d", v)
+		for _, v := range content {
 			s += c[name].Size + zruntime.SizeOf(v)
 		}
-		c[name] = struct {
-			Size  int64
-			Items map[string]string
-		}{s / 1024, items}
+		c[name] = struct{ Num, Size int64 }{int64(len(content)), s / 1024}
 	}
 	return c
 }

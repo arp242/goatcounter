@@ -46,14 +46,10 @@ func (h bosmang) mount(r chi.Router, db zdb.DB) {
 }
 
 func (h bosmang) cache(w http.ResponseWriter, r *http.Request) error {
-	cache := goatcounter.ListCache(r.Context())
 	return zhttp.Template(w, "bosmang_cache.gohtml", struct {
 		Globals
-		Cache map[string]struct {
-			Size  int64
-			Items map[string]string
-		}
-	}{newGlobals(w, r), cache})
+		Cache map[string]struct{ Num, Size int64 }
+	}{newGlobals(w, r), goatcounter.ListCache(r.Context())})
 }
 
 func (h bosmang) bgrun(w http.ResponseWriter, r *http.Request) error {
