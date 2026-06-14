@@ -491,6 +491,55 @@ func TestAPICount(t *testing.T) {
 	}
 }
 
+func TestAPICountLanguage(t *testing.T) {
+	tests := []struct {
+		name     string
+		lang     string
+		wantCode int
+		want     string // hits.language value; "NULL" if not set.
+	}{
+		{"plain", "fr", 202, "fra"},
+		{"with-region", "en-US", 202, "eng"},
+		{"empty", "", 202, "NULL"},
+		{"not-well-formed", "klingon", 202, "NULL"},
+		{"well-formed-unknown", "xx", 202, "NULL"},
+	}
+
+	perm := goatcounter.APIPermCount
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ctx := gctest.DB(t)
+			ctx = ztime.WithNow(ctx, ztime.FromString("2020-06-18 14:42:00"))
+
+			site := Site(ctx)
+			site.Settings.Collect.Set(goatcounter.CollectHits)
+			site.Settings.Collect.Set(goatcounter.CollectLanguage)
+			err := site.Update(ctx)
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			body := APICountRequest{NoSessions: true, Hits: []APICountRequestHit{
+				{Path: "/foo", Language: tt.lang},
+			}}
+			r, rr := newAPITest(ctx, t, "POST", "/api/v0/count",
+				bytes.NewReader(zjson.MustMarshal(body)), perm)
+
+			newBackend(ctx).ServeHTTP(rr, r)
+			ztest.Code(t, rr, tt.wantCode)
+
+			gctest.StoreHits(ctx, t, false)
+
+			have := zdb.DumpString(ctx,
+				`select language from hits`)
+			want := "language\n" + tt.want
+			if d := ztest.Diff(have, want); d != "" {
+				t.Error(d)
+			}
+		})
+	}
+}
+
 func TestAPISitesCreate(t *testing.T) {
 	tests := []struct {
 		serve    bool
