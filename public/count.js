@@ -248,20 +248,17 @@
 
 	if (!goatcounter.no_onload)
 		on_load(function() {
-			// 1. Page is visible, count request.
-			// 2. Page is not yet visible; wait until it switches to 'visible' and count.
-			// See #487
-			if (!('visibilityState' in document) || document.visibilityState === 'visible')
-				goatcounter.count()
-			else {
-				var f = function(e) {
-					if (document.visibilityState !== 'visible')
+			['touchmove', 'mousemove', 'keydown', 'pointerdown'].forEach(function(n) {
+				var sent = false
+				var bind = function() {
+					document.removeEventListener(n, bind)
+					if (sent)
 						return
-					document.removeEventListener('visibilitychange', f)
+					sent = true
 					goatcounter.count()
 				}
-				document.addEventListener('visibilitychange', f)
-			}
+				document.addEventListener(n, bind)
+			})
 
 			if (!goatcounter.no_events)
 				goatcounter.bind_events()
