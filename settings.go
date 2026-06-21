@@ -250,6 +250,12 @@ func defaultWidgetSettings(ctx context.Context) map[string]WidgetSettings {
 		},
 		"sizes": map[string]WidgetSetting{
 			"key": WidgetSetting{Hidden: true},
+			"sort-count": WidgetSetting{
+				Type:  "checkbox",
+				Label: z18n.T(ctx, "widget-setting/label/by-count|Sort by count"),
+				Help:  z18n.T(ctx, "widget-setting/help/by-count|Sort table by number of pageviews, instead of screen size"),
+				Value: false,
+			},
 		},
 		"locations": map[string]WidgetSetting{
 			"limit": WidgetSetting{

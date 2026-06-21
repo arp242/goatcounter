@@ -1241,7 +1241,7 @@ func (h api) stats(w http.ResponseWriter, r *http.Request) error {
 		f = stats.ListLanguages
 	case "sizes":
 		f = func(ctx context.Context, rng ztime.Range, pathFilter goatcounter.PathFilter, _, _ int) error {
-			return stats.ListSizes(ctx, rng, pathFilter)
+			return stats.ListSizes(ctx, rng, pathFilter, false)
 		}
 	case "campaigns":
 		f = stats.ListCampaigns
