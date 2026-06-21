@@ -248,8 +248,8 @@
 
 	if (!goatcounter.no_onload)
 		on_load(function() {
+			var sent = false // Make sure it triggers only one of below events.
 			['touchmove', 'mousemove', 'keydown', 'pointerdown'].forEach(function(n) {
-				var sent = false
 				var bind = function() {
 					document.removeEventListener(n, bind)
 					if (sent)
