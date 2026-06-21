@@ -625,8 +625,7 @@ func (h api) count(w http.ResponseWriter, r *http.Request) error {
 			if err == nil {
 				base, c := tag.Base()
 				if c == language.Exact || c == language.High {
-					l := base.ISO3()
-					lang = &l
+					lang = new(base.ISO3())
 				}
 			}
 		}
