@@ -1475,6 +1475,10 @@
           "description": "IP to get location from; not used if location is set. Also used for\nsession generation.",
           "type": "string"
         },
+        "language": {
+          "description": "Language as a BCP 47 value (e.g. en, en-US, nl, etc.)",
+          "type": "string"
+        },
         "location": {
           "description": "Location as ISO-3166-1 alpha2 string (e.g. NL, ID, etc.)",
           "type": "string"
@@ -1554,8 +1558,22 @@
       "title": "apiExportRequest",
       "type": "object",
       "properties": {
+        "format": {
+          "description": "Export format, defaults to csv.",
+          "type": "string",
+          "enum": [
+            "enum:",
+            "csv",
+            "json"
+          ]
+        },
+        "start_from_day": {
+          "description": "The day to start this export from, for JSON exports.",
+          "type": "string",
+          "format": "date-time"
+        },
         "start_from_hit_id": {
-          "description": "Pagination cursor; only export hits with an ID greater than this.",
+          "description": "Pagination cursor for CSV; only export hits with an ID greater than this.",
           "type": "integer"
         }
       }
@@ -1727,6 +1745,11 @@
           "format": "date-time",
           "readOnly": true
         },
+        "format": {
+          "description": "Export format, csv or json.",
+          "type": "string",
+          "readOnly": true
+        },
         "hash": {
           "description": "SHA256 hash.",
           "type": "string",
@@ -1754,8 +1777,13 @@
           "type": "string",
           "readOnly": true
         },
+        "start_from_day": {
+          "description": "The day this export was started from, for JSON exports.",
+          "type": "string",
+          "format": "date-time"
+        },
         "start_from_hit_id": {
-          "description": "The hit ID this export was started from.",
+          "description": "The hit ID this export was started from, for CSV exports.",
           "type": "integer"
         }
       }

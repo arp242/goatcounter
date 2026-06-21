@@ -947,6 +947,8 @@ https://github.com/zgoat/isbot/blob/master/isbot.go#L28</p>
 <p>User-Agent header.</p>
 <h4>location <sup>string</sup></h4>
 <p>Location as ISO-3166-1 alpha2 string (e.g. NL, ID, etc.)</p>
+<h4>language <sup>string</sup></h4>
+<p>Language as a BCP 47 value (e.g. en, en-US, nl, etc.)</p>
 <h4>ip <sup>string</sup></h4>
 <p>IP to get location from; not used if location is set. Also used for
 session generation.</p>
@@ -1003,8 +1005,12 @@ field set, but not both.</p>
 		<h3 id="handlers.apiExportRequest">handlers.apiExportRequest <a class="permalink" href="#handlers.apiExportRequest">§</a></h3>
 		<div class="endpoint model">
 			<p class="info"></p>
-			<h4>start_from_hit_id <sup>integer</sup></h4>
-<p>Pagination cursor; only export hits with an ID greater than this.</p>
+			<h4>format <sup>string [enum: "enum:", "csv", "json"]</sup></h4>
+<p>Export format, defaults to csv.</p>
+<h4>start_from_hit_id <sup>integer</sup></h4>
+<p>Pagination cursor for CSV; only export hits with an ID greater than this.</p>
+<h4>start_from_day <sup>string [format: date-time]</sup></h4>
+<p>The day to start this export from, for JSON exports.</p>
 
 		</div>
 		<h3 id="handlers.apiHitsRequest">handlers.apiHitsRequest <a class="permalink" href="#handlers.apiHitsRequest">§</a></h3>
@@ -1181,10 +1187,14 @@ boundaries.</p>
 <p></p>
 <h4>site_id <sup>integer [readonly]</sup></h4>
 <p></p>
+<h4>format <sup>string [readonly]</sup></h4>
+<p>Export format, csv or json.</p>
 <h4>start_from_hit_id <sup>integer</sup></h4>
-<p>The hit ID this export was started from.</p>
+<p>The hit ID this export was started from, for CSV exports.</p>
 <h4>last_hit_id <sup>integer [readonly]</sup></h4>
 <p>Last hit ID that was exported; can be used as start_from_hit_id.</p>
+<h4>start_from_day <sup>string [format: date-time]</sup></h4>
+<p>The day this export was started from, for JSON exports.</p>
 <h4>created_at <sup>string [format: date-time] [readonly]</sup></h4>
 <p></p>
 <h4>finished_at <sup>string [format: date-time] [readonly]</sup></h4>

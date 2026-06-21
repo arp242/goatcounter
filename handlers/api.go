@@ -16,6 +16,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/sethvargo/go-limiter"
+	"golang.org/x/text/language"
 	"zgo.at/errors"
 	"zgo.at/goatcounter/v2"
 	"zgo.at/goatcounter/v2/cron"
@@ -239,7 +240,7 @@ func (h api) auth(r *http.Request, w http.ResponseWriter, require zint.Bitflag64
 }
 
 type apiExportRequest struct {
-	// Export format, defaults to csv. {enum csv json}
+	// Export format, defaults to csv. {enum: csv json}
 	Format string `json:"format"`
 
 	// Pagination cursor for CSV; only export hits with an ID greater than this.
@@ -521,6 +522,9 @@ type APICountRequestHit struct {
 	// Location as ISO-3166-1 alpha2 string (e.g. NL, ID, etc.)
 	Location string `json:"location"`
 
+	// Language as a BCP 47 value (e.g. en, en-US, nl, etc.)
+	Language string `json:"language"`
+
 	// IP to get location from; not used if location is set. Also used for
 	// session generation.
 	IP string `json:"ip"`
@@ -549,8 +553,8 @@ type APICountRequestHit struct {
 
 func (h APICountRequestHit) String() string {
 	return fmt.Sprintf(
-		`{Path: %q, Title: %q, Event: %t, Ref: %q, Size: "%s", Query: %q, Bot: %d, UserAgent: %q, Location: %q, IP: %q, CreatedAt: %q, Session: %q, Host: %q}`,
-		h.Path, h.Title, h.Event, h.Ref, h.Size, h.Query, h.Bot, h.UserAgent, h.Location, h.IP, h.CreatedAt, h.Session, h.Host)
+		`{Path: %q, Title: %q, Event: %t, Ref: %q, Size: "%s", Query: %q, Bot: %d, UserAgent: %q, Location: %q, Language: %q, IP: %q, CreatedAt: %q, Session: %q, Host: %q}`,
+		h.Path, h.Title, h.Event, h.Ref, h.Size, h.Query, h.Bot, h.UserAgent, h.Location, h.Language, h.IP, h.CreatedAt, h.Session, h.Host)
 }
 
 // POST /api/v0/count count
@@ -613,6 +617,19 @@ func (h api) count(w http.ResponseWriter, r *http.Request) error {
 			a.Location = (goatcounter.Location{}).LookupIP(r.Context(), a.IP)
 		}
 
+		var lang *string
+		if a.Language != "" && site.Settings.Collect.Has(goatcounter.CollectLanguage) {
+			tag, err := language.Parse(a.Language)
+			// Just silently ignore invalid languages; it's user-provided and
+			// can be set to silly things.
+			if err == nil {
+				base, c := tag.Base()
+				if c == language.Exact || c == language.High {
+					lang = new(base.ISO3())
+				}
+			}
+		}
+
 		hit := goatcounter.Hit{
 			Path:            a.Path,
 			Title:           a.Title,
@@ -624,6 +641,7 @@ func (h api) count(w http.ResponseWriter, r *http.Request) error {
 			CreatedAt:       a.CreatedAt.UTC(),
 			UserAgentHeader: a.UserAgent,
 			Location:        a.Location,
+			Language:        lang,
 			RemoteAddr:      a.IP,
 		}
 
