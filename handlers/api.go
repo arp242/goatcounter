@@ -619,7 +619,10 @@ func (h api) count(w http.ResponseWriter, r *http.Request) error {
 
 		var lang *string
 		if a.Language != "" && site.Settings.Collect.Has(goatcounter.CollectLanguage) {
-			if tag, err := language.Parse(a.Language); err == nil {
+			tag, err := language.Parse(a.Language)
+			// Just silently ignore invalid languages; it's user-provided and
+			// can be set to silly things.
+			if err == nil {
 				base, c := tag.Base()
 				if c == language.Exact || c == language.High {
 					l := base.ISO3()
