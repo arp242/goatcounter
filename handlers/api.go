@@ -240,7 +240,7 @@ func (h api) auth(r *http.Request, w http.ResponseWriter, require zint.Bitflag64
 }
 
 type apiExportRequest struct {
-	// Export format, defaults to csv. {enum csv json}
+	// Export format, defaults to csv. {enum: csv json}
 	Format string `json:"format"`
 
 	// Pagination cursor for CSV; only export hits with an ID greater than this.
