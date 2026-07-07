@@ -117,7 +117,7 @@ func TestHitStats(t *testing.T) {
 		// Sizes
 		{
 			var list HitStats
-			err := list.ListSizes(ctx, rng, PathFilterFromIDs(filter))
+			err := list.ListSizes(ctx, rng, PathFilterFromIDs(filter), false)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -266,7 +266,7 @@ func TestListSizes(t *testing.T) {
 
 	t.Run("ListSizes", func(t *testing.T) {
 		var s HitStats
-		err := s.ListSizes(ctx, ztime.NewRange(now).To(now), PathFilter{})
+		err := s.ListSizes(ctx, ztime.NewRange(now).To(now), PathFilter{}, false)
 		if err != nil {
 			t.Fatal(err)
 		}
