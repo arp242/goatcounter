@@ -210,8 +210,10 @@ func (h *HitList) sum(user *User, rng ztime.Range, group Group) int {
 		daynum++
 	}
 	daynum--
-	h.Stats[daynum-(daynum%7)].Weekly = week
-	h.Stats[lastmonth].Monthly = month
+	if len(h.Stats) > 0 {
+		h.Stats[daynum-(daynum%7)].Weekly = week
+		h.Stats[lastmonth].Monthly = month
+	}
 	if group.Weekly() {
 		h.Max = max(h.Max, week)
 	} else if group.Monthly() {
