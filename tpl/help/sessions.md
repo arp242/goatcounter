@@ -55,7 +55,7 @@ Or in pseudo-code:
     # and NOT session_key
     store_pageview()
 
-    # Increate counter to make the charts go up.
+    # Increase counter to make the charts go up.
     if count_as_visit
         increase_counter_in_database()
     end
