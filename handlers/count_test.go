@@ -122,7 +122,7 @@ func TestBackendCount(t *testing.T) {
 		{"long path", url.Values{"p": []string{"/" + strings.Repeat("a", 2047)}}, nil, 200, goatcounter.Hit{
 			Path: "/" + strings.Repeat("a", 2047),
 		}},
-		{"too long", url.Values{"p": []string{"/" + strings.Repeat("a", 2048)}}, nil, 414, goatcounter.Hit{}},
+		{"too long", url.Values{"p": []string{"/" + strings.Repeat("a", 2048)}}, nil, 400, goatcounter.Hit{}},
 	}
 
 	for _, tt := range tests {
