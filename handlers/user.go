@@ -42,8 +42,8 @@ func (h user) mount(r chi.Router, ratelimits Ratelimits) {
 	r.Post("/user/request-reset", zhttp.Wrap(h.requestReset))
 
 	// Rate limit login attempts.
-	rate := r.With(Ratelimit(false, func(*http.Request) (limiter.Store, string) {
-		return ratelimits.Login, ""
+	rate := r.With(Ratelimit(false, func(*http.Request) ([]limiter.Store, string) {
+		return []limiter.Store{ratelimits.Login}, ""
 	}))
 	rate.Post("/user/requestlogin", zhttp.Wrap(h.requestLogin))
 	r.Get("/user/requestlogin", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

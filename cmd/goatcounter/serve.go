@@ -162,14 +162,16 @@ Flags:
                a comma. The defaults are:
 
                    count:4/1            4 requests / second
-                   api:4/1              4 requests / seconds
+                   api:4/1              4 requests / second
+                   api2:500/3600      500 requests / hour
                    api-count:60/120    60 requests / 2 minutes
                    export:1/3600        1 requests / hour
                    login:20/60         20 requests / minute
 
                If one of the names is omitted it will fall back to the default
                value; for example "-ratelimit export:3/3600,api:100/1" will use
-               the default for "count", "login", etc.
+               the default for "count", "login", etc. Use "none" to disable this
+               ratelimit.
 
   -api-max     Maximum number of items /api/ endpoints will return. Set to 0
                for the defaults (200 for paths, 100 for everything else), or <0
@@ -525,21 +527,28 @@ func setupRatelimits(v *zvalidate.Validator, ratelimit string) handlers.Ratelimi
 	h := handlers.NewRatelimits()
 	if ratelimit != "" {
 		for r := range strings.SplitSeq(ratelimit, ",") {
-			name, spec, _ := strings.Cut(r, ":")
-			reqs, secs, _ := strings.Cut(spec, "/")
-
 			v2 := zvalidate.New()
+
+			name, spec, _ := strings.Cut(r, ":")
 			v2.Required("-ratelimit.name", name)
-			v2.Required("-ratelimit.requests", reqs)
-			v2.Required("-ratelimit.seconds", secs)
-			nn := v2.Include("-ratelimit.name", name, []string{"count", "api", "api-count", "export", "login"})
+			nn := v2.Include("-ratelimit.name", name, []string{"count", "api", "api2", "api-count", "export", "login"})
 			name = nn.(string)
-			r := v2.Integer("-ratelimit.requests", reqs)
-			s := v2.Integer("-ratelimit.seconds", secs)
+
+			if strings.TrimSpace(spec) == "none" {
+				h.Clear(name)
+				continue
+			} else {
+				reqs, secs, _ := strings.Cut(spec, "/")
+
+				v2.Required("-ratelimit.requests", reqs)
+				v2.Required("-ratelimit.seconds", secs)
+				r := v2.Integer("-ratelimit.requests", reqs)
+				s := v2.Integer("-ratelimit.seconds", secs)
+				h.Set(name, int(r), s)
+			}
 			if v2.HasErrors() {
 				v.Merge(v2)
 			}
-			h.Set(name, int(r), s)
 		}
 	}
 	return h

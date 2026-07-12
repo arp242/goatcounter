@@ -83,9 +83,9 @@ func (h settings) mount(r chi.Router, ratelimits Ratelimits) {
 		set.Get("/settings/export/{id}", zhttp.Wrap(h.exportDownload))
 		set.Post("/settings/export/import", zhttp.Wrap(h.exportImport))
 		set.Post("/settings/export/import-ga", zhttp.Wrap(h.exportImportGA))
-		set.With(Ratelimit(false, func(*http.Request) (limiter.Store, string) {
+		set.With(Ratelimit(false, func(*http.Request) ([]limiter.Store, string) {
 			// TODO(i18n): this should be translated.
-			return ratelimits.Export, "you can request only one export per hour"
+			return []limiter.Store{ratelimits.Export}, "you can request only one export per hour"
 		})).Post("/settings/export", zhttp.Wrap(h.exportStart))
 	}
 

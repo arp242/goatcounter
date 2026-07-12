@@ -73,14 +73,14 @@ func (h api) mount(r chi.Router, db zdb.DB, ratelimits Ratelimits) {
 	a := r.With(
 		addCORS(),
 		middleware.AllowContentType("application/json"),
-		Ratelimit(false, func(r *http.Request) (limiter.Store, string) {
+		Ratelimit(false, func(r *http.Request) ([]limiter.Store, string) {
 			switch r.URL.Path {
 			default:
-				return ratelimits.API, ""
+				return []limiter.Store{ratelimits.API2, ratelimits.API}, ""
 			case "/api/v0/export":
-				return ratelimits.Export, ""
+				return []limiter.Store{ratelimits.Export}, ""
 			case "/api/v0/count":
-				return ratelimits.APICount, ""
+				return []limiter.Store{ratelimits.APICount}, ""
 			}
 		}),
 	)

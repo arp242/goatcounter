@@ -21,12 +21,19 @@ to 18, which means you'll have to do a dump/restore or use pg_upgrade.
 - Password for a new user can now be read from stdin when using `goatcounter db
   create site` or `goatcounter db create user`.
 
+- Allow sorting "page sizes" chart by count, instead of screen size.
+
+- Add language as a field for `/api/v0/count`.
+
 ### Fixes
 
 - Improve performance of filter with a large amount (100,000s) of paths.
 
-- Optimise some indexes to speed up (very) large instances (such as
-  goatcounter.com).
+- Add additional "api2" ratelimit to prevent people constantly hammering the API
+  with 5 requests/second. This defaults to 500 requests per hour. You can use
+  `-ratelimit api2:none` to disable this new limit.
+
+- Fix websocket cache leaking memory and connections.
 
 2025-12-15 v2.7.0
 -----------------

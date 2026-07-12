@@ -419,10 +419,14 @@ func addcsp(domainStatic string) func(http.Handler) http.Handler {
 	}
 }
 
-func Ratelimit(withUA bool, getStore func(r *http.Request) (limiter.Store, string)) func(http.Handler) http.Handler {
+func Ratelimit(withUA bool, getStore func(r *http.Request) ([]limiter.Store, string)) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			store, msg := getStore(r)
+			stores, msg := getStore(r)
+			if len(stores) == 0 {
+				next.ServeHTTP(w, r)
+				return
+			}
 			key := r.RemoteAddr
 			if withUA {
 				// Add in the User-Agent for some endpoints to reduce the
@@ -430,12 +434,28 @@ func Ratelimit(withUA bool, getStore func(r *http.Request) (limiter.Store, strin
 				// limit.
 				key += r.UserAgent()
 			}
-			tokens, remaining, reset, ok, err := store.Take(r.Context(), key)
-			if err != nil {
-				// The memorystore only returns an error if Close() was called.
-				// But log just to be sure.
-				log.Module("ratelimit").Error(r.Context(), err, "key", key)
-				ok = false
+
+			// Report either the failing ratelimit or the last one, It's assumed
+			// that ratelimits are ordered from longest to shortest.
+			var (
+				tokens, remaining, reset uint64
+				ok                       bool
+			)
+			for _, store := range stores {
+				if store == nil {
+					continue
+				}
+				var err error
+				tokens, remaining, reset, ok, err = store.Take(r.Context(), key)
+				if err != nil {
+					// The memorystore only returns an error if Close() was called.
+					// But log just to be sure.
+					log.Module("ratelimit").Error(r.Context(), err, "key", key)
+					ok = false
+				}
+				if !ok {
+					break
+				}
 			}
 
 			t := time.Unix(0, int64(reset))
