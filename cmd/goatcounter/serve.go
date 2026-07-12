@@ -290,7 +290,7 @@ func cmdServe(f zli.Flags, ready chan<- struct{}, stop chan struct{}, saas bool)
 
 	timeout := 60
 	if saas {
-		timeout = 15
+		timeout = 30
 	}
 
 	// Set up HTTP handler and servers.
