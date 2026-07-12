@@ -53,7 +53,11 @@ type loaderT struct {
 var loader = loaderT{
 	conns: func() *zcache.Cache[zint.Uint128, *loaderClient] {
 		c := zcache.New[zint.Uint128, *loaderClient](time.Minute*5, time.Minute*5)
-		c.OnEvicted(func(k zint.Uint128, v *loaderClient) { v.conn.Close() })
+		c.OnEvicted(func(k zint.Uint128, v *loaderClient) {
+			if v != nil && v.conn != nil {
+				v.conn.Close()
+			}
+		})
 		return c
 	}(),
 }
@@ -94,8 +98,7 @@ func (l *loaderT) sendJSON(r *http.Request, id zint.Uint128, data any) {
 				break
 			}
 		}
-		if c == nil {
-			// Probably a bot or the like which doesn't support WebSockets.
+		if c == nil { // Probably a bot or the like which doesn't support WebSockets.
 			l.unregister(id)
 			return
 		}
