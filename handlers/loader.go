@@ -51,7 +51,11 @@ type loaderT struct {
 }
 
 var loader = loaderT{
-	conns: zcache.New[zint.Uint128, *loaderClient](zcache.DefaultExpiration, zcache.NoExpiration),
+	conns: func() *zcache.Cache[zint.Uint128, *loaderClient] {
+		c := zcache.New[zint.Uint128, *loaderClient](time.Minute*5, time.Minute*5)
+		c.OnEvicted(func(k zint.Uint128, v *loaderClient) { v.conn.Close() })
+		return c
+	}(),
 }
 
 type loaderClient struct {
@@ -61,12 +65,7 @@ type loaderClient struct {
 
 func (l *loaderT) register(id zint.Uint128)   { l.conns.Set(id, nil) }
 func (l *loaderT) unregister(id zint.Uint128) { l.conns.Delete(id) }
-
 func (l *loaderT) connect(r *http.Request, id zint.Uint128, c *websocket.Conn) {
-	c.SetCloseHandler(func(code int, text string) error {
-		l.unregister(id)
-		return nil
-	})
 	l.conns.Set(id, &loaderClient{conn: c})
 }
 

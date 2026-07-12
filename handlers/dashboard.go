@@ -224,7 +224,9 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 				})
 			}(w)
 		}
+
 		run.Wait()
+		loader.unregister(connectID)
 	}()
 
 	rng = rng.In(user.Settings.Timezone.Loc()).Locale(ztime.RangeLocale{

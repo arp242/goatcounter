@@ -45,7 +45,8 @@
 			}, 1000)
 		}
 
-		window.WEBSOCKET.onmessage = function(e) {
+		window.WEBSOCKET.onclose = () => { window.WEBSOCKET = null }
+		window.WEBSOCKET.onmessage = (e) => {
 			let msg = JSON.parse(e.data),
 				wid = $(`#dash-widgets div[data-widget=${msg.id}]`)
 			wid.html(msg.html)
