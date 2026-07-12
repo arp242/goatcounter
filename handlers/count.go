@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"fmt"
+	"math"
 	"net/http"
 
 	"github.com/monoculum/formam/v3"
@@ -86,10 +87,15 @@ func (h backend) count(w http.ResponseWriter, r *http.Request) error {
 		return zhttp.Bytes(w, gif)
 	}
 	if len(hit.Path) > 2048 {
-		w.Header().Add("X-Goatcounter", fmt.Sprintf("ignored because path is longer than 2048 bytes (%d bytes)",
-			len(r.RequestURI)))
-		w.WriteHeader(http.StatusRequestURITooLong)
+		w.Header().Add("X-Goatcounter", fmt.Sprintf("ignored because path is longer than 2048 bytes (%d bytes)", len(r.RequestURI)))
+		w.WriteHeader(400)
 		return zhttp.Bytes(w, gif)
+	}
+	for _, s := range hit.Size {
+		if s > math.MaxInt32 {
+			w.Header().Add("X-Goatcounter", fmt.Sprintf("ignored because screen size %v is out of range of int32", s))
+			w.WriteHeader(400)
+		}
 	}
 
 	if isbot.Is(bot) { // Prefer the backend detection.
