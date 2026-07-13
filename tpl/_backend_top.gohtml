@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="backend-app theme-{{if .User.Settings.Theme}}{{.User.Settings.Theme}}{{else}}auto{{end}}">
 <head>
 	{{template "_favicon.gohtml" .}}
 	<meta name="viewport" content="width=device-width, initial-scale=1">
@@ -32,6 +32,7 @@
 	<link rel="stylesheet" href="{{.Static}}/shared.css?v={{.Version}}">
 	<link rel="stylesheet" href="{{.Static}}/pikaday.css?v={{.Version}}">
 	<link rel="stylesheet" href="{{.Static}}/backend.css?v={{.Version}}">
+	<link rel="stylesheet" href="{{.Static}}/style.css?v={{.Version}}">
 	<style>{{if not .User.ID}}.logged-in { display: none !important; }{{end}}</style>
 </head>
 

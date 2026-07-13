@@ -1,0 +1,13 @@
+.git
+.github
+.DS_Store
+goatcounter-data
+compose.yaml
+README.md
+CHANGELOG.md
+LICENSE
+netlify.toml
+*.png
+*.jpg
+*.jpeg
+*.gif

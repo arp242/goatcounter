@@ -1,9 +1,9 @@
-<div id="dash-widgets">
+<div id="dash-widgets" class="dashboard-grid">
 	{{$div := false}}
 	{{range $w := .Widgets}}
 		{{if and (eq $w.Type "hchart") (not $div)}}
 			{{$div = true}}
-			<div class="hcharts">
+			<div class="hcharts dashboard-split-grid">
 		{{end}}
 		{{if and (ne $w.Type "hchart") $div}}</div>{{$div = false}}{{end}}
 		{{$w.HTML}}

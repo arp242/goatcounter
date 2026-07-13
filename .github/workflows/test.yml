@@ -1,9 +1,6 @@
 name: 'test'
 on:
-  pull_request:
-    paths: ['**.go', 'go.mod', '.github/workflows/*']
-  push:
-    branches: ['main']
+  workflow_dispatch: {}
 
 jobs:
   # Uncomment to get a debug shell.
