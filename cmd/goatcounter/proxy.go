@@ -169,10 +169,6 @@ func cmdProxy(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 		return err
 	}
 
-	if err := checkSite(site, key, goatcounter.APIPermCount); err != nil {
-		return err
-	}
-
 	p := &proxy{
 		url:      site,
 		key:      key,

@@ -16,10 +16,9 @@ import (
 	"zgo.at/zli"
 )
 
-// upstream is a minimal GoatCounter server that only implements the two
-// endpoints the proxy talks to: /api/v0/me (for checkSite) and /api/v0/count.
-// The reply to /api/v0/count can be changed while the test runs, to act like a
-// server that is down for a while.
+// upstream is a minimal GoatCounter server that only implements /api/v0/count,
+// the one endpoint the proxy talks to. Its reply can be changed while the test
+// runs, to act like a server that is down for a while.
 type upstream struct {
 	*httptest.Server
 
@@ -35,35 +34,32 @@ func newUpstream(t *testing.T) *upstream {
 
 	u := new(upstream)
 	u.Server = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		switch r.URL.Path {
-		case "/api/v0/me":
-			// permissions=2 is APIPermCount.
-			fmt.Fprint(w, `{"token":{"name":"test","permissions":2}}`)
-		case "/api/v0/count":
-			var req handlers.APICountRequest
-			if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-				t.Errorf("decode count request: %s", err)
-				w.WriteHeader(400)
-				return
-			}
-
-			u.mu.Lock()
-			defer u.mu.Unlock()
-			u.posts++
-			if u.status != 0 {
-				if u.resetHdr != "" {
-					w.Header().Set("X-Rate-Limit-Reset", u.resetHdr)
-				}
-				w.WriteHeader(u.status)
-				fmt.Fprint(w, `{"error":"nope"}`)
-				return
-			}
-			u.got = append(u.got, req.Hits...)
-			w.WriteHeader(http.StatusAccepted)
-		default:
+		if r.URL.Path != "/api/v0/count" {
 			t.Errorf("unexpected request to %s", r.URL.Path)
 			w.WriteHeader(404)
+			return
 		}
+
+		var req handlers.APICountRequest
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			t.Errorf("decode count request: %s", err)
+			w.WriteHeader(400)
+			return
+		}
+
+		u.mu.Lock()
+		defer u.mu.Unlock()
+		u.posts++
+		if u.status != 0 {
+			if u.resetHdr != "" {
+				w.Header().Set("X-Rate-Limit-Reset", u.resetHdr)
+			}
+			w.WriteHeader(u.status)
+			fmt.Fprint(w, `{"error":"nope"}`)
+			return
+		}
+		u.got = append(u.got, req.Hits...)
+		w.WriteHeader(http.StatusAccepted)
 	}))
 	t.Cleanup(u.Close)
 	return u
