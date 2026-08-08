@@ -2,6 +2,8 @@ package goatcounter
 
 import (
 	"context"
+	"fmt"
+	"math"
 	"net/url"
 	"strings"
 	"time"
@@ -317,6 +319,11 @@ func (h *Hit) Validate(ctx context.Context, initial bool) error {
 		v.Len("path", h.Path, 1, 2048)
 		v.Len("title", h.Title, 0, 1024)
 		v.Len("user_agent_header", h.UserAgentHeader, 0, 512)
+		for _, s := range h.Size {
+			if s > math.MaxInt32 {
+				v.Append("size", fmt.Sprintf("screen size %v is out of range of int32", s))
+			}
+		}
 	} else if h.Bot == 0 {
 		v.Required("path_id", h.PathID)
 
