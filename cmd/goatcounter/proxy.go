@@ -5,7 +5,6 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"math"
 	"net/http"
 	"os"
 	"strconv"
@@ -436,13 +435,6 @@ func (p *proxy) count(w http.ResponseWriter, r *http.Request) error {
 		w.Header().Add("X-Goatcounter", fmt.Sprintf("wrong value: b=%d", hit.Bot))
 		w.WriteHeader(400)
 		return zhttp.Bytes(w, gif)
-	}
-	for _, s := range hit.Size {
-		if s > math.MaxInt32 {
-			w.Header().Add("X-Goatcounter", fmt.Sprintf("ignored because screen size %v is out of range of int32", s))
-			w.WriteHeader(400)
-			return zhttp.Bytes(w, gif)
-		}
 	}
 	if isbot.Is(bot) { // Prefer the backend detection.
 		hit.Bot = int(bot)
