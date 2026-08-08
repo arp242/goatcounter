@@ -152,8 +152,8 @@ Flags:
 
                For example:
 
-                   -geodb 123456:abcdef
-                   -geodb 123456:abcdef:/home/goatcounter/cities.mmdb
+                   -geodb maxmind:123456:abcdef
+                   -geodb maxmind:123456:abcdef:/home/goatcounter/cities.mmdb
 
                Updates are only done on restarts.
 
