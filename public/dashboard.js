@@ -165,12 +165,6 @@
 
 	// Set the start and end period and submit the form.
 	var set_period = function(start, end) {
-		if (TZ_OFFSET) {
-			var offset = (start.getTimezoneOffset() + TZ_OFFSET) / 60
-			start.setHours(start.getHours() + offset)
-			end.setHours(end.getHours() + offset)
-		}
-
 		$('#period-start').val(format_date_ymd(start))
 		$('#period-end').val(format_date_ymd(end))
 		$('#dash-form').trigger('submit')
@@ -226,6 +220,16 @@
 			e.preventDefault()
 
 			var start = new Date(), end = new Date()
+			// Adjust the browser's "now" to the timezone from the user
+			// settings, which is what the dashboard displays; near midnight
+			// the two can be on different dates. The back/forward buttons
+			// below need no adjustment, as they operate on the displayed
+			// dates, which are already in that timezone.
+			if (TZ_OFFSET) {
+				var offset = (start.getTimezoneOffset() + TZ_OFFSET) / 60
+				start.setHours(start.getHours() + offset)
+				end.setHours(end.getHours() + offset)
+			}
 			switch (this.value) {
 				case 'day':       /* Do nothing */ break
 				case 'week':      start.setDate(start.getDate() - 7);   break;
