@@ -431,6 +431,7 @@ func getPeriod(w http.ResponseWriter, r *http.Request, site *goatcounter.Site, u
 func getGroup(r *http.Request, g goatcounter.Group, rng ztime.Range) (goatcounter.Group, goatcounter.Groups) {
 	var (
 		allow goatcounter.Groups
+		saved = g
 		d     = rng.End.Sub(rng.Start).Hours() / 24
 	)
 	// Viewing by hour for a year or viewing by day for 2 days looks horrible,
@@ -448,6 +449,12 @@ func getGroup(r *http.Request, g goatcounter.Group, rng ztime.Range) (goatcounte
 		g, allow = goatcounter.GroupHourly, append(allow, goatcounter.GroupHourly, goatcounter.GroupDaily)
 	case d > 90:
 		g, allow = goatcounter.GroupDaily, append(allow, goatcounter.GroupDaily, goatcounter.GroupWeekly)
+	}
+
+	// Keep the grouping from the saved view if it makes sense for this period,
+	// instead of always resetting it to the default.
+	if slices.Contains(allow, saved) {
+		g = saved
 	}
 
 	switch gg := strings.ToLower(r.URL.Query().Get("group")); {

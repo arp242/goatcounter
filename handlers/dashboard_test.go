@@ -2,9 +2,12 @@ package handlers
 
 import (
 	"context"
+	"net/http/httptest"
+	"slices"
 	"testing"
 	"time"
 
+	"zgo.at/goatcounter/v2"
 	"zgo.at/zstd/ztime"
 )
 
@@ -21,6 +24,51 @@ func TestDashboard(t *testing.T) {
 
 	for _, tt := range tests {
 		runTest(t, tt, nil)
+	}
+}
+
+func TestGetGroup(t *testing.T) {
+	tests := []struct {
+		days      int
+		saved     goatcounter.Group
+		query     string
+		wantGroup goatcounter.Group
+		wantAllow goatcounter.Groups
+	}{
+		{3, goatcounter.GroupHourly, "", goatcounter.GroupHourly,
+			goatcounter.Groups{goatcounter.GroupHourly}},
+		{3, goatcounter.GroupDaily, "", goatcounter.GroupHourly,
+			goatcounter.Groups{goatcounter.GroupHourly}},
+
+		{30, goatcounter.GroupHourly, "", goatcounter.GroupHourly,
+			goatcounter.Groups{goatcounter.GroupHourly, goatcounter.GroupDaily}},
+		{30, goatcounter.GroupDaily, "", goatcounter.GroupDaily,
+			goatcounter.Groups{goatcounter.GroupHourly, goatcounter.GroupDaily}},
+		{30, goatcounter.GroupWeekly, "", goatcounter.GroupHourly,
+			goatcounter.Groups{goatcounter.GroupHourly, goatcounter.GroupDaily}},
+		{30, goatcounter.GroupDaily, "hour", goatcounter.GroupHourly,
+			goatcounter.Groups{goatcounter.GroupHourly, goatcounter.GroupDaily}},
+
+		{120, goatcounter.GroupHourly, "", goatcounter.GroupDaily,
+			goatcounter.Groups{goatcounter.GroupDaily, goatcounter.GroupWeekly}},
+		{120, goatcounter.GroupWeekly, "", goatcounter.GroupWeekly,
+			goatcounter.Groups{goatcounter.GroupDaily, goatcounter.GroupWeekly}},
+
+		{365, goatcounter.GroupMonthly, "", goatcounter.GroupMonthly,
+			goatcounter.Groups{goatcounter.GroupDaily, goatcounter.GroupWeekly, goatcounter.GroupMonthly}},
+	}
+
+	for _, tt := range tests {
+		t.Run("", func(t *testing.T) {
+			start := ztime.FromString("2020-06-18")
+			rng := ztime.NewRange(start).To(start.AddDate(0, 0, tt.days).Add(24*time.Hour - time.Second))
+
+			r := httptest.NewRequest("GET", "/?group="+tt.query, nil)
+			group, allow := getGroup(r, tt.saved, rng)
+			if group != tt.wantGroup || !slices.Equal(allow, tt.wantAllow) {
+				t.Errorf("\nhave: %s, %s\nwant: %s, %s", group, allow, tt.wantGroup, tt.wantAllow)
+			}
+		})
 	}
 }
 
@@ -56,7 +104,7 @@ func TestTimeRange(t *testing.T) {
 				gotEnd := rng.End.Format("2006-01-02 15:04:05")
 
 				if gotStart != tt.wantStart || gotEnd != tt.wantEnd {
-					t.Errorf("\ngot:  %q, %q\nwant: %q, %q",
+					t.Errorf("\nhave: %q, %q\nwant: %q, %q",
 						gotStart, gotEnd, tt.wantStart, tt.wantEnd)
 				}
 			})
