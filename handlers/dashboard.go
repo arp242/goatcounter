@@ -65,6 +65,15 @@ func (h backend) dashboard(w http.ResponseWriter, r *http.Request) error {
 		if err != nil {
 			return err
 		}
+
+		// Apply the same "a week before the first pageview at the most" limit
+		// that getPeriod() applies to explicit dates, so the first render of a
+		// saved view doesn't show a longer range (with different "view by"
+		// options) than submitting the dashboard form it renders.
+		if c := site.FirstHitAt.Add(-24 * time.Hour * 7); rng.Start.Before(c) {
+			y, m, d := c.In(user.Settings.Timezone.Loc()).Date()
+			rng.Start = time.Date(y, m, d, 0, 0, 0, 0, user.Settings.Timezone.Loc()).UTC()
+		}
 	} else {
 		view.Period = strings.TrimSuffix(q.Get("hl-period"), "-cur")
 	}
@@ -446,7 +455,7 @@ func getGroup(r *http.Request, g goatcounter.Group, rng ztime.Range) (goatcounte
 		g, allow = goatcounter.GroupDaily, append(allow, goatcounter.GroupDaily, goatcounter.GroupWeekly, goatcounter.GroupMonthly)
 	case d < 90:
 		g, allow = goatcounter.GroupHourly, append(allow, goatcounter.GroupHourly, goatcounter.GroupDaily)
-	case d > 90:
+	case d >= 90:
 		g, allow = goatcounter.GroupDaily, append(allow, goatcounter.GroupDaily, goatcounter.GroupWeekly)
 	}
 
