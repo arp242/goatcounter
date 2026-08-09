@@ -418,7 +418,15 @@ func getPeriod(w http.ResponseWriter, r *http.Request, site *goatcounter.Site, u
 	c := site.FirstHitAt.Add(-24 * time.Hour * 7)
 	if rng.Start.Before(c) {
 		y, m, d := c.In(user.Settings.Timezone.Loc()).Date()
-		rng.Start = time.Date(y, m, d, 0, 0, 0, 0, user.Settings.Timezone.Loc())
+		clamped := time.Date(y, m, d, 0, 0, 0, 0, user.Settings.Timezone.Loc())
+		// Only tell the user if they actually asked for an earlier date; this
+		// is also reached when there's no period-start in the query at all.
+		if !rng.Start.IsZero() {
+			zhttp.Flash(w, r, T(r.Context(),
+				"notify/period-start-clamped|The site has no data that far back; the start date was set to %(date).",
+				clamped.Format("2006-01-02")))
+		}
+		rng.Start = clamped
 	}
 	if rng.End.Before(c) && !rng.End.IsZero() {
 		y, m, d := c.In(user.Settings.Timezone.Loc()).Date()
