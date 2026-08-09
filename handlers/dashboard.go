@@ -392,9 +392,11 @@ func timeRange(ctx context.Context, r string, tz *time.Location, sundayStartsWee
 	case "year":
 		rng = rng.Last(ztime.Year)
 	default:
-		// Sometimes the frontend sends something like "54.958333333333336"
-		// presumably due to to JS numbers always being a float. Not entirely
-		// sure where this happens, so just deal with it here.
+		// This can be a fraction such as "54.958333333333336" for views that
+		// were saved from dashboard.js before it rounded the number: it
+		// divided the difference of two dates at local midnight by 24 hours,
+		// and with a DST transition in the range that's not a whole number.
+		// Keep rounding here for views that were saved like that.
 		days, err := strconv.ParseFloat(r, 32)
 		if err != nil {
 			log.Error(ctx, errors.Errorf("timeRange: %w", err), "rng", r)

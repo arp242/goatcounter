@@ -416,7 +416,9 @@
 			e.preventDefault()
 			var p = $('#dash-select-period').attr('class').substr(7)
 			if (p === '')
-				p = (get_date($('#period-end').val()) - get_date($('#period-start').val())) / 86400000
+				// Round because the dates are at local midnight, and with a DST
+				// transition in the range a "day" isn't always 24 hours.
+				p = Math.round((get_date($('#period-end').val()) - get_date($('#period-start').val())) / 86400000)
 
 			var done = paginate_button($(this), () => {
 				jQuery.ajax({
