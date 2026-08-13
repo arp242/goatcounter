@@ -173,46 +173,66 @@ func addctx(db zdb.DB, dev, saas, loadSite bool, dashTimeout int) func(http.Hand
 			// Load site from domain.
 			if loadSite {
 				var s goatcounter.Site
-				err := s.ByHost(ctx, r.Host)
 
-				// If there's just one site then we can just serve that; most
-				// people probably have just one site so it's all grand. Do
-				// print a warning in the console though.
-				if zdb.ErrNoRows(err) && !saas {
-					var sites goatcounter.Sites
-					err2 := sites.UnscopedList(ctx)
-					if err2 == nil && len(sites) == 1 {
-						s = sites[0]
-						err = nil
-
-						if r.URL.Path == "/" {
-							txt := fmt.Sprintf(""+
-								"Accessing the site on domain %q, but the configured domain is %q.\n\n"+
-								"This will work fine as long as you only have one site, but you *need* to use the "+
-								"configured domain if you add a second site so GoatCounter will know which site to use.",
-								znet.RemovePort(r.Host), *s.Cname)
-							if _, ok := slog.Default().Handler().(slog_align.AlignedHandler); ok {
-								txt = termtext.WordWrap(txt, 70, "")
-							} else {
-								txt = strings.ReplaceAll(txt, "\n\n", " ")
-							}
-							log.Warn(ctx, txt)
+				// The API v0 can select the site explicitly with the
+				// X-Goatcounter-Site header; this makes it possible to query
+				// the stats of any (sub)site of the same account from behind a
+				// single reverse proxy, where the Host header always points at
+				// the same domain. The site must still pass the regular API
+				// token check (which validates the token against the site's
+				// account).
+				if site := r.Header.Get("X-Goatcounter-Site"); site != "" && strings.HasPrefix(r.URL.Path, "/api/v0") {
+					err := s.Find(ctx, site)
+					if err != nil {
+						if zdb.ErrNoRows(err) {
+							err = guru.Errorf(400, "no site at this domain (%q)", site)
 						}
-					}
-					if err2 == nil && len(sites) == 0 {
-						noSites(db, w, r)
+						zhttp.ErrPage(w, r, err)
 						return
 					}
-				}
-				if err != nil {
-					if zdb.ErrNoRows(err) {
-						err = guru.Errorf(400, "no site at this domain (%q)", r.Host)
-					}
-					zhttp.ErrPage(w, r, err)
-					return
-				}
+					ctx = goatcounter.WithSite(ctx, &s)
+				} else {
+					err := s.ByHost(ctx, r.Host)
 
-				ctx = goatcounter.WithSite(ctx, &s)
+					// If there's just one site then we can just serve that; most
+					// people probably have just one site so it's all grand. Do
+					// print a warning in the console though.
+					if zdb.ErrNoRows(err) && !saas {
+						var sites goatcounter.Sites
+						err2 := sites.UnscopedList(ctx)
+						if err2 == nil && len(sites) == 1 {
+							s = sites[0]
+							err = nil
+
+							if r.URL.Path == "/" {
+								txt := fmt.Sprintf(""+
+									"Accessing the site on domain %q, but the configured domain is %q.\n\n"+
+									"This will work fine as long as you only have one site, but you *need* to use the "+
+									"configured domain if you add a second site so GoatCounter will know which site to use.",
+									znet.RemovePort(r.Host), *s.Cname)
+								if _, ok := slog.Default().Handler().(slog_align.AlignedHandler); ok {
+									txt = termtext.WordWrap(txt, 70, "")
+								} else {
+									txt = strings.ReplaceAll(txt, "\n\n", " ")
+								}
+								log.Warn(ctx, txt)
+							}
+						}
+						if err2 == nil && len(sites) == 0 {
+							noSites(db, w, r)
+							return
+						}
+					}
+					if err != nil {
+						if zdb.ErrNoRows(err) {
+							err = guru.Errorf(400, "no site at this domain (%q)", r.Host)
+						}
+						zhttp.ErrPage(w, r, err)
+						return
+					}
+
+					ctx = goatcounter.WithSite(ctx, &s)
+				}
 			}
 
 			// Make sure there's always a z18n object; will get overriden by
@@ -493,7 +513,7 @@ func addCORS() func(http.Handler) http.Handler {
 				w.Header().Add("Access-Control-Allow-Credentials", "true")
 				w.Header().Add("Access-Control-Allow-Origin", "*")
 				if r.Method == "OPTIONS" {
-					w.Header().Add("Access-Control-Allow-Headers", "Authorization, Content-Type")
+					w.Header().Add("Access-Control-Allow-Headers", "Authorization, Content-Type, X-Goatcounter-Site")
 					w.Header().Add("Access-Control-Allow-Methods", "DELETE, GET, HEAD, OPTIONS, PATCH, POST, PUT")
 					w.Header().Add("Allow", "DELETE, GET, HEAD, OPTIONS, PATCH, POST, PUT")
 				}

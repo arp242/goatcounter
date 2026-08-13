@@ -976,3 +976,108 @@ func TestAPIStatsDetail(t *testing.T) {
 		})
 	}
 }
+
+// TestAPISiteSelect tests the X-Goatcounter-Site header of the API v0, which makes it
+// possible to query the stats of a specific (sub)site from behind a single
+// reverse proxy where the Host header always points at the same domain.
+func TestAPISiteSelect(t *testing.T) {
+	t.Run("select-subsite", func(t *testing.T) {
+		ctx := gctest.DB(t)
+		goatcounter.Config(ctx).GoatcounterCom = false
+
+		parent := Site(ctx)
+		sub := &goatcounter.Site{Code: "sub", Cname: new("sub.localhost"), Parent: &parent.ID}
+		if err := sub.Insert(ctx); err != nil {
+			t.Fatal(err)
+		}
+
+		// Host always points at the parent; X-Goatcounter-Site must select the subsite.
+		r, rr := newAPITest(ctx, t, "GET", "/api/v0/sites", nil, goatcounter.APIPermSiteRead)
+		r.Host = *parent.Cname
+		r.Header.Set("X-Goatcounter-Site", "sub.localhost")
+		newBackend(ctx).ServeHTTP(rr, r)
+		ztest.Code(t, rr, 200)
+
+		var resp struct {
+			Sites []goatcounter.Site `json:"sites"`
+		}
+		d := json.NewDecoder(rr.Body)
+		d.AllowReadonlyFields()
+		if err := d.Decode(&resp); err != nil {
+			t.Fatal(err)
+		}
+		if len(resp.Sites) == 0 || resp.Sites[0].ID != sub.ID {
+			t.Errorf("X-Goatcounter-Site did not select the subsite: got %+v, want first site id %d", resp.Sites, sub.ID)
+		}
+	})
+
+	t.Run("no-select-uses-host", func(t *testing.T) {
+		ctx := gctest.DB(t)
+		goatcounter.Config(ctx).GoatcounterCom = false
+
+		parent := Site(ctx)
+		sub := &goatcounter.Site{Code: "sub", Cname: new("sub.localhost"), Parent: &parent.ID}
+		if err := sub.Insert(ctx); err != nil {
+			t.Fatal(err)
+		}
+
+		r, rr := newAPITest(ctx, t, "GET", "/api/v0/sites", nil, goatcounter.APIPermSiteRead)
+		r.Host = *parent.Cname
+		newBackend(ctx).ServeHTTP(rr, r)
+		ztest.Code(t, rr, 200)
+
+		var resp struct {
+			Sites []goatcounter.Site `json:"sites"`
+		}
+		d := json.NewDecoder(rr.Body)
+		d.AllowReadonlyFields()
+		if err := d.Decode(&resp); err != nil {
+			t.Fatal(err)
+		}
+		if len(resp.Sites) == 0 || resp.Sites[0].ID != parent.ID {
+			t.Errorf("without the header the Host site should be used: got %+v, want first site id %d", resp.Sites, parent.ID)
+		}
+	})
+
+	t.Run("unknown-site", func(t *testing.T) {
+		ctx := gctest.DB(t)
+		goatcounter.Config(ctx).GoatcounterCom = false
+
+		r, rr := newAPITest(ctx, t, "GET", "/api/v0/sites", nil, goatcounter.APIPermSiteRead)
+		r.Host = *Site(ctx).Cname
+		r.Header.Set("X-Goatcounter-Site", "nope.localhost")
+		newBackend(ctx).ServeHTTP(rr, r)
+		ztest.Code(t, rr, 400)
+	})
+
+	t.Run("token-without-site-access", func(t *testing.T) {
+		ctx := gctest.DB(t)
+		goatcounter.Config(ctx).GoatcounterCom = false
+
+		parent := Site(ctx)
+		sub := &goatcounter.Site{Code: "sub", Cname: new("sub.localhost"), Parent: &parent.ID}
+		if err := sub.Insert(ctx); err != nil {
+			t.Fatal(err)
+		}
+
+		// A token scoped to the parent only (not to all sites) must not be able
+		// to read another site with the header.
+		tok := goatcounter.APIToken{
+			SiteID:      parent.ID,
+			UserID:      User(ctx).ID,
+			Name:        "parent-only",
+			Permissions: goatcounter.APIPermSiteRead,
+			Sites:       goatcounter.SiteIDs{parent.ID},
+		}
+		if err := tok.Insert(ctx); err != nil {
+			t.Fatal(err)
+		}
+
+		r, rr := newTest(ctx, "GET", "/api/v0/sites", nil)
+		r.Host = *parent.Cname
+		r.Header.Set("Authorization", "Bearer "+tok.Token)
+		r.Header.Set("X-Goatcounter-Site", "sub.localhost")
+		newBackend(ctx).ServeHTTP(rr, r)
+		ztest.Code(t, rr, 403)
+	})
+}
