@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"context"
-	"crypto/subtle"
 	"encoding/base64"
 	"fmt"
 	"net/http"
@@ -164,36 +163,11 @@ func tokenFromHeader(r *http.Request, w http.ResponseWriter) (string, error) {
 	}
 }
 
-var (
-	bufferKeyOnce sync.Once
-	bufferKey     []byte
-)
-
-// ResetBufferKey resets the buffer key, for tests.
-func ResetBufferKey() {
-	bufferKeyOnce = sync.Once{}
-	bufferKey = []byte{}
-}
-
 func (h api) auth(r *http.Request, w http.ResponseWriter, require zint.Bitflag64) error {
 	key, err := tokenFromHeader(r, w)
 	if err != nil {
 		w.Header().Set("WWW-Authenticate", "Basic realm=GoatCounter")
 		return err
-	}
-
-	// From "goatcounter buffer".
-	if r.Header.Get("X-Goatcounter-Buffer") == "1" && r.URL.Path == "/api/v0/count" {
-		bufferKeyOnce.Do(func() {
-			bufferKey, err = goatcounter.LoadBufferKey(r.Context())
-			if err != nil {
-				log.Error(r.Context(), err)
-			}
-		})
-		if subtle.ConstantTimeCompare(bufferKey, []byte(key)) == 0 {
-			return guru.New(http.StatusUnauthorized, "unknown buffer token")
-		}
-		return nil
 	}
 
 	// Regular API token.

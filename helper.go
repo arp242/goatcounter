@@ -13,7 +13,6 @@ import (
 	"github.com/mattn/go-sqlite3"
 	"zgo.at/z18n"
 	"zgo.at/zdb"
-	"zgo.at/zstd/zcrypto"
 	"zgo.at/zstd/zint"
 	"zgo.at/zvalidate"
 )
@@ -61,32 +60,6 @@ func Interval(ctx context.Context, days int) string {
 		return fmt.Sprintf(" now() - interval '%d days' ", days)
 	}
 	return fmt.Sprintf(" datetime(datetime(), '-%d days') ", days)
-}
-
-func NewBufferKey(ctx context.Context) (string, error) {
-	secret := zcrypto.Secret256()
-	err := zdb.TX(ctx, func(ctx context.Context) error {
-		err := zdb.Exec(ctx, `delete from store where key='buffer-secret'`, nil)
-		if err != nil {
-			return err
-		}
-
-		err = zdb.Exec(ctx, `insert into store (key, value) values ('buffer-secret', :s)`, map[string]any{"s": secret})
-		return err
-	})
-	if err != nil {
-		return "", fmt.Errorf("NewBufferKey: %w", err)
-	}
-	return secret, nil
-}
-
-func LoadBufferKey(ctx context.Context) ([]byte, error) {
-	var key []byte
-	err := zdb.Get(ctx, &key, `select value from store where key='buffer-secret'`)
-	if err != nil {
-		return nil, fmt.Errorf("LoadBufferKey: %w", err)
-	}
-	return key, nil
 }
 
 // UUID created a new UUID v4.
