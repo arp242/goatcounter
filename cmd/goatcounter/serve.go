@@ -301,13 +301,10 @@ func cmdServe(f zli.Flags, ready chan<- struct{}, stop chan struct{}, saas bool)
 		d := znet.RemovePort(domain.String())
 		hosts[d] = zhttp.RedirectHost("https://www." + domain.String())
 		hosts["www."+d] = handlers.NewWebsite(db, dev.Bool())
-		if dev.Bool() {
-			hosts[znet.RemovePort(domainStatic.String())] = handlers.NewStatic(chi.NewRouter(), dev.Bool(), true, c.BasePath)
-		}
+		hosts["static."+d] = handlers.NewStatic(chi.NewRouter(), dev.Bool(), true, c.BasePath)
 	}
 	if domainStatic.String() != "" {
-		// May not be needed, but just in case the DomainStatic isn't an
-		// external CDN.
+		// May not be needed, but just in case the DomainStatic isn't an external CDN.
 		hosts[znet.RemovePort(domainStatic.String())] = handlers.NewStatic(chi.NewRouter(), dev.Bool(), false, c.BasePath)
 	}
 

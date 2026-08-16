@@ -174,8 +174,11 @@ func NewStatic(r chi.Router, dev, goatcounterCom bool, basePath string) chi.Rout
 	var cache map[string]int
 	if !dev {
 		cache = map[string]int{
-			"/count.js": 86400,
-			"*":         86400 * 30,
+			"/count.js": 86400 * 7,
+			"*":         86400 * 90,
+		}
+		for i := range 20 {
+			cache[fmt.Sprintf("/count.v%d.js", i+1)] = 86400 * 365
 		}
 	}
 	fsys, err := zfs.EmbedOrDir(goatcounter.Static, "public", dev)
@@ -187,6 +190,11 @@ func NewStatic(r chi.Router, dev, goatcounterCom bool, basePath string) chi.Rout
 	s.Header("/count.js", map[string]string{
 		"Cross-Origin-Resource-Policy": "cross-origin",
 	})
+	for i := range 20 {
+		s.Header(fmt.Sprintf("/count.v%d.js", i+1), map[string]string{
+			"Cross-Origin-Resource-Policy": "cross-origin",
+		})
+	}
 	r.Get("/*", func(w http.ResponseWriter, r *http.Request) {
 		r.URL.Path = strings.TrimPrefix(r.URL.Path, basePath)
 		s.ServeHTTP(w, r)
