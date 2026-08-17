@@ -7,7 +7,7 @@ require (
 	github.com/go-chi/chi/v5 v5.3.1
 	github.com/google/uuid v1.6.0
 	github.com/gorilla/websocket v1.5.3
-	github.com/mattn/go-sqlite3 v1.14.47
+	github.com/mattn/go-sqlite3 v1.14.49
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0
 	github.com/sethvargo/go-limiter v1.1.0
@@ -25,7 +25,7 @@ require (
 	zgo.at/follow v0.0.0-20260217115453-4d2d0f0de407
 	zgo.at/gadget v1.0.0
 	zgo.at/guru v1.2.0
-	zgo.at/isbot v1.0.0
+	zgo.at/isbot v1.1.0
 	zgo.at/jfmt v0.0.0-20260130232205-d030781d0fbb
 	zgo.at/json v0.0.0-20221020004326-fe4f75bb278e
 	zgo.at/otp v0.0.0-20250619162254-96c2c40ec359
@@ -41,19 +41,19 @@ require (
 	zgo.at/zhttp v0.0.0-20260423154033-4733969d592d
 	zgo.at/zli v0.0.0-20251226224229-7bb9a5cf3265
 	zgo.at/zprof v0.0.0-20251228192741-d31275fbf5af
-	zgo.at/zstd v0.0.0-20260523222643-8c0814883fdf
+	zgo.at/zstd v0.0.0-20260802160527-28c9c0471829
 	zgo.at/ztpl v0.0.0-20250628022642-3b2c314e8e05
 	zgo.at/zvalidate v0.0.0-20250622183046-6812c1c79e1a
 )
 
 // golang.org/x
 require (
-	golang.org/x/crypto v0.54.0
+	golang.org/x/crypto v0.55.0
 	golang.org/x/image v0.44.0
-	golang.org/x/mod v0.37.0 // indirect
-	golang.org/x/net v0.57.0
+	golang.org/x/mod v0.40.0 // indirect
+	golang.org/x/net v0.58.0
 	golang.org/x/sync v0.22.0 // indirect
 	golang.org/x/sys v0.47.0
-	golang.org/x/text v0.40.0
-	golang.org/x/tools v0.47.0 // indirect
+	golang.org/x/text v0.41.0
+	golang.org/x/tools v0.49.0 // indirect
 )
