@@ -301,8 +301,7 @@ func (h user) doReset(w http.ResponseWriter, r *http.Request) error {
 		return nil
 	})
 	if err != nil {
-		var vErr *zvalidate.Validator
-		if errors.As(err, &vErr) {
+		if _, ok := errors.AsType[*zvalidate.Validator](err); ok {
 			zhttp.FlashError(w, r, fmt.Sprintf("%s", err))
 			return zhttp.SeeOther(w, "/user/new")
 		}
@@ -408,8 +407,7 @@ func (h user) changePassword(w http.ResponseWriter, r *http.Request) error {
 
 	err = u.UpdatePassword(r.Context(), args.Password)
 	if err != nil {
-		var vErr *zvalidate.Validator
-		if errors.As(err, &vErr) {
+		if _, ok := errors.AsType[*zvalidate.Validator](err); ok {
 			zhttp.FlashError(w, r, fmt.Sprintf("%s", err))
 			return zhttp.SeeOther(w, "/user/auth")
 		}
