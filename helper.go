@@ -8,8 +8,8 @@ import (
 	"fmt"
 	"math"
 	"strconv"
+	"uuid"
 
-	"github.com/google/uuid"
 	"github.com/mattn/go-sqlite3"
 	"zgo.at/z18n"
 	"zgo.at/zdb"
@@ -62,17 +62,13 @@ func Interval(ctx context.Context, days int) string {
 	return fmt.Sprintf(" datetime(datetime(), '-%d days') ", days)
 }
 
-// UUID created a new UUID v4.
+// UUID creates a new UUID v4.
 func UUID() zint.Uint128 {
-	u, err := uuid.NewRandom()
-	if err != nil {
-		panic(fmt.Sprintf("uuid.NewRandom: %s", err))
-	}
+	u := uuid.NewV4()
 	i, err := zint.NewUint128(u[:])
 	if err != nil {
 		panic(err)
 	}
-
 	return i
 }
 

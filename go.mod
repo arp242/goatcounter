@@ -5,7 +5,6 @@ go 1.27.0
 require (
 	github.com/bmatcuk/doublestar/v4 v4.10.0
 	github.com/go-chi/chi/v5 v5.3.1
-	github.com/google/uuid v1.6.0
 	github.com/gorilla/websocket v1.5.3
 	github.com/mattn/go-sqlite3 v1.14.49
 	github.com/rivo/uniseg v0.4.7 // indirect
