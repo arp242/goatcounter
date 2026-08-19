@@ -10,6 +10,7 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -401,9 +402,9 @@ func importLog(
 
 		if line.XForwardedFor() != "" {
 			xffSplit := strings.Split(line.XForwardedFor(), ",")
-			for i := len(xffSplit) - 1; i >= 0; i-- {
-				if !znet.PrivateIP(net.ParseIP(xffSplit[i])) {
-					hit.IP = znet.RemovePort(strings.TrimSpace(xffSplit[i]))
+			for _, x := range slices.Backward(xffSplit) {
+				if !znet.PrivateIP(net.ParseIP(x)) {
+					hit.IP = znet.RemovePort(strings.TrimSpace(x))
 					break
 				}
 			}

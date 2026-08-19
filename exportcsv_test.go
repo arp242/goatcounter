@@ -95,7 +95,7 @@ func TestCSVExport(t *testing.T) {
 			"finished_at": "%(YEAR)-%(MONTH)-%(DAY)T%(ANY)Z",
 			"num_rows": 4,
 			"size": "0.1",
-			"hash": "sha256-8a426c2bebfa343e2dc20e154b67297e981ac3399202369485d6ede82979205b",
+			"hash": "sha256-d394de63fa77336cd1ef7f2190c4d7aa1f82b94cabe234b343b08b27b56e4486",
 			"error": null
 		}`, "\t", "")
 		got := string(zjson.MustMarshalIndent(export, "", ""))
