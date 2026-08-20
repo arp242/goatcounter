@@ -1209,6 +1209,8 @@ GoatCounter는 제한된 API를 제공합니다. 현재 API를 통해 페이지�
 ["widget-setting/help/align"]
   default = "페이지 차트와 맞추기 위해 왼쪽에 여백을 추가하세요."
 
+["widget-setting/help/by-count"]
+
 ["widget-setting/help/chart-style"]
   default = "차트를 그리는 방법"
 
@@ -1226,6 +1228,8 @@ GoatCounter는 제한된 API를 제공합니다. 현재 API를 통해 페이지�
 
 ["widget-setting/label/align"]
   default = "페이지와 맞추기"
+
+["widget-setting/label/by-count"]
 
 ["widget-setting/label/chart-style"]
   default = "차트 스타일"

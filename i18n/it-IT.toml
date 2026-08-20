@@ -1328,6 +1328,8 @@ Per favore verifica la tua email cliccando sul link inviato a %(email).
 ["widget-setting/help/align"]
   default = "Aggiungi margine a sinistra per allineare i grafici delle pagine"
 
+["widget-setting/help/by-count"]
+
 ["widget-setting/help/chart-style"]
   default = "Come disegnare i grafici"
 
@@ -1345,6 +1347,8 @@ Per favore verifica la tua email cliccando sul link inviato a %(email).
 
 ["widget-setting/label/align"]
   default = "Allinea alle pagine"
+
+["widget-setting/label/by-count"]
 
 ["widget-setting/label/chart-style"]
   default = "Stile del grafico"

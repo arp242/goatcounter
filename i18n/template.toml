@@ -127,7 +127,7 @@
     "tpl/_dashboard_configure_widget.gohtml:3",
     "tpl/settings_main.gohtml:155",
     "tpl/user_dashboard.gohtml:24",
-    "tpl/user_pref.gohtml:149",
+    "tpl/user_pref.gohtml:150",
   ]
   default = "Save"
 
@@ -181,7 +181,7 @@
   default = "Delete %(email)?"
 
 ["dashboard/day-ago"]
-  loc     = ["handlers/dashboard.go:220"]
+  loc     = ["handlers/dashboard.go:244"]
   default = "%(n) days ago"
 
 ["dashboard/loading"]
@@ -189,7 +189,7 @@
   default = "Loading…"
 
 ["dashboard/month-ago"]
-  loc     = ["handlers/dashboard.go:222"]
+  loc     = ["handlers/dashboard.go:246"]
   default = "%(n) months ago"
 
 ["dashboard/nothing-to-display"]
@@ -227,11 +227,11 @@
   default = "Visits"
 
 ["dashboard/today"]
-  loc     = ["handlers/dashboard.go:218"]
+  loc     = ["handlers/dashboard.go:242"]
   default = "Today"
 
 ["dashboard/tooltip-event"]
-  loc     = ["handlers/handlers.go:124"]
+  loc     = ["handlers/handlers.go:147"]
   default = "%(unique) clicks; %(clicks) total clicks"
 
 ["dashboard/totals/header"]
@@ -246,111 +246,111 @@
   default = "%(num-visits) visits"
 
 ["dashboard/week-ago"]
-  loc     = ["handlers/dashboard.go:221"]
+  loc     = ["handlers/dashboard.go:245"]
   default = "%(n) weeks ago"
 
 ["dashboard/yesterday"]
-  loc     = ["handlers/dashboard.go:219"]
+  loc     = ["handlers/dashboard.go:243"]
   default = "Yesterday"
 
 ["data-collect/help/country"]
-  loc     = ["settings.go:442"]
+  loc     = ["settings.go:448"]
   default = "Country name, for example Belgium, Indonesia, etc."
 
 ["data-collect/help/hits"]
-  loc     = ["settings.go:417"]
+  loc     = ["settings.go:423"]
   default = "Store individual pageviews for exports. This doesn’t affect anything else. The API can still be used to export aggregate data."
 
 ["data-collect/help/language"]
-  loc     = ["settings.go:452"]
+  loc     = ["settings.go:458"]
   default = "Supported languages from Accept-Language."
 
 ["data-collect/help/referrer"]
-  loc     = ["settings.go:427"]
+  loc     = ["settings.go:433"]
   default = "Referer header and campaign parameters."
 
 ["data-collect/help/region"]
-  loc     = ["settings.go:447"]
+  loc     = ["settings.go:453"]
   default = "Region, for example Texas, Bali, etc. The details for this differ per country."
 
 ["data-collect/help/sessions"]
-  loc     = ["settings.go:422"]
+  loc     = ["settings.go:428"]
   default = "%[Track unique visitors] for up to 8 hours; if you disable this then someone pressing e.g. F5 to reload the page will just show as 2 pageviews instead of 1."
 
 ["data-collect/help/size"]
-  loc     = ["settings.go:437"]
+  loc     = ["settings.go:443"]
   default = "Screen size."
 
 ["data-collect/help/user-agent"]
-  loc     = ["settings.go:432"]
+  loc     = ["settings.go:438"]
   default = "Browser and system name derived from the User-Agent header (the header itself is not stored)."
 
 ["data-collect/label/country"]
-  loc     = ["settings.go:441"]
+  loc     = ["settings.go:447"]
   default = "Country"
 
 ["data-collect/label/hits"]
-  loc     = ["settings.go:416"]
+  loc     = ["settings.go:422"]
   default = "Individual pageviews"
 
 ["data-collect/label/language"]
-  loc     = ["settings.go:451"]
+  loc     = ["settings.go:457"]
   default = "Language"
 
 ["data-collect/label/referrer"]
-  loc     = ["settings.go:426"]
+  loc     = ["settings.go:432"]
   default = "Referrer"
 
 ["data-collect/label/region"]
-  loc     = ["settings.go:446"]
+  loc     = ["settings.go:452"]
   default = "Region"
 
 ["data-collect/label/sessions"]
-  loc     = ["settings.go:421"]
+  loc     = ["settings.go:427"]
   default = "Sessions"
 
 ["data-collect/label/size"]
-  loc     = ["settings.go:436"]
+  loc     = ["settings.go:442"]
   default = "Size"
 
 ["data-collect/label/user-agent"]
-  loc     = ["settings.go:431"]
+  loc     = ["settings.go:437"]
   default = "User-Agent"
 
 ["datepicker/keyboard"]
-  loc     = ["handlers/handlers.go:126"]
+  loc     = ["handlers/handlers.go:149"]
   default = "Use the arrow keys to pick a date"
 
 ["datepicker/month-next"]
-  loc     = ["handlers/handlers.go:128"]
+  loc     = ["handlers/handlers.go:151"]
   default = "Next month"
 
 ["datepicker/month-prev"]
-  loc     = ["handlers/handlers.go:127"]
+  loc     = ["handlers/handlers.go:150"]
   default = "Previous month"
 
 ["dont-lock"]
-  loc     = ["tpl/user_pref.gohtml:113"]
+  loc     = ["tpl/user_pref.gohtml:114"]
   default = "Don’t lock"
 
 ["email-report/daily"]
-  loc     = ["tpl/user_pref.gohtml:135"]
+  loc     = ["tpl/user_pref.gohtml:136"]
   default = "Daily"
 
 ["email-report/monthly"]
-  loc     = ["tpl/user_pref.gohtml:138"]
+  loc     = ["tpl/user_pref.gohtml:139"]
   default = "Monthly"
 
 ["email-report/never"]
-  loc     = ["tpl/user_pref.gohtml:134"]
+  loc     = ["tpl/user_pref.gohtml:135"]
   default = "Never"
 
 ["email-report/two-weeks"]
-  loc     = ["tpl/user_pref.gohtml:137"]
+  loc     = ["tpl/user_pref.gohtml:138"]
   default = "Every two weeks"
 
 ["email-report/weekly"]
-  loc     = ["tpl/user_pref.gohtml:136"]
+  loc     = ["tpl/user_pref.gohtml:137"]
   default = "Weekly"
 
 ["email/header"]
@@ -394,15 +394,15 @@ Martin
   default = "Could not read as gzip: %(err)"
 
 ["error/date-future"]
-  loc     = ["handlers/handlers.go:119"]
+  loc     = ["handlers/handlers.go:142"]
   default = "That would be in the future"
 
 ["error/date-mismatch"]
-  loc     = ["handlers/handlers.go:121"]
+  loc     = ["handlers/handlers.go:144"]
   default = "end date is before start date"
 
 ["error/date-past"]
-  loc     = ["handlers/handlers.go:120"]
+  loc     = ["handlers/handlers.go:143"]
   default = "That would be before the site’s creation"
 
 ["error/email-exists"]
@@ -421,15 +421,15 @@ Martin
   default = "Current password is incorrect."
 
 ["error/invalid-end-date"]
-  loc     = ["handlers/dashboard.go:398"]
+  loc     = ["handlers/dashboard.go:424"]
   default = "Invalid end date: %(date)"
 
 ["error/invalid-start-date"]
-  loc     = ["handlers/dashboard.go:391"]
+  loc     = ["handlers/dashboard.go:417"]
   default = "Invalid start date: %(date)"
 
 ["error/load-url"]
-  loc     = ["handlers/handlers.go:122"]
+  loc     = ["handlers/handlers.go:145"]
   default = "Could not load %(url): %(error)"
 
 ["error/login-invalid"]
@@ -461,7 +461,7 @@ Martin
 
 ["error/not-found"]
   loc = [
-    "handlers/backend.go:78",
+    "handlers/backend.go:84",
     "handlers/settings.go:368",
     "handlers/settings.go:1307",
   ]
@@ -592,7 +592,7 @@ Martin
   default = "Export to JSON"
 
 ["header/fewer-number"]
-  loc     = ["tpl/user_pref.gohtml:88"]
+  loc     = ["tpl/user_pref.gohtml:89"]
   default = "Show fewer numbers"
 
 ["header/finished"]
@@ -725,7 +725,7 @@ Martin
 ["header/preferences"]
   loc = [
     "tpl/user_pref.gohtml:4",
-    "tpl/user_pref.gohtml:123",
+    "tpl/user_pref.gohtml:124",
   ]
   default = "Preferences"
 
@@ -761,7 +761,7 @@ Martin
   default = "Size"
 
 ["header/sizes"]
-  loc     = ["widgets/sizes.go:67"]
+  loc     = ["widgets/sizes.go:71"]
   default = "Sizes"
 
 ["header/start-pagination-cursor"]
@@ -856,7 +856,7 @@ The verification runs every 2 hours.
   default = "Pageviews and all associated data will be permanently removed after this many days. Set to <code>0</code> to never delete."
 
 ["help/datepicker"]
-  loc     = ["tpl/user_pref.gohtml:144"]
+  loc     = ["tpl/user_pref.gohtml:145"]
   default = "GoatCounter uses a custom JavaScript datepicker on desktop systems as that often gives a better experience. You can disable it to use the native datepicker. On mobile systems it will always use the native datepicker."
 
 ["help/domain-access"]
@@ -868,11 +868,11 @@ The verification runs every 2 hours.
   default = "Drag to reorder"
 
 ["help/email-reports"]
-  loc     = ["tpl/user_pref.gohtml:140"]
+  loc     = ["tpl/user_pref.gohtml:141"]
   default = "Reports are sent on the first day of the new period (e.g. first day of the month)."
 
 ["help/fewer-numbers"]
-  loc     = ["tpl/user_pref.gohtml:98"]
+  loc     = ["tpl/user_pref.gohtml:99"]
   default = """
 Don’t show numbers on the dashboard. This is intended to
 still give a reasonably useful overview of what happens on
@@ -881,7 +881,7 @@ of visitors and stats.
 """
 
 ["help/fewer-numbers-lock"]
-  loc     = ["tpl/user_pref.gohtml:117"]
+  loc     = ["tpl/user_pref.gohtml:118"]
   default = "You won’t be able to disable this setting for the given time period."
 
 ["help/for-the-following-countries"]
@@ -901,7 +901,7 @@ of visitors and stats.
   default = "Alternatively, %[disable for this browser] (click again to enable)."
 
 ["help/locked-until"]
-  loc     = ["tpl/user_pref.gohtml:108"]
+  loc     = ["tpl/user_pref.gohtml:109"]
   default = "Locked until %(date)"
 
 ["help/need-cities"]
@@ -955,7 +955,7 @@ GeoIP database. See the <tt>-geo</tt> flag in
   default = "You will need to re-verify the new address if you change it."
 
 ["label/24-hour-clock"]
-  loc     = ["tpl/user_pref.gohtml:61"]
+  loc     = ["tpl/user_pref.gohtml:62"]
   default = "24-hour clock (13:00)"
 
 ["label/access-to-sites"]
@@ -1031,11 +1031,11 @@ GeoIP database. See the <tt>-geo</tt> flag in
   default = "Data retention in days"
 
 ["label/date-fmt"]
-  loc     = ["tpl/user_pref.gohtml:51"]
+  loc     = ["tpl/user_pref.gohtml:52"]
   default = "Date format"
 
 ["label/datepicker"]
-  loc     = ["tpl/user_pref.gohtml:143"]
+  loc     = ["tpl/user_pref.gohtml:144"]
   default = "Enable custom datepicker"
 
 ["label/delete-account-confirmation"]
@@ -1058,7 +1058,7 @@ GeoIP database. See the <tt>-geo</tt> flag in
   default = "Email address"
 
 ["label/email-reports"]
-  loc     = ["tpl/user_pref.gohtml:132"]
+  loc     = ["tpl/user_pref.gohtml:133"]
   default = "Send email reports"
 
 ["label/export-from-date"]
@@ -1066,7 +1066,7 @@ GeoIP database. See the <tt>-geo</tt> flag in
   default = "Export from date"
 
 ["label/fewer-numbers"]
-  loc     = ["tpl/user_pref.gohtml:96"]
+  loc     = ["tpl/user_pref.gohtml:97"]
   default = "Show fewer numbers"
 
 ["label/for-following-countries"]
@@ -1094,7 +1094,7 @@ GeoIP database. See the <tt>-geo</tt> flag in
   default = "Location stats"
 
 ["label/lock-setting"]
-  loc     = ["tpl/user_pref.gohtml:111"]
+  loc     = ["tpl/user_pref.gohtml:112"]
   default = "Lock setting"
 
 ["label/mark-current"]
@@ -1186,7 +1186,7 @@ GeoIP database. See the <tt>-geo</tt> flag in
 ["label/set-default"]
   loc = [
     "tpl/user_dashboard.gohtml:27",
-    "tpl/user_pref.gohtml:152",
+    "tpl/user_pref.gohtml:153",
   ]
   default = "Also set as default for new users and the public view (if enabled)."
 
@@ -1203,7 +1203,7 @@ GeoIP database. See the <tt>-geo</tt> flag in
   default = "Phones"
 
 ["label/size-stats"]
-  loc     = ["widgets/sizes.go:25"]
+  loc     = ["widgets/sizes.go:26"]
   default = "Size stats"
 
 ["label/size-tablets"]
@@ -1215,15 +1215,15 @@ GeoIP database. See the <tt>-geo</tt> flag in
   default = "System stats"
 
 ["label/theme"]
-  loc     = ["tpl/user_pref.gohtml:125"]
+  loc     = ["tpl/user_pref.gohtml:126"]
   default = "Theme"
 
 ["label/thousand-separator"]
-  loc     = ["tpl/user_pref.gohtml:66"]
+  loc     = ["tpl/user_pref.gohtml:67"]
   default = "Thousands separator"
 
 ["label/timezone"]
-  loc     = ["tpl/user_pref.gohtml:77"]
+  loc     = ["tpl/user_pref.gohtml:78"]
   default = "Timezone"
 
 ["label/topref"]
@@ -1243,7 +1243,7 @@ GeoIP database. See the <tt>-geo</tt> flag in
   default = "Verification token"
 
 ["label/week-start"]
-  loc     = ["tpl/user_pref.gohtml:64"]
+  loc     = ["tpl/user_pref.gohtml:65"]
   default = "Week starts on Sunday"
 
 ["label/your-email"]
@@ -1259,7 +1259,7 @@ GeoIP database. See the <tt>-geo</tt> flag in
   default = "ZIP file"
 
 ["link/add-translation"]
-  loc     = ["tpl/user_pref.gohtml:49"]
+  loc     = ["tpl/user_pref.gohtml:50"]
   default = "Add or update translations"
 
 ["link/api"]
@@ -1311,7 +1311,7 @@ GeoIP database. See the <tt>-geo</tt> flag in
   default = "Delete account"
 
 ["link/set-from-browser"]
-  loc     = ["tpl/user_pref.gohtml:84"]
+  loc     = ["tpl/user_pref.gohtml:85"]
   default = "Set from browser"
 
 ["link/settings"]
@@ -1385,7 +1385,7 @@ GeoIP database. See the <tt>-geo</tt> flag in
   default = "Filter paths"
 
 ["nav-dash/filter-more-help"]
-  loc     = ["handlers/handlers.go:129"]
+  loc     = ["handlers/handlers.go:152"]
   default = "More help"
 
 ["nav-dash/filter-tooltip"]
@@ -1459,7 +1459,7 @@ GeoIP database. See the <tt>-geo</tt> flag in
   default = "year"
 
 ["nav-fash/filter-less-help"]
-  loc     = ["handlers/handlers.go:130"]
+  loc     = ["handlers/handlers.go:153"]
   default = "Less help"
 
 ["new-paren"]
@@ -1546,7 +1546,7 @@ GeoIP database. See the <tt>-geo</tt> flag in
 
 ["notify/saved"]
   loc = [
-    "handlers/handlers.go:123",
+    "handlers/handlers.go:146",
     "handlers/settings.go:229",
     "handlers/settings.go:254",
     "handlers/settings_user.go:97",
@@ -1615,7 +1615,7 @@ users or anything else. For example:
     "tpl/settings_users_form.gohtml:81",
     "tpl/signup.gohtml:63",
     "tpl/user_dashboard.gohtml:38",
-    "tpl/user_pref.gohtml:159",
+    "tpl/user_pref.gohtml:160",
   ]
   default = "Additional errors"
 
@@ -1895,15 +1895,15 @@ Matches are case insensitive. Supports the following special characters:
   default = "Scale the Y-axis of all charts the to highest value in this chart (%(n))"
 
 ["theme/dark"]
-  loc     = ["tpl/user_pref.gohtml:129"]
+  loc     = ["tpl/user_pref.gohtml:130"]
   default = "Dark"
 
 ["theme/light"]
-  loc     = ["tpl/user_pref.gohtml:128"]
+  loc     = ["tpl/user_pref.gohtml:129"]
   default = "Light"
 
 ["theme/system"]
-  loc     = ["tpl/user_pref.gohtml:127"]
+  loc     = ["tpl/user_pref.gohtml:128"]
   default = "Use system setting"
 
 ["tooltip/change-period"]
@@ -1961,59 +1961,59 @@ Matches are case insensitive. Supports the following special characters:
   default = "(unknown)"
 
 ["validate/bool"]
-  loc     = ["helper.go:138"]
+  loc     = ["helper.go:111"]
   default = "must be a boolean"
 
 ["validate/color"]
-  loc     = ["helper.go:132"]
+  loc     = ["helper.go:105"]
   default = "must be a valid color code"
 
 ["validate/contains"]
-  loc     = ["helper.go:144"]
+  loc     = ["helper.go:117"]
   default = "cannot contain the characters %s"
 
 ["validate/date"]
-  loc     = ["helper.go:139"]
+  loc     = ["helper.go:112"]
   default = "must be a date as ‘%s’"
 
 ["validate/domain"]
-  loc     = ["helper.go:126"]
+  loc     = ["helper.go:99"]
   default = "must be a valid domain"
 
 ["validate/email"]
-  loc     = ["helper.go:129"]
+  loc     = ["helper.go:102"]
   default = "must be a valid email address"
 
 ["validate/exclude"]
-  loc     = ["helper.go:135"]
+  loc     = ["helper.go:108"]
   default = "cannot be ‘%s’"
 
 ["validate/hostname"]
-  loc     = ["helper.go:127"]
+  loc     = ["helper.go:100"]
   default = "must be a valid hostname"
 
 ["validate/include"]
-  loc     = ["helper.go:136"]
+  loc     = ["helper.go:109"]
   default = "must be one of ‘%s’"
 
 ["validate/int"]
-  loc     = ["helper.go:137"]
+  loc     = ["helper.go:110"]
   default = "must be a whole number"
 
 ["validate/ip"]
-  loc     = ["helper.go:131"]
+  loc     = ["helper.go:104"]
   default = "must be a valid IPv4 or IPv6 address"
 
 ["validate/ipv4"]
-  loc     = ["helper.go:130"]
+  loc     = ["helper.go:103"]
   default = "must be a valid IPv4 address"
 
 ["validate/len-longer"]
-  loc     = ["helper.go:133"]
+  loc     = ["helper.go:106"]
   default = "must be longer than %d characters"
 
 ["validate/len-shorter"]
-  loc     = ["helper.go:134"]
+  loc     = ["helper.go:107"]
   default = "must be shorter than %d characters"
 
 ["validate/need-one"]
@@ -2024,35 +2024,39 @@ Matches are case insensitive. Supports the following special characters:
   default = "must select at least one"
 
 ["validate/phone"]
-  loc     = ["helper.go:140"]
+  loc     = ["helper.go:113"]
   default = "must be a valid phone number"
 
 ["validate/range-higher"]
-  loc     = ["helper.go:141"]
+  loc     = ["helper.go:114"]
   default = "must be %d or higher"
 
 ["validate/range-lower"]
-  loc     = ["helper.go:142"]
+  loc     = ["helper.go:115"]
   default = "must be %d or lower"
 
 ["validate/required"]
-  loc     = ["helper.go:125"]
+  loc     = ["helper.go:98"]
   default = "must be set"
 
 ["validate/url"]
-  loc     = ["helper.go:128"]
+  loc     = ["helper.go:101"]
   default = "must be a valid url"
 
 ["validate/utf8"]
-  loc     = ["helper.go:143"]
+  loc     = ["helper.go:116"]
   default = "must be UTF-8"
 
 ["view not set"]
-  loc     = ["settings.go:644"]
+  loc     = ["settings.go:650"]
 
 ["widget-setting/help/align"]
   loc     = ["settings.go:190"]
   default = "Add margin to the left so it aligns with pages charts"
+
+["widget-setting/help/by-count"]
+  loc     = ["settings.go:256"]
+  default = "Sort table by number of pageviews, instead of screen size"
 
 ["widget-setting/help/chart-style"]
   loc = [
@@ -2071,9 +2075,9 @@ Matches are case insensitive. Supports the following special characters:
     "settings.go:217",
     "settings.go:230",
     "settings.go:243",
-    "settings.go:258",
-    "settings.go:289",
-    "settings.go:301",
+    "settings.go:264",
+    "settings.go:295",
+    "settings.go:307",
   ]
   default = "Number of pages to load"
 
@@ -2082,12 +2086,16 @@ Matches are case insensitive. Supports the following special characters:
   default = "Number of referrers to load when clicking on a path"
 
 ["widget-setting/help/regions"]
-  loc     = ["settings.go:268"]
+  loc     = ["settings.go:274"]
   default = "Show regions for this country instead of a country list"
 
 ["widget-setting/label/align"]
   loc     = ["settings.go:189"]
   default = "Align with pages"
+
+["widget-setting/label/by-count"]
+  loc     = ["settings.go:255"]
+  default = "Sort by count"
 
 ["widget-setting/label/chart-style"]
   loc = [
@@ -2106,9 +2114,9 @@ Matches are case insensitive. Supports the following special characters:
     "settings.go:216",
     "settings.go:229",
     "settings.go:242",
-    "settings.go:257",
-    "settings.go:288",
-    "settings.go:300",
+    "settings.go:263",
+    "settings.go:294",
+    "settings.go:306",
   ]
   default = "Page size"
 
@@ -2117,7 +2125,7 @@ Matches are case insensitive. Supports the following special characters:
   default = "Referrers page size"
 
 ["widget-setting/label/regions"]
-  loc     = ["settings.go:267"]
+  loc     = ["settings.go:273"]
   default = "Show regions"
 
 ["widget-settings/bar-chart"]

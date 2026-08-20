@@ -954,6 +954,8 @@ Hilsen Martin
 
 ["widget-setting/help/align"]
 
+["widget-setting/help/by-count"]
+
 ["widget-setting/help/chart-style"]
 
 ["widget-setting/help/no-events"]
@@ -965,6 +967,8 @@ Hilsen Martin
 ["widget-setting/help/regions"]
 
 ["widget-setting/label/align"]
+
+["widget-setting/label/by-count"]
 
 ["widget-setting/label/chart-style"]
 

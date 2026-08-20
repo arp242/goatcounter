@@ -1219,6 +1219,8 @@ Martin
 ["widget-setting/help/align"]
   default = "ページのグラフと揃うように左側に余白を追加します"
 
+["widget-setting/help/by-count"]
+
 ["widget-setting/help/chart-style"]
   default = "グラフの表示形式"
 
@@ -1236,6 +1238,8 @@ Martin
 
 ["widget-setting/label/align"]
   default = "ページと合わせる"
+
+["widget-setting/label/by-count"]
 
 ["widget-setting/label/chart-style"]
   default = "グラフ形式"

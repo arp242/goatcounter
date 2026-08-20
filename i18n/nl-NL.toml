@@ -1301,6 +1301,8 @@ site</strong>.
 ["widget-setting/help/align"]
   default = "Marge aan de linkerkant zodat de grafieken uitlijnen"
 
+["widget-setting/help/by-count"]
+
 ["widget-setting/help/chart-style"]
 
 ["widget-setting/help/no-events"]
@@ -1317,6 +1319,8 @@ site</strong>.
 
 ["widget-setting/label/align"]
   default = "Lijn uit met pagina's"
+
+["widget-setting/label/by-count"]
 
 ["widget-setting/label/chart-style"]
   default = "Grafiek stijl"

@@ -1406,6 +1406,8 @@ RENAME   /weblog/other.html  /other.html
 ["widget-setting/help/align"]
   default = "Добавяне на отстъп отляво, за да се подравни с графиките на страниците"
 
+["widget-setting/help/by-count"]
+
 ["widget-setting/help/chart-style"]
   default = "Как да се изчертават графиките"
 
@@ -1423,6 +1425,8 @@ RENAME   /weblog/other.html  /other.html
 
 ["widget-setting/label/align"]
   default = "Подравняване със страниците"
+
+["widget-setting/label/by-count"]
 
 ["widget-setting/label/chart-style"]
   default = "Стил на графиката"

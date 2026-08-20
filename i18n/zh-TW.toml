@@ -1037,6 +1037,8 @@
 
 ["widget-setting/help/align"]
 
+["widget-setting/help/by-count"]
+
 ["widget-setting/help/chart-style"]
   default = "如何顯示圖表"
 
@@ -1049,6 +1051,8 @@
 ["widget-setting/help/regions"]
 
 ["widget-setting/label/align"]
+
+["widget-setting/label/by-count"]
 
 ["widget-setting/label/chart-style"]
   default = "圖表樣式"

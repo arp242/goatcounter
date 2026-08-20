@@ -1226,6 +1226,8 @@ Comenzar es fácil, sólo añade el siguiente JavaScript en cualquier parte de l
 ["widget-setting/help/align"]
   default = "Añadir margen a la izquierda para que el gráfico quede alineado con los gráficos de las páginas"
 
+["widget-setting/help/by-count"]
+
 ["widget-setting/help/chart-style"]
   default = "Cómo dibujar los gráficos"
 
@@ -1243,6 +1245,8 @@ Comenzar es fácil, sólo añade el siguiente JavaScript en cualquier parte de l
 
 ["widget-setting/label/align"]
   default = "Alinear con páginas"
+
+["widget-setting/label/by-count"]
 
 ["widget-setting/label/chart-style"]
   default = "Estilo del gráfico"

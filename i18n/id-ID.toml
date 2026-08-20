@@ -1235,6 +1235,8 @@ Ini akan <strong>menghapus semua data terkait</strong> dan <strong>ini adalah si
 ["widget-setting/help/align"]
   default = "Tambahkan batasan ke kiri supaya sejajar dengan grafik laman"
 
+["widget-setting/help/by-count"]
+
 ["widget-setting/help/chart-style"]
   default = "Cara menggambar grafik"
 
@@ -1252,6 +1254,8 @@ Ini akan <strong>menghapus semua data terkait</strong> dan <strong>ini adalah si
 
 ["widget-setting/label/align"]
   default = "Sejajarkan dengan laman"
+
+["widget-setting/label/by-count"]
 
 ["widget-setting/label/chart-style"]
   default = "Gaya grafik"

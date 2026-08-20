@@ -1232,6 +1232,8 @@ Dadurch werden <strong>alle mit der Website verknüpften Daten</strong> gelösch
 ["widget-setting/help/align"]
   default = "Linken Rand hinzufügen, um mit den Graphen bündig zu sein"
 
+["widget-setting/help/by-count"]
+
 ["widget-setting/help/chart-style"]
   default = "Wie die Graphen zu zeichnen sind"
 
@@ -1249,6 +1251,8 @@ Dadurch werden <strong>alle mit der Website verknüpften Daten</strong> gelösch
 
 ["widget-setting/label/align"]
   default = "An Seite ausrichten"
+
+["widget-setting/label/by-count"]
 
 ["widget-setting/label/chart-style"]
   default = "Art der Grafik"

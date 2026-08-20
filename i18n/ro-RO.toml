@@ -1017,6 +1017,8 @@ Verificarile ruleaza la fiecare doua ore.
 
 ["widget-setting/help/align"]
 
+["widget-setting/help/by-count"]
+
 ["widget-setting/help/chart-style"]
 
 ["widget-setting/help/no-events"]
@@ -1028,6 +1030,8 @@ Verificarile ruleaza la fiecare doua ore.
 ["widget-setting/help/regions"]
 
 ["widget-setting/label/align"]
+
+["widget-setting/label/by-count"]
 
 ["widget-setting/label/chart-style"]
 

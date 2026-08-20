@@ -1229,6 +1229,8 @@ Martin
 ["widget-setting/help/align"]
   default = "在左侧添加外边距，使其与路径图表对齐"
 
+["widget-setting/help/by-count"]
+
 ["widget-setting/help/chart-style"]
   default = "如何绘制图表"
 
@@ -1246,6 +1248,8 @@ Martin
 
 ["widget-setting/label/align"]
   default = "与路径图表对齐"
+
+["widget-setting/label/by-count"]
 
 ["widget-setting/label/chart-style"]
   default = "图表样式"

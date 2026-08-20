@@ -1136,6 +1136,8 @@
 
 ["widget-setting/help/align"]
 
+["widget-setting/help/by-count"]
+
 ["widget-setting/help/chart-style"]
   default = "Как отображать графики"
 
@@ -1152,6 +1154,8 @@
   default = "Показывать регионы страны вместо списка стран"
 
 ["widget-setting/label/align"]
+
+["widget-setting/label/by-count"]
 
 ["widget-setting/label/chart-style"]
   default = "Вид диаграммы"

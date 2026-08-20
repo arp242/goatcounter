@@ -48,6 +48,8 @@
 ["button/merge"]
   default = "Fusionner"
 
+["button/preview"]
+
 ["button/remove"]
   default = "Supprimer"
 
@@ -62,6 +64,8 @@
 
 ["button/reset-password"]
   default = "Réinitialiser le mot de passe"
+
+["button/run"]
 
 ["button/save"]
   default = "Enregistrer"
@@ -361,6 +365,8 @@ Martin
 ["header/created-at"]
   default = "Créé le"
 
+["header/csv-format"]
+
 ["header/dashboard"]
   default = "Tableau de bord"
 
@@ -369,6 +375,8 @@ Martin
 
 ["header/delete-account"]
   default = "Supprimer le compte"
+
+["header/deleting"]
 
 ["header/domain"]
   default = "Domaine"
@@ -382,11 +390,12 @@ Martin
 ["header/email"]
   default = "E-mail"
 
-["header/export"]
-  default = "Export"
-
 ["header/export-or-import"]
   default = "Export / Import"
+
+["header/export-to-csv"]
+
+["header/export-to-json"]
 
 ["header/fewer-number"]
   default = "Afficher moins de chiffres"
@@ -400,11 +409,18 @@ Martin
 ["header/forgot-password"]
   default = "Mot de passe oublié"
 
+["header/format"]
+
 ["header/hash"]
   default = "Hash"
 
-["header/import"]
-  default = "Importation"
+["header/import-from-csv"]
+
+["header/import-from-ga"]
+
+["header/import-from-json"]
+
+["header/json-format"]
 
 ["header/l10n"]
   default = "Traduction"
@@ -430,6 +446,8 @@ Martin
 ["header/merge-account"]
   default = "Fusionner des comptes"
 
+["header/merging-to"]
+
 ["header/mfa"]
   default = "Authentification multi-facteur"
 
@@ -438,6 +456,8 @@ Martin
 
 ["header/name"]
   default = "Nom"
+
+["header/other-formats"]
 
 ["header/pagination-cursor"]
   default = "Curseur de pagination"
@@ -453,6 +473,8 @@ Martin
 
 ["header/preferences"]
   default = "Préférences"
+
+["header/renaming"]
 
 ["header/reset-password"]
   default = "Réinitialiser le mot de passe de %(email) pour %(site-name)"
@@ -679,6 +701,8 @@ base de données GeoIP. Consultez l'indicateur <tt>-geo</tt> dans
 ["label/email-reports"]
   default = "Envoyer des rapports par e-mail"
 
+["label/export-from-date"]
+
 ["label/fewer-numbers"]
   default = "Afficher moins de chiffres"
 
@@ -807,6 +831,8 @@ base de données GeoIP. Consultez l'indicateur <tt>-geo</tt> dans
 
 ["label/your-site"]
   default = "Votre site"
+
+["label/zip-file"]
 
 ["link/add-translation"]
   default = "Ajouter ou modifier une traduction"
@@ -1079,6 +1105,8 @@ L'exportation CSV nécessite que la collecte des pages vues soit activée dans l
 <p>Vous pouvez toujours utiliser l'API pour obtenir les statistiques agrégées utilisées sur le tableau de bord ; voir la documentation de l'API %[%api API docs].</p>
 """
 
+["p/export-from-date"]
+
 ["p/export-process"]
   default = "<p>Démarrer le processus et vous envoyer un lien de téléchargement une fois que c'est fait. une fois qu'il est terminé. Vous ne pouvez effectuer cette opération qu'une fois par heure et elle annulera toutes les sauvegardes précédentes. sauvegardes précédentes que vous pourriez avoir.</p>"
 
@@ -1092,8 +1120,14 @@ Google Analytics ne propose pas d’exportations pertinentes ; il ne propose que
 La mise à jour des chiffres du compteur de visiteurs peut prendre jusqu’à 30 minutes.
 """
 
+["p/json-file-format"]
+
 ["p/last-user"]
   default = "Impossible de supprimer ou modifier le dernier administrateur"
+
+["p/link-to-batch-rename"]
+
+["p/manage-batch-hits"]
 
 ["p/manage-hits"]
   default = "Supprimer ou fusionner les pages vues."
@@ -1283,6 +1317,8 @@ Le domaine de votre site, par exemple <em>\\\"www.example.com\\\"</em>, utilisé
 ["widget-setting/help/align"]
   default = "Ajouter une marge à gauche pour aligner sur les graphiques"
 
+["widget-setting/help/by-count"]
+
 ["widget-setting/help/chart-style"]
   default = "Comment présenter les graphiques"
 
@@ -1300,6 +1336,8 @@ Le domaine de votre site, par exemple <em>\\\"www.example.com\\\"</em>, utilisé
 
 ["widget-setting/label/align"]
   default = "Aligner sur les pages"
+
+["widget-setting/label/by-count"]
 
 ["widget-setting/label/chart-style"]
   default = "Type de graphique"

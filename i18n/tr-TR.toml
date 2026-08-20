@@ -1237,6 +1237,8 @@ Bu, <strong>şu anki geçerli site</strong> ve <strong>bu siteyle ilişkili tüm
 ["widget-setting/help/align"]
   default = "Sayfa grafikleriyle hizalanması için sola kenar boşluğu ekleyin"
 
+["widget-setting/help/by-count"]
+
 ["widget-setting/help/chart-style"]
   default = "Grafiklerin nasıl çizileceği"
 
@@ -1254,6 +1256,8 @@ Bu, <strong>şu anki geçerli site</strong> ve <strong>bu siteyle ilişkili tüm
 
 ["widget-setting/label/align"]
   default = "Sayfalarla hizala"
+
+["widget-setting/label/by-count"]
 
 ["widget-setting/label/chart-style"]
   default = "Grafik stili"

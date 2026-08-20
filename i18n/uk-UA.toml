@@ -955,6 +955,8 @@
 
 ["widget-setting/help/align"]
 
+["widget-setting/help/by-count"]
+
 ["widget-setting/help/chart-style"]
 
 ["widget-setting/help/no-events"]
@@ -967,6 +969,8 @@
 
 ["widget-setting/label/align"]
   default = "Align with pages"
+
+["widget-setting/label/by-count"]
 
 ["widget-setting/label/chart-style"]
   default = "Стиль діаграми"

@@ -1238,6 +1238,8 @@ Toto <strong>vymaže všetky pridružené údaje</strong> a je to <strong>aktuá
 ["widget-setting/help/align"]
   default = "Pridať odsadenie vľavo, aby sa zarovnal s grafmi stránky"
 
+["widget-setting/help/by-count"]
+
 ["widget-setting/help/chart-style"]
   default = "Ako kresliť grafy"
 
@@ -1255,6 +1257,8 @@ Toto <strong>vymaže všetky pridružené údaje</strong> a je to <strong>aktuá
 
 ["widget-setting/label/align"]
   default = "Zarovnať so stránkami"
+
+["widget-setting/label/by-count"]
 
 ["widget-setting/label/chart-style"]
   default = "Štýl grafu"

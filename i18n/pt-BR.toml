@@ -1337,6 +1337,8 @@ Correspondências não diferenciam maiúsculas e minúsculas. Há suporte para o
 ["widget-setting/help/align"]
   default = "Adicionar margem à esquerda para alinhar com os gráficos das páginas"
 
+["widget-setting/help/by-count"]
+
 ["widget-setting/help/chart-style"]
   default = "Como o gráfico deve ser desenhado"
 
@@ -1354,6 +1356,8 @@ Correspondências não diferenciam maiúsculas e minúsculas. Há suporte para o
 
 ["widget-setting/label/align"]
   default = "Alinhar com as páginas"
+
+["widget-setting/label/by-count"]
 
 ["widget-setting/label/chart-style"]
   default = "Estilo do gráfico"

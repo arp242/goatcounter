@@ -1256,6 +1256,8 @@ Spowoduje to <strong>usuniecie wszystkich powiązanych danych</strong> i dotyczy
 ["widget-setting/help/align"]
   default = "Dodaj margines po lewej stronie aby był wyrównany z wykresami stron"
 
+["widget-setting/help/by-count"]
+
 ["widget-setting/help/chart-style"]
   default = "Jak rysować wykresy"
 
@@ -1273,6 +1275,8 @@ Spowoduje to <strong>usuniecie wszystkich powiązanych danych</strong> i dotyczy
 
 ["widget-setting/label/align"]
   default = "Wyrównaj do stron"
+
+["widget-setting/label/by-count"]
 
 ["widget-setting/label/chart-style"]
   default = "Styl wykresów"
