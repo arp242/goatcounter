@@ -1407,6 +1407,8 @@ RENAME   /weblog/other.html  /other.html
 ["widget-setting/help/align"]
   default = "Дадаць водступ злева, каб выраўняць з графікамі старонак"
 
+["widget-setting/help/by-count"]
+
 ["widget-setting/help/chart-style"]
   default = "Як маляваць графікі"
 
@@ -1424,6 +1426,8 @@ RENAME   /weblog/other.html  /other.html
 
 ["widget-setting/label/align"]
   default = "Выраўняць са старонкамі"
+
+["widget-setting/label/by-count"]
 
 ["widget-setting/label/chart-style"]
   default = "Стыль графіка"
