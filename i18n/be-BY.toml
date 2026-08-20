@@ -1,0 +1,1453 @@
+[__meta__]
+  language = "be-BY"
+  maintainers = ["Jaŭhien Sobaleŭ <devteslaman@gmail.com>"]
+  modified = 2026-08-20
+
+["button/add-new"]
+  default = "Дадаць новы"
+
+["button/add-user"]
+  default = "Дадаць новага карыстальніка"
+
+["button/cfg-dashboard"]
+  default = "Наладзіць макет панэлі"
+
+["button/change"]
+  default = "Змяніць"
+
+["button/change-passwd"]
+  default = "Змяніць пароль"
+
+["button/copy"]
+  default = "Капіяваць"
+
+["button/delete"]
+  default = "Выдаліць"
+
+["button/delete-account"]
+  default = "Выдаліць уліковы запіс, усе сайты і даныя"
+
+["button/delete-everything"]
+  default = "Так, выдаліць"
+
+["button/delete-pageviews"]
+  default = "Выдаліць прагляды старонак"
+
+["button/disable-mfa"]
+  default = "Выключыць MFA"
+
+["button/edit"]
+  default = "Рэдагаваць"
+
+["button/enable-mfa"]
+  default = "Уключыць MFA"
+
+["button/forgot-password"]
+  default = "Забылі пароль?"
+
+["button/merge"]
+  default = "Аб'яднаць"
+
+["button/preview"]
+  default = "Перадпрагляд"
+
+["button/remove"]
+  default = "Выдаліць"
+
+["button/request-reset"]
+  default = "Аднавіць пароль"
+
+["button/resend-email"]
+  default = "Паўторна даслаць ліст"
+
+["button/reset-defaults"]
+  default = "Скінуць да прадвызначаных"
+
+["button/reset-password"]
+  default = "Аднавіць пароль"
+
+["button/run"]
+  default = "Выканаць"
+
+["button/save"]
+  default = "Захаваць"
+
+["button/save-default-view"]
+  default = "Захаваць прадвызначаны выгляд"
+
+["button/search"]
+  default = "Шукаць"
+
+["button/send-login-url"]
+  default = "Даслаць URL для ўваходу"
+
+["button/show"]
+  default = "паказаць"
+
+["button/sign-in"]
+  default = "Увайсці"
+
+["button/start-export"]
+  default = "Пачаць экспарт"
+
+["button/start-import"]
+  default = "Пачаць імпарт"
+
+["button/submit"]
+  default = "Адправіць"
+
+["button/upload-ga-import"]
+  default = "Запампаваць"
+
+["confirm/delete-user"]
+  default = "Выдаліць %(email)?"
+
+["dashboard/day-ago"]
+  default = "%(n) дзён таму"
+
+["dashboard/loading"]
+  default = "Загрузка…"
+
+["dashboard/month-ago"]
+  default = "%(n) месяцаў таму"
+
+["dashboard/nothing-to-display"]
+  default = "Няма чаго паказваць"
+
+["dashboard/pages/change"]
+  default = "Змена"
+
+["dashboard/pages/header"]
+  default = "Старонкі"
+
+["dashboard/pages/num-visits"]
+  default = "Паказана %(num-visits) з %(total-visits) наведванняў"
+
+["dashboard/pages/path"]
+  default = "Шлях"
+
+["dashboard/pages/title"]
+  default = "Загаловак"
+
+["dashboard/pages/visits"]
+  default = "Наведванні"
+
+["dashboard/today"]
+  default = "Сёння"
+
+["dashboard/tooltip-event"]
+  default = "%(unique) клікаў; %(clicks) клікаў усяго"
+
+["dashboard/totals/header"]
+  default = "Усяго"
+
+["dashboard/totals/num-visits"]
+  default = "%(num-visits) наведванняў"
+
+["dashboard/week-ago"]
+  default = "%(n) тыдняў таму"
+
+["dashboard/yesterday"]
+  default = "Учора"
+
+["data-collect/help/country"]
+  default = "Назва краіны, напрыклад Бельгія, Інданезія і г. д."
+
+["data-collect/help/hits"]
+  default = "Захоўваць асобныя прагляды старонак для экспарту. Гэта ні на што іншае не ўплывае. API па-ранейшаму можна выкарыстоўваць для экспарту агрэгаваных даных."
+
+["data-collect/help/language"]
+  default = "Падтрымліваныя мовы з загалоўка Accept-Language."
+
+["data-collect/help/referrer"]
+  default = "Загаловак Referer і параметры кампаній."
+
+["data-collect/help/region"]
+  default = "Рэгіён, напрыклад Тэхас, Балі і г. д. Дэталі адрозніваюцца ў залежнасці ад краіны."
+
+["data-collect/help/sessions"]
+  default = "%[Адсочваць унікальных наведвальнікаў] да 8 гадзін; калі выключыць гэта, то, напрыклад, націсканне F5 для перазагрузкі старонкі будзе паказана як 2 прагляды замест 1."
+
+["data-collect/help/size"]
+  default = "Памер экрана."
+
+["data-collect/help/user-agent"]
+  default = "Назва браўзера і сістэмы, вызначаная з загалоўка User-Agent (сам загаловак не захоўваецца)."
+
+["data-collect/label/country"]
+  default = "Краіна"
+
+["data-collect/label/hits"]
+  default = "Асобныя прагляды старонак"
+
+["data-collect/label/language"]
+  default = "Мова"
+
+["data-collect/label/referrer"]
+  default = "Крыніца пераходу"
+
+["data-collect/label/region"]
+  default = "Рэгіён"
+
+["data-collect/label/sessions"]
+  default = "Сесіі"
+
+["data-collect/label/size"]
+  default = "Памер"
+
+["data-collect/label/user-agent"]
+  default = "User-Agent"
+
+["datepicker/keyboard"]
+  default = "Выкарыстоўвайце клавішы са стрэлкамі, каб выбраць дату"
+
+["datepicker/month-next"]
+  default = "Наступны месяц"
+
+["datepicker/month-prev"]
+  default = "Папярэдні месяц"
+
+["dont-lock"]
+  default = "Не блакаваць"
+
+["email-report/daily"]
+  default = "Штодзень"
+
+["email-report/monthly"]
+  default = "Штомесяц"
+
+["email-report/never"]
+  default = "Ніколі"
+
+["email-report/two-weeks"]
+  default = "Кожныя два тыдні"
+
+["email-report/weekly"]
+  default = "Штотыдзень"
+
+["email/header"]
+  default = "Прывітанне,"
+
+["email/password-reset"]
+  default = """
+Нехта (спадзяемся, вы) запытаў аднаўленне пароля вашага ўліковага запісу GoatCounter.
+
+Зрабіць гэта можна тут:
+%(link)
+"""
+
+["email/reset-user-email-subject"]
+  default = "Аднаўленне пароля для %(domain)"
+
+["email/signature"]
+  default = """
+Ёсць праблемы, пытанні, каментарыі ці нешта яшчэ? Проста адкажыце на гэты ліст.
+
+Усяго найлепшага,
+Марцін
+"""
+
+["error/address-exists"]
+  default = "%(addr) ужо існуе"
+
+["error/could-not-read"]
+  default = "Не ўдалося прачытаць як gzip: %(err)"
+
+["error/date-future"]
+  default = "Гэта было б у будучыні"
+
+["error/date-mismatch"]
+  default = "канчатковая дата раней за пачатковую"
+
+["error/date-past"]
+  default = "Гэта было б раней за стварэнне сайта"
+
+["error/email-exists"]
+  default = "Адрас электроннай пошты “%(email)” ужо выкарыстоўваецца іншым карыстальнікам гэтага сайта"
+
+["error/export-expired"]
+  default = "Здаецца, экспарту яшчэ няма, або тэрмін яго дзеяння скончыўся."
+
+["error/incorrect-password"]
+  default = "Бягучы пароль няправільны."
+
+["error/invalid-end-date"]
+  default = "Няправільная канчатковая дата: %(date)"
+
+["error/invalid-start-date"]
+  default = "Няправільная пачатковая дата: %(date)"
+
+["error/load-url"]
+  default = "Не ўдалося загрузіць %(url): %(error)"
+
+["error/login-invalid"]
+  default = "Няправільны лагін"
+
+["error/login-no-password"]
+  default = "Для %(email) не зададзены пароль; калі ласка, аднавіце яго"
+
+["error/login-not-found"]
+  default = "Карыстальнік %(email) не знойдзены"
+
+["error/login-token-expired"]
+  default = "Не ўдалося знайсці карыстальніка для гэтага токена; магчыма, ён пратэрмінаваны або ўжо быў выкарыстаны?"
+
+["error/login-wrong-pwd"]
+  default = "Няправільны пароль для %(email)"
+
+["error/merge-self"]
+  default = "Нельга аб'яднаць шлях з самім сабой"
+
+["error/not-found"]
+  default = "Не знойдзена"
+
+["error/password-does-not-match"]
+  default = "Пацверджанне пароля не супадае."
+
+["error/reset-user-no-account"]
+  default = "На гэтым сайце няма ўліковага запісу: %(email)"
+
+["error/unknown-activation-token"]
+  default = "Невядомы токен актывацыі"
+
+["event"]
+  default = "падзея"
+
+["forgot-domain-help"]
+  default = "Даслаць на электронную пошту спіс усіх даменаў, звязаных з гэтым адрасам."
+
+["header/access"]
+  default = "Доступ"
+
+["header/add-api-token"]
+  default = "Дадаць новы токен API"
+
+["header/add-new-user"]
+  default = "Дадаць новага карыстальніка"
+
+["header/allow-access"]
+  default = "Дазволіць доступ"
+
+["header/api"]
+  default = "API"
+
+["header/api-tokens"]
+  default = "Токены API"
+
+["header/browsers"]
+  default = "Браўзеры"
+
+["header/change-code"]
+  default = "Змяніць код сайта"
+
+["header/change-passwd"]
+  default = "Змяніць пароль"
+
+["header/code"]
+  default = "Код"
+
+["header/copy-settings"]
+  default = "Капіяваць налады"
+
+["header/created-at"]
+  default = "Створана"
+
+["header/csv-format"]
+  default = "Фармат CSV"
+
+["header/dashboard"]
+  default = "Панэль кіравання"
+
+["header/data-collection"]
+  default = "Збор даных"
+
+["header/delete-account"]
+  default = "Выдаліць уліковы запіс"
+
+["header/deleting"]
+  default = "Выдаленне наступных шляхоў"
+
+["header/domain"]
+  default = "Дамен"
+
+["header/domain-settings"]
+  default = "Налады дамена"
+
+["header/edit-user"]
+  default = "Рэдагаваць карыстальніка %(email)"
+
+["header/email"]
+  default = "Электронная пошта"
+
+["header/export-or-import"]
+  default = "Экспарт/Імпарт"
+
+["header/export-to-csv"]
+  default = "Экспарт у CSV"
+
+["header/export-to-json"]
+  default = "Экспарт у JSON"
+
+["header/fewer-number"]
+  default = "Паказваць менш лічбаў"
+
+["header/finished"]
+  default = "Завершана"
+
+["header/forgot-domain"]
+  default = "Забылі дамен"
+
+["header/forgot-password"]
+  default = "Забылі пароль"
+
+["header/format"]
+  default = "Фармат"
+
+["header/hash"]
+  default = "Хэш"
+
+["header/import-from-csv"]
+  default = "Імпарт з CSV"
+
+["header/import-from-ga"]
+  default = "Сумарныя даныя з Google Analytics"
+
+["header/import-from-json"]
+  default = "Імпарт з JSON"
+
+["header/json-format"]
+  default = "Фармат JSON"
+
+["header/l10n"]
+  default = "Лакалізацыя"
+
+["header/languages"]
+  default = "Мовы"
+
+["header/last-10-exports"]
+  default = "Апошнія 10 экспартаў"
+
+["header/last-used-at"]
+  default = "Апошняе выкарыстанне"
+
+["header/locations"]
+  default = "Месцазнаходжанні"
+
+["header/locations-for"]
+  default = "Месцазнаходжанні для %(country)"
+
+["header/manage-pageviews"]
+  default = "Кіраваць праглядамі старонак"
+
+["header/merge-account"]
+  default = "Аб'яднаць уліковы запіс"
+
+["header/merging-to"]
+  default = "Аб'яднанне ў %(path)"
+
+["header/mfa"]
+  default = "Шматфактарная аўтэнтыфікацыя"
+
+["header/n-hits"]
+  default = "Колькасць праглядаў"
+
+["header/name"]
+  default = "Назва"
+
+["header/other-formats"]
+  default = "Іншыя фарматы"
+
+["header/pagination-cursor"]
+  default = "Курсор пагінацыі"
+
+["header/passwd-mfa"]
+  default = "Пароль і MFA"
+
+["header/path"]
+  default = "Шлях"
+
+["header/permissions"]
+  default = "Правы доступу"
+
+["header/preferences"]
+  default = "Асабістыя налады"
+
+["header/renaming"]
+  default = "Перайменаванне наступных шляхоў"
+
+["header/reset-password"]
+  default = "Аднаўленне пароля для %(email) на %(site-name)"
+
+["header/settings"]
+  default = "Налады"
+
+["header/sign-in-at"]
+  default = "Уваход у %(name)"
+
+["header/site-settings"]
+  default = "Налады сайта"
+
+["header/sites"]
+  default = "Сайты"
+
+["header/size"]
+  default = "Памер"
+
+["header/sizes"]
+  default = "Памеры"
+
+["header/start-pagination-cursor"]
+  default = "Пачата з курсора пагінацыі"
+
+["header/started"]
+  default = "Пачата"
+
+["header/systems"]
+  default = "Сістэмы"
+
+["header/title"]
+  default = "Загаловак"
+
+["header/token"]
+  default = "Токен"
+
+["header/toprefs"]
+  default = "Галоўныя крыніцы пераходаў"
+
+["header/tracking"]
+  default = "Адсочванне"
+
+["header/user-info"]
+  default = "Інфармацыя пра карыстальніка"
+
+["header/user-information"]
+  default = "Інфармацыя пра карыстальніка"
+
+["header/users"]
+  default = "Карыстальнікі"
+
+["help/allow-embed"]
+  default = "Спіс даменаў або URL праз коску, якім дазволена ўбудоўваць GoatCounter у фрэйм; %[поўная дакументацыя]."
+
+["help/allow-visitor-counts"]
+  default = "Глядзіце %[дакументацыю] пра тое, як гэтым карыстацца."
+
+["help/cfg-dashboard"]
+  default = "Змяніць, што і ў якім парадку паказваць на панэлі кіравання."
+
+["help/code-access"]
+  default = "Ваш сайт будзе даступны па адрасе https://<em>[my-code]</em>.%(domain)."
+
+["help/configure-dashboard"]
+  default = "Наладзіць панэль кіравання"
+
+["help/custom-domain"]
+  default = """
+Уласны дамен, напрыклад <em>“stats.example.com”</em>.
+<strong>Заўвага:</strong> гэта <em>не</em> перашкодзіць большасці
+блакавальнікаў рэкламы блакаваць GoatCounter і задумана проста
+як зручны “прыгожы дамен”.
+"""
+
+["help/custom-domain-cname"]
+  default = "Стварыце CNAME-запіс на <code>%(domain)</code> – %[%docs падрабязныя інструкцыі]."
+
+["help/custom-domain-error"]
+  default = """
+%[%error Яшчэ не пацверджана]; стварыце CNAME-запіс на <code>%(domain)</code> – %[%docs падрабязныя інструкцыі].
+Праверка выконваецца кожныя 2 гадзіны.
+"""
+
+["help/custom-domain-verified"]
+  default = "Дамен пацверджаны і наладжаны (заўвага: сертыфікат можа пачаць працаваць цягам гадзіны)."
+
+["help/data-retention"]
+  default = "Прагляды старонак і ўсе звязаныя даныя будуць беззваротна выдалены праз гэтую колькасць дзён. Пастаўце <code>0</code>, каб ніколі не выдаляць."
+
+["help/datepicker"]
+  default = "GoatCounter выкарыстоўвае ўласны JavaScript-выбар даты на настольных сістэмах, бо гэта часта дае лепшы досвед. Можаце выключыць яго, каб выкарыстоўваць сістэмны выбар даты. На мабільных прыладах заўсёды выкарыстоўваецца сістэмны."
+
+["help/domain-access"]
+  default = "Дамен, з якога адкрываецца GoatCounter."
+
+["help/drag-reorder"]
+  default = "Перацягніце, каб змяніць парадак"
+
+["help/email-reports"]
+  default = "Справаздачы дасылаюцца ў першы дзень новага перыяду (напрыклад, у першы дзень месяца)."
+
+["help/fewer-numbers"]
+  default = """
+Не паказваць лічбы на панэлі кіравання. Задумана так, каб
+агляд таго, што адбываецца на сайце, заставаўся дастаткова
+карысным, але без дакладнай колькасці наведвальнікаў
+і статыстыкі.
+"""
+
+["help/fewer-numbers-lock"]
+  default = "Вы не зможаце выключыць гэтую наладу цягам зададзенага перыяду."
+
+["help/for-the-following-countries"]
+  default = "Спіс кодаў краін (%[спіс]; выкарыстоўвайце alpha-2 код); пакіньце пустым, каб збіраць для ўсіх краін (калі ўключана)."
+
+["help/goatcounter-domain"]
+  default = "Дамен, на якім працуе ваш GoatCounter, напрыклад <em>“stats.example.com”</em>."
+
+["help/ignore-ips"]
+  default = "Ніколі не лічыць запыты з гэтых IP-адрасоў. Праз коску. Падтрымліваюцца толькі дакладныя супадзенні. %[Дадаць ваш бягучы IP]."
+
+["help/ignore-ips-2"]
+  default = "Альтэрнатыўна, %[выключыць для гэтага браўзера] (націсніце яшчэ раз, каб уключыць)."
+
+["help/locked-until"]
+  default = "Заблакавана да %(date)"
+
+["help/need-cities"]
+  default = """
+Гэтая опцыя патрабуе версію “Cities” базы даных
+GeoIP. Глядзіце флаг <tt>-geo</tt> у
+<tt>goatcounter help serve</tt>.
+"""
+
+["help/new-user-email"]
+  default = "Электронная пошта для ўваходу."
+
+["help/new-user-email-confirm"]
+  default = "Электронная пошта для ўваходу; мусіць быць пацверджана."
+
+["help/no-undo"]
+  default = "Гэта дзеянне немагчыма адмяніць!"
+
+["help/password-edit"]
+  default = "Пакіньце пустым, каб не змяняць."
+
+["help/password-new-user"]
+  default = "Можна пакінуць пустым, каб даслаць ліст для аднаўлення пароля."
+
+["help/public"]
+  default = "Кіруйце тым, хто можа бачыць панэль кіравання."
+
+["help/save-default-view"]
+  default = "Захаваць бягучы выгляд (усе налады ў жоўтым блоку) як прадвызначаны, які будзе загружацца, пакуль нічога не выбрана."
+
+["help/turing-test"]
+  default = "Проста невялікая праверка, што вы чалавек :-)"
+
+["help/your-email"]
+  default = "Калі зменіце адрас, яго трэба будзе пацвердзіць нанова."
+
+["label/24-hour-clock"]
+  default = "24-гадзінны фармат (13:00)"
+
+["label/access-to-sites"]
+  default = "Доступ да сайтаў"
+
+["label/add-new"]
+  default = "Дадаць новы"
+
+["label/all-sites"]
+  default = "Усе сайты"
+
+["label/allow-visitor-counts"]
+  default = "Дазволіць дадаваць лічыльнік наведвальнікаў на ваш сайт"
+
+["label/browser-stats"]
+  default = "Статыстыка браўзераў"
+
+["label/campaigns"]
+  default = "Кампаніі"
+
+["label/change-code"]
+  default = "Ваш уліковы запіс будзе даступны па адрасе https://<em>[my-code]</em>.%(domain) – %[%link змяніць]."
+
+["label/clear-pageviews"]
+  default = "Ачысціць усе прагляды старонак."
+
+["label/code"]
+  default = "Код"
+
+["label/csv-compress-format"]
+  default = "CSV-файл Google Analytics"
+
+["label/current-passwd"]
+  default = "Бягучы пароль"
+
+["label/custom-domain"]
+  default = "Уласны дамен"
+
+["label/dashboard-allow-embed"]
+  default = "Сайты, якія могуць убудоўваць GoatCounter"
+
+["label/dashboard-public"]
+  default = "Панэль кіравання бачная для"
+
+["label/data-retention"]
+  default = "Захоўванне даных у днях"
+
+["label/date-fmt"]
+  default = "Фармат даты"
+
+["label/datepicker"]
+  default = "Уключыць уласны выбар даты"
+
+["label/delete-account-confirmation"]
+  default = "Вы ўпэўнены, што хочаце выдаліць увесь уліковы запіс?"
+
+["label/email"]
+  default = "Электронная пошта"
+
+["label/email-address"]
+  default = "Адрас электроннай пошты"
+
+["label/email-reports"]
+  default = "Дасылаць справаздачы на пошту"
+
+["label/export-from-date"]
+  default = "Экспарт з даты"
+
+["label/fewer-numbers"]
+  default = "Паказваць менш лічбаў"
+
+["label/for-following-countries"]
+  default = "Толькі для наступных краін:"
+
+["label/goatcounter-domain"]
+  default = "Дамен GoatCounter"
+
+["label/ignore-ips"]
+  default = "Ігнараваць IP"
+
+["label/lang"]
+  default = "Мова"
+
+["label/language-stats"]
+  default = "Статыстыка моў"
+
+["label/loc-stats"]
+  default = "Статыстыка месцазнаходжанняў"
+
+["label/lock-setting"]
+  default = "Заблакаваць наладу"
+
+["label/mark-current"]
+  default = "(бягучы)"
+
+["label/match-case"]
+  default = "Улічваць рэгістр"
+
+["label/match-title"]
+  default = "Шукаць таксама ў загалоўку"
+
+["label/merge-account-confirmation"]
+  default = "Вы ўпэўнены, што хочаце аб'яднаць гэты ўліковы запіс?"
+
+["label/merge-to"]
+  default = "Аб'яднаць усе шляхі ў"
+
+["label/mfa-token"]
+  default = "Токен MFA"
+
+["label/new-code"]
+  default = "Новы код"
+
+["label/new-password"]
+  default = "Новы пароль"
+
+["label/new-password-confirm"]
+  default = "Новы пароль (пацверджанне)"
+
+["label/pagination-cursor"]
+  default = "Курсор пагінацыі"
+
+["label/password"]
+  default = "Пароль"
+
+["label/paths"]
+  default = "Агляд шляхоў"
+
+["label/public-anyone"]
+  default = "Хто заўгодна"
+
+["label/public-private"]
+  default = "Толькі карыстальнікі, якія ўвайшлі"
+
+["label/public-token"]
+  default = "Карыстальнікі, якія ўвайшлі, або з сакрэтным токенам"
+
+["label/secret"]
+  default = "Сакрэт"
+
+["label/secret-access"]
+  default = "Сакрэтны URL доступу:"
+
+["label/secret-token"]
+  default = "Сакрэтны токен"
+
+["label/set-default"]
+  default = "Таксама зрабіць прадвызначаным для новых карыстальнікаў і публічнага прагляду (калі ўключаны)."
+
+["label/size-desktop"]
+  default = "Маніторы камп'ютараў"
+
+["label/size-desktophd"]
+  default = "Маніторы камп'ютараў, большыя за HD"
+
+["label/size-phones"]
+  default = "Тэлефоны"
+
+["label/size-stats"]
+  default = "Статыстыка памераў экрана"
+
+["label/size-tablets"]
+  default = "Планшэты і вялікія тэлефоны"
+
+["label/system-stats"]
+  default = "Статыстыка сістэм"
+
+["label/theme"]
+  default = "Тэма"
+
+["label/thousand-separator"]
+  default = "Раздзяляльнік тысяч"
+
+["label/timezone"]
+  default = "Часавы пояс"
+
+["label/topref"]
+  default = "Галоўныя крыніцы пераходаў"
+
+["label/total-pageviews"]
+  default = "Усяго праглядаў сайта"
+
+["label/turing-test"]
+  default = "Упішыце сюды 9"
+
+["label/verifictation-token"]
+  default = "Токен верыфікацыі"
+
+["label/week-start"]
+  default = "Тыдзень пачынаецца з нядзелі"
+
+["label/your-email"]
+  default = "Ваша электронная пошта"
+
+["label/your-site"]
+  default = "Ваш сайт"
+
+["label/zip-file"]
+  default = "ZIP-файл"
+
+["link/add-translation"]
+  default = "Дадаць або абнавіць пераклады"
+
+["link/api"]
+  default = "API"
+
+["link/api-docs"]
+  default = "Дакументацыя API"
+
+["link/dashboard"]
+  default = "Панэль кіравання"
+
+["link/generate-random"]
+  default = "Згенераваць выпадковы сакрэт."
+
+["link/goto-path"]
+  default = "Перайсці да %(path)"
+
+["link/import"]
+  default = "Імпарт/Экспарт"
+
+["link/manage-pageviews"]
+  default = "Кіраваць праглядамі старонак"
+
+["link/merge-account"]
+  default = "Аб'яднаць уліковы запіс"
+
+["link/passwd-mfa"]
+  default = "Пароль і MFA"
+
+["link/preferences"]
+  default = "Асабістыя налады"
+
+["link/rm-account"]
+  default = "Выдаліць уліковы запіс"
+
+["link/set-from-browser"]
+  default = "Узяць з браўзера"
+
+["link/settings"]
+  default = "налады"
+
+["link/show-less"]
+  default = "(паказаць менш)"
+
+["link/show-more"]
+  default = "Паказаць больш"
+
+["link/sites"]
+  default = "Сайты"
+
+["link/users"]
+  default = "Карыстальнікі"
+
+["nav-bot/contact"]
+  default = "Сувязь"
+
+["nav-bot/contribute"]
+  default = "Далучыцца да распрацоўкі"
+
+["nav-bot/docs"]
+  default = "Дакументацыя"
+
+["nav-bot/home"]
+  default = "Галоўная"
+
+["nav-bot/src"]
+  default = "Зыходны код"
+
+["nav-dash/back"]
+  default = "назад"
+
+["nav-dash/day"]
+  default = "дзень"
+
+["nav-dash/end-date"]
+  default = "Апошні дзень для паказу"
+
+["nav-dash/filter"]
+  default = "Фільтраваць шляхі"
+
+["nav-dash/filter-more-help"]
+  default = "Больш даведкі"
+
+["nav-dash/filter-tooltip"]
+  default = """
+<p>Фільтруе спіс шляхоў; супадзенне без уліку рэгістра па шляху і загалоўку. %[%more Больш даведкі]</p>
+
+<div>
+<p>Распазнаюцца наступныя ключавыя словы:</p>
+<ul>
+<li><em>at:start</em>, <em>at:end</em>:       супадзенне толькі ў пачатку або канцы шляху ці загалоўка. Выкарыстоўвайце абодва для дакладнага супадзення.</li>
+<li><em>in:path</em>, <em>in:title</em>       шукаць толькі ў шляху або загалоўку.</li>
+<li><em>is:event</em>, <em>is:pageview</em>   паказваць толькі падзеі або прагляды старонак.</li>
+<li><em>:not</em> інвертаваць супадзенне (гэта значыць: паказваць толькі шляхі, якія не адпавядаюць фільтру).</li>
+</ul>
+</div>
+"""
+
+["nav-dash/forward"]
+  default = "наперад"
+
+["nav-dash/half-year"]
+  default = "паўгода"
+
+["nav-dash/hour"]
+  default = "гадзіна"
+
+["nav-dash/last"]
+  default = "Паказаць за"
+
+["nav-dash/month"]
+  default = "месяц"
+
+["nav-dash/quarter"]
+  default = "квартал"
+
+["nav-dash/start-date"]
+  default = "Першы дзень для паказу"
+
+["nav-dash/view-by"]
+  default = "Дэталізацыя:"
+
+["nav-dash/week"]
+  default = "тыдзень"
+
+["nav-dash/year"]
+  default = "год"
+
+["nav-fash/filter-less-help"]
+  default = "Менш даведкі"
+
+["new-paren"]
+  default = "(новы)"
+
+["no-title"]
+  default = "без загалоўка"
+
+["notify/add-one-thing"]
+  default = "Трэба дадаць хаця б нешта адно; пустая панэль кіравання трохі бессэнсоўная, ці не так?"
+
+["notify/api-token-created"]
+  default = "Токен API створаны."
+
+["notify/api-token-removed"]
+  default = "Токен API выдалены."
+
+["notify/disabled-multi-factor-auth"]
+  default = "Шматфактарная аўтэнтыфікацыя выключана."
+
+["notify/email-already-verified"]
+  default = "%(email) ужо пацверджаны."
+
+["notify/export-started-in-background"]
+  default = "Экспарт запушчаны ў фоне; калі ён скончыцца, вы атрымаеце ліст са спасылкай на сцягванне."
+
+["notify/import-ga-okay"]
+  default = "Даныя паспяхова апрацаваны."
+
+["notify/import-started-in-background"]
+  default = "Імпарт запушчаны ў фоне; калі ён скончыцца, вы атрымаеце ліст."
+
+["notify/login-after-password-reset"]
+  default = "Пароль адноўлены; выкарыстоўвайце новы пароль для ўваходу."
+
+["notify/multi-factor-auth-enabled"]
+  default = "Шматфактарная аўтэнтыфікацыя ўключана."
+
+["notify/need-email-verification-for-api"]
+  default = "Перад выкарыстаннем API трэба пацвердзіць электронную пошту."
+
+["notify/no-user-for-token"]
+  default = "не ўдалося знайсці карыстальніка для гэтага токена; магчыма, ён пратэрмінаваны або ўжо быў выкарыстаны?"
+
+["notify/not-found"]
+  default = "Не знойдзена"
+
+["notify/password-changed"]
+  default = "Пароль зменены."
+
+["notify/reset-to-default"]
+  default = "Скінута да прадвызначаных!"
+
+["notify/reset-user-sent"]
+  default = "Ліст адпраўлены на %(email)"
+
+["notify/restored-previously-deleted-site"]
+  default = "Сайт ‘%(url)’ быў раней выдалены; сайт адноўлены з усімі данымі."
+
+["notify/saved"]
+  default = "Захавана!"
+
+["notify/sent-to-email"]
+  default = "Адпраўлена на %(email)."
+
+["notify/settings-copied-to-site"]
+  default = "Налады скапіяваны на выбраныя сайты."
+
+["notify/site-added"]
+  default = "Сайт ‘%(url)’ дададзены."
+
+["notify/site-removed"]
+  default = "Сайт ‘%(url)’ выдалены."
+
+["notify/started-background-process"]
+  default = "Запушчана ў фоне; поўная апрацоўка можа заняць 10-20 секунд."
+
+["notify/user-added"]
+  default = "Карыстальнік ‘%(email)’ дададзены."
+
+["notify/user-removed"]
+  default = "Карыстальнік ‘%(email)’ выдалены."
+
+["notify/users-edited"]
+  default = "Карыстальнік ‘%(email)’ зменены."
+
+["p/add-goatcounter-to-multiple-websites"]
+  default = """
+<p>Дадайце GoatCounter на некалькі вэб-сайтаў, ствараючы новыя сайты. Усе сайты
+будуць мець агульных карыстальнікаў і ўваход, але ў астатнім яны цалкам
+асобныя. Налады бягучага сайта капіююцца пры стварэнні, але потым
+незалежныя.</p>
+
+<p>Можаце дадаць колькі заўгодна.</p>
+"""
+
+["p/add-multiple-accounts"]
+  default = """
+Можаце выкарыстоўваць каманду <code>goatcounter db create site</code> з CLI,
+каб стварыць некалькі ўліковых запісаў. Яны будуць цалкам асобныя і не будуць
+мець агульных карыстальнікаў ці чагосьці іншага. Напрыклад:
+"""
+
+["p/additional-errors"]
+  default = "Дадатковыя памылкі"
+
+["p/all-sites"]
+  default = "Усе сайты, у тым ліку створаныя ў будучыні"
+
+["p/api-intro"]
+  default = "GoatCounter мае API для падліку праглядаў старонак, чытання статыстыкі, стварэння экспартаў і кіравання сайтамі і карыстальнікамі."
+
+["p/change-code-request"]
+  default = """
+<p>Змяніць код сайта і дамен для ўваходу.</p>
+
+<p><strong>УВАГА:</strong> гэта падзейнічае <strong>адразу</strong>,
+і стары код зможа зарэгістраваць хто заўгодна; калі вы ўжо выкарыстоўваеце яго
+на сайце, змяніце яго як мага хутчэй або часова дадайце два коды інтэграцыі
+(са старым і новым кодам), каб не страціць прагляды старонак.</p>
+
+<p>Бягучы код: <code>%(current-code)</code> (%(current-url))</p>
+"""
+
+["p/change-email"]
+  default = "Змяніць адрас электроннай пошты можна ў %[наладах]."
+
+["p/collect-disabled"]
+  default = "Збор гэтай інфармацыі зараз %[выключаны ў наладах]."
+
+["p/copy-settings-from-current-site"]
+  default = "Капіяваць усе налады бягучага сайта, акрамя даменнага імя."
+
+["p/csv-file-format"]
+  default = "Фармат CSV-файла %[дакументаваны тут]."
+
+["p/delete-account"]
+  default = "Сайт і ўсе звязаныя даныя будуць беззваротна выдалены без магчымасці аднаўлення."
+
+["p/disable-mfa"]
+  default = "MFA зараз уключана для гэтага ўліковага запісу."
+
+["p/enable-mfa"]
+  default = "Уключыце шматфактарную аўтэнтыфікацыю на аснове TOTP, адсканаваўшы код у праграме-аўтэнтыфікатары або ўвёўшы сакрэт уручную."
+
+["p/error"]
+  default = "Памылка: %(error-message)"
+
+["p/export-csv"]
+  default = """
+<p>Экспарт у CSV патрабуе, каб збор праглядаў старонак быў уключаны
+ў %[%setting наладах сайта], але зараз ён выключаны.</p>
+
+<p>Вы ўсё яшчэ можаце выкарыстоўваць API, каб атрымаць агрэгаваную
+статыстыку з панэлі кіравання; глядзіце %[%api дакументацыю API].</p>
+"""
+
+["p/export-from-date"]
+  default = """
+Уключыць толькі даныя, пачынаючы з гэтай даты (уключна). Заўсёды
+ў UTC. Абавязкова прачытайце дакументацыю, каб зразумець
+некаторыя нюансы.
+"""
+
+["p/export-process"]
+  default = """
+Запусціць працэс і даслаць вам ліст са спасылкай на сцягванне, калі
+ён скончыцца. Гэта можна рабіць толькі раз на гадзіну, і гэта
+перазапіша вашы папярэднія рэзервовыя копіі.
+"""
+
+["p/have-mfa"]
+  default = "Гэты ўліковы запіс абаронены шматфактарнай аўтэнтыфікацыяй; калі ласка, увядзіце код з праграмы-аўтэнтыфікатара."
+
+["p/import-ga"]
+  default = """
+Google Analytics не дае паўнавартасных экспартаў; ён прапануе толькі
+%[%ga экспарт “справаздач”]. Гэта дае агляд сумарных лічбаў па шляхах,
+без разбіўкі па датах. Гэтых даных недастаткова, каб GoatCounter мог
+іх паказаць, але можна іх “імпартаваць”, і яны будуць дададзены да
+сумарных лічбаў у %[%vc лічыльніку наведвальнікаў].
+<br><br>
+Абнаўленне лічбаў на лічыльніку наведвальнікаў можа заняць да 30 хвілін.
+"""
+
+["p/json-file-format"]
+  default = "Экспарт у JSON — гэта ZIP-файл з некалькімі JSON-дакументамі; ён %[дакументаваны тут]."
+
+["p/last-user"]
+  default = "Нельга выдаліць або змяніць апошняга карыстальніка-адміністратара"
+
+["p/link-to-batch-rename"]
+  default = "Вы таксама можаце %[выдаліць або перайменаваць шмат праглядаў старонак з тэкставага файла]."
+
+["p/manage-batch-hits"]
+  default = """
+<p>Гэтая форма дазваляе выдаліць або перайменаваць шмат старонак, уставіўшы
+тэкставы файл; сінтаксіс:</p>
+<pre>
+# Рашотка азначае каментарый, але толькі ў пачатку радка (можа быць з водступам).
+delete шлях
+rename адкуль куды
+</pre>
+
+<p>Каманда і аргумент(ы) раздзяляюцца любой колькасцю прабелаў і/або
+табуляцый.</p>
+
+<p>Прымаюцца каманды <code>delete</code> — выдаліць прагляды старонак — і
+<code>rename</code> — перайменаваць шлях. Назва каманды не залежыць ад рэгістра,
+таму, напрыклад, <code>DELETE</code> або <code>dELeTe</code> таксама працуюць.
+Каманду можна пісаць з водступам з прабелаў або табуляцый.</p>
+
+<p>Пры перайменаванні лічбы праглядаў будуць аб'яднаны, калі мэтавы шлях ужо існуе.</p>
+
+<p>Можна выкарыстоўваць SQL-падстаноўкі, як апісана на старонцы <a
+href="%(base)/settings/purge">Кіраваць праглядамі старонак</a>. Апроч гэтага, шаблон
+можа пачынацца з <code>(?i)</code> для супадзення без уліку рэгістра. Мэтавы шлях
+для перайменавання не прымае ніякіх падстановак або <code>(?i)</code> і мусіць
+быць дакладным супадзеннем (або новым шляхам).</p>
+
+<p>Перад тым, як нешта зменіцца, вы ўбачыце перадпрагляд.</p>
+
+<p>Прыклад:</p>
+
+<pre>
+delete /foo
+delete (?i)/archive/%
+
+# Перанесці з /weblog/*.html у /*.html.
+RENAME   /weblog/page.html   /page.html
+RENAME   /weblog/other.html  /other.html
+</pre>
+"""
+
+["p/manage-hits"]
+  default = "Выдаліць або аб'яднаць прагляды старонак."
+
+["p/merge-account"]
+  default = """
+Можна аб'яднаць уліковыя запісы, у якіх ёсць карыстальнік-адміністратар
+з пацверджанай электроннай поштай, ідэнтычнай вашай бягучай.
+"""
+
+["p/no-data"]
+  default = """
+<p>
+%[%bold Даныя не атрыманы] – GoatCounter яшчэ не атрымаў ніякіх даных.<br>
+Пачаць даволі проста: дадайце наступны JavaScript у любым месцы старонкі:</p>
+
+%[%pre %(js_code)]
+
+<p>Калі не бачыце праглядаў, праверце, ці не блакуе GoatCounter ваш блакавальнік рэкламы (дамен %(domain) і/або gc.zgo.at).</p>
+
+<p>Гэтае паведамленне знікне, як толькі мы атрымаем даныя; глядзіце %[%link_docs Код сайта] у верхнім меню для дакументацыі і гатовых інтэграцый.</p>
+"""
+
+["p/no-matches"]
+  default = "Нічога не адпавядае %(query)."
+
+["p/notify-immediate-change"]
+  default = "Падзейнічае адразу"
+
+["p/notify-pagination-cursor"]
+  default = """
+У лісце будзе ‘курсор пагінацыі’; калі ўпісаць яго сюды,
+будуць экспартаваны толькі прагляды старонак, запісаныя
+пасля папярэдняга экспарту.
+"""
+
+["p/notify-site-deletion"]
+  default = "Будзе выдалена сайтаў: %(number)"
+
+["p/num-accounts"]
+  default = "Гэты ўліковы запіс змяшчае %(n) сайтаў:"
+
+["p/remove-site-confirm"]
+  default = """
+Вы ўпэўнены, што хочаце выдаліць сайт %(sitename)?<br>
+Гэта <strong>выдаліць усе звязаныя даныя</strong>.
+"""
+
+["p/remove-site-confirm-contact"]
+  default = "%[Звяжыцеся з намі], калі хочаце зрабіць нешта іншае, напрыклад аб'яднаць яго з іншым сайтам або аддзяліць у новы ўліковы запіс."
+
+["p/remove-site-confirm-current"]
+  default = """
+Вы ўпэўнены, што хочаце выдаліць сайт %(sitename)?<br>
+Гэта <strong>выдаліць усе звязаныя даныя</strong>, і гэта <strong>бягучы сайт</strong>.
+"""
+
+["p/rm-hits-help"]
+  default = """
+Супадзенні без уліку рэгістра. Падтрымліваюцца наступныя спецыяльныя сімвалы:
+
+<ul>
+<li><code>%</code> — шаблон; напрыклад, <code>/page%.html</code> адпавядае ўсяму, што пачынаецца з <code>/page</code> і заканчваецца на <code>.html</code>.</li>
+<li><code>_</code> адпавядае любому сімвалу; напрыклад, <code>_.html</code> адпавядае <code>a.html</code> і <code>b.html</code>.</li>
+<li>Выкарыстоўвайце <code>\\%</code> і <code>\\_</code> для літаральных сімвалаў без спецыяльнага значэння.</li>
+<li>Выкарыстоўвайце два бэкслэшы (<code>\\\\</code>), каб супаставіць адзін бэкслэш.</li>
+</ul>
+"""
+
+["p/rm-pageview-match"]
+  default = "Наступныя шляхі адпавядаюць %(query):"
+
+["p/setting-recovery-disabled-information"]
+  default = "Калі налада выключана, аднавіць гэтую інфармацыю пасля запісу прагляду немагчыма, бо яна не захоўваецца."
+
+["p/settings-all-sites"]
+  default = "Гэтыя налады дзейнічаюць для ўсіх сайтаў, да якіх у вас ёсць доступ."
+
+["p/site-domain-link-to-page"]
+  default = "Дамен вашага сайта, напрыклад <em>“www.example.com”</em>; выкарыстоўваецца для спасылак на старонкі ў аглядзе."
+
+["p/text-data-retention"]
+  default = "Гэта ўключае налады захоўвання і збору даных!"
+
+["p/verify-email"]
+  default = "Ваш адрас электроннай пошты %(email) не пацверджаны; перад аб'яднаннем уліковых запісаў трэба пацвердзіць пошту."
+
+["page-ranking"]
+  default = "Рэйтынг старонак"
+
+["scale-y"]
+  default = "Маштабаваць вось Y усіх графікаў да найбольшага значэння гэтага графіка (%(n))"
+
+["theme/dark"]
+  default = "Цёмная"
+
+["theme/light"]
+  default = "Светлая"
+
+["theme/system"]
+  default = "Як у сістэме"
+
+["tooltip/change-period"]
+  default = "Змена ў параўнанні з папярэднім перыядам"
+
+["top-nav/back"]
+  default = "Назад"
+
+["top-nav/dashboard"]
+  default = "Панэль кіравання"
+
+["top-nav/documentation"]
+  default = "Даведка"
+
+["top-nav/need-js"]
+  default = "Для нармальнай працы GoatCounter патрабуецца ўключаны JavaScript; калі ласка, дазвольце выкананне JavaScript з %(domain)."
+
+["top-nav/public-link"]
+  default = "Аналітыка для %(domain)."
+
+["top-nav/public-time"]
+  default = "Публічны прагляд абнаўляецца раз на гадзіну; увесь час паказаны ў %(timezone-name) (%(timezone-offset))."
+
+["top-nav/settings"]
+  default = "Налады"
+
+["top-nav/sign-in"]
+  default = "Увайсці"
+
+["top-nav/sign-out"]
+  default = "Выйсці"
+
+["top-nav/sites"]
+  default = "Сайты:"
+
+["unknown"]
+  default = "(невядома)"
+
+["validate/bool"]
+  default = "мусіць быць лагічным значэннем"
+
+["validate/color"]
+  default = "мусіць быць сапраўдным кодам колеру"
+
+["validate/contains"]
+  default = "не можа змяшчаць сімвалы %s"
+
+["validate/date"]
+  default = "мусіць быць датай у фармаце ‘%s’"
+
+["validate/domain"]
+  default = "мусіць быць сапраўдным даменам"
+
+["validate/email"]
+  default = "мусіць быць сапраўдным адрасам электроннай пошты"
+
+["validate/exclude"]
+  default = "не можа быць ‘%s’"
+
+["validate/hostname"]
+  default = "мусіць быць сапраўдным імем хоста"
+
+["validate/include"]
+  default = "мусіць быць адным з ‘%s’"
+
+["validate/int"]
+  default = "мусіць быць цэлым лікам"
+
+["validate/ip"]
+  default = "мусіць быць сапраўдным IPv4- або IPv6-адрасам"
+
+["validate/ipv4"]
+  default = "мусіць быць сапраўдным IPv4-адрасам"
+
+["validate/len-longer"]
+  default = "мусіць быць даўжэйшым за %d сімвалаў"
+
+["validate/len-shorter"]
+  default = "мусіць быць карацейшым за %d сімвалаў"
+
+["validate/need-one"]
+  default = "трэба выбраць хаця б адно"
+
+["validate/phone"]
+  default = "мусіць быць сапраўдным нумарам тэлефона"
+
+["validate/range-higher"]
+  default = "мусіць быць %d або больш"
+
+["validate/range-lower"]
+  default = "мусіць быць %d або менш"
+
+["validate/required"]
+  default = "мусіць быць зададзена"
+
+["validate/url"]
+  default = "мусіць быць сапраўдным URL"
+
+["validate/utf8"]
+  default = "мусіць быць у UTF-8"
+
+["view not set"]
+  default = "выгляд не зададзены"
+
+["widget-setting/help/align"]
+  default = "Дадаць водступ злева, каб выраўняць з графікамі старонак"
+
+["widget-setting/help/chart-style"]
+  default = "Як маляваць графікі"
+
+["widget-setting/help/no-events"]
+  default = "Не ўключаць падзеі ў агульны агляд"
+
+["widget-setting/help/page-size"]
+  default = "Колькасць старонак для загрузкі"
+
+["widget-setting/help/ref-page-size"]
+  default = "Колькасць крыніц пераходаў, якія загружаюцца пры кліку па шляху"
+
+["widget-setting/help/regions"]
+  default = "Паказваць рэгіёны гэтай краіны замест спіса краін"
+
+["widget-setting/label/align"]
+  default = "Выраўняць са старонкамі"
+
+["widget-setting/label/chart-style"]
+  default = "Стыль графіка"
+
+["widget-setting/label/no-events"]
+  default = "Выключыць падзеі"
+
+["widget-setting/label/page-size"]
+  default = "Памер старонкі"
+
+["widget-setting/label/ref-page-size"]
+  default = "Памер старонкі крыніц пераходаў"
+
+["widget-setting/label/regions"]
+  default = "Паказваць рэгіёны"
+
+["widget-settings/bar-chart"]
+  default = "Слупковы графік"
+
+["widget-settings/line-chart"]
+  default = "Лінейны графік"
+
+["widget-settings/text-chart"]
+  default = "Тэкставая табліца"
+
+["y-scale"]
+  default = "Маштаб восі Y"
