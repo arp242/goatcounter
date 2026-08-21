@@ -3,47 +3,106 @@ on:
   push:         {branches: ['main'], tags: ['v*']}
   pull_request: {}
 
+permissions:
+  contents: 'read'
+  packages: 'write'
+
+env:
+  REGISTRY_IMAGE: 'ghcr.io/${{ github.repository }}'
+
 jobs:
   build:
-    runs-on: 'ubuntu-latest'
-    # TODO: only run if tests passed.
-    #
-    # This doesn't work, as jobs is "For reusable workflows only, contains
-    # outputs of jobs from the reusable workflow" and is not available here.
-    #if:      ${{ jobs.test.result == 'success' }}
-    #
-    # Hmm, this also doesn't work: The workflow is not valid.
-    # .github/workflows/build.yml (Line: 7, Col: 3): The workflow must contain
-    # at least one job with no dependencies.
-    #
-    # Guess it all needs to be put in the same workflow?
-    #needs: 'test'
-
+    name: '${{ matrix.platform }}'
+    runs-on: '${{ matrix.runner }}'
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: 'linux/amd64'
+            runner: 'ubuntu-latest'
+            platform_key: 'linux-amd64'
+          - platform: 'linux/arm64'
+            runner: 'ubuntu-24.04-arm'
+            platform_key: 'linux-arm64'
     steps:
       - uses: 'actions/checkout@v6'
       - uses: 'docker/setup-buildx-action@v4'
       - uses: 'docker/login-action@v4'
         if: ${{ github.event_name != 'pull_request' }}
         with:
-          username: ${{ vars.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - uses: 'docker/metadata-action@v5'
-        id: 'meta'
-        with:
-          images: 'arp242/goatcounter'
-          tags:   "type=semver,pattern={{version}}\ntype=semver,pattern={{major}}.{{minor}}"
+          registry: 'ghcr.io'
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
       - uses: 'docker/build-push-action@v6'
+        id: 'build'
         with:
           context:    '.'
           file:       './Dockerfile'
-          # TODO: this is quite slow (~10 min, instead of ~1 min). Look at
-          # running on GitHub actions arm64 to make it faster:
-          # https://docs.docker.com/build/ci/github-actions/multi-platform/#distribute-build-across-multiple-runners
-          #
-          # Seems quite complex though, so this is okay for now.
-          platforms:  'linux/amd64,linux/arm64'
-          tags:       ${{ steps.meta.outputs.tags }}
-          labels:     ${{ steps.meta.outputs.labels }}
-          push:       ${{ github.event_name != 'pull_request' && github.ref_name != 'main' }}
-          cache-from: 'type=registry,ref=arp242/goatcounter:latest'
-          cache-to:   'type=inline'
+          platforms:  '${{ matrix.platform }}'
+          tags:       '${{ env.REGISTRY_IMAGE }}'
+          outputs:    '${{ github.event_name != ''pull_request'' && format(''type=image,name={0},push-by-digest=true,name-canonical=true,push=true'', env.REGISTRY_IMAGE) || ''type=docker'' }}'
+          cache-from: |
+            type=gha,scope=buildkit-${{ matrix.platform_key }}
+            type=registry,ref=${{ env.REGISTRY_IMAGE }}:buildcache-${{ matrix.platform_key }}
+          cache-to: |
+            type=gha,scope=buildkit-${{ matrix.platform_key }},mode=max
+            type=registry,ref=${{ env.REGISTRY_IMAGE }}:buildcache-${{ matrix.platform_key }},mode=max
+      - name: 'Export digest'
+        if: ${{ github.event_name != 'pull_request' }}
+        run: |
+          mkdir -p /tmp/digests
+          digest='${{ steps.build.outputs.digest }}'
+          touch "/tmp/digests/${digest#sha256:}"
+      - uses: 'actions/upload-artifact@v4'
+        if: ${{ github.event_name != 'pull_request' }}
+        with:
+          name: 'digests-${{ matrix.platform_key }}'
+          path: '/tmp/digests/*'
+          if-no-files-found: 'error'
+          retention-days: 1
+
+  merge:
+    if: ${{ github.event_name != 'pull_request' }}
+    needs: 'build'
+    runs-on: 'ubuntu-latest'
+    steps:
+      - uses: 'actions/download-artifact@v4'
+        with:
+          path: '/tmp/digests'
+          pattern: 'digests-*'
+          merge-multiple: true
+      - uses: 'docker/login-action@v4'
+        with:
+          registry: 'ghcr.io'
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: 'docker/setup-buildx-action@v4'
+      - uses: 'docker/metadata-action@v5'
+        id: 'meta'
+        with:
+          images: '${{ env.REGISTRY_IMAGE }}'
+          tags: |
+            type=ref,event=branch
+            type=sha
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+      - name: 'Create manifest list'
+        working-directory: '/tmp/digests'
+        run: |
+          set -eu
+
+          tag_args=()
+          while IFS= read -r tag; do
+            [ -n "$tag" ] || continue
+            tag_args+=(--tag "$tag")
+          done <<'EOF'
+          ${{ steps.meta.outputs.tags }}
+          EOF
+
+          refs=()
+          for digest in *; do
+            refs+=("${{ env.REGISTRY_IMAGE }}@sha256:${digest}")
+          done
+
+          docker buildx imagetools create "${tag_args[@]}" "${refs[@]}"

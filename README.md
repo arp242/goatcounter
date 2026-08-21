@@ -14,6 +14,8 @@ Please consider [contributing financially][sponsor].
 [www]: https://www.goatcounter.com
 
 
+
+
 Features
 --------
 - **Privacy-aware**; doesn’t track users with unique identifiers and doesn't
