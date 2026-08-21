@@ -1408,6 +1408,7 @@ RENAME   /weblog/other.html  /other.html
   default = "Дадаць водступ злева, каб выраўняць з графікамі старонак"
 
 ["widget-setting/help/by-count"]
+  default = "Сартаваць табліцу па колькасці праглядаў старонак, а не па памеры экрана"
 
 ["widget-setting/help/chart-style"]
   default = "Як маляваць графікі"
@@ -1428,6 +1429,7 @@ RENAME   /weblog/other.html  /other.html
   default = "Выраўняць са старонкамі"
 
 ["widget-setting/label/by-count"]
+  default = "Сартаваць па колькасці"
 
 ["widget-setting/label/chart-style"]
   default = "Стыль графіка"
