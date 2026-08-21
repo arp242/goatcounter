@@ -29,7 +29,7 @@ func cmdHelp(f zli.Flags, ready chan<- struct{}, stop chan struct{}) error {
 			continue
 		}
 		if a == "all" {
-			topics = []string{"help", "version", "serve", "import",
+			topics = []string{"help", "version", "serve", "import", "proxy",
 				"dashboard", "db", "monitor", "listen", "logfile", "log", "debug"}
 			break
 		}
@@ -70,6 +70,7 @@ var usage = map[string]string{
 	"saas":      usageSaas,
 	"monitor":   usageMonitor,
 	"import":    usageImport,
+	"proxy":     usageProxy,
 	"dashboard": usageDashboard,
 	"db":        helpDB,
 	"listen":    helpListen,
@@ -97,6 +98,7 @@ Commands:
   version      Show version and build information and exit.
   serve        Start HTTP server.
   import       Import pageviews from an export or logfile.
+  proxy        Proxy and batch /count requests to another GoatCounter server.
 
   dashboard    Show dashboard statistics in the terminal.
   db           Modify the database and print database info.
@@ -240,6 +242,7 @@ commas.
     memstore       Storing of pageviews in the database
     migrate        Database migrations
     monitor        Additional logs in "goatcounter monitor"
+    proxy          Forwarding of pageviews in "goatcounter proxy"
     refspam        Pageviews blocked due to being in the refspam list
     req            HTTP requests (all except /count, /api/v0/count, and /loader)
     session        Internal "session" generation to track visitors

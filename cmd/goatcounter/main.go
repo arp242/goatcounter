@@ -59,7 +59,7 @@ func cmdMain(f zli.Flags, ready chan<- struct{}, stop chan struct{}) {
 	mainDone.Add(1)
 	defer mainDone.Done()
 
-	cmd, err := f.ShiftCommand("help", "version", "serve", "import",
+	cmd, err := f.ShiftCommand("help", "version", "serve", "import", "proxy",
 		"dashboard", "db", "monitor",
 		"saas", "goat")
 	if zslice.ContainsAny(f.Args, "-h", "-help", "--help") {
@@ -127,6 +127,8 @@ func cmdMain(f zli.Flags, ready chan<- struct{}, stop chan struct{}) {
 		run = cmdMonitor
 	case "import":
 		run = cmdImport
+	case "proxy":
+		run = cmdProxy
 	case "dashboard":
 		// Wrap as this also doubles as an example, and these flags just obscure
 		// things.
