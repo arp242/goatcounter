@@ -104,12 +104,22 @@
 
 ["dashboard/day-ago"]
   default = "%(n) дзён таму"
+  zero    = "%(n) дзён таму"
+  one     = "%(n) дзень таму"
+  two     = "%(n) дні таму"
+  few     = "%(n) дні таму"
+  many    = "%(n) дзён таму"
 
 ["dashboard/loading"]
   default = "Загрузка…"
 
 ["dashboard/month-ago"]
   default = "%(n) месяцаў таму"
+  zero    = "%(n) месяцаў таму"
+  one     = "%(n) месяц таму"
+  two     = "%(n) месяцы таму"
+  few     = "%(n) месяцы таму"
+  many    = "%(n) месяцаў таму"
 
 ["dashboard/nothing-to-display"]
   default = "Няма чаго паказваць"
@@ -146,6 +156,11 @@
 
 ["dashboard/week-ago"]
   default = "%(n) тыдняў таму"
+  zero    = "%(n) тыдняў таму"
+  one     = "%(n) тыдзень таму"
+  two     = "%(n) тыдні таму"
+  few     = "%(n) тыдні таму"
+  many    = "%(n) тыдняў таму"
 
 ["dashboard/yesterday"]
   default = "Учора"
@@ -1241,6 +1256,11 @@ RENAME   /weblog/other.html  /other.html
 
 ["p/num-accounts"]
   default = "Гэты ўліковы запіс змяшчае %(n) сайтаў:"
+  zero    = "Гэты ўліковы запіс змяшчае %(n) сайтаў:"
+  one     = "Гэты ўліковы запіс змяшчае %(n) сайт:"
+  two     = "Гэты ўліковы запіс змяшчае %(n) сайты:"
+  few     = "Гэты ўліковы запіс змяшчае %(n) сайты:"
+  many    = "Гэты ўліковы запіс змяшчае %(n) сайтаў:"
 
 ["p/remove-site-confirm"]
   default = """
