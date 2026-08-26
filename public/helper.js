@@ -120,7 +120,7 @@ var get_date = function(str) {
 		(s[3] || 0), (s[4] || 0), (s[5] || 0))
 }
 
-// Simple z18n-compatible transate.
+// Simple z18n-compatible translate.
 var T = function(id, params) {
 	var str = window.I18N[id]
 	if (!str) {

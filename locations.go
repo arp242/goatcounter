@@ -23,7 +23,7 @@ type Location struct {
 	RegionName  string `db:"region_name" json:"region_name"`
 
 	// TODO: send patch to staticcheck to deal with this better. This shouldn't
-	// errror since "ISO" is an initialism.
+	// error since "ISO" is an initialism.
 	ISO3166_2 string `db:"iso_3166_2,noinsert" json:"-"` //lint:ignore ST1003 staticcheck bug
 }
 

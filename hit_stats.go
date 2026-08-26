@@ -110,7 +110,7 @@ type HitStat struct {
 
 	// What kind of referral this is; only set when retrieving referrals {enum: h g c o}.
 	//
-	//  h   HTTP Referal header.
+	//  h   HTTP Referral header.
 	//  g   Generated; for example are Google domains (google.com, google.nl,
 	//      google.co.nz, etc.) are grouped as the generated referral "Google".
 	//  c   Campaign (via query parameter)

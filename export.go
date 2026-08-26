@@ -39,7 +39,7 @@ type Export struct {
 	// SHA256 hash.
 	Hash *string `db:"hash" json:"hash,readonly"`
 
-	// Any errors that may have occured.
+	// Any errors that may have occurred.
 	Error *string `db:"error" json:"error,readonly"`
 }
 

@@ -1076,7 +1076,7 @@
           "type": "integer"
         },
         "ref_scheme": {
-          "description": "What kind of referral this is; only set when retrieving referrals .\n\n h HTTP Referal header.\n g Generated; for example are Google domains (google.com, google.nl,\n google.co.nz, etc.) are grouped as the generated referral \"Google\".\n c Campaign (via query parameter)\n o Other",
+          "description": "What kind of referral this is; only set when retrieving referrals .\n\n h HTTP Referral header.\n g Generated; for example are Google domains (google.com, google.nl,\n google.co.nz, etc.) are grouped as the generated referral \"Google\".\n c Campaign (via query parameter)\n o Other",
           "type": "string",
           "enum": [
             "enum:",
@@ -1146,7 +1146,7 @@
           "type": "string"
         },
         "ref_scheme": {
-          "description": "What kind of referral this is; only set when retrieving referrals .\n\n h HTTP Referal header.\n g Generated; for example are Google domains (google.com, google.nl,\n google.co.nz, etc.) are grouped as the generated referral \"Google\".\n c Campaign (via query parameter)\n o Other",
+          "description": "What kind of referral this is; only set when retrieving referrals .\n\n h HTTP Referral header.\n g Generated; for example are Google domains (google.com, google.nl,\n google.co.nz, etc.) are grouped as the generated referral \"Google\".\n c Campaign (via query parameter)\n o Other",
           "type": "string",
           "enum": [
             "enum:",
@@ -1492,7 +1492,7 @@
           "type": "string"
         },
         "ref": {
-          "description": "Referrer value, can be an URL (i.e. the Referal: header) or any\nstring.",
+          "description": "Referrer value, can be an URL (i.e. the Referral: header) or any\nstring.",
           "type": "string"
         },
         "session": {
@@ -1736,7 +1736,7 @@
           "readOnly": true
         },
         "error": {
-          "description": "Any errors that may have occured.",
+          "description": "Any errors that may have occurred.",
           "type": "string",
           "readOnly": true
         },

@@ -471,7 +471,7 @@ type APICountRequestHit struct {
 	// Is this an event?
 	Event zbool.Bool `json:"event" query:"e"`
 
-	// Referrer value, can be an URL (i.e. the Referal: header) or any
+	// Referrer value, can be an URL (i.e. the Referral: header) or any
 	// string.
 	Ref string `json:"ref" query:"r"`
 

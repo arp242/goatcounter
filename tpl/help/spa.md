@@ -1,4 +1,4 @@
-Custom `count()` example for hooking in to an SPA nagivating by `#`:
+Custom `count()` example for hooking in to an SPA navigating by `#`:
 
     <script>
         window.goatcounter = {no_onload: true}

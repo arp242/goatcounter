@@ -118,7 +118,7 @@ create and update commands:
 
             -user.email*      Your email address. Will be required to login.
                               This can not be set if -link is also set (since
-                              that will re-use the same users as the linked
+                              that will reuse the same users as the linked
                               site).
 
             -user.password*   Password to log in; will be asked interactively

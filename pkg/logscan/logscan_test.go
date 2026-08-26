@@ -213,7 +213,7 @@ func TestNewFollow(t *testing.T) {
 
 	go func() {
 		// inotify does weird stuff with file descriptors; so write to it from a
-		// diferent process.
+		// different process.
 		time.Sleep(200 * time.Millisecond)
 		for _, l := range lines {
 			time.Sleep(10 * time.Millisecond)

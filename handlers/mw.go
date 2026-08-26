@@ -215,7 +215,7 @@ func addctx(db zdb.DB, dev, saas, loadSite bool, dashTimeout int) func(http.Hand
 				ctx = goatcounter.WithSite(ctx, &s)
 			}
 
-			// Make sure there's always a z18n object; will get overriden by
+			// Make sure there's always a z18n object; will get overridden by
 			// addz18n() later for endpoints where it matters.
 			ctx = z18n.With(ctx, goatcounter.DefaultLocale)
 			next.ServeHTTP(w, r.WithContext(ctx))

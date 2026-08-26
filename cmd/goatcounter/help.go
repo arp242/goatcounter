@@ -109,7 +109,7 @@ Extra help topics:
 `
 
 const usageHelp = `
-Show help; use "help commands" to dispay detailed help for a command, or "help
+Show help; use "help commands" to display detailed help for a command, or "help
 all" to display everything.
 `
 
@@ -137,7 +137,7 @@ comma-separated list with any combination of:
                 where the certificates and your account key will be stored. The
                 directory will be created if it doesn't exist yet. As indicated
                 by the name, the contents of this directory should be kept
-                *secret*. The detault is "./acme-secrets" if it exists, or
+                *secret*. The default is "./acme-secrets" if it exists, or
                 "./goatcounter-data/acme-secrets" if it doesn't.
 
                 In order for Let's Encrypt to work GoatCounter *needs* to be

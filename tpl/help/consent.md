@@ -11,7 +11,7 @@ If you want to add a consent notice, then a simple example might be:
             if (localStorage.getItem('consent') === 't')
                 return
 
-            // Don't do anyting on load.
+            // Don't do anything on load.
             window.goatcounter = {no_onload: true}
 
             // Create a simple banner.

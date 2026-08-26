@@ -333,7 +333,7 @@ func (u *User) EnableTOTP(ctx context.Context) error {
 }
 
 func (u *User) DisableTOTP(ctx context.Context) error {
-	// Reset the totp secret to something new so that we don't end up re-using
+	// Reset the totp secret to something new so that we don't end up reusing
 	// the old secret by mistake and so that we're sure that it's invalidated.
 	u.TOTPSecret, u.TOTPEnabled = otp.Secret(), false
 	err := zdb.Update(ctx, u, "totp_enabled", "totp_secret")
@@ -532,7 +532,7 @@ func (u UserAccess) String() string {
 	case AccessSuperuser:
 		return "superuser"
 	default:
-		panic(fmt.Sprintf("UserAccess is %q; should never happpen", string(u)))
+		panic(fmt.Sprintf("UserAccess is %q; should never happen", string(u)))
 	}
 }
 

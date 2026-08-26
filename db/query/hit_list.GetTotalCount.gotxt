@@ -19,7 +19,7 @@ select
 	-- TODO the below should be faster, but isn't quite correct.
 	--
 	-- Get the UTC offset for the browser, screen size, etc. charts, which are
-	-- always stored in UTC. Instead of calculating everything again, substract the
+	-- always stored in UTC. Instead of calculating everything again, subtract the
 	-- pageviews outside of the UTC range, which is a lot faster.
 	-- x.total - (
 	-- 	select coalesce(sum(total), 0)

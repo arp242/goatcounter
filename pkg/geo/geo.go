@@ -40,11 +40,11 @@ func Get(ctx context.Context) *geoip2.Reader {
 //
 // The database can be the "Countries" or "Cities" version.
 //
-// It will use the embeded "Countries" database if path is an empty string.
+// It will use the embedded "Countries" database if path is an empty string.
 //
 // It will download a database if the path starts with "maxmind:". This needs to
 // be as "maxmind:accountID:licenseKey[:path]", where :path is optional and
-// detaults to goatcounter-data/auto.mmdb.
+// defaults to goatcounter-data/auto.mmdb.
 func Open(path string) (*geoip2.Reader, error) {
 	// Use built-in
 	if path == "" {
