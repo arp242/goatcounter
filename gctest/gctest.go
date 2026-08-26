@@ -214,7 +214,7 @@ func StoreHits(ctx context.Context, t *testing.T, wantFail bool, hits ...goatcou
 
 // Site creates a new user/site pair.
 //
-// You can set values for the site by passing the sute or user parameters, but
+// You can set values for the site by passing the site or user parameters, but
 // they may be nil to just set them to some sensible defaults.
 func Site(ctx context.Context, t *testing.T, site *goatcounter.Site, user *goatcounter.User) context.Context {
 	if site == nil {

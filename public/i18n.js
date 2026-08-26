@@ -1,4 +1,4 @@
-// Make sure textarea is hight enough to fit all content.
+// Make sure textarea is high enough to fit all content.
 //
 // TODO: on tab make sure the entire entry is visible, sometimes the original on
 // the left is larger.
