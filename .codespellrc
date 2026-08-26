@@ -1,6 +1,8 @@
 [codespell]
 # Ref: https://github.com/codespell-project/codespell#using-a-config-file
-skip = .git,.gitignore,.gitattributes,*.svg,go.sum,i18n,*.css,.codespellrc
+skip = .git,.git-meta,.gitignore,.gitattributes,*.svg,go.sum,i18n,*.css,.codespellrc,./public/dragula.js,./public/pikaday.js,./refspam.go,./db/languages.sql,./db/migrate
 check-hidden = true
-# ignore-regex = 
-# ignore-words-list =
+# Ignore camelCase and PascalCase identifiers (e.g. NotIn, atLeast, leapYear, toI)
+ignore-regex = \b[a-z]+[A-Z]\w*\b|\b[A-Z][a-z]+[A-Z]\w*\b
+# setttings: in API, defrey fixing.
+ignore-words-list = brin,noes,prevend,setttings,nd
