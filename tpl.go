@@ -66,7 +66,7 @@ func init() {
 		b := new(strings.Builder)
 
 		fmt.Fprintln(b, "\nDistribution:")
-		dist := times.Distrubute(n)
+		dist := times.Distrubute(n) // codespell:ignore distrubute -- upstream API name
 		var (
 			widthDur, widthNum int
 			widthBar           = 100.0
