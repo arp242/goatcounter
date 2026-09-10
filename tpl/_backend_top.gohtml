@@ -54,7 +54,7 @@
 							<select class="sites-list-select">
 								{{range $i, $s := .SubSites -}}
 									{{if $.GoatcounterCom}}<option{{if eq $s $.Site.Code}} selected{{end}} value="//{{$s}}.{{$.Domain}}{{$.Port}}">{{$s}}</option>
-									{{else}}<option{{if eq $s (deref $.Site.Cname)}} selected{{end}} value="//{{$s}}{{$.Port}}">{{$s}}</option>
+									{{else}}<option{{if eq $s (deref $.Site.Cname)}} selected{{end}} value="//{{$s}}{{$.Port}}{{$.Base}}">{{$s}}</option>
 									{{end -}}
 								{{end}}
 							</select>
