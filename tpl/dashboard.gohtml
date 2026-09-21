@@ -52,7 +52,7 @@
 	</style>
 {{end}}
 
-<form id="dash-form">
+<form id="dash-form" class="dashboard-toolbar">
 	{{/* The first button gets used on the enter key, AFAICT there is no way to change that. */}}
 	<button type="submit" tabindex="-1" class="hide-btn" aria-label="{{.T "button/submit|Submit"}}"></button>
 	{{if .ShowRefs}}<input type="hidden" name="showrefs" value="{{.ShowRefs}}">{{end}}
@@ -60,7 +60,7 @@
 	<input type="hidden" id="hl-group" name="group" value="{{.View.Group}}" disabled>
 
 	{{if .User.ID}}
-		<div id="dash-saved-views">
+		<div id="dash-saved-views" class="dashboard-saved-views">
 			<span title="{{.T "help/configure-dashboard|Configure dashboard"}}">⚙&#xfe0f;</span>
 			<div>
 				<a href="#" class="save-current-view">{{.T "button/save-default-view|Save default view"}}</a><br>
@@ -75,9 +75,9 @@
 		</div>
 	{{end}}
 
-	<div id="dash-main">
-		<div>
-			<span>
+	<div id="dash-main" class="dashboard-toolbar-main">
+		<div class="dashboard-toolbar-primary">
+			<span class="dashboard-date-range">
 				<input type="text" class="date-input" autocomplete="off" id="period-start" name="period-start"
 					min="{{.Site.FirstHitAt.Format "2006-01-02"}}" max="{{time "now" "2006-01-02"}}"
 					title="{{.T "nav-dash/start-date|First day to display"}}"
@@ -89,7 +89,7 @@
 					value="{{tformat .Period.End "" .User}}"
 				>{{- "" -}}
 			</span>
-			<span id="dash-select-period" class="period-{{.View.Period}}">
+			<span id="dash-select-period" class="dashboard-period-selector period-{{.View.Period}}">
 				<span>
 					{{.T "nav-dash/last|Last"}} {{/* z18n: as in: "Last [day] [week] [month] ...*/}}
 					<button class="link" name="period" value="day">{{.T "nav-dash/day|day"}}</button> ·
@@ -102,8 +102,8 @@
 			</span>
 		</div>
 
-		<div style="text-align: right">
-			<div id="filter-outer">
+		<div class="dashboard-toolbar-secondary" style="text-align: right">
+			<div id="filter-outer" class="dashboard-filter">
 				<div id="filter-wrap" class="input{{if .View.Filter}} value{{end}}">
 					<div id="filter-styled" aria-hidden="true"></div>
 					<input
@@ -127,7 +127,7 @@
 			</div>
 			{{/* .T "nav-dash/by-day|View by day" */}}
 
-			<span id="dash-select-group" class="group-{{.View.Group}}">
+			<span id="dash-select-group" class="dashboard-group-selector group-{{.View.Group}}">
 				{{.T `nav-dash/view-by|View by:`}}
                {{$dot := ""}}
                {{if .AllowGroups.Hourly}}
@@ -149,8 +149,8 @@
 			</span>
 		</div>
 	</div>
-	<div id="dash-move">
-		<div>
+	<div id="dash-move" class="dashboard-toolbar-nav">
+		<div class="dashboard-nav-back">
 			←&#xfe0e; {{.T "nav-dash/back|back"}}  {{/* z18n: as in: "← back [day] [week] [month]" */}}
 			<span>
 				<button class="link" name="move" value="day-b">{{.T "nav-dash/day|day"}}</button> ·
@@ -159,8 +159,8 @@
 				<button class="link" name="move" value="year-b">{{.T "nav-dash/year|year"}}</button>
 			</span>
 		</div>
-		<div id="dash-timerange">{{.Period}}</div>
-		<div>
+		<div id="dash-timerange" class="dashboard-timerange">{{.Period}}</div>
+		<div class="dashboard-nav-forward">
 			<span>
 				<button class="link" name="move" value="day-f">{{.T "nav-dash/day|day"}}</button> ·
 				<button class="link" name="move" value="week-f">{{.T "nav-dash/week|week"}}</button> ·
