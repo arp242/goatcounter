@@ -1,0 +1,1410 @@
+[__meta__]
+  language = "nn-NO"
+  modified = 2026-09-27
+  maintainers = ['@jmlagdotno <https://github.com/arp242/goatcounter/issues/931>']
+
+["button/add-new"]
+  default = "Legg til ny"
+
+["button/add-user"]
+  default = "Legg til ny brukar"
+
+["button/cfg-dashboard"]
+  default = "Tilpass oppsettet på oversikta"
+
+["button/change"]
+  default = "Endre"
+
+["button/change-passwd"]
+  default = "Endre passord"
+
+["button/copy"]
+  default = "Kopier"
+
+["button/delete"]
+  default = "Slett"
+
+["button/delete-account"]
+  default = "Slett konto, alle nettstader og alle data"
+
+["button/delete-everything"]
+  default = "Ja, slett alt"
+
+["button/delete-pageviews"]
+  default = "Slett sidevisingar"
+
+["button/disable-mfa"]
+  default = "Slå av MFA"
+
+["button/edit"]
+  default = "Rediger"
+
+["button/enable-mfa"]
+  default = "Slå på MFA"
+
+["button/forgot-password"]
+  default = "Gløymt passordet?"
+
+["button/merge"]
+  default = "Slå saman"
+
+["button/preview"]
+  default = "Førehandsvis"
+
+["button/remove"]
+  default = "Fjern"
+
+["button/request-reset"]
+  default = "Be om tilbakestilling av passord"
+
+["button/resend-email"]
+  default = "Sned e-posten på nytt"
+
+["button/reset-defaults"]
+  default = "Tilbakestill til standardinnstillingane"
+
+["button/reset-password"]
+  default = "Tilbakestill passord"
+
+["button/run"]
+  default = "Køyr"
+
+["button/save"]
+  default = "Lagre"
+
+["button/save-default-view"]
+  default = "Lagre standardvising"
+
+["button/search"]
+  default = "Søk"
+
+["button/send-login-url"]
+  default = "Send innloggingsadresse"
+
+["button/show"]
+  default = "vis"
+
+["button/sign-in"]
+  default = "Logg inn"
+
+["button/start-export"]
+  default = "Start eksport"
+
+["button/start-import"]
+  default = "Start import"
+
+["button/submit"]
+  default = "Send inn"
+
+["button/upload-ga-import"]
+  default = "Last opp"
+
+["confirm/delete-user"]
+  default = "Slette %(email)?"
+
+["dashboard/day-ago"]
+  default = "%(n) dagar sidan"
+
+["dashboard/loading"]
+  default = "Lastar..."
+
+["dashboard/month-ago"]
+  default = "%(n) månadar sidan"
+
+["dashboard/nothing-to-display"]
+  default = "Ingenting å vise"
+
+["dashboard/pages/change"]
+  default = "Endring"
+
+["dashboard/pages/header"]
+  default = "Sider"
+
+["dashboard/pages/num-visits"]
+  default = "%(num-visits) av %(total-visits) besøk viste"
+
+["dashboard/pages/path"]
+  default = "Sti"
+
+["dashboard/pages/title"]
+  default = "Tittel"
+
+["dashboard/pages/visits"]
+  default = "Besøk"
+
+["dashboard/today"]
+  default = "I dag"
+
+["dashboard/tooltip-event"]
+  default = "%(unique) unike klikk; %(clicks) klikk totalt"
+
+["dashboard/totals/header"]
+  default = "Totalt"
+
+["dashboard/totals/num-visits"]
+  default = "%(num-visits) besøk"
+
+["dashboard/week-ago"]
+  default = "%(n) veker sidan"
+
+["dashboard/yesterday"]
+  default = "I går"
+
+["data-collect/help/country"]
+  default = "Landsnamn, til dømes Belgia, Indonesia osv."
+
+["data-collect/help/hits"]
+  default = "Lagre einskilde sidevisingar for eksport. Dette påverkar ikkje noko anna. API-et kan framleis brukast til å eksportere aggregerte data."
+
+["data-collect/help/language"]
+  default = "Støtta språk frå Accept-Language."
+
+["data-collect/help/referrer"]
+  default = "Referer-header og kampanjeparameter."
+
+["data-collect/help/region"]
+  default = "Region, til dømes Texas, Bali osv. Detaljane for dette varierer frå land til land."
+
+["data-collect/help/sessions"]
+  default = "%[Spor unike besøkjande] i opptil 8 timar. Dersom du slår av dette, vil ein person som til dømes trykkjer F5 for å laste sida på nytt, telje som 2 sidevisingar i staden for 1."
+
+["data-collect/help/size"]
+  default = "Skjermstorleik."
+
+["data-collect/help/user-agent"]
+  default = "Namn på nettlesar og system utleidd frå User-Agent-headeren (sjølve headeren blir ikkje lagra)."
+
+["data-collect/label/country"]
+  default = "Land"
+
+["data-collect/label/hits"]
+  default = "Enskilde sidevisingar"
+
+["data-collect/label/language"]
+  default = "Språk"
+
+["data-collect/label/referrer"]
+  default = "Tilvisar"
+
+["data-collect/label/region"]
+  default = "Region"
+
+["data-collect/label/sessions"]
+  default = "Økter"
+
+["data-collect/label/size"]
+  default = "Storleik"
+
+["data-collect/label/user-agent"]
+  default = "User-Agent"
+
+["datepicker/keyboard"]
+  default = "Bruk piltastene for å velje ein dato"
+
+["datepicker/month-next"]
+  default = "Neste månad"
+
+["datepicker/month-prev"]
+  default = "Førre månad"
+
+["dont-lock"]
+  default = "Ikkje lås"
+
+["email-report/daily"]
+  default = "Dagleg"
+
+["email-report/monthly"]
+  default = "Månadleg"
+
+["email-report/never"]
+  default = "Aldri"
+
+["email-report/two-weeks"]
+  default = "Annankvar veke"
+
+["email-report/weekly"]
+  default = "Vekentleg"
+
+["email/header"]
+  default = "Hei,"
+
+["email/password-reset"]
+  default = """
+Nokon (vonleg du) bad om å tilbakestille passordet til GoatCounter-kontoen din.
+
+Du kan gjere det her:
+%(link)
+"""
+
+["email/reset-user-email-subject"]
+  default = "Tilbakestilling av passord for %(domain)"
+
+["email/signature"]
+  default = """
+Har du problem, spørsmål, kommentarar eller noko anna du vil fortelje meg? Berre svar på denne e-posten.
+
+Beste helsing,
+Martin
+"""
+
+["error/address-exists"]
+  default = "%(addr) finst allereie"
+
+["error/could-not-read"]
+  default = "Klarte ikkje å lese som gzip: %(err)"
+
+["error/date-future"]
+  default = "Det ville vore i framtida"
+
+["error/date-mismatch"]
+  default = "sluttdatoen er før startdatoen"
+
+["error/date-past"]
+  default = "Det ville vore før nettstaden vart oppretta"
+
+["error/email-exists"]
+  default = "E-postadressa «%(email)» er allereie brukt av ein annan brukar på denne nettstaden"
+
+["error/export-expired"]
+  default = "Det ser ut til at det ikkje finst nokon eksport enno, eller at eksporten har gått ut på tid."
+
+["error/incorrect-password"]
+  default = "Det noverande passordet er feil."
+
+["error/invalid-end-date"]
+  default = "Ugyldig sluttdato: %(date)"
+
+["error/invalid-start-date"]
+  default = "Ugyldig startdato: %(date)"
+
+["error/load-url"]
+  default = "Klarte ikkje å laste %(url): %(error)"
+
+["error/login-invalid"]
+  default = "Ugyldig innlogging"
+
+["error/login-no-password"]
+  default = """
+Det er ikkje sett noko passord for %(email);
+tilbakestill det
+"""
+
+["error/login-not-found"]
+  default = "Fann ikkje brukaren %(email)"
+
+["error/login-token-expired"]
+  default = "Fann ikkje brukaren for det oppgjevne tokenet. Det kan ha gått ut på tid eller allereie vere brukt."
+
+["error/login-wrong-pwd"]
+  default = "Feil passord for %(email)"
+
+["error/merge-self"]
+  default = "Kan ikkje slå saman ein sti med seg sjølv"
+
+["error/not-found"]
+  default = "Ikkje funne"
+
+["error/password-does-not-match"]
+  default = "Passordstadfestinga samsvarar ikkje."
+
+["error/reset-user-no-account"]
+  default = "Ikkje ein konto på denne nettstaden: %(email)"
+
+["error/unknown-activation-token"]
+  default = "Ukjent aktiveringstoken"
+
+["event"]
+  default = "hending"
+
+["forgot-domain-help"]
+  default = "Send ei liste på e-post over alle domene som er knytte til ei e-postadresse."
+
+["header/access"]
+  default = "Tilgang"
+
+["header/add-api-token"]
+  default = "Legg til nytt API-token"
+
+["header/add-new-user"]
+  default = "Legg til ein ny brukar"
+
+["header/allow-access"]
+  default = "Tillat tilgang"
+
+["header/api"]
+  default = "API"
+
+["header/api-tokens"]
+  default = "API-token"
+
+["header/browsers"]
+  default = "Nettlesarar"
+
+["header/change-code"]
+  default = "Endre nettstadkode"
+
+["header/change-passwd"]
+  default = "Endre passord"
+
+["header/code"]
+  default = "Kode"
+
+["header/copy-settings"]
+  default = "Kopier innstillingar"
+
+["header/created-at"]
+  default = "Oppretta"
+
+["header/csv-format"]
+  default = "CSV-format"
+
+["header/dashboard"]
+  default = "Oversikt"
+
+["header/data-collection"]
+  default = "Datainnsamling"
+
+["header/delete-account"]
+  default = "Slett konto"
+
+["header/deleting"]
+  default = "Slettar desse stiane"
+
+["header/domain"]
+  default = "Domene"
+
+["header/domain-settings"]
+  default = "Domeneinnstillingar"
+
+["header/edit-user"]
+  default = "Rediger brukaren %(email)"
+
+["header/email"]
+  default = "E-post"
+
+["header/export-or-import"]
+  default = "Eksport/Import"
+
+["header/export-to-csv"]
+  default = "Eksporter til CSV"
+
+["header/export-to-json"]
+  default = "Eksporter til JSON"
+
+["header/fewer-number"]
+  default = "Vis færre tal"
+
+["header/finished"]
+  default = "Ferdig"
+
+["header/forgot-domain"]
+  default = "Gløymt domene"
+
+["header/forgot-password"]
+  default = "Gløymt passord"
+
+["header/format"]
+  default = "Format"
+
+["header/hash"]
+  default = "Hash"
+
+["header/import-from-csv"]
+  default = "Importer frå CSV"
+
+["header/import-from-ga"]
+  default = "Totalar frå Google Analytics"
+
+["header/import-from-json"]
+  default = "Importer frå JSON"
+
+["header/json-format"]
+  default = "JSON-format"
+
+["header/l10n"]
+  default = "Lokalisering"
+
+["header/languages"]
+  default = "Språk"
+
+["header/last-10-exports"]
+  default = "Dei 10 siste eksportane"
+
+["header/last-used-at"]
+  default = "Sist brukt"
+
+["header/locations"]
+  default = "Stader"
+
+["header/locations-for"]
+  default = "Stader for %(country)"
+
+["header/manage-pageviews"]
+  default = "Administrer sidevisingar"
+
+["header/merge-account"]
+  default = "Slå saman konto"
+
+["header/merging-to"]
+  default = "Slår saman til %(path)"
+
+["header/mfa"]
+  default = "Fleirfaktorautentisering"
+
+["header/n-hits"]
+  default = "Tal på treff"
+
+["header/name"]
+  default = "Namn"
+
+["header/other-formats"]
+  default = "Andre format"
+
+["header/pagination-cursor"]
+  default = "Pagineringsmarkør"
+
+["header/passwd-mfa"]
+  default = "Passord & MFA"
+
+["header/path"]
+  default = "Sti"
+
+["header/permissions"]
+  default = "Løyve"
+
+["header/preferences"]
+  default = "Innstillingar"
+
+["header/renaming"]
+  default = "Endrar namn på desse stiane"
+
+["header/reset-password"]
+  default = "Tilbakestill passordet for %(email) på %(site-name)"
+
+["header/settings"]
+  default = "Innstillingar"
+
+["header/sign-in-at"]
+  default = "Logg inn på %(name)"
+
+["header/site-settings"]
+  default = "Nettstadinnstillingar"
+
+["header/sites"]
+  default = "Nettstader"
+
+["header/size"]
+  default = "Storleik"
+
+["header/sizes"]
+  default = "Storleikar"
+
+["header/start-pagination-cursor"]
+  default = "Starta frå pagineringsmarkør"
+
+["header/started"]
+  default = "Starta"
+
+["header/systems"]
+  default = "System"
+
+["header/title"]
+  default = "Tittel"
+
+["header/token"]
+  default = "Token"
+
+["header/toprefs"]
+  default = "Vanlegaste tilvisarar"
+
+["header/tracking"]
+  default = "Sporing"
+
+["header/user-info"]
+  default = "Brukarinformasjon"
+
+["header/user-information"]
+  default = "Brukarinformasjon"
+
+["header/users"]
+  default = "Brukarar"
+
+["help/allow-embed"]
+  default = "Kommaseparert liste over domene eller URL-ar som kan byggje inn GoatCounter i ei ramme; %[komplett dokumentasjon]."
+
+["help/allow-visitor-counts"]
+  default = "Sjå %[dokumentasjonen] for detaljar om bruk."
+
+["help/cfg-dashboard"]
+  default = "Endre kva som skal visast på oversikta og i kva rekkjefølgje."
+
+["help/code-access"]
+  default = "Du får tilgang til nettstaden din på https://<em>[min-kode]</em>.%(domain)."
+
+["help/configure-dashboard"]
+  default = "Tilpass oversikta"
+
+["help/custom-domain"]
+  default = """
+ige domene, til dømes <em>«stats.example.com»</em>.
+<strong>Merk:</strong> Dette vil <em>ikkje</em> hindre dei fleste annonseblokkerarar i å blokkere GoatCounter, og er berre meint som eit praktisk eige domenenamn.
+"""
+
+["help/custom-domain-cname"]
+  default = "Set ein CNAME-post til <code>%(domain)</code> – %[%docs detaljerte instruksjonar]."
+
+["help/custom-domain-error"]
+  default = """
+%[%error Ikkje stadfesta enda]; set ein CNAME-post til <code>%(domain)</code> – %[%docs detaljerte instruksjonar].
+Kontrollen køyrer annankvar time.
+"""
+
+["help/custom-domain-verified"]
+  default = "Domenet er stadfesta og sett opp (merk: det kan ta opptil ein time før sertifikatet verkar)."
+
+["help/data-retention"]
+  default = "Sidevisingar og alle tilhøyrande data blir sletta permanent etter så mange dagar. Set til <code>0</code> for aldri å slette."
+
+["help/datepicker"]
+  default = "GoatCounter brukar ein eigen JavaScript-datoveljar på datamaskiner fordi det ofte gir ei betre brukaroppleving. Du kan slå han av for å bruke den innebygde datoveljaren. På mobile einingar blir alltid den innebygde datoveljaren brukt."
+
+["help/domain-access"]
+  default = "Domene som GoatCounter skal vere tilgjengeleg frå."
+
+["help/drag-reorder"]
+  default = "Dra for å endre rekkefølgja"
+
+["help/email-reports"]
+  default = "Rapportar blir sende den første dagen i den nye perioden (til dømes den første dagen i månaden)."
+
+["help/fewer-numbers"]
+  default = "Ikkje vis tal på oversikta. Dette er meint å gi ei rimeleg nyttig oversikt over kva som skjer på nettstaden, utan at ein blir oppteken av det nøyaktige talet på besøkjande og statistikk."
+
+["help/fewer-numbers-lock"]
+  default = "Du kan ikkje slå av denne innstillinga i den oppgjevne perioden."
+
+["help/for-the-following-countries"]
+  default = "Liste over landskodar (%[list]; bruk alpha-2-koden). La feltet stå tomt for å samle inn for alle land (dersom aktivert)."
+
+["help/goatcounter-domain"]
+  default = "Domenet til GoatCounter-installasjonen din, til dømes <em>«stats.example.com»</em>."
+
+["help/ignore-ips"]
+  default = "Tel aldri førespurnader frå desse IP-adressene. Kommaseparert. Støttar berre nøyaktige treff. %[Legg til di noverande IP-adresse]."
+
+["help/ignore-ips-2"]
+  default = "Alternativt kan du %[deaktiver for denne nettlesaren] (klikk igjen for å slå på)."
+
+["help/locked-until"]
+  default = "Låst til %(date)"
+
+["help/need-cities"]
+  default = "Dette valet krev «Cities»-versjonen av GeoIP-databasen. Sjå flagget <tt>-geo</tt> i <tt>goatcounter help serve</tt>."
+
+["help/new-user-email"]
+  default = "E-postadresse for innlogging."
+
+["help/new-user-email-confirm"]
+  default = "E-postadresse for innlogging; må stadfestast."
+
+["help/no-undo"]
+  default = "Dette kan ikkje angrast!"
+
+["help/password-edit"]
+  default = "La stå tomt for å behalde det uendra."
+
+["help/password-new-user"]
+  default = "Kan stå tomt for å sende ein e-post om tilbakestilling av passord."
+
+["help/public"]
+  default = "Styr kven som kan sjå oversikta."
+
+["help/save-default-view"]
+  default = "Lagre den noverande visinga (det vil seie alle innstillingane i den gule boksen) som standardvising når ingenting er valt enno."
+
+["help/turing-test"]
+  default = "Berre ein liten kontroll på at du er eit menneske :-)"
+
+["help/your-email"]
+  default = "Du må stadfeste den nye adressa på nytt dersom du endrar henne."
+
+["label/24-hour-clock"]
+  default = "24-timarsklokke (13:00)"
+
+["label/access-to-sites"]
+  default = "Tilgang til nettstader"
+
+["label/add-new"]
+  default = "Legg til ny"
+
+["label/all-sites"]
+  default = "Alle nettstader"
+
+["label/allow-visitor-counts"]
+  default = "Tillat vising av besøkstal på nettstaden din"
+
+["label/browser-stats"]
+  default = "Nettlesarstatistikk"
+
+["label/campaigns"]
+  default = "Kampanjar"
+
+["label/change-code"]
+  default = "Du får tilgang til kontoen din på https://<em>[min-kode]</em>.%(domain) – %[%link endre]."
+
+["label/clear-pageviews"]
+  default = "Slett alle eksisterande sidevisingar."
+
+["label/code"]
+  default = "Kode"
+
+["label/csv-compress-format"]
+  default = "CSV-fil frå Google Analytics"
+
+["label/current-passwd"]
+  default = "Noverande passord"
+
+["label/custom-domain"]
+  default = "Eige domene"
+
+["label/dashboard-allow-embed"]
+  default = "Nettstader som kan byggje inn GoatCounter"
+
+["label/dashboard-public"]
+  default = "Oversikta kan visast av"
+
+["label/data-retention"]
+  default = "Datalagring i dagar"
+
+["label/date-fmt"]
+  default = "Datoformat"
+
+["label/datepicker"]
+  default = "Slå på eigen datoveljar"
+
+["label/delete-account-confirmation"]
+  default = "Er du sikker på at du vil slette heile kontoen?"
+
+["label/email"]
+  default = "E-post"
+
+["label/email-address"]
+  default = "E-postadresse"
+
+["label/email-reports"]
+  default = "Send rapportar på e-post"
+
+["label/export-from-date"]
+  default = "Eksporter frå dato"
+
+["label/fewer-numbers"]
+  default = "Vis færre tal"
+
+["label/for-following-countries"]
+  default = "Berre for desse landa:"
+
+["label/goatcounter-domain"]
+  default = "GoatCounter domene"
+
+["label/ignore-ips"]
+  default = "Ignorer IP-adresser"
+
+["label/lang"]
+  default = "Språk"
+
+["label/language-stats"]
+  default = "Språkstatistikk"
+
+["label/loc-stats"]
+  default = "Stadstatistikk"
+
+["label/lock-setting"]
+  default = "Lås innstilling"
+
+["label/mark-current"]
+  default = "(noverande)"
+
+["label/match-case"]
+  default = "Skil mellom store og små bokstavar"
+
+["label/match-title"]
+  default = "Søk òg i tittel"
+
+["label/merge-account-confirmation"]
+  default = "Er du sikker på at du vil slå saman denne kontoen?"
+
+["label/merge-to"]
+  default = "Slå saman alle stiane til"
+
+["label/mfa-token"]
+  default = "MFA-token"
+
+["label/new-code"]
+  default = "Ny kode"
+
+["label/new-password"]
+  default = "Nytt passord"
+
+["label/new-password-confirm"]
+  default = "Nytt passord (stadfest)"
+
+["label/pagination-cursor"]
+  default = "Pagineringsmarkør"
+
+["label/password"]
+  default = "Passord"
+
+["label/paths"]
+  default = "Stioversikt"
+
+["label/public-anyone"]
+  default = "Alle"
+
+["label/public-private"]
+  default = "Berre innlogga brukarar"
+
+["label/public-token"]
+  default = "Innlogga brukarar eller dei med hemmeleg token"
+
+["label/secret"]
+  default = "Hemmeleg nøkkel"
+
+["label/secret-access"]
+  default = "Hemmeleg tilgangsadresse:"
+
+["label/secret-token"]
+  default = "Hemmeleg token"
+
+["label/set-default"]
+  default = "Set òg som standard for nye brukarar og den offentlege visinga (dersom aktivert)."
+
+["label/size-desktop"]
+  default = "Dataskjermar"
+
+["label/size-desktophd"]
+  default = "Dataskjermar større enn HD"
+
+["label/size-phones"]
+  default = "Telefonar"
+
+["label/size-stats"]
+  default = "Storleiksstatistikk"
+
+["label/size-tablets"]
+  default = "Nettbrett og store telefonar"
+
+["label/system-stats"]
+  default = "Systemstatistikk"
+
+["label/theme"]
+  default = "Tema"
+
+["label/thousand-separator"]
+  default = "Tusenskilje"
+
+["label/timezone"]
+  default = "Tidssone"
+
+["label/topref"]
+  default = "Vanlegaste tilvisingar"
+
+["label/total-pageviews"]
+  default = "Totalt tal på sidevisingar"
+
+["label/turing-test"]
+  default = "Skriv 9 her"
+
+["label/verifictation-token"]
+  default = "Stadfestingstoken"
+
+["label/week-start"]
+  default = "Veka startar på sundag"
+
+["label/your-email"]
+  default = "E-postadressa di"
+
+["label/your-site"]
+  default = "Nettstaden di"
+
+["label/zip-file"]
+  default = "ZIP-fil"
+
+["link/add-translation"]
+  default = "Legg til eller oppdater omsetjingar"
+
+["link/api"]
+  default = "API"
+
+["link/api-docs"]
+  default = "API-dokumentasjon"
+
+["link/dashboard"]
+  default = "Oversikt"
+
+["link/generate-random"]
+  default = "Lag ein tilfeldig hemmeleg nøkkel."
+
+["link/goto-path"]
+  default = "Gå til %(path)"
+
+["link/import"]
+  default = "Import/Eksport"
+
+["link/manage-pageviews"]
+  default = "Administrer sidevisingar"
+
+["link/merge-account"]
+  default = "Slå saman konto"
+
+["link/passwd-mfa"]
+  default = "Passord & MFA"
+
+["link/preferences"]
+  default = "Innstillingar"
+
+["link/rm-account"]
+  default = "Slett konto"
+
+["link/set-from-browser"]
+  default = "Hent frå nettlesaren"
+
+["link/settings"]
+  default = "Innstillingar"
+
+["link/show-less"]
+  default = "(vis mindre)"
+
+["link/show-more"]
+  default = "Vis meir"
+
+["link/sites"]
+  default = "Nettstader"
+
+["link/users"]
+  default = "BRukarar"
+
+["nav-bot/contact"]
+  default = "Kontakt"
+
+["nav-bot/contribute"]
+  default = "Bidra"
+
+["nav-bot/docs"]
+  default = "Dokumentasjon"
+
+["nav-bot/home"]
+  default = "Heim"
+
+["nav-bot/src"]
+  default = "Kjeldekode"
+
+["nav-dash/back"]
+  default = "bakover"
+
+["nav-dash/day"]
+  default = "dag"
+
+["nav-dash/end-date"]
+  default = "Siste dagen som skal visast"
+
+["nav-dash/filter"]
+  default = "Filtrer stiar"
+
+["nav-dash/filter-more-help"]
+  default = "Meir hjelp"
+
+["nav-dash/filter-tooltip"]
+  default = """
+<p>Filtrer lista over stiar; søket skil ikkje mellom store og små bokstavar og gjeld sti og tittel. %[%more Meir hjelp]</p>
+
+<div>
+<p>Desse nøkkelorda blir attkjende:</p>
+<ul>
+<li><em>at:start</em>, <em>at:end</em>: treff berre i starten eller slutten av sti eller tittel. Bruk begge for nøyaktig treff.</li>
+<li><em>in:path</em>, <em>in:title</em>: treff berre sti eller tittel.</li>
+<li><em>is:event</em>, <em>is:pageview</em>: vis berre hendingar eller sidevisingar.</li>
+<li><em>:not</em>: snu treffet (det vil seie: vis berre stiar som ikkje samsvarar med filteret).</li>
+</ul>
+</div>
+"""
+
+["nav-dash/forward"]
+  default = "framover"
+
+["nav-dash/half-year"]
+  default = "halvår"
+
+["nav-dash/hour"]
+  default = "time"
+
+["nav-dash/last"]
+  default = "Siste"
+
+["nav-dash/month"]
+  default = "månad"
+
+["nav-dash/quarter"]
+  default = "kvartal"
+
+["nav-dash/start-date"]
+  default = "Første dagen som skal visast"
+
+["nav-dash/view-by"]
+  default = "Vis etter:"
+
+["nav-dash/week"]
+  default = "veke"
+
+["nav-dash/year"]
+  default = "år"
+
+["nav-fash/filter-less-help"]
+  default = "Mindre hjelp"
+
+["new-paren"]
+  default = "(ny)"
+
+["no-title"]
+  default = "ingen tittel"
+
+["notify/add-one-thing"]
+  default = "Du må leggje til minst éin ting; ei tom oversikt er vel litt meiningslaus?"
+
+["notify/api-token-created"]
+  default = "API-token oppretta."
+
+["notify/api-token-removed"]
+  default = "API-token fjerna."
+
+["notify/disabled-multi-factor-auth"]
+  default = "Fleirfaktorautentisering er slått av."
+
+["notify/email-already-verified"]
+  default = "%(email) er allereie stadfesta."
+
+["notify/export-started-in-background"]
+  default = "Eksporten er starta i bakgrunnen. Du får ein e-post med nedlastingslenkje når han er ferdig."
+
+["notify/import-ga-okay"]
+  default = "Data vart handsama utan feil."
+
+["notify/import-started-in-background"]
+  default = "Importen er starta i bakgrunnen. Du får ein e-post når han er ferdig."
+
+["notify/login-after-password-reset"]
+  default = "Passordet er tilbakestilt; bruk det nye passordet for å logge inn."
+
+["notify/multi-factor-auth-enabled"]
+  default = "Fleirfaktorautentisering er slått på."
+
+["notify/need-email-verification-for-api"]
+  default = "Du må stadfeste e-postadressa di før du kan bruke API-et."
+
+["notify/no-user-for-token"]
+  default = "Fann ikkje brukaren for det oppgjevne tokenet. Det kan ha gått ut på tid eller allereie vere brukt."
+
+["notify/not-found"]
+  default = "Ikkje funne"
+
+["notify/password-changed"]
+  default = "Passordet er endra."
+
+["notify/reset-to-default"]
+  default = "Tilbakestilt til standardinnstillingane!"
+
+["notify/reset-user-sent"]
+  default = "E-post sendt til %(email)"
+
+["notify/restored-previously-deleted-site"]
+  default = "Nettstaden «%(url)» var sletta tidlegare; nettstaden og alle data er gjenoppretta."
+
+["notify/saved"]
+  default = "Lagra!"
+
+["notify/sent-to-email"]
+  default = "Sendt til %(email)."
+
+["notify/settings-copied-to-site"]
+  default = "Innstillingane er kopierte til dei valde nettstadene."
+
+["notify/site-added"]
+  default = "Nettstaden «%(url)» er lagd til."
+
+["notify/site-removed"]
+  default = "Nettstaden «%(url)» er fjerna."
+
+["notify/started-background-process"]
+  default = "Starta i bakgrunnen; full handsaming kan ta om lag 10–20 sekund."
+
+["notify/user-added"]
+  default = "Brukaren «%(email)» er lagd til."
+
+["notify/user-removed"]
+  default = "Brukaren «%(email)» er fjerna."
+
+["notify/users-edited"]
+  default = "Brukaren «%(email)» er redigert."
+
+["p/add-goatcounter-to-multiple-websites"]
+  default = """
+<p>Legg GoatCounter til på fleire nettstader ved å opprette nye nettstader. Alle nettstadene deler dei same brukarane og innloggingane, men er elles heilt skilde. Innstillingane frå den noverande nettstaden blir kopierte når nettstaden blir oppretta, men er uavhengige etterpå.</p>
+
+<p>Du kan leggje til så mange du vil.</p>
+"""
+
+["p/add-multiple-accounts"]
+  default = "Du kan bruke kommandoen <code>goatcounter db create site</code> frå kommandolinja for å opprette fleire kontoar. Desse er heilt skilde og deler ikkje brukarar eller noko anna. Til dømes:"
+
+["p/additional-errors"]
+  default = "Fleire feil"
+
+["p/all-sites"]
+  default = "Alle nettstader, også dei som blir oppretta i framtida"
+
+["p/api-intro"]
+  default = "GoatCounter har eit API for å telje sidevisingar, lese statistikk, lage eksportar og administrere nettstader og brukarar."
+
+["p/change-code-request"]
+  default = """
+<p>Endre nettstadkoden og innloggingsdomenet.</p>
+
+<p><strong>ÅTVARING:</strong> Dette trer i kraft <strong>med ein gong</strong>, og den gamle koden kan registrerast på nytt av kven som helst. Dersom du allereie brukar han på ein nettstad, må du endre han så snart som mogleg, eller mellombels leggje til to integrasjonskodar (med den gamle og den nye koden) for å unngå tap av sidevisingar.</p>
+
+<p>Noverande kode: <code>%(current-code)</code> (%(current-url))</p>
+"""
+
+["p/change-email"]
+  default = "Endre e-postadressa i %[innstillingar]."
+
+["p/collect-disabled"]
+  default = "Innsamling av denne informasjonen er no %[slått av i innstillingane]."
+
+["p/copy-settings-from-current-site"]
+  default = "Kopier alle innstillingar frå den noverande nettstaden, bortsett frå domenenamnet."
+
+["p/csv-file-format"]
+  default = "Formatet på CSV-fila er %[dokumentert her]."
+
+["p/delete-account"]
+  default = "Nettstaden og alle tilhøyrande data blir sletta permanent utan moglegheit for gjenoppretting."
+
+["p/disable-mfa"]
+  default = "MFA er slått på for denne kontoen."
+
+["p/enable-mfa"]
+  default = "Slå på TOTP-basert fleirfaktorautentisering ved å skanne koden i autentiseringsappen din eller skrive inn den hemmelege nøkkelen manuelt."
+
+["p/error"]
+  default = "Feil: %(error-message)"
+
+["p/export-csv"]
+  default = """
+<p>CSV-eksport krev at innsamling av sidevisingar er slått på i %[%setting nettstadsinnstillingar], men dette er no slått av.</p>
+
+<p>Du kan framleis bruke API-et til å hente den aggregerte statistikken som blir brukt på oversikta; sjå %[%api API dokument].</p>
+"""
+
+["p/export-from-date"]
+  default = "Ta berre med data frå og med denne datoen. Tidspunktet er alltid i UTC. Les dokumentasjonen for å forstå nokre viktige avgrensingar ved dette."
+
+["p/export-process"]
+  default = "Start prosessen og send deg ei nedlastingslenkje på e-post når han er ferdig. Du kan berre gjere dette éin gong i timen, og det vil overskrive eventuelle tidlegare tryggleikskopiar."
+
+["p/have-mfa"]
+  default = "Denne kontoen er verna med fleirfaktorautentisering; skriv inn koden frå autentiseringsappen din."
+
+["p/import-ga"]
+  default = """
+Google Analytics tilbyr ikkje meiningsfulle eksportar; tenesta tilbyr berre %[%ga eksporterings \"rapportar\"»]. Dette gir ei oversikt over totalar per sti, utan oppdeling etter dato. Det er ikkje nok data til at GoatCounter kan vise dei, men du kan «importere» dei, og dei blir lagde til totalane i %[%vc Besøksteljar].
+<br><br>
+Det kan ta opptil 30 minutt før tala i besøksteljaren blir oppdaterte.
+"""
+
+["p/json-file-format"]
+  default = "JSON-eksporten er ei ZIP-fil som inneheld fleire JSON-dokument, og er %[dokumentert her]."
+
+["p/last-user"]
+  default = "Kan ikkje slette eller redigere den siste administratorbrukaren"
+
+["p/link-to-batch-rename"]
+  default = "Du kan òg %[slette eller endre mange sidevisingar frå ei tekstfil]."
+
+["p/manage-batch-hits"]
+  default = """
+<p>Dette skjemaet lèt deg fjerne eller endre namn på mange sider ved å lime inn ei tekstfil. Syntaksen er:</p>
+<pre>
+# Hash-teikn markerer ein kommentar, men berre først på linja (kan ha innrykk).
+delete path
+rename src dst
+</pre>
+
+<p>Kommandoen og argumenta blir skilde med eitt eller fleire mellomrom og/eller tabulatorteikn.</p>
+
+<p>Godtekne kommandoar er <code>delete</code> for å slette sidevisingar og <code>rename</code> for å endre namn på stien. Kommandoen skil ikkje mellom store og små bokstavar, så til dømes <code>DELETE</code> og <code>dELeTe</code> verkar òg. Kommandoen kan ha innrykk med mellomrom eller tabulator.</p>
+
+<p>Når namn blir endra, blir trefftala slått saman dersom målstien allereie finst.</p>
+
+<p>Du kan bruke SQL-plasshaldarar som dokumentert på sida <a href=\"%(base)/settings/purge\">Administrer sidevisingar</a>. Mønsteret kan òg starte med <code>(?i)</code> for søk som ikkje skil mellom store og små bokstavar. Målstien ved namneendring godtek ikkje plasshaldarar eller <code>(?i)</code> og må vere eit nøyaktig treff (eller ein ny sti).</p>
+
+<p>Du får ei førehandsvising før noko blir endra.</p>
+
+<p>Døme:</p>
+
+<pre>
+delete /foo
+delete (?i)/archive/%
+
+# Flytt frå /weblog/*.html til /*.html.
+RENAME   /weblog/page.html   /page.html
+RENAME   /weblog/other.html  /other.html
+</pre>
+"""
+
+["p/manage-hits"]
+  default = "Fjern eller slå saman sidevisingar."
+
+["p/merge-account"]
+  default = "Du kan slå saman kontoar som har ein administratorbrukar med ei stadfesta e-postadresse som er identisk med den noverande e-postadressa di."
+
+["p/no-data"]
+  default = """
+<p>
+%[%bold Ingen data motteke] – GoatCounter har ikkje motteke data enno.<br>
+Det er enkelt å kome i gang. Legg denne JavaScript-koden ein stad på sida:</p>
+
+%[%pre %(js_code)]
+
+<p>Kontroller om annonseblokkeraren din blokkerer GoatCounter dersom du ikkje ser sidevisingar (%(domain) og/eller domenet gc.zgo.at).</p>
+
+<p>Denne meldinga forsvinn når me tek imot data. Sjå %[%link_docs Nettstadskode] i toppmenyen for meir dokumentasjon og ferdige integrasjonar.</p>
+"""
+
+["p/no-matches"]
+  default = "Ingenting samsvarar med %(query)."
+
+["p/notify-immediate-change"]
+  default = "Trer i kraft med ein gong"
+
+["p/notify-pagination-cursor"]
+  default = "Det står ein «pagineringsmarkør» i e-posten. Dersom du fyller han inn her, blir berre sidevisingar som vart registrerte etter den førre eksporten, eksporterte."
+
+["p/notify-site-deletion"]
+  default = "%(number) nettstader blir sletta"
+
+["p/num-accounts"]
+  default = "Denne kontoen inneheld %(n) sites:"
+
+["p/remove-site-confirm"]
+  default = """
+Er du sikker på at du vil fjerne nettstaden %(sitename)?<br>
+Dette vil <strong>fjerne alle tilhøyrande data</strong>.
+"""
+
+["p/remove-site-confirm-contact"]
+  default = "%[Kontakt] dersom du vil gjere noko anna, til dømes slå han saman med ein annan nettstad eller skilje han ut som ein ny konto."
+
+["p/remove-site-confirm-current"]
+  default = """
+Er du sikker på at du vil fjerne nettstaden %(sitename)?<br>
+Dette vil <strong>fjerne alle tilhøyrande data</strong>, og dette er den <strong>noverande nettstaden</strong>.
+"""
+
+["p/rm-hits-help"]
+  default = """
+Treff skil ikkje mellom store og små bokstavar. Desse spesialteikna er støtta:
+
+<ul>
+<li><code>%</code> er eit jokerteikn; til dømes samsvarar <code>/page%.html</code> med alt som startar med <code>/page</code> og sluttar med <code>.html</code>.</li>
+<li><code>_</code> samsvarar med eitt vilkårleg teikn; til dømes samsvarar <code>_.html</code> med <code>a.html</code> og <code>b.html</code>.</li>
+<li>Bruk <code>\\\\%</code> og <code>\\\\_</code> for dei bokstavlege teikna utan spesialtyding.</li>
+<li>Bruk to omvendte skråstrekar (<code>\\\\\\\\</code>) for å samsvare med éin omvend skråstrek.</li>
+</ul>
+"""
+
+["p/rm-pageview-match"]
+  default = "Desse stiane samsvarar med %(query):"
+
+["p/setting-recovery-disabled-information"]
+  default = "Dersom ei innstilling er slått av, kan denne informasjonen ikkje hentast att etter at ei sidevising er registrert, fordi han ikkje blir lagra."
+
+["p/settings-all-sites"]
+  default = "Desse innstillingane gjeld alle nettstadene du har tilgang til."
+
+["p/site-domain-link-to-page"]
+  default = "Domenet til nettstaden din, til dømes <em>«www.example.com»</em>, blir brukt for å lenkje til sida i oversikta."
+
+["p/text-data-retention"]
+  default = "Dette omfattar innstillingane for datalagring og datainnsamling!"
+
+["p/verify-email"]
+  default = "E-postadressa %(email) er ikkje stadfesta. Du må stadfeste e-postadressa før du kan slå saman kontoar."
+
+["page-ranking"]
+  default = "Siderangering"
+
+["scale-y"]
+  default = "Skaler Y-aksen i alle diagram til den høgaste verdien i dette diagrammet (%(n))"
+
+["theme/dark"]
+  default = "Mørkt"
+
+["theme/light"]
+  default = "Lyst"
+
+["theme/system"]
+  default = "Bruk systeminnstilling"
+
+["tooltip/change-period"]
+  default = "Endring samanlikna med førre periode"
+
+["top-nav/back"]
+  default = "Tilbake"
+
+["top-nav/dashboard"]
+  default = "Oversikt"
+
+["top-nav/documentation"]
+  default = "Hjelp"
+
+["top-nav/need-js"]
+  default = "GoatCounter krev at JavaScript er slått på for å fungere godt. Tillat JavaScript frå %(domain)."
+
+["top-nav/public-link"]
+  default = "Statistikk for %(domain)."
+
+["top-nav/public-time"]
+  default = "Den offentlege visinga blir oppdatert éin gong i timen. Alle tidspunkt er i %(timezone-name) (%(timezone-offset))."
+
+["top-nav/settings"]
+  default = "Innstillingar"
+
+["top-nav/sign-in"]
+  default = "Logg inn"
+
+["top-nav/sign-out"]
+  default = "Logg ut"
+
+["top-nav/sites"]
+  default = "Nettstader:"
+
+["unknown"]
+  default = "(ukjent)"
+
+["validate/bool"]
+  default = "må vere ein boolsk verdi"
+
+["validate/color"]
+  default = "må vere ein gyldig fargekode"
+
+["validate/contains"]
+  default = "kan ikkje innehalde teikna %s"
+
+["validate/date"]
+  default = "må vere ein dato som '%s'"
+
+["validate/domain"]
+  default = "må vere eit gyldig domene"
+
+["validate/email"]
+  default = "må vere ei gyldig e-postadresse"
+
+["validate/exclude"]
+  default = "kan ikkje vere '%s'"
+
+["validate/hostname"]
+  default = "må vere eit gyldig vertsnamn"
+
+["validate/include"]
+  default = "må vere eitt av '%s'"
+
+["validate/int"]
+  default = "må vere eit heiltal"
+
+["validate/ip"]
+  default = "må vere ei gyldig IPv4- eller IPv6-adresse"
+
+["validate/ipv4"]
+  default = "må vere ei gyldig IPv4-adresse"
+
+["validate/len-longer"]
+  default = "må vere lengre enn %d teikn"
+
+["validate/len-shorter"]
+  default = "må vere kortare enn %d teikn"
+
+["validate/need-one"]
+  default = "må velje minst eitt"
+
+["validate/phone"]
+  default = "må vere eit gyldig telefonnummer"
+
+["validate/range-higher"]
+  default = "må vere %d eller høgare"
+
+["validate/range-lower"]
+  default = "må vere %d eller lågare"
+
+["validate/required"]
+  default = "må vere sett"
+
+["validate/url"]
+  default = "må vere ei gyldig nettadresse"
+
+["validate/utf8"]
+  default = "må vere UTF-8"
+
+["view not set"]
+
+["widget-setting/help/align"]
+  default = "Legg til marg til venstre slik at det fluktar med sidediagramma"
+
+["widget-setting/help/by-count"]
+  default = "Sorter tabellen etter talet på sidevisingar i staden for skjermstorleik"
+
+["widget-setting/help/chart-style"]
+  default = "Korleis diagramma skal teiknast"
+
+["widget-setting/help/no-events"]
+  default = "Ikkje ta med hendingar i totaloversikta"
+
+["widget-setting/help/page-size"]
+  default = "Tal på sider som skal lastast"
+
+["widget-setting/help/ref-page-size"]
+  default = "Tal på tilvisarar som skal lastast når du klikkar på ein sti"
+
+["widget-setting/help/regions"]
+  default = "Vis regionar for dette landet i staden for ei landliste"
+
+["widget-setting/label/align"]
+  default = "Juster etter sider"
+
+["widget-setting/label/by-count"]
+  default = "Sorter etter tal"
+
+["widget-setting/label/chart-style"]
+  default = "Diagramtype"
+
+["widget-setting/label/no-events"]
+  default = "Utelat hendingar"
+
+["widget-setting/label/page-size"]
+  default = "Sidestorleik"
+
+["widget-setting/label/ref-page-size"]
+  default = "Tal på tilvisarar per side"
+
+["widget-setting/label/regions"]
+  default = "Vis regionar"
+
+["widget-settings/bar-chart"]
+  default = "Stolpediagram"
+
+["widget-settings/line-chart"]
+  default = "Linjediagram"
+
+["widget-settings/text-chart"]
+  default = "Teksttabell"
+
+["y-scale"]
+  default = "Y-akseskala"
