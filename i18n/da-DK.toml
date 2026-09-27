@@ -1,0 +1,1072 @@
+[__meta__]
+  language = "da-DK"
+  modified = 2026-09-25
+
+["button/add-new"]
+  default = "Opret ny"
+
+["button/add-user"]
+  default = "Opret ny bruger"
+
+["button/cfg-dashboard"]
+
+["button/change"]
+  default = "Skift"
+
+["button/change-passwd"]
+  default = "Skift adgangskode"
+
+["button/copy"]
+  default = "Kopier"
+
+["button/delete"]
+  default = "slet"
+
+["button/delete-account"]
+  default = "Slet konto, alle sider og al data"
+
+["button/delete-everything"]
+  default = "Ja, slet alt"
+
+["button/delete-pageviews"]
+  default = "Slet sidevisninger"
+
+["button/disable-mfa"]
+  default = "Deaktiver MFA"
+
+["button/edit"]
+  default = "Rediger"
+
+["button/enable-mfa"]
+  default = "Aktiver MFA"
+
+["button/forgot-password"]
+  default = "Glemt adgangskode?"
+
+["button/merge"]
+  default = "Sammenfelt"
+
+["button/preview"]
+  default = "Forhåndsvis"
+
+["button/remove"]
+  default = "Fjern"
+
+["button/request-reset"]
+  default = "Anmodning om nulstilling af kodeord"
+
+["button/resend-email"]
+  default = "Gensend email"
+
+["button/reset-defaults"]
+  default = "Nulstil til standard"
+
+["button/reset-password"]
+  default = "Nulstil kodeord"
+
+["button/run"]
+  default = "Kør"
+
+["button/save"]
+  default = "Gem"
+
+["button/save-default-view"]
+  default = "Gem standardvisning"
+
+["button/search"]
+  default = "Søg"
+
+["button/send-login-url"]
+  default = "Send login URL"
+
+["button/show"]
+  default = "vis"
+
+["button/sign-in"]
+  default = "Log in"
+
+["button/start-export"]
+  default = "Start export"
+
+["button/start-import"]
+  default = "Start import"
+
+["button/submit"]
+  default = "Send"
+
+["button/upload-ga-import"]
+  default = "Upload"
+
+["confirm/delete-user"]
+  default = "Slet %(email)?"
+
+["dashboard/day-ago"]
+  default = "%(n) dage siden"
+
+["dashboard/loading"]
+  default = "Indlæser..."
+
+["dashboard/month-ago"]
+  default = "%(n) måneder siden"
+
+["dashboard/nothing-to-display"]
+  default = "Intet at vise"
+
+["dashboard/pages/change"]
+  default = "Skift"
+
+["dashboard/pages/header"]
+  default = "Sider"
+
+["dashboard/pages/num-visits"]
+
+["dashboard/pages/path"]
+  default = "Sti"
+
+["dashboard/pages/title"]
+  default = "Titel"
+
+["dashboard/pages/visits"]
+  default = "Visninger"
+
+["dashboard/today"]
+  default = "I dag"
+
+["dashboard/tooltip-event"]
+
+["dashboard/totals/header"]
+  default = "I alt"
+
+["dashboard/totals/num-visits"]
+  default = "%(num-visits) besøg"
+
+["dashboard/week-ago"]
+  default = "%(n) uger siden"
+
+["dashboard/yesterday"]
+  default = "I går"
+
+["data-collect/help/country"]
+
+["data-collect/help/hits"]
+
+["data-collect/help/language"]
+
+["data-collect/help/referrer"]
+
+["data-collect/help/region"]
+
+["data-collect/help/sessions"]
+
+["data-collect/help/size"]
+
+["data-collect/help/user-agent"]
+
+["data-collect/label/country"]
+  default = "Land"
+
+["data-collect/label/hits"]
+  default = "Individuelle sidevisninger"
+
+["data-collect/label/language"]
+  default = "Sprog"
+
+["data-collect/label/referrer"]
+  default = "Henviser"
+
+["data-collect/label/region"]
+  default = "Region"
+
+["data-collect/label/sessions"]
+  default = "Sessioner"
+
+["data-collect/label/size"]
+  default = "Størrelse"
+
+["data-collect/label/user-agent"]
+
+["datepicker/keyboard"]
+
+["datepicker/month-next"]
+  default = "Næste måned"
+
+["datepicker/month-prev"]
+  default = "Seneste måned"
+
+["dont-lock"]
+  default = "Lås ikke"
+
+["email-report/daily"]
+  default = "Daglig"
+
+["email-report/monthly"]
+  default = "Månedlig"
+
+["email-report/never"]
+  default = "Aldrig"
+
+["email-report/two-weeks"]
+  default = "Hver anden uge"
+
+["email-report/weekly"]
+  default = "Ugelig"
+
+["email/header"]
+  default = "Hej med dig,"
+
+["email/password-reset"]
+  default = """
+Nogen (forhåbentlig dig) har anmodet om at nulstille kodeordet til din GoatCounter konto.
+
+Det kan du gøre her:
+%(link)
+"""
+
+["email/reset-user-email-subject"]
+  default = "Nulstil adgangskode for %(domain)"
+
+["email/signature"]
+  default = """
+Har du nogen problemer, spørgsmål, kommentarer eller andet at fortælle mig? Så kan du blot besvare denne mail.
+
+Hilsen,
+Martin
+"""
+
+["error/address-exists"]
+  default = "%(addr) findes allerede"
+
+["error/could-not-read"]
+
+["error/date-future"]
+
+["error/date-mismatch"]
+
+["error/date-past"]
+
+["error/email-exists"]
+
+["error/export-expired"]
+
+["error/incorrect-password"]
+
+["error/invalid-end-date"]
+  default = "Ugyldig slut dato: %(date)"
+
+["error/invalid-start-date"]
+  default = "Ugyldig start dato: %(date)"
+
+["error/load-url"]
+
+["error/login-invalid"]
+  default = "Ugyldigt login"
+
+["error/login-no-password"]
+
+["error/login-not-found"]
+  default = "Bruger %(email) ikke fundet"
+
+["error/login-token-expired"]
+
+["error/login-wrong-pwd"]
+  default = "Forkert adgangskode for %(email)"
+
+["error/merge-self"]
+
+["error/not-found"]
+  default = "Ikke fundet"
+
+["error/password-does-not-match"]
+
+["error/reset-user-no-account"]
+
+["error/unknown-activation-token"]
+
+["event"]
+
+["forgot-domain-help"]
+
+["header/access"]
+  default = "Adgang"
+
+["header/add-api-token"]
+  default = "Opret ny API nøgle"
+
+["header/add-new-user"]
+  default = "Opret ny bruger"
+
+["header/allow-access"]
+
+["header/api"]
+  default = "API"
+
+["header/api-tokens"]
+  default = "API nøgler"
+
+["header/browsers"]
+  default = "Browsere"
+
+["header/change-code"]
+  default = "Skift sidekode"
+
+["header/change-passwd"]
+  default = "Skift adgangskode"
+
+["header/code"]
+  default = "Kode"
+
+["header/copy-settings"]
+  default = "Kopiér indstillinger"
+
+["header/created-at"]
+
+["header/csv-format"]
+  default = "CSV format"
+
+["header/dashboard"]
+
+["header/data-collection"]
+
+["header/delete-account"]
+  default = "Slet konto"
+
+["header/deleting"]
+
+["header/domain"]
+  default = "Domæne"
+
+["header/domain-settings"]
+  default = "Domæneindstillinger"
+
+["header/edit-user"]
+
+["header/email"]
+  default = "Email"
+
+["header/export-or-import"]
+  default = "Eksporter/Importer"
+
+["header/export-to-csv"]
+  default = "Eksporter til CSV"
+
+["header/export-to-json"]
+  default = "Eksporter til JSON"
+
+["header/fewer-number"]
+  default = "Vis færre tal"
+
+["header/finished"]
+
+["header/forgot-domain"]
+  default = "Glemt domæne"
+
+["header/forgot-password"]
+  default = "Glemt adgangskode"
+
+["header/format"]
+
+["header/hash"]
+  default = "Hash"
+
+["header/import-from-csv"]
+  default = "Importer fra CSV"
+
+["header/import-from-ga"]
+  default = "Total fra Google Analytics"
+
+["header/import-from-json"]
+  default = "Importer fra JSON"
+
+["header/json-format"]
+  default = "JSON format"
+
+["header/l10n"]
+
+["header/languages"]
+  default = "Sprog"
+
+["header/last-10-exports"]
+
+["header/last-used-at"]
+
+["header/locations"]
+
+["header/locations-for"]
+
+["header/manage-pageviews"]
+
+["header/merge-account"]
+
+["header/merging-to"]
+
+["header/mfa"]
+
+["header/n-hits"]
+
+["header/name"]
+  default = "Navn"
+
+["header/other-formats"]
+
+["header/pagination-cursor"]
+
+["header/passwd-mfa"]
+
+["header/path"]
+
+["header/permissions"]
+
+["header/preferences"]
+  default = "Præferencer"
+
+["header/renaming"]
+
+["header/reset-password"]
+
+["header/settings"]
+  default = "Indstillinger"
+
+["header/sign-in-at"]
+
+["header/site-settings"]
+  default = "Sideindstillinger"
+
+["header/sites"]
+  default = "Sider"
+
+["header/size"]
+
+["header/sizes"]
+
+["header/start-pagination-cursor"]
+
+["header/started"]
+
+["header/systems"]
+  default = "Systemer"
+
+["header/title"]
+  default = "Titel"
+
+["header/token"]
+
+["header/toprefs"]
+
+["header/tracking"]
+
+["header/user-info"]
+  default = "Bruger information"
+
+["header/user-information"]
+  default = "Bruger information"
+
+["header/users"]
+  default = "Brugere"
+
+["help/allow-embed"]
+
+["help/allow-visitor-counts"]
+
+["help/cfg-dashboard"]
+
+["help/code-access"]
+
+["help/configure-dashboard"]
+
+["help/custom-domain"]
+
+["help/custom-domain-cname"]
+
+["help/custom-domain-error"]
+
+["help/custom-domain-verified"]
+
+["help/data-retention"]
+
+["help/datepicker"]
+
+["help/domain-access"]
+
+["help/drag-reorder"]
+
+["help/email-reports"]
+
+["help/fewer-numbers"]
+
+["help/fewer-numbers-lock"]
+
+["help/for-the-following-countries"]
+
+["help/goatcounter-domain"]
+
+["help/ignore-ips"]
+
+["help/ignore-ips-2"]
+
+["help/locked-until"]
+
+["help/need-cities"]
+
+["help/new-user-email"]
+
+["help/new-user-email-confirm"]
+
+["help/no-undo"]
+
+["help/password-edit"]
+
+["help/password-new-user"]
+
+["help/public"]
+
+["help/save-default-view"]
+
+["help/turing-test"]
+
+["help/your-email"]
+
+["label/24-hour-clock"]
+  default = "24-timers ur (13:00)"
+
+["label/access-to-sites"]
+  default = "Adgang til sider"
+
+["label/add-new"]
+  default = "Tilføj ny"
+
+["label/all-sites"]
+  default = "Alle sider"
+
+["label/allow-visitor-counts"]
+
+["label/browser-stats"]
+
+["label/campaigns"]
+  default = "Kampagner"
+
+["label/change-code"]
+
+["label/clear-pageviews"]
+
+["label/code"]
+  default = "Kode"
+
+["label/csv-compress-format"]
+  default = "Google Analytics CSV fil"
+
+["label/current-passwd"]
+  default = "Nuværende adgangskode"
+
+["label/custom-domain"]
+
+["label/dashboard-allow-embed"]
+
+["label/dashboard-public"]
+
+["label/data-retention"]
+
+["label/date-fmt"]
+
+["label/datepicker"]
+
+["label/delete-account-confirmation"]
+
+["label/email"]
+  default = "Mail"
+
+["label/email-address"]
+  default = "Mailadresse"
+
+["label/email-reports"]
+  default = "Send mailrapporter"
+
+["label/export-from-date"]
+  default = "Eksporter fra dato"
+
+["label/fewer-numbers"]
+  default = "Vis færre tal"
+
+["label/for-following-countries"]
+
+["label/goatcounter-domain"]
+  default = "GoatCounter domæne"
+
+["label/ignore-ips"]
+  default = "Ignorerede IP'er"
+
+["label/lang"]
+  default = "Sprog"
+
+["label/language-stats"]
+
+["label/loc-stats"]
+
+["label/lock-setting"]
+  default = "Lås indstilling"
+
+["label/mark-current"]
+  default = "(nuværende)"
+
+["label/match-case"]
+
+["label/match-title"]
+
+["label/merge-account-confirmation"]
+
+["label/merge-to"]
+
+["label/mfa-token"]
+
+["label/new-code"]
+  default = "Ny kode"
+
+["label/new-password"]
+  default = "Ny adgangskode"
+
+["label/new-password-confirm"]
+  default = "Ny adgangskode (bekræft)"
+
+["label/pagination-cursor"]
+
+["label/password"]
+  default = "Kodeord"
+
+["label/paths"]
+
+["label/public-anyone"]
+  default = "Enhver"
+
+["label/public-private"]
+
+["label/public-token"]
+
+["label/secret"]
+  default = "Hemmelig"
+
+["label/secret-access"]
+
+["label/secret-token"]
+
+["label/set-default"]
+
+["label/size-desktop"]
+
+["label/size-desktophd"]
+
+["label/size-phones"]
+  default = "Telefoner"
+
+["label/size-stats"]
+
+["label/size-tablets"]
+
+["label/system-stats"]
+
+["label/theme"]
+  default = "Tema"
+
+["label/thousand-separator"]
+
+["label/timezone"]
+  default = "Tidszone"
+
+["label/topref"]
+
+["label/total-pageviews"]
+
+["label/turing-test"]
+
+["label/verifictation-token"]
+
+["label/week-start"]
+
+["label/your-email"]
+  default = "Din mail"
+
+["label/your-site"]
+  default = "Din side"
+
+["label/zip-file"]
+  default = "ZIP fil"
+
+["link/add-translation"]
+  default = "Tilføj eller opdater oversættelser"
+
+["link/api"]
+  default = "API"
+
+["link/api-docs"]
+  default = "API dokumentation"
+
+["link/dashboard"]
+
+["link/generate-random"]
+
+["link/goto-path"]
+  default = "Gå til %(path)"
+
+["link/import"]
+  default = "Importer/Eksporter"
+
+["link/manage-pageviews"]
+
+["link/merge-account"]
+
+["link/passwd-mfa"]
+  default = "Adgangskode & MFA"
+
+["link/preferences"]
+  default = "Præferencer"
+
+["link/rm-account"]
+  default = "Slet konto"
+
+["link/set-from-browser"]
+
+["link/settings"]
+  default = "indstillinger"
+
+["link/show-less"]
+  default = "(vis mindre)"
+
+["link/show-more"]
+  default = "Vis mere"
+
+["link/sites"]
+  default = "Sider"
+
+["link/users"]
+  default = "Brugere"
+
+["nav-bot/contact"]
+  default = "Kontakt"
+
+["nav-bot/contribute"]
+  default = "Bidrag"
+
+["nav-bot/docs"]
+  default = "Dokumentation"
+
+["nav-bot/home"]
+  default = "Hjem"
+
+["nav-bot/src"]
+  default = "kildekode"
+
+["nav-dash/back"]
+  default = "tilbage"
+
+["nav-dash/day"]
+  default = "dag"
+
+["nav-dash/end-date"]
+
+["nav-dash/filter"]
+
+["nav-dash/filter-more-help"]
+
+["nav-dash/filter-tooltip"]
+
+["nav-dash/forward"]
+  default = "fremad"
+
+["nav-dash/half-year"]
+  default = "halve år"
+
+["nav-dash/hour"]
+  default = "time"
+
+["nav-dash/last"]
+  default = "Sidste"
+
+["nav-dash/month"]
+  default = "måned"
+
+["nav-dash/quarter"]
+  default = "kvartal"
+
+["nav-dash/start-date"]
+  default = "Første dag at vise"
+
+["nav-dash/view-by"]
+  default = "Vis som:"
+
+["nav-dash/week"]
+  default = "uge"
+
+["nav-dash/year"]
+  default = "år"
+
+["nav-fash/filter-less-help"]
+  default = "Mindre hjælp"
+
+["new-paren"]
+  default = "(ny)"
+
+["no-title"]
+  default = "ingen titel"
+
+["notify/add-one-thing"]
+
+["notify/api-token-created"]
+
+["notify/api-token-removed"]
+
+["notify/disabled-multi-factor-auth"]
+
+["notify/email-already-verified"]
+
+["notify/export-started-in-background"]
+
+["notify/import-ga-okay"]
+
+["notify/import-started-in-background"]
+
+["notify/login-after-password-reset"]
+
+["notify/multi-factor-auth-enabled"]
+
+["notify/need-email-verification-for-api"]
+
+["notify/no-user-for-token"]
+
+["notify/not-found"]
+  default = "Ikke fundet"
+
+["notify/password-changed"]
+  default = "Adgangskode skiftet."
+
+["notify/reset-to-default"]
+  default = "Nulstil til standarder!"
+
+["notify/reset-user-sent"]
+  default = "Email sendt til %(email)"
+
+["notify/restored-previously-deleted-site"]
+
+["notify/saved"]
+
+["notify/sent-to-email"]
+
+["notify/settings-copied-to-site"]
+
+["notify/site-added"]
+
+["notify/site-removed"]
+
+["notify/started-background-process"]
+
+["notify/user-added"]
+
+["notify/user-removed"]
+
+["notify/users-edited"]
+
+["p/add-goatcounter-to-multiple-websites"]
+
+["p/add-multiple-accounts"]
+
+["p/additional-errors"]
+  default = "Yderligere fejl"
+
+["p/all-sites"]
+
+["p/api-intro"]
+
+["p/change-code-request"]
+
+["p/change-email"]
+
+["p/collect-disabled"]
+
+["p/copy-settings-from-current-site"]
+
+["p/csv-file-format"]
+
+["p/delete-account"]
+
+["p/disable-mfa"]
+
+["p/enable-mfa"]
+
+["p/error"]
+
+["p/export-csv"]
+
+["p/export-from-date"]
+
+["p/export-process"]
+
+["p/have-mfa"]
+
+["p/import-ga"]
+
+["p/json-file-format"]
+
+["p/last-user"]
+  default = "Kan ikke slette eller redigere den sidste admin bruger"
+
+["p/link-to-batch-rename"]
+
+["p/manage-batch-hits"]
+
+["p/manage-hits"]
+
+["p/merge-account"]
+
+["p/no-data"]
+
+["p/no-matches"]
+
+["p/notify-immediate-change"]
+
+["p/notify-pagination-cursor"]
+
+["p/notify-site-deletion"]
+
+["p/num-accounts"]
+
+["p/remove-site-confirm"]
+
+["p/remove-site-confirm-contact"]
+
+["p/remove-site-confirm-current"]
+
+["p/rm-hits-help"]
+
+["p/rm-pageview-match"]
+
+["p/setting-recovery-disabled-information"]
+
+["p/settings-all-sites"]
+
+["p/site-domain-link-to-page"]
+
+["p/text-data-retention"]
+
+["p/verify-email"]
+
+["page-ranking"]
+
+["scale-y"]
+
+["theme/dark"]
+
+["theme/light"]
+
+["theme/system"]
+
+["tooltip/change-period"]
+
+["top-nav/back"]
+
+["top-nav/dashboard"]
+
+["top-nav/documentation"]
+
+["top-nav/need-js"]
+
+["top-nav/public-link"]
+
+["top-nav/public-time"]
+
+["top-nav/settings"]
+  default = "Indstillinger"
+
+["top-nav/sign-in"]
+  default = "Log ind"
+
+["top-nav/sign-out"]
+  default = "Log ud"
+
+["top-nav/sites"]
+  default = "Sider:"
+
+["unknown"]
+  default = "(ukendt)"
+
+["validate/bool"]
+
+["validate/color"]
+
+["validate/contains"]
+
+["validate/date"]
+
+["validate/domain"]
+  default = "skal være et gyldigt domæne"
+
+["validate/email"]
+  default = "skal være en gyldig mailadresse"
+
+["validate/exclude"]
+
+["validate/hostname"]
+
+["validate/include"]
+
+["validate/int"]
+  default = "skal være et helt tal"
+
+["validate/ip"]
+  default = "skal være en gyldig IPv4 eller IPv6 adresse"
+
+["validate/ipv4"]
+  default = "skal være en gyldig IPv4 adresse"
+
+["validate/len-longer"]
+
+["validate/len-shorter"]
+
+["validate/need-one"]
+
+["validate/phone"]
+
+["validate/range-higher"]
+
+["validate/range-lower"]
+
+["validate/required"]
+
+["validate/url"]
+  default = "skal være en gyldig URL"
+
+["validate/utf8"]
+
+["view not set"]
+
+["widget-setting/help/align"]
+
+["widget-setting/help/by-count"]
+
+["widget-setting/help/chart-style"]
+
+["widget-setting/help/no-events"]
+
+["widget-setting/help/page-size"]
+
+["widget-setting/help/ref-page-size"]
+
+["widget-setting/help/regions"]
+
+["widget-setting/label/align"]
+
+["widget-setting/label/by-count"]
+
+["widget-setting/label/chart-style"]
+
+["widget-setting/label/no-events"]
+
+["widget-setting/label/page-size"]
+
+["widget-setting/label/ref-page-size"]
+
+["widget-setting/label/regions"]
+
+["widget-settings/bar-chart"]
+
+["widget-settings/line-chart"]
+
+["widget-settings/text-chart"]
+
+["y-scale"]
