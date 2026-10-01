@@ -25,6 +25,11 @@ to 18, which means you'll have to do a dump/restore or use pg_upgrade.
 
 - Add language as a field for `/api/v0/count`.
 
+- Add a `goatcounter proxy` command: a lightweight collector that exposes only
+  the `/count` endpoint and batches/forwards pageviews to another GoatCounter
+  server's `/api/v0/count` API. The batch size and the minimum and maximum time
+  to wait before sending a batch are configurable.
+
 ### Fixes
 
 - Improve performance of filter with a large amount (100,000s) of paths.
