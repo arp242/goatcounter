@@ -1,4 +1,4 @@
-<div class="totals" data-widget="{{.ID}}">
+<div class="totals dashboard-widget dashboard-widget-totals" data-widget="{{.ID}}">
 	<div class="widget-header">
 		<h2>{{t .Context "dashboard/totals/header|Totals"}}
 			{{if not $.User.Settings.FewerNumbers}}
@@ -24,4 +24,3 @@
 		<table class="count-list">{{template "_dashboard_totals_row.gohtml" .}}</table>
 	{{end}}
 </div>
-
