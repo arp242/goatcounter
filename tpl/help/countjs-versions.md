@@ -10,6 +10,10 @@ but you may need to update it in the future for new features.
 Latest
 ------
 
+- Pageviews are now sent on the first interaction (mouse move, touch screen
+  press, key press) rather than on page load, which should reduce pageviews from
+  bots.
+
 - Only send screen width (instead of width, height, and devicePixelRatio).
 
 - Check for existence of `navigator.sendBeacon()`, and use the image-based
