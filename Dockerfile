@@ -4,10 +4,13 @@
 ### Build GoatCounter
 from docker.io/golang:latest as build
 workdir /goatcounter
-copy --exclude=goatcounter-data --exclude=Dockerfile . /goatcounter
+copy go.mod go.sum ./
+run go mod download
+copy . /goatcounter
 env CGO_ENABLED=1
 env GOTOOLCHAIN=auto
-run go build -trimpath -ldflags='-s -w -extldflags=-static' \
+run --mount=type=cache,target="/root/.cache/go-build" GOCACHE=/root/.cache/go-build \
+	 go build -trimpath -ldflags='-s -w -extldflags=-static' \
 	-tags='osusergo,netgo,sqlite_omit_load_extension' \
 	./cmd/goatcounter
 
